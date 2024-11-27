@@ -1,9 +1,0 @@
-package com.acromate.server;
-
-import java.rmi.*;
-import java.sql.*;
-
-public interface IRemoteDriver extends Remote
-{
-	IRemoteConnection getConnection(String userId) throws RemoteException,SQLException;    
-}

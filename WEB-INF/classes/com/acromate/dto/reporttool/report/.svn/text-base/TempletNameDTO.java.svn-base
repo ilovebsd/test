@@ -1,8 +1,0 @@
-
-package com.acromate.dto.reporttool.report;
-
-public class TempletNameDTO extends ReportNameDTO {
-	public TempletNameDTO() {
-		super();
-	}
-}

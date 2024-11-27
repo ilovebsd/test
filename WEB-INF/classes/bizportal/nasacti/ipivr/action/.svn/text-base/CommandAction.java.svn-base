@@ -1,9 +1,0 @@
-package bizportal.nasacti.ipivr.action;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import bizportal.nasacti.ipivr.common.IpivrConfig;
-
-public interface CommandAction {
-	public String requestProc(HttpServletRequest request, HttpServletResponse response, IpivrConfig ipivrConfig) throws Throwable;
-}

@@ -1,5 +1,0 @@
-package com.acromate.dataio.server.cron;
-
-public interface ICron {
-    public void export();
-}

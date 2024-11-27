@@ -1,6 +1,0 @@
-package com.acromate.framework.frame;
-
-public enum MenuClassType {
-	mc_unknown, mc_item, mc_folder
-}
-

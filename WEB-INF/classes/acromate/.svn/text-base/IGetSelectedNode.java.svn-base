@@ -1,7 +1,0 @@
-package acromate;
-
-import acromate.leftmenu.LeftNode;
-
-public interface IGetSelectedNode {
-    public LeftNode getSelectedNode() ;
-}
