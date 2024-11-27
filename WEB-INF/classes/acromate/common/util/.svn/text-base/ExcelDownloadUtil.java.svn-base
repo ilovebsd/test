@@ -1,0 +1,1539 @@
+package	acromate.common.util;
+
+/*************************************************************************
+제  목 : CreateExcel.java
+내  용 : 엑셀파일 생성
+
+//엑셀파일생성 실행(Data(ArrayList), 컬럼제목(String[]), 파일경로(절대경로), 시트명)
+public void CreateExcelFile(Vector data, String[] column, String FilePath, String SheetName);
+
+*************************************************************************/
+
+import java.io.*;
+import java.util.ArrayList;
+import jxl.*;
+import jxl.write.*;
+import jxl.format.*;
+import jxl.format.Alignment;
+import jxl.format.Border;
+import jxl.format.BorderLineStyle;
+import jxl.format.VerticalAlignment;
+
+
+import javax.servlet.http.*;
+
+import java.net.*;
+
+public class ExcelDownloadUtil extends HttpServlet {
+
+    private String           FilePath;
+    private String           orgFilePath;
+
+    private String           FileName;
+    private String           SheetName;
+    private String           Title;
+    private String           SearchText;
+    private String           dwFileName;
+    private WritableWorkbook  workbook         = null;
+    private WritableSheet      sheet           = null;
+
+    WritableCellFormat format_title             = null;                 //Title Format
+    WritableCellFormat format_searcharea        = new WritableCellFormat();                 //Title Format
+    WritableCellFormat format_column            = new WritableCellFormat();
+
+    WritableCellFormat format_string_center     = new WritableCellFormat();
+    WritableCellFormat format_string_left       = new WritableCellFormat();
+    WritableCellFormat format_string_lefttop    = new WritableCellFormat();
+    WritableCellFormat format_string_right      = new WritableCellFormat();
+
+    NumberFormat moneytype_center               = new NumberFormat("###,##0");
+    NumberFormat moneytype_left                 = new NumberFormat("###,##0");
+    NumberFormat moneytype_right                = new NumberFormat("###,##0");
+
+    NumberFormat moneytype_center1              = new NumberFormat("###,##0.0");
+    NumberFormat moneytype_left1                = new NumberFormat("###,##0.0");
+    NumberFormat moneytype_right1               = new NumberFormat("###,##0.0");
+
+    NumberFormat moneytype_center2              = new NumberFormat("###,##0.00");
+    NumberFormat moneytype_left2                = new NumberFormat("###,##0.00");
+    NumberFormat moneytype_right2               = new NumberFormat("###,##0.00");
+
+    NumberFormat moneytype_center3              = new NumberFormat("###,##0.000");
+    NumberFormat moneytype_left3                = new NumberFormat("###,##0.000");
+    NumberFormat moneytype_right3               = new NumberFormat("###,##0.000");
+
+    NumberFormat moneytype_center4              = new NumberFormat("###,##0.0000");
+    NumberFormat moneytype_left4                = new NumberFormat("###,##0.0000");
+    NumberFormat moneytype_right4               = new NumberFormat("###,##0.0000");
+
+
+    WritableCellFormat format_integer_center    = new WritableCellFormat(NumberFormats.INTEGER);
+    WritableCellFormat format_integer_left      = new WritableCellFormat(NumberFormats.INTEGER);
+    WritableCellFormat format_integer_right     = new WritableCellFormat(NumberFormats.INTEGER);
+
+    WritableCellFormat format_float_center      = new WritableCellFormat(NumberFormats.FLOAT);
+    WritableCellFormat format_float_left        = new WritableCellFormat(NumberFormats.FLOAT);
+    WritableCellFormat format_float_right       = new WritableCellFormat(NumberFormats.FLOAT);
+
+    WritableCellFormat format_money_center      = new WritableCellFormat(moneytype_center);
+    WritableCellFormat format_money_left        = new WritableCellFormat(moneytype_left);
+    WritableCellFormat format_money_right       = new WritableCellFormat(moneytype_right);
+
+    WritableCellFormat format_money_center1     = new WritableCellFormat(moneytype_center1);
+    WritableCellFormat format_money_left1       = new WritableCellFormat(moneytype_left1);
+    WritableCellFormat format_money_right1      = new WritableCellFormat(moneytype_right1);
+
+    WritableCellFormat format_money_center2     = new WritableCellFormat(moneytype_center2);
+    WritableCellFormat format_money_left2       = new WritableCellFormat(moneytype_left2);
+    WritableCellFormat format_money_right2      = new WritableCellFormat(moneytype_right2);
+
+    WritableCellFormat format_money_center3     = new WritableCellFormat(moneytype_center3);
+    WritableCellFormat format_money_left3       = new WritableCellFormat(moneytype_left3);
+    WritableCellFormat format_money_right3      = new WritableCellFormat(moneytype_right3);
+
+
+    WritableCellFormat format_money_center4     = new WritableCellFormat(moneytype_center4);
+    WritableCellFormat format_money_left4       = new WritableCellFormat(moneytype_left4);
+    WritableCellFormat format_money_right4      = new WritableCellFormat(moneytype_right4);
+
+
+    public ExcelDownloadUtil(){
+
+        String sHost = "";
+
+        try {
+            sHost = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {}
+
+	    FilePath    = Constant.CM_FILEUPLOAD_TEMP;
+	    orgFilePath = "";
+    }
+    
+    /*
+     * ExcelUtil Open 하고 workbook을 생성한다.
+     *
+     * @parm   : none<br>
+     * @return : none<br>
+     */
+    public void open() throws Exception{
+        try {
+            dwFileName = StringUtil.getKSTFormat("yyyyMMddHHmmssSSSS") + ".xls";
+            FileName = FilePath  + "/" + dwFileName;
+            
+            workbook = Workbook.createWorkbook(new File(FileName));
+
+            setCellFomat();
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());
+            throw e;
+        }
+    }
+
+    /*
+     * ExcelUtil Open 하고 workbook을 생성한다.
+     *
+     * @parm   : none<br>
+     * @return : none<br>
+     */
+    public void open(String upmu) throws Exception{
+        try {
+            dwFileName = upmu.toUpperCase() + "_" + 
+                         StringUtil.getKSTFormat("yyyyMMddHHmmssSSSS") + 
+                         ".xls";
+            FileName = FilePath  + "/" + 
+                       upmu.toLowerCase() +  "/"+ 
+                       dwFileName;
+            
+            workbook = Workbook.createWorkbook(new File(FileName));
+
+            setCellFomat();
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());
+            throw e;
+        }
+    }
+    
+	/*
+	 * ExcelUtil Open 하고 workbook을 생성한다.
+	 *
+	 * @parm   : none<br>
+	 * @return : none<br>
+	 */
+	  
+	public void open(String upmu, String hospcode, String ftpFolder, String trans) throws Exception{
+		try {
+			dwFileName = StringUtil.getKSTFormat("yyyyMMddHHmmssSSSS")
+					   + hospcode 
+					   + trans   
+					   + ".xls"; 	
+			
+//System.out.println("dwFileName ******************************>>>>>>>>>" + dwFileName);			
+						
+			FileName = FilePath + "/"
+					 + hospcode + "/"
+					 + StringUtil.getKSTDate()
+					 + dwFileName;
+					   
+//System.out.println("FileName ******************************>>>>>>>>>" + FileName);					   
+					   
+            workbook = Workbook.createWorkbook(new File(FileName));
+
+			setCellFomat();
+		} catch(Exception e) {
+			System.out.println("error:"+e.toString());
+			throw e;
+		}
+	}    
+    
+	/*
+	 * ExcelUtil Open 하고 workbook을 생성한다.
+	 *
+	 * @parm   : none<br>
+	 * @return : none<br>
+	 */
+	public void openString(String filename, String upmu) throws Exception{
+		try {
+			dwFileName = filename + "_" + 
+						 StringUtil.getKSTFormat("yyyyMMddHHmmssSSSS") + 
+						 ".xls";
+			FileName = Constant.CM_FILEUPLOAD_TEMP  + "/" + upmu.toLowerCase() +  "/"+ dwFileName;
+
+            workbook = Workbook.createWorkbook(new File(FileName));
+
+			setCellFomat();
+		} catch(Exception e) {
+			System.out.println("error:"+e.toString());			
+			throw e;
+		}
+	}
+    
+    
+    /*
+     * Excel FileName을 얻어온다.
+     *
+     * @parm   : none<br>
+     * @return : String - 화일명(경로명 포함)
+     */
+    public String getFileName(){
+        return FileName;
+    }
+	
+    /*
+     * Excel양식 파일에 참조하여 open하고, 새로운 workbook을 생성한다.
+     *
+     * @parm   : String - 업무구분<br>
+     * @parm   : String - 양식파일명(경로명 제외)
+     */
+    public void openModify(String upmu, String org_FileName) throws Exception{
+        Workbook org_workbook = null;
+
+        try {
+            String org_filename = orgFilePath + "/" + upmu.toLowerCase() + "/" + org_FileName;
+//System.out.println("org_filename : " + org_filename );
+
+            org_workbook = Workbook.getWorkbook(new File(org_filename));
+
+            if(org_workbook ==null){
+    //          System.out.println("not exist ExcelFile!");
+                throw new Exception("파일이 존재하지 않습니다.");
+            }
+
+            dwFileName = upmu.toUpperCase() + "_" + StringUtil.getKSTFormat("yyyyMMddHHmmssSSSS") + ".xls";
+            FileName = FilePath + "/" + upmu.toLowerCase() + "/" + dwFileName;
+//System.out.println("dwFileName : " + dwFileName );
+//System.out.println("FileName : " + FileName );
+            workbook = Workbook.createWorkbook(new File(FileName), org_workbook);
+            setCellFomat();
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());        	
+            throw e;
+        } finally {
+            if(org_workbook != null) org_workbook.close();
+        }
+    }
+
+    /*
+     * Excel Workbook_File Close
+     *
+     * @parm   : none<br>
+     * @return : none<br>
+     */
+
+    public void close() throws Exception{
+        try {
+            workbook.write();
+            workbook.close();
+            //if(file != null ){  file.delete(); }
+        } catch(Exception e){
+			System.out.println("error:"+e.toString());
+            throw e;
+        }
+    }
+
+    /*
+     * Excel workbook 내 각 형식의 Cell을 정의한다.
+     * @parm   : none<br>
+     * @return : none<br>
+     */
+    private void setCellFomat() throws Exception{
+
+       try{
+            //Title Cell Format
+       		format_title = null;
+            format_title = new WritableCellFormat();
+            format_title.setBorder(Border.BOTTOM, BorderLineStyle.DOUBLE);
+            format_title.setAlignment(Alignment.CENTRE);
+
+            //WritableFont.FontName fn, int ps, jxl.write.WritableFont.BoldStyle bs, boolean it, UnderlineStyle us
+            WritableFont font_title = new WritableFont(WritableFont.ARIAL,
+                                                        15,
+                                                       WritableFont.NO_BOLD,
+                                                       false,
+                                                       UnderlineStyle.DOUBLE_ACCOUNTING );
+            format_title.setFont(font_title);
+            format_title.setWrap(true);
+            format_title.setShrinkToFit(true);
+
+            //조회조건 Cell Format
+            //format_searcharea.setFont()
+            format_searcharea.setBorder(jxl.format.Border.ALL,BorderLineStyle.NONE );
+            format_searcharea.setAlignment(Alignment.LEFT);
+
+            //List Header Cell Format
+            format_column.setBackground(jxl.format.Colour.GRAY_25 );
+            format_column.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_column.setAlignment(Alignment.CENTRE);
+            format_column.setVerticalAlignment(VerticalAlignment.CENTRE);
+			format_column.setWrap(true);
+			format_column.setShrinkToFit(true);
+
+            //Data Cell Format...String_CENTER
+            format_string_center.setBackground(jxl.format.Colour.WHITE );
+            format_string_center.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_string_center.setAlignment(Alignment.CENTRE);
+            format_string_center.setVerticalAlignment(VerticalAlignment.CENTRE);
+			format_string_center.setWrap(true);
+			format_string_center.setShrinkToFit(true);
+
+            //Data Cell Format...String_LEFT
+            format_string_left.setBackground(jxl.format.Colour.WHITE );
+            format_string_left.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_string_left.setAlignment(Alignment.LEFT);
+            format_string_left.setVerticalAlignment(VerticalAlignment.CENTRE);
+			format_string_left.setWrap(true);
+			format_string_left.setShrinkToFit(true);            
+
+            //Data Cell Format...String_LEFTTOP
+            format_string_lefttop.setBackground(jxl.format.Colour.WHITE );
+            format_string_lefttop.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_string_lefttop.setAlignment(Alignment.LEFT);
+            format_string_lefttop.setVerticalAlignment(VerticalAlignment.TOP);
+			format_string_lefttop.setWrap(true);
+			format_string_lefttop.setShrinkToFit(true);                
+
+            //Data Cell Format...String_RIGHT
+            format_string_right.setBackground(jxl.format.Colour.WHITE );
+            format_string_right.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_string_right.setAlignment(Alignment.RIGHT);
+            format_string_right.setVerticalAlignment(VerticalAlignment.CENTRE);
+			format_string_right.setWrap(true);
+			format_string_right.setShrinkToFit(true);            
+            
+
+            //Data Cell Format...integer_CENTER
+            format_integer_center.setBackground(jxl.format.Colour.WHITE );
+            format_integer_center.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_integer_center.setAlignment(Alignment.CENTRE);
+            format_integer_center.setVerticalAlignment(VerticalAlignment.CENTRE);
+         
+
+            //Data Cell Format...integer_LEFT
+            format_integer_left.setBackground(jxl.format.Colour.WHITE );
+            format_integer_left.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_integer_left.setAlignment(Alignment.LEFT);
+            format_integer_left.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...integer_RIGHT
+            format_integer_right.setBackground(jxl.format.Colour.WHITE );
+            format_integer_right.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_integer_right.setAlignment(Alignment.RIGHT);
+            format_integer_right.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...float_CENTER
+            format_float_center.setBackground(jxl.format.Colour.WHITE );
+            format_float_center.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_float_center.setAlignment(Alignment.CENTRE);
+            format_float_center.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...float_CENTER
+            format_float_left.setBackground(jxl.format.Colour.WHITE );
+            format_float_left.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_float_left.setAlignment(Alignment.LEFT);
+            format_float_left.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...float_CENTER
+            format_float_right.setBackground(jxl.format.Colour.WHITE );
+            format_float_right.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_float_right.setAlignment(Alignment.RIGHT);
+            format_float_right.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money_CENTER
+            format_money_center.setBackground(jxl.format.Colour.WHITE );
+            format_money_center.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_center.setAlignment(Alignment.CENTRE);
+            format_money_center.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money_LEFT
+            format_money_left.setBackground(jxl.format.Colour.WHITE );
+            format_money_left.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN  );
+            format_money_left.setAlignment(Alignment.LEFT);
+            format_money_left.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money_RIGHT
+            format_money_right.setBackground(jxl.format.Colour.WHITE );
+            format_money_right.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_right.setAlignment(Alignment.RIGHT);
+            format_money_right.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 1자리)_CENTER
+            format_money_center1.setBackground(jxl.format.Colour.WHITE );
+            format_money_center1.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_center1.setAlignment(Alignment.CENTRE);
+            format_money_center1.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 1자리)_CENTER
+            format_money_left1.setBackground(jxl.format.Colour.WHITE );
+            format_money_left1.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_left1.setAlignment(Alignment.LEFT);
+            format_money_left1.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 1자리)_CENTER
+            format_money_right1.setBackground(jxl.format.Colour.WHITE );
+            format_money_right1.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_right1.setAlignment(Alignment.RIGHT);
+            format_money_right1.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 2자리)_CENTER
+            format_money_center2.setBackground(jxl.format.Colour.WHITE );
+            format_money_center2.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_center2.setAlignment(Alignment.CENTRE);
+            format_money_center2.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 2자리)_CENTER
+            format_money_left2.setBackground(jxl.format.Colour.WHITE );
+            format_money_left2.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_left2.setAlignment(Alignment.LEFT);
+            format_money_left2.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 2자리)_CENTER
+            format_money_right2.setBackground(jxl.format.Colour.WHITE );
+            format_money_right2.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_right2.setAlignment(Alignment.RIGHT);
+            format_money_right2.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 3자리)_CENTER
+            format_money_center3.setBackground(jxl.format.Colour.WHITE );
+            format_money_center3.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_center3.setAlignment(Alignment.CENTRE);
+            format_money_center3.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 3자리)_CENTER
+            format_money_left3.setBackground(jxl.format.Colour.WHITE );
+            format_money_left3.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_left3.setAlignment(Alignment.LEFT);
+            format_money_left3.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 3자리)_CENTER
+            format_money_right3.setBackground(jxl.format.Colour.WHITE );
+            format_money_right3.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_right3.setAlignment(Alignment.RIGHT);
+            format_money_right3.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 4자리)_CENTER
+            format_money_center4.setBackground(jxl.format.Colour.WHITE );
+            format_money_center4.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_center4.setAlignment(Alignment.CENTRE);
+            format_money_center4.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 4자리)_CENTER
+            format_money_left4.setBackground(jxl.format.Colour.WHITE );
+            format_money_left4.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_left4.setAlignment(Alignment.LEFT);
+            format_money_left4.setVerticalAlignment(VerticalAlignment.CENTRE);
+
+            //Data Cell Format...money(소수점 4자리)_CENTER
+            format_money_right4.setBackground(jxl.format.Colour.WHITE );
+            format_money_right4.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+            format_money_right4.setAlignment(Alignment.RIGHT);
+            format_money_right4.setVerticalAlignment(VerticalAlignment.CENTRE);
+       } catch(Exception e) {
+		System.out.println("error:"+e.toString());
+            throw e;
+       }
+    }
+
+    /*
+     * 생성된 workbook에 Sheet를 추가한다. (제목, 검색조건만 추가하는 것)
+     *
+     * @parm   : String - Sheet Name
+     * @parm   : String - Title <1행><br>
+     * @parm   : String - 조회조건 <3행><br>
+     * @parm   : int[]  - Column Width<br>
+     * @return : none<br>
+     */
+    public void addSheet(String    SheetName,    // WorkSeet Name
+                           String    title,        // Sheet Title
+                           String    searcharea,   // Data 조회 조건
+                           int[]     colnumwidth   // Column Width
+                          ) throws Exception{
+
+        String[] sheetNm = null;
+        try {
+            sheetNm = workbook.getSheetNames();
+
+            for(int i = 0; i < sheetNm.length; i++) {
+                if(sheetNm[i].equals(SheetName)){
+                    throw new Exception("같은 이름의 Sheet가 존재합니다.");
+                }
+            }
+            //System.out.println("SheetCnt :" + sheetNm.length);
+            sheet = workbook.createSheet(SheetName, sheetNm.length);
+
+            // -------------------------------------------------------------
+            // Sheet Title
+            // -------------------------------------------------------------
+            setSheetCell(0, 0, Constant.CM_EXL_COLTYPE_TITLE, title);
+            sheet.mergeCells(0,0 , colnumwidth.length - 1, 0);
+
+            // -------------------------------------------------------------
+            //Data 조회조건
+            // -------------------------------------------------------------
+            setSheetCell(0, 2, Constant.CM_EXL_COLTYPE_SEARCHAREA, searcharea); //col, row, celltype, data
+            sheet.mergeCells(0,2, colnumwidth.length - 1 ,2);
+
+            // -------------------------------------------------------------
+            // Column View 세팅 (컬럼 Width)
+            // -------------------------------------------------------------
+            for (int cellnum = 0; cellnum < colnumwidth.length; cellnum++) {
+                sheet.setColumnView(cellnum, colnumwidth[cellnum]);     //Column Witdh Setting
+            }
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());
+            throw e;
+        }
+    }
+
+    /*
+     * 생성된 workbook에 Sheet를 추가한다. (Column Header가 1줄짜리)
+     *
+     * @parm   : String    - Sheet Name
+     * @parm   : String    - Title <1행><br>
+     * @parm   : String    - 조회조건 <3행><br>
+     * @parm   : ArrayList - Java단에서 받아온 Data<br>
+     * @parm   : String[]  - Column Header<br>
+     * @parm   : String[]  - Column DB field명<br>
+     * @parm   : int[]     - Column type(String, money, int, float + align(center,left, right )<br>
+     * @parm   : int[]     - Column width<br>
+     * @return : none<br>
+     */
+
+    public void addSheet(String    SheetName,    //WorkSeet Name
+                           String    title,        //Sheet Title
+                           String    searcharea,   //Data 조회 조건
+                           ArrayList data,         //Data 부분
+                           String[]  column,       //Column Header
+                           String[]  columnkey,    //Column 구분 Key
+                           int[]     columntype,   //Column Data Type
+                           int[]     colnumwidth   //Column Width
+                          ) throws Exception{
+
+        // -------------------------------------------------------------
+        // Column Header를 2차원 배열로 조립한다.
+        // -------------------------------------------------------------
+        String[][] column_ary = new String[1][column.length];
+        for (int i=0;i<column.length;i++) {
+            column_ary[0][i] = column[i];
+        }
+
+        // -------------------------------------------------------------
+        // addSheet
+        // -------------------------------------------------------------
+        addSheet(SheetName, title, searcharea, data, column_ary, columnkey, columntype, colnumwidth);
+    }
+    
+	/*
+		 * 생성된 workbook에 Sheet를 추가한다. (Column Header가 1줄짜리)
+		 *
+		 * @parm   : String    - Sheet Name
+		 * @parm   : String    - Title <1행><br>
+		 * @parm   : String    - 조회조건 <3행><br>
+		 * @parm   : ArrayList - Java단에서 받아온 Data<br>
+		 * @parm   : String[]  - Column Header<br>
+		 * @parm   : String[]  - Column DB field명<br>
+		 * @parm   : int[]     - Column type(String, money, int, float + align(center,left, right )<br>
+		 * @parm   : int[]     - Column width<br>
+		 * @return : none<br>
+		 */
+
+		public void addSheet(String    SheetName,    //WorkSeet Name
+							   ArrayList data,         //Data 부분
+							   String[]  column,       //Column Header
+							   String[]  columnkey,    //Column 구분 Key
+							   int[]     columntype,   //Column Data Type
+							   int[]     colnumwidth   //Column Width
+							  ) throws Exception{
+
+			// -------------------------------------------------------------
+			// Column Header를 2차원 배열로 조립한다.
+			// -------------------------------------------------------------
+			String[][] column_ary = new String[1][column.length];
+			for (int i=0;i<column.length;i++) {
+				column_ary[0][i] = column[i];
+			}
+
+			// -------------------------------------------------------------
+			// addSheet
+			// -------------------------------------------------------------
+			addSheet(SheetName, data, column_ary, columnkey, columntype, colnumwidth);
+		}
+		
+	/*
+		 * 생성된 workbook에 Sheet를 추가한다. (Column Header가 2줄짜리)
+		 *
+		 * @parm   : String    - Sheet Name
+		 * @parm   : String    - Title <1행><br>
+		 * @parm   : String    - 조회조건 <3행><br>
+		 * @parm   : ArrayList - Java단에서 받아온 Data<br>
+		 * @parm   : String[]  - Column Header<br>
+		 * @parm   : String[]  - Column DB field명<br>
+		 * @parm   : int[]     - Column type(String, money, int, float + align(center,left, right )<br>
+		 * @parm   : int[]     - Column width<br>
+		 * @parm   : String    - 추가타이틀Column Header<br>
+		 * @return : none<br>
+		 */
+
+		public void addSheet(String    SheetName,    //WorkSeet Name
+							   ArrayList data,         //Data 부분
+							   String[]  column,       //Column Header
+							   String[]  columnkey,    //Column 구분 Key
+							   int[]     columntype,   //Column Data Type
+							   int[]     colnumwidth,   //Column Width
+							 String    comcont) throws Exception{
+
+			// -------------------------------------------------------------
+			// Column Header를 2차원 배열로 조립한다.
+			// -------------------------------------------------------------
+			String[][] column_ary = new String[2][column.length];
+			for (int i=0;i<column.length;i++) {
+				if(i == 0){
+					column_ary[0][i] = comcont;
+				}else{
+					column_ary[0][i] = "";
+				}
+			}
+			for (int i=0;i<column.length;i++) {
+				column_ary[1][i] = column[i];
+			}
+
+			// -------------------------------------------------------------
+			// addSheet
+			// -------------------------------------------------------------
+			addSheet(SheetName, data, column_ary, columnkey, columntype, colnumwidth);
+		}
+
+    /*
+     * 생성된 workbook에 Sheet를 추가한다. (Column Header가 N줄짜리)
+     *
+     * @parm   : String    - Sheet Name
+     * @parm   : String    - Title <1행><br>
+     * @parm   : String    - 조회조건 <3행><br>
+     * @parm   : ArrayList - Java단에서 받아온 Data<br>
+     * @parm   : String[][]- Column Header<br>
+     * @parm   : String[]  - Column DB field명<br>
+     * @parm   : int[]     - Column type(String, money, int, float + align(center,left, right )<br>
+     * @parm   : int[]     - Column width<br>
+     * @return : none<br>
+     */
+    public void addSheet(String     SheetName,    //WorkSeet Name
+                           String     title,        //Sheet Title
+                           String     searcharea,   //Data 조회 조건
+                           ArrayList  data,         //Data 부분
+                           String[][] column,       //Column Header
+                           String[]   columnkey,    //Column 구분 Key
+                           int[]      columntype,   //Column Data Type
+                           int[]      colnumwidth   //Column Width
+                           
+                          ) throws Exception{
+
+        try {
+            int currentRow = 0; // Current Row 번호
+            String[] sheetNm = workbook.getSheetNames();
+
+            for(int i = 0; i < sheetNm.length; i++) {
+                if(sheetNm[i].equals(SheetName)){
+                    throw new Exception("같은 이름의 Sheet가 존재합니다.");
+                }
+            }
+            //System.out.println("SheetCnt :" + sheetNm.length);
+
+            sheet = workbook.createSheet(SheetName, sheetNm.length);
+            // -------------------------------------------------------------
+            // Sheet Title
+            // -------------------------------------------------------------
+            setSheetCell(0, currentRow, Constant.CM_EXL_COLTYPE_TITLE, title);
+            sheet.mergeCells(0,currentRow, columnkey.length -1, currentRow);
+            currentRow += 2;
+
+            // -------------------------------------------------------------
+            // Data 조회조건
+            // -------------------------------------------------------------
+            setSheetCell(0, currentRow, Constant.CM_EXL_COLTYPE_SEARCHAREA, searcharea); //col, row, celltype, data
+            sheet.mergeCells(0, currentRow, columnkey.length - 1 ,currentRow);
+            currentRow++;
+
+            // -------------------------------------------------------------
+            // Column View 세팅 (컬럼 Width)
+            // -------------------------------------------------------------
+            for (int cellnum = 0; cellnum < colnumwidth.length; cellnum++) {
+                sheet.setColumnView(cellnum, colnumwidth[cellnum]);     //Column Witdh Setting
+            }
+            // -------------------------------------------------------------
+            // Column header에 실제로 값이 존재하는지 검사. (없으면 skip)
+            // -------------------------------------------------------------
+            boolean isColumnHeader = false;
+            for (int i=0;i<column.length;i++) {
+                for (int j=0;j<column[i].length;j++) {
+                    if (!"".equals(column[i][j].trim())) {
+                        isColumnHeader = true;
+                        break;  
+                    }
+                }
+            }
+            // -------------------------------------------------------------
+            // Create Column header
+            // -------------------------------------------------------------
+            if (isColumnHeader) {
+                for (int rownum = 0; rownum < column.length; rownum++) {
+                    for (int cellnum = 0; cellnum < column[rownum].length; cellnum++) {
+                        // ---------------------------------------------------------
+                        // 값이 "__MERGE__" 일 경우 이미 처리된 cell이므로 skip처리
+                        // ---------------------------------------------------------
+                        if (column[rownum][cellnum].equals("__MERGE__")) continue;
+    
+                        // ---------------------------------------------------------
+                        // 컬럼과Row의 같은 값이 세팅되었을 경우 merge 처리
+                        // ---------------------------------------------------------
+                        int toX = cellnum;
+                        int toY = rownum;
+                        // 컬럼의 같은 값 위치를 찾는다
+                        for (int i=cellnum; i<column[rownum].length; i++) {
+                            if (i==cellnum) continue; // 첫번째는 Skip
+                            if (column[rownum][cellnum].equals(column[rownum][i])) {
+                                toX = i;
+                                column[rownum][i] = "__MERGE__";
+                            } else {
+                                break; // 다르면 브레이크
+                            }
+                        }
+                        // Row의 같은 값 위치를 찾는다
+                        for (int i=rownum; i<column.length; i++) {
+                            if (i==rownum) continue; // 첫번째는 Skip
+                            if (column[rownum][cellnum].equals(column[i][cellnum])) {
+                                toY = i;
+                                column[i][cellnum] = "__MERGE__";
+                            } else {
+                                break; // 다르면 브레이크
+                            }
+                        }
+                        // Merge처리
+                        sheet.mergeCells(cellnum, currentRow, toX, currentRow + toY - rownum);
+    
+                        // ---------------------------------------------------------
+                        // Column header세팅
+                        // ---------------------------------------------------------
+                        setSheetCell(cellnum, currentRow, Constant.CM_EXL_COLTYPE_HEADER, column[rownum][cellnum]);
+                    }
+                    currentRow++;
+                }
+            }
+            // -------------------------------------------------------------
+            // Ceate Column Data
+            // -------------------------------------------------------------
+            for (int rownum = 0; rownum < data.size() ; rownum++) { // create a sheet with 300 rows (0-299)
+                Entity dataResult = (Entity) data.get(rownum);
+//System.out.println("dataResult        : " + dataResult+ "\n" +
+//                 "columnkey.length  : " + columnkey.length );
+
+                for (int cellnum = 0; cellnum < columnkey.length; cellnum++) {// create 50 cells (0-49) (the += 2 becomes apparent later
+//System.out.println("cellnum : " + cellnum + "\n" +
+//        "columnkey : " + columnkey[cellnum]+"\n" +
+//"data : " + dataResult.getString(columnkey[cellnum]));
+                    setSheetCell(cellnum, currentRow, columntype[cellnum], dataResult.getString(columnkey[cellnum]));
+//System.out.println(dataResult.getString(columnkey[cellnum]));
+
+                }   //end for
+//System.out.println("row     " + rownum );
+                currentRow++;
+            }   //end for
+
+//System.out.println("data setting end");
+        } catch(Exception e) {
+            System.out.println("errr:"+e.toString());
+            throw e;
+        }
+    }
+
+	/*
+	 * 생성된 workbook에 Sheet를 추가한다. (Column Header가 N줄짜리)
+	 *
+	 * @parm   : String    - Sheet Name
+	 * @parm   : String    - Title <1행><br>
+	 * @parm   : String    - 조회조건 <3행><br>
+	 * @parm   : ArrayList - Java단에서 받아온 Data<br>
+	 * @parm   : String[][]- Column Header<br>
+	 * @parm   : String[]  - Column DB field명<br>
+	 * @parm   : int[]     - Column type(String, money, int, float + align(center,left, right )<br>
+	 * @parm   : int[]     - Column width<br>
+	 * @return : none<br>
+	 */
+	public void addSheet(String     SheetName,    //WorkSeet Name
+						   ArrayList  data,         //Data 부분
+						   String[][] column,       //Column Header
+						   String[]   columnkey,    //Column 구분 Key
+						   int[]      columntype,   //Column Data Type
+						   int[]      colnumwidth   //Column Width
+                       
+						  ) throws Exception{
+System.out.println("1111111111111111111111111111111111");
+		try {
+			int currentRow = 0; // Current Row 번호
+			String[] sheetNm = workbook.getSheetNames();
+
+			for(int i = 0; i < sheetNm.length; i++) {
+				if(sheetNm[i].equals(SheetName)){
+					throw new Exception("같은 이름의 Sheet가 존재합니다.");
+				}
+			}
+			//System.out.println("SheetCnt :" + sheetNm.length);
+
+			sheet = workbook.createSheet(SheetName, sheetNm.length);
+
+			// -------------------------------------------------------------
+			// Column View 세팅 (컬럼 Width)
+			// -------------------------------------------------------------
+			for (int cellnum = 0; cellnum < colnumwidth.length; cellnum++) {
+				sheet.setColumnView(cellnum, colnumwidth[cellnum]);     //Column Witdh Setting
+			}
+
+            // -------------------------------------------------------------
+            // Column header에 실제로 값이 존재하는지 검사. (없으면 skip)
+            // -------------------------------------------------------------
+            boolean isColumnHeader = false;
+            for (int i=0;i<column.length;i++) {
+                for (int j=0;j<column[i].length;j++) {
+                    if (!"".equals(column[i][j].trim())) {
+                        isColumnHeader = true;
+                        break;  
+                    }
+                }
+            }
+			// -------------------------------------------------------------
+			// Create Column header
+			// -------------------------------------------------------------
+            if (isColumnHeader) {
+    			for (int rownum = 0; rownum < column.length; rownum++) {
+    				for (int cellnum = 0; cellnum < column[rownum].length; cellnum++) {
+    					// ---------------------------------------------------------
+    					// 값이 "__MERGE__" 일 경우 이미 처리된 cell이므로 skip처리
+    					// ---------------------------------------------------------
+    					if (column[rownum][cellnum].equals("__MERGE__")) continue;
+    
+    					// ---------------------------------------------------------
+    					// 컬럼과Row의 같은 값이 세팅되었을 경우 merge 처리
+    					// ---------------------------------------------------------
+    					int toX = cellnum;
+    					int toY = rownum;
+    					// 컬럼의 같은 값 위치를 찾는다
+    					for (int i=cellnum; i<column[rownum].length; i++) {
+    						if (i==cellnum) continue; // 첫번째는 Skip
+    						if (column[rownum][cellnum].equals(column[rownum][i])) {
+    							toX = i;
+    							column[rownum][i] = "__MERGE__";
+    						} else {
+    							break; // 다르면 브레이크
+    						}
+    					}
+    					// Row의 같은 값 위치를 찾는다
+    					for (int i=rownum; i<column.length; i++) {
+    						if (i==rownum) continue; // 첫번째는 Skip
+    						if (column[rownum][cellnum].equals(column[i][cellnum])) {
+    							toY = i;
+    							column[i][cellnum] = "__MERGE__";
+    						} else {
+    							break; // 다르면 브레이크
+    						}
+    					}
+    					// Merge처리
+    					sheet.mergeCells(cellnum, currentRow, toX, currentRow + toY - rownum);
+    
+    					// ---------------------------------------------------------
+    					// Column header세팅
+    					// ---------------------------------------------------------
+    					setSheetCell(cellnum, currentRow, Constant.CM_EXL_COLTYPE_HEADER, column[rownum][cellnum]);
+    				}
+    				currentRow++;
+    			}
+            }
+			// -------------------------------------------------------------
+			// Ceate Column Data
+			// -------------------------------------------------------------
+			for (int rownum = 0; rownum < data.size() ; rownum++) { // create a sheet with 300 rows (0-299)
+				Entity dataResult = (Entity) data.get(rownum);
+//	  System.out.println("dataResult        : " + dataResult+ "\n" +
+//					   "columnkey.length  : " + columnkey.length );
+
+				for (int cellnum = 0; cellnum < columnkey.length; cellnum++) {// create 50 cells (0-49) (the += 2 becomes apparent later
+//	  System.out.println("cellnum : " + cellnum + "\n" +
+//			  "columnkey : " + columnkey[cellnum]+"\n" +
+//	  "data : " + dataResult.getString(columnkey[cellnum]));
+					setSheetCell(cellnum, currentRow, columntype[cellnum], replace(dataResult.getString(columnkey[cellnum]),"\r\n","\n"));
+
+//	  System.out.println(dataResult.getString(columnkey[cellnum]));
+
+				}   //end for
+//	  System.out.println("row     " + rownum );
+				currentRow++;
+			}   //end for
+
+//	  System.out.println("data setting end");
+		} catch(Exception e) {
+			System.out.println("error:"+e.toString());
+			throw e;
+		}
+	}
+
+    /*
+     * 생성된 workbook에 Sheet를 추가한다. (Column Header가 N줄짜리, Column Key가 N줄짜리)
+     *
+     * @parm   : String    - Sheet Name
+     * @parm   : String    - Title <1행><br>
+     * @parm   : String    - 조회조건 <3행><br>
+     * @parm   : ArrayList - Java단에서 받아온 Data<br>
+     * @parm   : String[][]- Column Header<br>
+     * @parm   : String[][]- Column DB field명<br>
+     * @parm   : int[]     - Column type(String, money, int, float + align(center,left, right )<br>
+     * @parm   : int[]     - Column width<br>
+     * @return : none<br>
+     */
+    public void addSheetMultiRow(String     SheetName,    //WorkSeet Name
+                                   String     title,        //Sheet Title
+                                   String     searcharea,   //Data 조회 조건
+                                   ArrayList  data,         //Data 부분
+                                   String[][] column,       //Column Header
+                                   String[][] columnkey,    //Column 구분 Key
+                                   int[][]    columntype,   //Column Data Type
+                                   int[]      colnumwidth   //Column Width
+							      ) throws Exception{
+
+        try {
+            int currentRow = 0; // Current Row 번호
+            String[] sheetNm = workbook.getSheetNames();
+
+            for(int i = 0; i < sheetNm.length; i++) {
+                if(sheetNm[i].equals(SheetName)){
+                    throw new Exception("같은 이름의 Sheet가 존재합니다.");
+                }
+            }
+            //System.out.println("SheetCnt :" + sheetNm.length);
+
+            sheet = workbook.createSheet(SheetName, sheetNm.length);
+            // -------------------------------------------------------------
+            // Sheet Title
+            // -------------------------------------------------------------
+            setSheetCell(0, currentRow, Constant.CM_EXL_COLTYPE_TITLE, title);
+            sheet.mergeCells(0,currentRow, colnumwidth.length -1, currentRow);
+            currentRow += 2;
+
+            // -------------------------------------------------------------
+            // Data 조회조건
+            // -------------------------------------------------------------
+            setSheetCell(0, currentRow, Constant.CM_EXL_COLTYPE_SEARCHAREA, searcharea); //col, row, celltype, data
+            sheet.mergeCells(0, currentRow, colnumwidth.length - 1 ,currentRow);
+            currentRow++;
+
+            // -------------------------------------------------------------
+            // Column View 세팅 (컬럼 Width)
+            // -------------------------------------------------------------
+            for (int cellnum = 0; cellnum < colnumwidth.length; cellnum++) {
+                sheet.setColumnView(cellnum, colnumwidth[cellnum]);     //Column Witdh Setting
+            }
+            // -------------------------------------------------------------
+            // Create Column header
+            // -------------------------------------------------------------
+            for (int rownum = 0; rownum < column.length; rownum++) {
+                for (int cellnum = 0; cellnum < column[rownum].length; cellnum++) {
+                    // ---------------------------------------------------------
+                    // 값이 "__MERGE__" 일 경우 이미 처리된 cell이므로 skip처리
+                    // ---------------------------------------------------------
+                    if (column[rownum][cellnum].equals("__MERGE__")) continue;
+
+                    // ---------------------------------------------------------
+                    // 컬럼과Row의 같은 값이 세팅되었을 경우 merge 처리
+                    // ---------------------------------------------------------
+                    int toX = cellnum;
+                    int toY = rownum;
+                    // 컬럼의 같은 값 위치를 찾는다
+                    for (int i=cellnum; i<column[rownum].length; i++) {
+                        if (i==cellnum) continue; // 첫번째는 Skip
+                        if (column[rownum][cellnum].equals(column[rownum][i])) {
+                            toX = i;
+                            column[rownum][i] = "__MERGE__";
+                        } else {
+                            break; // 다르면 브레이크
+                        }
+                    }
+                    // Row의 같은 값 위치를 찾는다
+                    for (int i=rownum; i<column.length; i++) {
+                        if (i==rownum) continue; // 첫번째는 Skip
+                        if (column[rownum][cellnum].equals(column[i][cellnum])) {
+                            toY = i;
+                            column[i][cellnum] = "__MERGE__";
+                        } else {
+                            break; // 다르면 브레이크
+                        }
+                    }
+                    // Merge처리
+                    sheet.mergeCells(cellnum, currentRow, toX, currentRow + toY - rownum);
+
+                    // ---------------------------------------------------------
+                    // Column header세팅
+                    // ---------------------------------------------------------
+                    setSheetCell(cellnum, currentRow, Constant.CM_EXL_COLTYPE_HEADER, column[rownum][cellnum]);
+                }
+                currentRow++;
+            }
+
+            // -------------------------------------------------------------
+            // Create Column Data
+            // -------------------------------------------------------------
+            for (int datarownum = 0; datarownum < data.size() ; datarownum++) { // create a sheet with 300 rows (0-299)
+                Entity dataResult = (Entity) data.get(datarownum);
+//System.out.println("------------------------------------->>> datarownum : " + datarownum);
+
+                String[][] columnkey_tmp = new String[columnkey.length][columnkey[0].length];
+                for (int i=0; i<columnkey.length;i++) {
+                    for (int j=0;j<columnkey[i].length;j++) {
+                        columnkey_tmp[i][j] = columnkey[i][j];
+                    }
+                }
+
+                for (int rownum = 0; rownum < columnkey.length; rownum++) {
+                    for (int cellnum = 0; cellnum < columnkey[rownum].length; cellnum++) {
+                        // ---------------------------------------------------------
+                        // 값이 "__MERGE__" 일 경우 이미 처리된 cell이므로 skip처리
+                        // ---------------------------------------------------------
+                        if (columnkey_tmp[rownum][cellnum].equals("__MERGE__")) continue;
+
+                        // ---------------------------------------------------------
+                        // 컬럼과Row의 같은 값이 세팅되었을 경우 merge 처리
+                        // ---------------------------------------------------------
+                        int toX = cellnum;
+                        int toY = rownum;
+
+                        // 컬럼의 같은 값 위치를 찾는다
+                        for (int i=cellnum; i<columnkey_tmp[rownum].length; i++) {
+                            if (i==cellnum) continue; // 첫번째는 Skip
+                            if (columnkey_tmp[rownum][cellnum].equals(columnkey_tmp[rownum][i])) {
+                                toX = i;
+                                columnkey_tmp[rownum][i] = "__MERGE__";
+                            } else {
+                                break; // 다르면 브레이크
+                            }
+                        }
+
+                        // Row의 같은 값 위치를 찾는다
+                        for (int i=rownum; i<columnkey.length; i++) {
+                            if (i==rownum) continue; // 첫번째는 Skip
+                            if (columnkey_tmp[rownum][cellnum].equals(columnkey_tmp[i][cellnum])) {
+                                toY = i;
+                                columnkey_tmp[i][cellnum] = "__MERGE__";
+                            } else {
+                                break; // 다르면 브레이크
+                            }
+                        }
+
+                        // Merge처리
+                        sheet.mergeCells(cellnum, currentRow, toX, currentRow + toY - rownum);
+
+                        // ---------------------------------------------------------
+                        // Columnkey Data세팅
+                        // ---------------------------------------------------------
+                        setSheetCell(cellnum, currentRow, columntype[rownum][cellnum], dataResult.getString(columnkey_tmp[rownum][cellnum]));
+                    }
+                    currentRow++;
+                }
+            }
+        } catch(Exception e) {
+            System.out.println("error:"+e.toString());
+            throw e;
+        }
+    }
+
+    /*
+     * workbook의 Sheet를 수정한다.
+     *
+     * @parm   : String - Sheet Name
+     * @return : none<br>
+     */
+    public void modifySheet(String SheetName) throws Exception{
+        int cnt = 0;
+        Entity  dataResult = null;
+
+        try {
+            String[] sheetNm = workbook.getSheetNames();
+
+            for(int i = 0; i < sheetNm.length; i++){
+                if(sheetNm[i].equals(SheetName)){
+                    break;
+                }
+                cnt ++;
+            }
+
+            if(cnt==sheetNm.length){
+                throw new Exception("Sheet가 존재하지 않습니다.");
+            }
+//System.out.println("SheetCnt :" + sheetNm.length);
+
+            sheet = workbook.getSheet(SheetName);
+            //setCellFomat();
+        } catch(Exception e) {
+            e.printStackTrace();
+			System.out.println("error:"+e.toString());            
+            throw e;
+        }
+    }
+
+    /*
+     * 생성된 workbook에 Sheet를 추가한다.
+     *
+     * @parm   : String - Sheet Name
+     * @parm   : String - 조회조건 <3행><br>
+     * @parm   : ArrayList - Java단에서 받아온 Data<br>
+     * @parm   : String[] - Data의 DB field명<br>
+     * @parm   : int[] - Data의 Data Type
+     * @parm   : int[] - Data의 각 Col Position
+     * @param  : ArrayList - Merge정보
+     * @return : none<br>
+     */
+    public void modifySheet(String    SheetName,    //WorkSeet Name
+                              ArrayList data,         //Data 부분
+                              int      st_row,        //Data Setting 시작위치
+                              String[]  columnkey,    //Column 구분 Key
+                              int[]    columntype,    //Column Data Type
+                              int[]    columnpos,     //Column Data Position
+                              ArrayList aryMerge      //merge정보
+                             ) throws Exception{
+
+        try {
+            int cellnum, rownum;
+            Entity  dataResult = null;
+
+            String[] sheetNm = workbook.getSheetNames();
+
+            /*
+            for(int i = 0; i < sheetNm.length; i++){
+                if(sheetNm[i].equals(SheetName)){
+                    throw new Exception("같은 이름의 Sheet가 존재합니다.");
+                }
+            }
+            */
+
+//System.out.println("SheetCnt :" + sheetNm.length);
+
+            sheet = workbook.getSheet(SheetName); //.createSheet(SheetName, sheetNm.length);
+            setCellFomat();
+
+            //Sheet Title
+            //setSheetCell(0, 0, Constant.CM_EXL_COLTYPE_TITLE, new String(title.getBytes("EUC-KR"), "8859_1"));
+
+            //Data 조회조건
+            //setSheetCell(0, 2, Constant.CM_EXL_COLTYPE_SEARCHAREA, new String(searcharea.getBytes("EUC-KR"), "8859_1"));  //col, row, celltype, data
+            //setSheetCell(0, 2, Constant.CM_EXL_COLTYPE_SEARCHAREA, searcharea);   //col, row, celltype, data
+            //sheet.mergeCells(0,2, columnkey.length - 1 ,2);
+
+            //Ceate Column Data
+            for ( rownum = 0; rownum < data.size() ; rownum++) {	// create a sheet with 300 rows (0-299)
+
+                dataResult = (Entity) data.get(rownum);
+//System.out.println("dataResult        : " + dataResult+ "\n" +
+//                 "columnkey.length  : " + columnkey.length );
+
+                for (cellnum = 0 ; cellnum < columnkey.length; cellnum++) {		// create 50 cells (0-49) (the += 2 becomes apparent later
+                    for(int mcell = 0; mcell < aryMerge.size(); mcell++ ) {
+                        Entity eMerge = (Entity)aryMerge.get(mcell);
+                        if(eMerge.getInt("col") == columnpos[cellnum]){
+                            sheet.mergeCells(eMerge.getInt("col"), rownum + st_row , eMerge.getInt("col2"), rownum + st_row );
+                        //수정 2005.11.22 - CHJ
+                        //Range ra = sheet.mergeCells(eMerge.getInt("col"), rownum + st_row , eMerge.getInt("col2"), rownum + st_row );
+                        //WritableCell  cll = (WritableCell )ra.getBottomRight();
+                        //WritableCellFormat wcf = (WritableCellFormat) cll.getCellFormat();
+                        //wcf = null;
+                        //wcf = new WritableCellFormat(NumberFormats.INTEGER);
+                        //wcf.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+                        }
+                    }
+                    setSheetCell(columnpos[cellnum] , rownum + st_row , columntype[cellnum], dataResult.getString(columnkey[cellnum]));
+                }   //end for
+            }   //end for
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());        	
+            throw e;
+        }
+    }
+
+    public void setMergeCells(int col, int row, int col2, int row2) throws Exception {
+        sheet.mergeCells(col, row, col2, row2);
+        //Range ra = sheet.mergeCells(col, row, col2, row2);
+        //WritableCell  cll = (WritableCell )ra.getBottomRight();
+        //WritableCellFormat wcf = (WritableCellFormat) cll.getCellFormat();
+        //wcf.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN );
+
+    }
+
+    // ----------------------------------------------------------------------------------
+    // 셀에 데이터 세팅하기 (문자 값만 세팅) - 양식의 포맷을 지키면서 값만 세팅할때 사용
+    // ----------------------------------------------------------------------------------
+    // param : col      - 컬럼 위치
+    //         row      - Row 위치
+    //         celldata - 출력 값
+    // ---------------------------------------------------
+    public void setSheetCellString(int col, int row, String celldata) throws Exception {
+        // Cell의 원래 포맷을 읽어낸다.
+        jxl.write.WritableCell wc = sheet.getWritableCell(col,row);
+        jxl.write.Label label = new Label(col, row, StringUtil.nvl(celldata),wc.getCellFormat()); 
+        sheet.addCell(label);
+    }
+
+    // ----------------------------------------------------------------------------------
+    // 셀에 데이터 세팅하기 (숫자 값만 세팅) - 양식의 포맷을 지키면서 값만 세팅할때 사용
+    // ----------------------------------------------------------------------------------
+    // param : col      - 컬럼 위치
+    //         row      - Row 위치
+    //         celldata - 출력 값
+    // ---------------------------------------------------
+    public void setSheetCellNumber(int col, int row, String celldata) throws Exception {
+        // Cell의 원래 포맷을 읽어낸다.
+        jxl.write.WritableCell wc = sheet.getWritableCell(col,row);
+        jxl.write.Number num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),wc.getCellFormat());
+        sheet.addCell(num);
+    }
+
+    // ---------------------------------------------------
+    // 셀에 데이터 세팅하기 (포맷 지정)
+    // ---------------------------------------------------
+    // param : col      - 컬럼 위치
+    //         row      - Row 위치
+    //         celltype - 셀의 속성
+    //         celldata - 출력 값
+    // ---------------------------------------------------
+    public void setSheetCell(int col, int row, int celltype, String celldata) throws Exception {
+          setSheetCellBgcolor(col, row, celltype, null, celldata);
+    }
+
+    // ---------------------------------------------------
+    // 셀에 데이터 세팅하기 (포맷,바탕색 지정)
+    // ---------------------------------------------------
+    // param : col      - 컬럼 위치
+    //         row      - Row 위치
+    //         celltype - 셀의 속성
+    //         colour   - 바탕색
+    //         celldata - 출력 값
+    // ---------------------------------------------------
+    public void setSheetCellBgcolor(int col, int row, int celltype, jxl.format.Colour colour,String celldata) throws Exception{
+        jxl.write.Label label = null;
+        jxl.write.Blank blank = null;
+        jxl.write.Number num  = null;
+
+        try {
+            if(celltype == Constant.CM_EXL_COLTYPE_TITLE) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row, StringUtil.nvl(celldata), format_title);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_title);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if(celltype == Constant.CM_EXL_COLTYPE_SEARCHAREA) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row, StringUtil.nvl(celldata), format_searcharea);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_searcharea);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if(celltype == Constant.CM_EXL_COLTYPE_HEADER) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row, StringUtil.nvl(celldata), format_column);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_column);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_STRING_CENTER ) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_string_center);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_string_center);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_STRING_LEFT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_string_left);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_string_left);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_STRING_LEFTTOP ) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_string_lefttop);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_string_lefttop);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_STRING_RIGHT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_string_right);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_string_right);
+                    format_temp.setBackground(colour);
+                    label = new Label(col, row , StringUtil.nvl(celldata),format_temp);
+                }
+                sheet.addCell(label);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_INT_CENTER ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_integer_center);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_integer_center);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_INT_LEFT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_integer_left);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_integer_left);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_INT_RIGHT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_integer_right);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_integer_right);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_FLOAT_CENTER ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_float_center);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_float_center);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_FLOAT_LEFT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_float_left);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_float_left);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_FLOAT_RIGHT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_float_right);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_float_right);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_CENTER ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_money_center);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_center);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_LEFT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_money_left);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_left);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_RIGHT ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_money_right);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_right);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_RIGHT1 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_right1);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_right1);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_CENTER1 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_center1);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_center1);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_CENTER2 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_center2);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_center2);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_LEFT2 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_left2);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_left2);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_RIGHT2 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_right2);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_right2);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_CENTER3 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_center3);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_center3);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_LEFT3 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_left3);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_left3);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_RIGHT3 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_right3);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_right3);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_CENTER4 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_center4);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_center4);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_LEFT4 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_left4);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_left4);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            } else if ( celltype == Constant.CM_EXL_COLTYPE_MONEY_RIGHT4 ) {
+                if (colour == null) { // Default 바탕색 사용
+                    num = new jxl.write.Number(col, row, StringUtil.getDouble(celldata),format_money_right4);
+                } else {              // 지정된  바탕색 사용
+                    WritableCellFormat format_temp = new WritableCellFormat(format_money_right4);
+                    format_temp.setBackground(colour);
+                    num = new jxl.write.Number(col, row, StringUtil.getLong(celldata),format_temp);
+                }
+                sheet.addCell(num);
+            }   //end if
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());        	
+            throw e;
+        }
+    }
+
+    public String getDWFileName(){
+        return dwFileName;
+    }
+
+    public void fileDelete() throws Exception{
+        File file = null;
+        try {
+            file = new File(FileName);
+        } catch(Exception e) {
+			System.out.println("error:"+e.toString());
+            throw e;
+        } finally {
+            if(file !=null)file.delete();
+        }
+    }
+    
+	public static String replace(String src, String token, String repl)	{
+		if (src == null) return null;
+		String ret = "";
+		int len = token.length();
+	
+		for(int i=0;i<src.length();i++) {
+			if(len!=0&&((i+len)<=src.length())&&(src.substring(i,i+len).equals(token))) {
+				ret = ret + repl;
+				i = i + len -1;
+			} else {
+				ret = ret + src.substring(i,i+1);
+			}
+		}
+		return ret;
+	}
+}

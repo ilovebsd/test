@@ -1,0 +1,418 @@
+package com.acromate.dto.acrossw ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class TransactionTracerDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private int    dataPoolUnit ;
+    private int    dataPoolSize ;
+    private StringBuilder logPrefix = new StringBuilder();
+    private StringBuilder homeDirectory = new StringBuilder();
+    private int    maxFileSize ;
+    private int    maxFileNumber ;
+    private boolean enableScreenPrinter ;
+    private boolean enableAutoStarter ;
+    private boolean enableSSWCallTraceByPhoneNumber ;
+    private boolean disableEmsServerReport ;
+    private boolean disableDetailWarningLogMessage ;
+    private boolean enableH323RegistrationTrace ;
+    private boolean enableRasCallingTransactionTrace ;
+    private boolean enableQ931TransactionTrace ;
+    private boolean enableH245TransactionTrace ;
+    private boolean enableH245MediaSessionTrace ;
+    private boolean enableH450TransactionTrace ;
+    private int    h323TransactionTraceLevel ;
+    private boolean enableSIPRegistrationTrace ;
+    private boolean enableSIPCallingTransactionTrace ;
+    private boolean enableSIPAuditingMessageTrace ;
+    private int    sipTransactionTraceLevel ;
+    private boolean enableMGCPRegistrationTrace ;
+    private boolean enableMGCPCallTransactionTrace ;
+    private int    mgcpTransactionTraceLevel ;
+    private boolean enableH248RegistrationTrace ;
+    private boolean enableH248CallTransactionTrace ;
+    private int    h248TransactionTraceLevel ;
+    private boolean enableISUPChannelControlTransactionTrace ;
+    private boolean enableISUPCallTransactionTrace ;
+    private boolean enableTCAPServiceTransactionTrace ;
+    private int    isupTransactionTraceLevel ;
+
+    public int    getDataPoolUnit() { return dataPoolUnit ; }
+    public void   setDataPoolUnit( int dataPoolUnit ) { this.dataPoolUnit = dataPoolUnit ; }
+
+    public int    getDataPoolSize() { return dataPoolSize ; }
+    public void   setDataPoolSize( int dataPoolSize ) { this.dataPoolSize = dataPoolSize ; }
+
+    public String getLogPrefix() { return logPrefix.toString() ; }
+    public void   setLogPrefix( String logPrefix ) {
+        this.logPrefix.delete(0,logPrefix.length());
+        this.logPrefix.append(logPrefix) ;
+    }
+
+    public String getHomeDirectory() { return homeDirectory.toString() ; }
+    public void   setHomeDirectory( String homeDirectory ) {
+        this.homeDirectory.delete(0,homeDirectory.length());
+        this.homeDirectory.append(homeDirectory) ;
+    }
+
+    public int    getMaxFileSize() { return maxFileSize ; }
+    public void   setMaxFileSize( int maxFileSize ) { this.maxFileSize = maxFileSize ; }
+
+    public int    getMaxFileNumber() { return maxFileNumber ; }
+    public void   setMaxFileNumber( int maxFileNumber ) { this.maxFileNumber = maxFileNumber ; }
+
+    public boolean    getEnableScreenPrinter() { return enableScreenPrinter ; }
+    public void   setEnableScreenPrinter( boolean enableScreenPrinter ) { this.enableScreenPrinter = enableScreenPrinter ; }
+
+    public boolean    getEnableAutoStarter() { return enableAutoStarter ; }
+    public void   setEnableAutoStarter( boolean enableAutoStarter ) { this.enableAutoStarter = enableAutoStarter ; }
+
+    public boolean    getEnableSSWCallTraceByPhoneNumber() { return enableSSWCallTraceByPhoneNumber ; }
+    public void   setEnableSSWCallTraceByPhoneNumber( boolean enableSSWCallTraceByPhoneNumber ) { this.enableSSWCallTraceByPhoneNumber = enableSSWCallTraceByPhoneNumber ; }
+
+    public boolean    getDisableEmsServerReport() { return disableEmsServerReport ; }
+    public void   setDisableEmsServerReport( boolean disableEmsServerReport ) { this.disableEmsServerReport = disableEmsServerReport ; }
+
+    public boolean    getDisableDetailWarningLogMessage() { return disableDetailWarningLogMessage ; }
+    public void   setDisableDetailWarningLogMessage( boolean disableDetailWarningLogMessage ) { this.disableDetailWarningLogMessage = disableDetailWarningLogMessage ; }
+
+    public boolean    getEnableH323RegistrationTrace() { return enableH323RegistrationTrace ; }
+    public void   setEnableH323RegistrationTrace( boolean enableH323RegistrationTrace ) { this.enableH323RegistrationTrace = enableH323RegistrationTrace ; }
+
+    public boolean    getEnableRasCallingTransactionTrace() { return enableRasCallingTransactionTrace ; }
+    public void   setEnableRasCallingTransactionTrace( boolean enableRasCallingTransactionTrace ) { this.enableRasCallingTransactionTrace = enableRasCallingTransactionTrace ; }
+
+    public boolean    getEnableQ931TransactionTrace() { return enableQ931TransactionTrace ; }
+    public void   setEnableQ931TransactionTrace( boolean enableQ931TransactionTrace ) { this.enableQ931TransactionTrace = enableQ931TransactionTrace ; }
+
+    public boolean    getEnableH245TransactionTrace() { return enableH245TransactionTrace ; }
+    public void   setEnableH245TransactionTrace( boolean enableH245TransactionTrace ) { this.enableH245TransactionTrace = enableH245TransactionTrace ; }
+
+    public boolean    getEnableH245MediaSessionTrace() { return enableH245MediaSessionTrace ; }
+    public void   setEnableH245MediaSessionTrace( boolean enableH245MediaSessionTrace ) { this.enableH245MediaSessionTrace = enableH245MediaSessionTrace ; }
+
+    public boolean    getEnableH450TransactionTrace() { return enableH450TransactionTrace ; }
+    public void   setEnableH450TransactionTrace( boolean enableH450TransactionTrace ) { this.enableH450TransactionTrace = enableH450TransactionTrace ; }
+
+    public int    getH323TransactionTraceLevel() { return h323TransactionTraceLevel ; }
+    public void   setH323TransactionTraceLevel( int h323TransactionTraceLevel ) { this.h323TransactionTraceLevel = h323TransactionTraceLevel ; }
+
+    public boolean    getEnableSIPRegistrationTrace() { return enableSIPRegistrationTrace ; }
+    public void   setEnableSIPRegistrationTrace( boolean enableSIPRegistrationTrace ) { this.enableSIPRegistrationTrace = enableSIPRegistrationTrace ; }
+
+    public boolean    getEnableSIPCallingTransactionTrace() { return enableSIPCallingTransactionTrace ; }
+    public void   setEnableSIPCallingTransactionTrace( boolean enableSIPCallingTransactionTrace ) { this.enableSIPCallingTransactionTrace = enableSIPCallingTransactionTrace ; }
+
+    public boolean    getEnableSIPAuditingMessageTrace() { return enableSIPAuditingMessageTrace ; }
+    public void   setEnableSIPAuditingMessageTrace( boolean enableSIPAuditingMessageTrace ) { this.enableSIPAuditingMessageTrace = enableSIPAuditingMessageTrace ; }
+
+    public int    getSipTransactionTraceLevel() { return sipTransactionTraceLevel ; }
+    public void   setSipTransactionTraceLevel( int sipTransactionTraceLevel ) { this.sipTransactionTraceLevel = sipTransactionTraceLevel ; }
+
+    public boolean    getEnableMGCPRegistrationTrace() { return enableMGCPRegistrationTrace ; }
+    public void   setEnableMGCPRegistrationTrace( boolean enableMGCPRegistrationTrace ) { this.enableMGCPRegistrationTrace = enableMGCPRegistrationTrace ; }
+
+    public boolean    getEnableMGCPCallTransactionTrace() { return enableMGCPCallTransactionTrace ; }
+    public void   setEnableMGCPCallTransactionTrace( boolean enableMGCPCallTransactionTrace ) { this.enableMGCPCallTransactionTrace = enableMGCPCallTransactionTrace ; }
+
+    public int    getMgcpTransactionTraceLevel() { return mgcpTransactionTraceLevel ; }
+    public void   setMgcpTransactionTraceLevel( int mgcpTransactionTraceLevel ) { this.mgcpTransactionTraceLevel = mgcpTransactionTraceLevel ; }
+
+    public boolean    getEnableH248RegistrationTrace() { return enableH248RegistrationTrace ; }
+    public void   setEnableH248RegistrationTrace( boolean enableH248RegistrationTrace ) { this.enableH248RegistrationTrace = enableH248RegistrationTrace ; }
+
+    public boolean    getEnableH248CallTransactionTrace() { return enableH248CallTransactionTrace ; }
+    public void   setEnableH248CallTransactionTrace( boolean enableH248CallTransactionTrace ) { this.enableH248CallTransactionTrace = enableH248CallTransactionTrace ; }
+
+    public int    getH248TransactionTraceLevel() { return h248TransactionTraceLevel ; }
+    public void   setH248TransactionTraceLevel( int h248TransactionTraceLevel ) { this.h248TransactionTraceLevel = h248TransactionTraceLevel ; }
+
+    public boolean    getEnableISUPChannelControlTransactionTrace() { return enableISUPChannelControlTransactionTrace ; }
+    public void   setEnableISUPChannelControlTransactionTrace( boolean enableISUPChannelControlTransactionTrace ) { this.enableISUPChannelControlTransactionTrace = enableISUPChannelControlTransactionTrace ; }
+
+    public boolean    getEnableISUPCallTransactionTrace() { return enableISUPCallTransactionTrace ; }
+    public void   setEnableISUPCallTransactionTrace( boolean enableISUPCallTransactionTrace ) { this.enableISUPCallTransactionTrace = enableISUPCallTransactionTrace ; }
+
+    public boolean    getEnableTCAPServiceTransactionTrace() { return enableTCAPServiceTransactionTrace ; }
+    public void   setEnableTCAPServiceTransactionTrace( boolean enableTCAPServiceTransactionTrace ) { this.enableTCAPServiceTransactionTrace = enableTCAPServiceTransactionTrace ; }
+
+    public int    getIsupTransactionTraceLevel() { return isupTransactionTraceLevel ; }
+    public void   setIsupTransactionTraceLevel( int isupTransactionTraceLevel ) { this.isupTransactionTraceLevel = isupTransactionTraceLevel ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "dataPoolUnit".toLowerCase()) == true) {
+            if(!value.equals("")) dataPoolUnit = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dataPoolSize".toLowerCase()) == true) {
+            if(!value.equals("")) dataPoolSize = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "logPrefix".toLowerCase()) == true) {
+            return setString(logPrefix, value);
+        }
+        if(compareFieldID(temp, "homeDirectory".toLowerCase()) == true) {
+            return setString(homeDirectory, value);
+        }
+        if(compareFieldID(temp, "maxFileSize".toLowerCase()) == true) {
+            if(!value.equals("")) maxFileSize = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "maxFileNumber".toLowerCase()) == true) {
+            if(!value.equals("")) maxFileNumber = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableScreenPrinter".toLowerCase()) == true) {
+            enableScreenPrinter = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableAutoStarter".toLowerCase()) == true) {
+            enableAutoStarter = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableSSWCallTraceByPhoneNumber".toLowerCase()) == true) {
+            enableSSWCallTraceByPhoneNumber = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "disableEmsServerReport".toLowerCase()) == true) {
+            disableEmsServerReport = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "disableDetailWarningLogMessage".toLowerCase()) == true) {
+            disableDetailWarningLogMessage = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableH323RegistrationTrace".toLowerCase()) == true) {
+            enableH323RegistrationTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableRasCallingTransactionTrace".toLowerCase()) == true) {
+            enableRasCallingTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableQ931TransactionTrace".toLowerCase()) == true) {
+            enableQ931TransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableH245TransactionTrace".toLowerCase()) == true) {
+            enableH245TransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableH245MediaSessionTrace".toLowerCase()) == true) {
+            enableH245MediaSessionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableH450TransactionTrace".toLowerCase()) == true) {
+            enableH450TransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "h323TransactionTraceLevel".toLowerCase()) == true) {
+            if(!value.equals("")) h323TransactionTraceLevel = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableSIPRegistrationTrace".toLowerCase()) == true) {
+            enableSIPRegistrationTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableSIPCallingTransactionTrace".toLowerCase()) == true) {
+            enableSIPCallingTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableSIPAuditingMessageTrace".toLowerCase()) == true) {
+            enableSIPAuditingMessageTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "sipTransactionTraceLevel".toLowerCase()) == true) {
+            if(!value.equals("")) sipTransactionTraceLevel = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableMGCPRegistrationTrace".toLowerCase()) == true) {
+            enableMGCPRegistrationTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableMGCPCallTransactionTrace".toLowerCase()) == true) {
+            enableMGCPCallTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "mgcpTransactionTraceLevel".toLowerCase()) == true) {
+            if(!value.equals("")) mgcpTransactionTraceLevel = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableH248RegistrationTrace".toLowerCase()) == true) {
+            enableH248RegistrationTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableH248CallTransactionTrace".toLowerCase()) == true) {
+            enableH248CallTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "h248TransactionTraceLevel".toLowerCase()) == true) {
+            if(!value.equals("")) h248TransactionTraceLevel = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableISUPChannelControlTransactionTrace".toLowerCase()) == true) {
+            enableISUPChannelControlTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableISUPCallTransactionTrace".toLowerCase()) == true) {
+            enableISUPCallTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "enableTCAPServiceTransactionTrace".toLowerCase()) == true) {
+            enableTCAPServiceTransactionTrace = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "isupTransactionTraceLevel".toLowerCase()) == true) {
+            if(!value.equals("")) isupTransactionTraceLevel = Str.CheckNullInt(value);
+            return 0;
+        }
+        log.error("TransactionTracerDIO - Not founded field :" + field);
+        return(-1);
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "dataPoolUnit", idx, value) == true) {
+            errorcode = getInteger(dataPoolUnit, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dataPoolSize", idx, value) == true) {
+            errorcode = getInteger(dataPoolSize, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "logPrefix", idx, value) == true) {
+            errorcode = getString(logPrefix.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "homeDirectory", idx, value) == true) {
+            errorcode = getString(homeDirectory.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "maxFileSize", idx, value) == true) {
+            errorcode = getInteger(maxFileSize, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "maxFileNumber", idx, value) == true) {
+            errorcode = getInteger(maxFileNumber, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableScreenPrinter", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableScreenPrinter), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableAutoStarter", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableAutoStarter), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableSSWCallTraceByPhoneNumber", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableSSWCallTraceByPhoneNumber), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "disableEmsServerReport", idx, value) == true) {
+            errorcode = getString(Boolean.toString(disableEmsServerReport), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "disableDetailWarningLogMessage", idx, value) == true) {
+            errorcode = getString(Boolean.toString(disableDetailWarningLogMessage), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableH323RegistrationTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableH323RegistrationTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableRasCallingTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableRasCallingTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableQ931TransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableQ931TransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableH245TransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableH245TransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableH245MediaSessionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableH245MediaSessionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableH450TransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableH450TransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "h323TransactionTraceLevel", idx, value) == true) {
+            errorcode = getInteger(h323TransactionTraceLevel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableSIPRegistrationTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableSIPRegistrationTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableSIPCallingTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableSIPCallingTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableSIPAuditingMessageTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableSIPAuditingMessageTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "sipTransactionTraceLevel", idx, value) == true) {
+            errorcode = getInteger(sipTransactionTraceLevel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableMGCPRegistrationTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableMGCPRegistrationTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableMGCPCallTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableMGCPCallTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "mgcpTransactionTraceLevel", idx, value) == true) {
+            errorcode = getInteger(mgcpTransactionTraceLevel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableH248RegistrationTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableH248RegistrationTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableH248CallTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableH248CallTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "h248TransactionTraceLevel", idx, value) == true) {
+            errorcode = getInteger(h248TransactionTraceLevel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableISUPChannelControlTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableISUPChannelControlTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableISUPCallTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableISUPCallTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableTCAPServiceTransactionTrace", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableTCAPServiceTransactionTrace), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "isupTransactionTraceLevel", idx, value) == true) {
+            errorcode = getInteger(isupTransactionTraceLevel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}

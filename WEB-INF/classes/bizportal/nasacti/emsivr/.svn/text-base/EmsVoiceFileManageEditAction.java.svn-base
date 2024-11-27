@@ -1,0 +1,92 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+import bizportal.nasacti.ipivr.common.FileNameChecker;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.VoiceDTO;
+import bizportal.nasacti.ipivr.common.FileUtil;
+
+public class EmsVoiceFileManageEditAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		request.setCharacterEncoding("euc-kr");
+		int iRtn = -1;
+		String strUrl = "";
+		boolean bValidFileName = false;
+		String strSaveFolder = ipivrConfig.strRealPath + "/../ipcs_files/fileupwav";
+		int maxSize = ipivrConfig.maxUploadSize * 1024 * 1024;
+
+		MultipartRequest multi = null;
+		multi = new MultipartRequest(request, strSaveFolder, maxSize, "euc-kr", new DefaultFileRenamePolicy());
+
+		String strWIndex = multi.getParameter("wIndex");
+		String strWName = multi.getParameter("wName");
+		String strOriginalFileName = multi.getOriginalFileName("wFile");
+		String strSavedFileName = multi.getFilesystemName("wFile");
+
+        String strLastWFile = "";
+
+		if(strOriginalFileName == null)
+			strOriginalFileName = "";
+
+		bValidFileName = FileNameChecker.isValidFileName(strOriginalFileName);
+
+		VoiceDAO voiceDAO = VoiceDAO.getInstance();
+		VoiceDTO voiceDTO = voiceDAO.getVoice(strWIndex);
+		strLastWFile = voiceDTO.getWFile();
+
+		if(bValidFileName == true) {
+			iRtn = voiceDAO.updateVoice(strWName, strOriginalFileName, strWIndex);
+
+			switch(iRtn) {
+				case 1:
+					//request.setAttribute("msg", "수정되었습니다.");
+					if(strOriginalFileName != "") {
+						if(!strOriginalFileName.equals(strSavedFileName)) {
+							FileUtil.copy(strSaveFolder + "/" + strSavedFileName, strSaveFolder + "/" + strOriginalFileName);
+							FileUtil.delete(strSaveFolder + "/" + strSavedFileName);
+						}
+
+						if(!strLastWFile.equals(strOriginalFileName)) {
+							FileUtil.delete(strSaveFolder + "/" + strLastWFile);
+						}
+					}
+					break;
+				case 2:
+					if(!strOriginalFileName.equals(""))
+						FileUtil.delete(strSaveFolder + "/" + strSavedFileName);
+					request.setAttribute("msg", "이미 등록된 파일이름입니다. 파일명을 변경해서 올려주세요.");
+					break;
+				case -1:
+					if(!strOriginalFileName.equals(""))
+						FileUtil.delete(strSaveFolder + "/" + strSavedFileName);
+					request.setAttribute("msg", "수정에러가 발생하였습니다.");
+					break;
+			}
+		} else {
+			if(!strOriginalFileName.equals(""))
+				FileUtil.delete(strSaveFolder + "/" + strSavedFileName);
+			request.setAttribute("msg", "파일명에 허용되지 않는 문자가 있습니다.");
+		}
+
+		return "./emsVoiceFileManageListForm.do2";
+	}
+}

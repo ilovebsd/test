@@ -1,0 +1,43 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.acromate.util.Str;
+import system.SystemConfigFileMake;
+
+public class PortForwardInsertCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 	forwardingPage 	= "";				
+		String 	resStr 			= "";
+		
+		try {
+			String 	strProtocol = new String(Str.CheckNullString(req.getParameter("hiProtocol")).getBytes("8859_1"), "euc-kr");
+			String 	strInport 	= new String(Str.CheckNullString(req.getParameter("hiInport")).getBytes("8859_1"), "euc-kr");
+			String 	strIp 		= new String(Str.CheckNullString(req.getParameter("hiIp")).getBytes("8859_1"), "euc-kr");
+			String 	strOutport 	= new String(Str.CheckNullString(req.getParameter("hiOutport")).getBytes("8859_1"), "euc-kr");
+
+			resStr = "PortForwarding.jsp";
+			
+			SystemConfigFileMake makeFile = new SystemConfigFileMake();
+			int insertResult = makeFile.portForwardingFile(strProtocol, strInport, strIp, strOutport);
+			
+			if(insertResult==1){
+				resStr = "PortForwarding.jsp";
+				res.sendRedirect("/bizportal/system/"+resStr);
+			}else{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}
+
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+	
+}

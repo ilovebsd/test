@@ -1,0 +1,309 @@
+package com.acromate.dao.system ;
+
+import java.sql.ResultSet ;
+import java.sql.Statement;
+import java.util.ArrayList ;
+import java.util.List;
+
+import com.acromate.db.QueryStat;
+import com.acromate.db.QueryStatement ;
+import com.acromate.dto.system.CallTraceDTO ;
+import com.acromate.util.Str ;
+
+import acromate.common.util.StringUtil;
+
+public class CallTraceDAO {
+    public CallTraceDAO() {}
+    
+    /**
+     *  Update Functions : 180727 : for 'Statement' Object
+     */
+    public int getCount(Statement stmt, String startDate/*yyyy-mm-ddhh24mi*/, String endDate/*yyyy-mm-ddhh24mi*/, String gubun, String search_str) {
+		int count = 0 ;
+		String sql = "\n SELECT count(*) ";
+		sql += "\n FROM TABLE_CallTrace ";
+		
+		//sql += "\n WHERE StartTime >= ( to_date('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') - interval '"+endDate+" minute' ) ";//min
+		sql += "\n WHERE StartTime >= TO_TIMESTAMP('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') ";
+		sql += "\n AND StartTime <= TO_TIMESTAMP('" + StringUtil.replace(endDate+"59", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+    	
+        if(search_str.trim().length()>0){
+        	if("1".equals(gubun)){
+        		sql += "\n    AND CallerE164 LIKE '" + search_str + "%'";// 발신
+        	}else if("2".equals(gubun)){
+        		sql += "\n    AND CalleeE164 LIKE '" + search_str + "%'";// 착신
+        	}        	
+        }   
+
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+		return count;
+    }
+    public List getList(Statement stmt, int pageNo, int pageSize, String startDate/*yyyy-mm-ddhh24mi*/, String endDate/*yyyy-mm-ddhh24mi*/, String gubun, String search_str) {
+        String queryString = "" ;
+        String strWhere = "";
+        ArrayList list = new ArrayList() ;
+        ResultSet rs = null ;
+        CallTraceDTO callTraceDTO ;
+
+        //strWhere = " WHERE  ";
+        //strWhere += " StartTime >= SYSDATE-"+0.0007*Integer.valueOf(time);;
+        //strWhere += "\n WHERE StartTime >= ( to_date('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') - interval '"+endDate+" minute' ) ";//min
+        strWhere += "\n WHERE StartTime >= TO_TIMESTAMP('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') ";
+    	strWhere += "\n AND StartTime <= TO_TIMESTAMP('" + StringUtil.replace(endDate+"59", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+    	
+        if(search_str.trim().length()>0){
+        	if("1".equals(gubun)){
+        		strWhere += "\n    AND CallerE164 LIKE '" + search_str + "%'";// 발신
+        	}else if("2".equals(gubun)){
+        		strWhere += "\n    AND CalleeE164 LIKE '" + search_str + "%'";// 착신
+        	}        	
+        }   
+
+        strWhere += "\n  Order by StartTime desc offset "+ (pageNo) +" limit "+pageSize ;
+        
+        try {
+            queryString = "SELECT " ;
+            queryString += "ct.SysGroupID, " ;
+            //queryString += "StartTime, " ;
+            queryString += " to_char(StartTime,'YYYY-MM-DD HH24:MI:SS.SSSSSS') as StartTime, " ;         
+            queryString += "CallerE164, " ;
+            queryString += "CallerEndpointID, " ;
+            queryString += "CallerEndpointType, " ;
+            queryString += "CalleeE164, " ;
+            queryString += "CalleeEndpointID, " ;
+            queryString += "CalleeEndpointType, " ;
+            queryString += "CallID" ;
+            queryString += ", sg.SysGroupName " ;
+            //queryString += ", ct.Code " ;
+            queryString += " From TABLE_CallTrace ";
+            queryString += " ct  left outer join table_systemgroup sg  on  ct.sysgroupid = sg.sysgroupid "; 
+            queryString += strWhere;
+            System.out.println(queryString);
+            rs = stmt.executeQuery(queryString) ;
+
+            while ( rs.next() )  {
+                callTraceDTO = new CallTraceDTO() ;
+                callTraceDTO.setSysGroupID( Str.CheckNullString(rs.getString("SysGroupID")) ) ;
+                callTraceDTO.setStartTime( Str.CheckNullString(rs.getString("StartTime")) ) ;
+                callTraceDTO.setCallerE164( Str.CheckNullString(rs.getString("CallerE164")) ) ;
+                callTraceDTO.setCallerEndpointID( Str.CheckNullString(rs.getString("CallerEndpointID")) ) ;
+                callTraceDTO.setCallerEndpointType( rs.getInt("CallerEndpointType") ) ;
+                callTraceDTO.setCalleeE164( Str.CheckNullString(rs.getString("CalleeE164")) ) ;
+                callTraceDTO.setCalleeEndpointID( Str.CheckNullString(rs.getString("CalleeEndpointID")) ) ;
+                callTraceDTO.setCalleeEndpointType( rs.getInt("CalleeEndpointType") ) ;
+                callTraceDTO.setCallID( Str.CheckNullString(rs.getString("CallID")) ) ;
+                
+                //add function : 180727  
+                callTraceDTO.setSysGroupName( Str.CheckNullString(rs.getString("SysGroupName")) ) ;
+                //callTraceDTO.setCode( Str.CheckNullString(rs.getString("Code")) ) ;
+
+                list.add(callTraceDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return list ;
+    }
+    
+    /**
+     *  Origin Functions
+     */
+    public ArrayList getList(QueryStatement statement, String callNo, int callType, String time) {
+        QueryStat querystat = (QueryStat)statement;
+        String queryString = "" ;
+        String strWhere = "";
+        ArrayList list = new ArrayList() ;
+        ResultSet rs = null ;
+        CallTraceDTO callTraceDTO ;
+
+        strWhere = " WHERE  ";
+        strWhere += " StartTime >= SYSDATE-"+0.0007*Integer.valueOf(time);;
+        if (callType == 1) // 발신
+            strWhere += " AND CallerE164='" + callNo + "'  ";
+        else if (callType == 2) // 착신
+            strWhere += " AND CalleeE164='" + callNo + "'  ";
+
+        try {
+            queryString = "SELECT " ;
+            queryString += "SysGroupID, " ;
+            queryString += "StartTime, " ;
+            queryString += "CallerE164, " ;
+            queryString += "CallerEndpointID, " ;
+            queryString += "CallerEndpointType, " ;
+            queryString += "CalleeE164, " ;
+            queryString += "CalleeEndpointID, " ;
+            queryString += "CalleeEndpointType, " ;
+            queryString += "CallID" ;
+            queryString += " From TABLE_CallTrace";
+            queryString += strWhere;
+            System.out.println(queryString);
+            rs = statement.executeQuery(queryString) ;
+
+            while ( rs.next() )  {
+                callTraceDTO = new CallTraceDTO() ;
+                callTraceDTO.setSysGroupID( Str.CheckNullString(rs.getString("SysGroupID")) ) ;
+                callTraceDTO.setStartTime( Str.CheckNullString(rs.getString("StartTime")) ) ;
+                callTraceDTO.setCallerE164( Str.CheckNullString(rs.getString("CallerE164")) ) ;
+                callTraceDTO.setCallerEndpointID( Str.CheckNullString(rs.getString("CallerEndpointID")) ) ;
+                callTraceDTO.setCallerEndpointType( rs.getInt("CallerEndpointType") ) ;
+                callTraceDTO.setCalleeE164( Str.CheckNullString(rs.getString("CalleeE164")) ) ;
+                callTraceDTO.setCalleeEndpointID( Str.CheckNullString(rs.getString("CalleeEndpointID")) ) ;
+                callTraceDTO.setCalleeEndpointType( rs.getInt("CalleeEndpointType") ) ;
+                callTraceDTO.setCallID( Str.CheckNullString(rs.getString("CallID")) ) ;
+
+                list.add(callTraceDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return list ;
+    }
+
+    public CallTraceDTO getDTO(QueryStatement statement, CallTraceDTO dto ) {
+        String queryString = "" ;
+        ResultSet rs = null ;
+        CallTraceDTO callTraceDTO = null ;
+
+        try {
+            queryString = "SELECT " ;
+            queryString += "SysGroupID, " ;
+            queryString += "StartTime, " ;
+            queryString += "CallerE164, " ;
+            queryString += "CallerEndpointID, " ;
+            queryString += "CallerEndpointType, " ;
+            queryString += "CalleeE164, " ;
+            queryString += "CalleeEndpointID, " ;
+            queryString += "CalleeEndpointType, " ;
+            queryString += "CallID" ;
+            queryString += " From TABLE_CallTrace";
+            rs = statement.executeQuery(queryString) ;
+
+            if ( rs.next() )  {
+                callTraceDTO = new CallTraceDTO() ;
+                callTraceDTO.setSysGroupID( Str.CheckNullString(rs.getString(0)) ) ;
+                callTraceDTO.setStartTime( Str.CheckNullString(rs.getString(1)) ) ;
+                callTraceDTO.setCallerE164( Str.CheckNullString(rs.getString(2)) ) ;
+                callTraceDTO.setCallerEndpointID( Str.CheckNullString(rs.getString(3)) ) ;
+                callTraceDTO.setCallerEndpointType( rs.getInt(4) ) ;
+                callTraceDTO.setCalleeE164( Str.CheckNullString(rs.getString(5)) ) ;
+                callTraceDTO.setCalleeEndpointID( Str.CheckNullString(rs.getString(6)) ) ;
+                callTraceDTO.setCalleeEndpointType( rs.getInt(7) ) ;
+                callTraceDTO.setCallID( Str.CheckNullString(rs.getString(8)) ) ;
+
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return callTraceDTO ;
+    }
+
+    public boolean insert (QueryStatement statement, CallTraceDTO callTraceDTO ) {
+        String queryString = "" ;
+        int count = 0 ;
+
+        try {
+            queryString = " INSERT INTO TABLE_CallTrace (" ;
+            queryString += "SysGroupID, " ;
+            queryString += "StartTime, " ;
+            queryString += "CallerE164, " ;
+            queryString += "CallerEndpointID, " ;
+            queryString += "CallerEndpointType, " ;
+            queryString += "CalleeE164, " ;
+            queryString += "CalleeEndpointID, " ;
+            queryString += "CalleeEndpointType, " ;
+            queryString += "CallID" ;
+            queryString += ") VALUES (" ;
+            queryString += " '" + callTraceDTO.getSysGroupID() + "' ," ;
+            queryString += " '" + callTraceDTO.getStartTime() + "' ," ;
+            queryString += " '" + callTraceDTO.getCallerE164() + "' ," ;
+            queryString += " '" + callTraceDTO.getCallerEndpointID() + "' ," ;
+            queryString += " " + callTraceDTO.getCallerEndpointType() + " ," ;
+            queryString += " '" + callTraceDTO.getCalleeE164() + "' ," ;
+            queryString += " '" + callTraceDTO.getCalleeEndpointID() + "' ," ;
+            queryString += " " + callTraceDTO.getCalleeEndpointType() + " ," ;
+            queryString += " '" + callTraceDTO.getCallID() + "' " ;
+            queryString += ")" ;
+
+            count = statement.executeUpdate(queryString) ;
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        }
+        return true ;
+    }
+
+    public boolean update (QueryStatement statement, CallTraceDTO callTraceDTO ) {
+        String queryString = "" ;
+        int count = 0 ;
+
+        try {
+            queryString = " UPDATE TABLE_CallTrace SET " ;
+            queryString += "SysGroupID = '" + callTraceDTO.getSysGroupID() + "' ," ;
+            queryString += "StartTime = '" + callTraceDTO.getStartTime() + "' ," ;
+            queryString += "CallerE164 = '" + callTraceDTO.getCallerE164() + "' ," ;
+            queryString += "CallerEndpointID = '" + callTraceDTO.getCallerEndpointID() + "' ," ;
+            queryString += "CallerEndpointType = " + callTraceDTO.getCallerEndpointType() + " ," ;
+            queryString += "CalleeE164 = '" + callTraceDTO.getCalleeE164() + "' ," ;
+            queryString += "CalleeEndpointID = '" + callTraceDTO.getCalleeEndpointID() + "' ," ;
+            queryString += "CalleeEndpointType = " + callTraceDTO.getCalleeEndpointType() + " ," ;
+            queryString += "CallID = '" + callTraceDTO.getCallID() + "' " ;
+
+            count = statement.executeUpdate(queryString) ;
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        }
+        return true ;
+    }
+
+    public boolean delete (QueryStatement statement, CallTraceDTO callTraceDTO ) {
+        String queryString = "" ;
+        int count = 0 ;
+
+        try {
+            queryString = " DELETE FROM TABLE_CallTrace WHERE " ;
+            queryString += "SysGroupID = '" + callTraceDTO.getSysGroupID() + "' ," ;
+            queryString += "StartTime = '" + callTraceDTO.getStartTime() + "' ," ;
+            queryString += "CallerE164 = '" + callTraceDTO.getCallerE164() + "' ," ;
+            queryString += "CallerEndpointID = '" + callTraceDTO.getCallerEndpointID() + "' ," ;
+            queryString += "CallerEndpointType = " + callTraceDTO.getCallerEndpointType() + " ," ;
+            queryString += "CalleeE164 = '" + callTraceDTO.getCalleeE164() + "' ," ;
+            queryString += "CalleeEndpointID = '" + callTraceDTO.getCalleeEndpointID() + "' ," ;
+            queryString += "CalleeEndpointType = " + callTraceDTO.getCalleeEndpointType() + " ," ;
+            queryString += "CallID = '" + callTraceDTO.getCallID() + "' " ;
+
+            count = statement.executeUpdate(queryString) ;
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        }
+        return true ;
+    }
+}

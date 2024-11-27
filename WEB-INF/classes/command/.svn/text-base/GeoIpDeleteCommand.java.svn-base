@@ -1,0 +1,77 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.SubscriberInfoDTO;
+import dao.system.GeoIpDAO;
+import acromate.common.util.StringUtil;
+import business.LogHistory;
+
+public class GeoIpDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+//		DataStatement stmt = null;
+		String resStr = "";
+
+        try {
+			String 	deleteStr = new String(Str.CheckNullString(req.getParameter("deleteStr")).getBytes("8859_1"), "euc-kr");
+
+			String 	userID	  = new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "geoIpList.jsp";
+			
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				SubscriberInfoDTO scDTO = entity.getScDtoAttribute("scDTO");
+				
+				String[] dataStr = StringUtil.getParser(deleteStr, "");
+				
+				if(dataStr != null){
+					// ############### LogHistory 처리  ###############
+					String		strIp		= req.getRemoteAddr();
+					LogHistory	logHistory 	= new LogHistory();
+					// ##############################################
+
+					GeoIpDAO dao 	= new GeoIpDAO();
+					for(int i=0; i < dataStr.length; i++){
+						String[] dataStr2 = StringUtil.getParser(dataStr[i], "|");
+						int updateResult = dao.geoIpDelete(dataStr2[0], dataStr2[1]);
+						
+						if(updateResult==1){
+							// ############### LogHistory 처리  ###############
+							int int_result = logHistory.LogHistorySave(userID+"|90|GeoIP 삭제 ("+dataStr2[0]+"-"+dataStr2[1]+")|2|"+strIp);
+							// ##############################################
+						}
+					}
+				}
+								
+				res.sendRedirect("/bizportal/system/"+resStr);
+			} 
+			else
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+		} catch (Exception e) {
+			System.out.println("에러발생 .......");
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}			
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+}

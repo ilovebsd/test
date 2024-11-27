@@ -1,0 +1,53 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.acromate.util.Str;
+import dao.useconfig.AddServiceDAO;
+
+import acromate.common.StaticString;
+import org.apache.commons.fileupload.*;
+import java.io.*;
+import java.util.*;
+import java.security.*;
+import sun.misc.*;
+
+public class  CallBlockDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 	forwardingPage 	= "";
+		boolean returnVal 		= false;
+//		String 	deleteStr  		= "";
+		
+		try {			
+			String 	e164 			= new String(Str.CheckNullString(req.getParameter("hiE164")).getBytes("8859_1"), "euc-kr");		// 
+			String 	blockE164 		= new String(Str.CheckNullString(req.getParameter("blockE164")).getBytes("8859_1"), "euc-kr");
+			
+			String 	userID	  = new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// ·Î±×ÀÎ ID
+			
+			//System.out.println("########## deleteStr : "+deleteStr);
+			
+			AddServiceDAO dao 	= new AddServiceDAO();
+			//returnVal = dao.callBlockDelete(e164, blockE164);
+			returnVal = dao.callBlockDelete(e164, blockE164, req.getRemoteAddr(), userID);
+			
+			if (returnVal) {
+				res.sendRedirect("/bizportal/useconfig/addServiceCallBlockList.jsp?viewType="+e164);
+			}else{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}			
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			
+			
+		}
+		return forwardingPage;
+	}
+}

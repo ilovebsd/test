@@ -1,0 +1,80 @@
+package dao.system;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import acromate.common.util.Str;
+
+import com.acromate.driver.db.DataStatement;
+import dao.system.CommonDAO;
+import dto.ipcs.IpcsListDTO;
+import dto.system.UpdateInfoDTO;
+public class UpdateInfoDAO {
+	private CommonDAO m_comm = new  CommonDAO();
+	public ArrayList select(DataStatement stmt,String sql){
+		ArrayList<UpdateInfoDTO> 	list 	= new ArrayList<UpdateInfoDTO>();
+        UpdateInfoDTO 			updateInfoDTO;
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                    updateInfoDTO = new UpdateInfoDTO(
+                    		Str.CheckNullString(rs.getString("moudlename")),
+                    		Str.CheckNullString(rs.getString("version")),
+                    		Str.CheckNullString(rs.getString("updatedate")),
+                    		Str.CheckNullString(rs.getString("version")),
+            				"최신버전",
+            				"",
+            				"",
+            				Str.CheckNullString(rs.getString("beforeVersion"))
+                    	);
+                    list.add(updateInfoDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return list;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+		return list;
+	}
+	public int insert(DataStatement stmt,UpdateInfoDTO updateInfoDTO){
+		int nResult	=	0;
+		StringBuffer sqlBuf=new StringBuffer();
+		sqlBuf.append("insert into table_version(moudlename,version,updatedate,beforeVersion) values('");
+		sqlBuf.append(updateInfoDTO.getMoudleName()).append("','").append(updateInfoDTO.getMoudleLastVer()).append("','").append(updateInfoDTO.getUpdateDate()).append("','").append(updateInfoDTO.getMoudleLastVer()).append("')");
+		nResult 	=	m_comm.insert(stmt, sqlBuf.toString());
+		return nResult;
+	}
+	public int update(DataStatement stmt,UpdateInfoDTO updateInfoDTO){
+		int nResult	=	0;
+		StringBuffer sqlBuf=new StringBuffer();
+		sqlBuf.append("update table_version");
+		sqlBuf.append("\n set");
+		sqlBuf.append("\n  moudlename='").append(updateInfoDTO.getMoudleName()).append("'");
+		sqlBuf.append("\n ,version='").append(updateInfoDTO.getMoudleLastVer()).append("'");
+		sqlBuf.append("\n ,updatedate ='").append(updateInfoDTO.getUpdateDate()).append("'");
+		sqlBuf.append("\n ,beforeVersion ='").append(updateInfoDTO.getBeforeVer()).append("'");
+		sqlBuf.append("\n where");
+		sqlBuf.append("\n moudlename='").append(updateInfoDTO.getMoudleName()).append("'");
+		nResult 	=	m_comm.update(stmt, sqlBuf.toString());
+		return nResult;
+	}
+	public int delete(DataStatement stmt,UpdateInfoDTO updateInfoDT){
+		int nResult	=	0;
+		StringBuffer sqlBuf=new StringBuffer();
+		sqlBuf.append("delete from table_version where moudlename='").append(updateInfoDT.getMoudleName()).append("'");
+		nResult 	=	m_comm.delete(stmt, sqlBuf.toString());
+		return nResult;
+	}
+}
+

@@ -1,0 +1,72 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class KeyNumberIDDTO
+{
+
+    public final static int HUNT_CIRCULAR    = 1 ;
+    public final static int HUNT_SEQUENTIAL    = 2 ;
+    public final static int HUNT_RANDOM    = 3 ;
+    public final static int HUNT_PARALLEL    = 4 ;
+
+    public final static int HUNT_CONSTRAINT_BUSY_HUNT_OK    = 1 ;
+    public final static int HUNT_CONSTRAINT_BUSY_HUNT_NOT_OK    = 0 ;
+    public final static int HUNT_CONSTRAINT_PRESENCE_CONFIRM = 2 ;
+    public final static int HUNT_CONSTRAINT_PRESENCE_IGNORE = 0 ;
+
+    private String keynumberID;
+    private String keynumberDesc;
+    private int    hunt;
+    private int    huntIndex;
+    private int    maxHuntIndex;
+    private int    huntConstraint;
+    private String groupID;
+
+    public String getKeynumberID() { return this.keynumberID; }
+    public void   setKeynumberID(String vKeynumberID ) { this.keynumberID = vKeynumberID; }
+
+    public String getKeynumberDesc() { return this.keynumberDesc; }
+    public void   setKeynumberDesc(String vKeynumberDesc ) { this.keynumberDesc = vKeynumberDesc; }
+
+    public int    getHunt() { return this.hunt; }
+    public void   setHunt(int vHunt ) { this.hunt = vHunt; }
+
+    public int    getHuntIndex() { return this.huntIndex; }
+    public void   setHuntIndex(int vHuntIndex ) { this.huntIndex = vHuntIndex; }
+
+    public int    getMaxHuntIndex() { return this.maxHuntIndex; }
+    public void   setMaxHuntIndex(int vMaxHuntIndex ) { this.maxHuntIndex = vMaxHuntIndex; }
+
+    public int    getHuntConstraint() { return this.huntConstraint; }
+    public void   setHuntConstraint(int vHuntConstraint ) { this.huntConstraint = vHuntConstraint; }
+
+    public String getGroupID() { return this.groupID; }
+    public void   setGroupID(String vGroupID ) { this.groupID = vGroupID; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(keynumberID:"              + getKeynumberID() + ") ") ;
+        sb.append("[keynumberDesc:"            + getKeynumberDesc() + "] ") ;
+        sb.append("[hunt:"                     + getHunt() + "] ") ;
+        sb.append("[huntIndex:"                + getHuntIndex() + "] ") ;
+        sb.append("[maxHuntIndex:"             + getMaxHuntIndex() + "] ") ;
+        sb.append("[huntConstraint:"           + getHuntConstraint() + "] ") ;
+        sb.append("[groupID:"                  + getGroupID() + "] ") ;
+
+        return sb.toString();
+    }
+}

@@ -1,0 +1,268 @@
+package com.acromate.dataio.noms ;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+import com.acromate.util.Logger;
+
+public class SessionDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder emsId = new StringBuilder();
+    private StringBuilder equipmentId = new StringBuilder();
+    private StringBuilder collectionTime = new StringBuilder();
+    private StringBuilder statisticstype = new StringBuilder();
+    private StringBuilder from_to = new StringBuilder();
+    private int    attempt ;
+    private int    connect ;
+    private int    org_rel ;
+    private int    to_trying ;
+    private int    no_ans ;
+    private int    ter_busy ;
+    private int    callbar ;
+    private int    nrg_user ;
+    private int    inv_user ;
+    private int    sys_flt ;
+    private int    c_ratio ;
+    private int    ahdtime ;
+
+    public String getEmsId() { return emsId.toString() ; }
+    public void   setEmsId( String emsId ) {
+        this.emsId.delete(0,this.emsId.length());
+        this.emsId.append(emsId) ;
+    }
+
+    public String getEquipmentId() { return equipmentId.toString() ; }
+    public void   setEquipmentId( String equipmentId ) {
+        this.equipmentId.delete(0,this.equipmentId.length());
+        this.equipmentId.append(equipmentId) ;
+    }
+
+    public String getCollectionTime() { return collectionTime.toString() ; }
+    public void   setCollectionTime( String collectionTime ) {
+        this.collectionTime.delete(0,this.collectionTime.length());
+        this.collectionTime.append(collectionTime) ;
+    }
+
+    public String getStatisticstype() { return statisticstype.toString() ; }
+    public void   setStatisticstype( String statisticstype ) {
+        this.statisticstype.delete(0,this.statisticstype.length());
+        this.statisticstype.append(statisticstype) ;
+    }
+
+    public String getFrom_to() { return from_to.toString() ; }
+    public void   setFrom_to( String from_to ) {
+        this.from_to.delete(0,this.from_to.length());
+        this.from_to.append(from_to) ;
+    }
+
+    public int    getAttempt() { return attempt ; }
+    public void   setAttempt( int attempt ) { this.attempt = attempt ; }
+
+    public int    getConnect() { return connect ; }
+    public void   setConnect( int connect ) { this.connect = connect ; }
+
+    public int    getOrg_rel() { return org_rel ; }
+    public void   setOrg_rel( int org_rel ) { this.org_rel = org_rel ; }
+
+    public int    getTo_trying() { return to_trying ; }
+    public void   setTo_trying( int to_trying ) { this.to_trying = to_trying ; }
+
+    public int    getNo_ans() { return no_ans ; }
+    public void   setNo_ans( int no_ans ) { this.no_ans = no_ans ; }
+
+    public int    getTer_busy() { return ter_busy ; }
+    public void   setTer_busy( int ter_busy ) { this.ter_busy = ter_busy ; }
+
+    public int    getCallbar() { return callbar ; }
+    public void   setCallbar( int callbar ) { this.callbar = callbar ; }
+
+    public int    getNrg_user() { return nrg_user ; }
+    public void   setNrg_user( int nrg_user ) { this.nrg_user = nrg_user ; }
+
+    public int    getInv_user() { return inv_user ; }
+    public void   setInv_user( int inv_user ) { this.inv_user = inv_user ; }
+
+    public int    getSys_flt() { return sys_flt ; }
+    public void   setSys_flt( int sys_flt ) { this.sys_flt = sys_flt ; }
+
+    public int    getC_ratio() { return c_ratio ; }
+    public void   setC_ratio( int c_ratio ) { this.c_ratio = c_ratio ; }
+
+    public int    getAhdtime() { return ahdtime ; }
+    public void   setAhdtime( int ahdtime ) { this.ahdtime = ahdtime ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "emsId".toLowerCase()) == true) {
+            return setString(emsId, value);
+        }
+        if(compareFieldID(temp, "equipmentId".toLowerCase()) == true) {
+            return setString(equipmentId, value);
+        }
+        if(compareFieldID(temp, "collectionTime".toLowerCase()) == true) {
+            return setString(collectionTime, value);
+        }
+        if(compareFieldID(temp, "statisticstype".toLowerCase()) == true) {
+            return setString(statisticstype, value);
+        }
+        if(compareFieldID(temp, "from_to".toLowerCase()) == true) {
+            return setString(from_to, value);
+        }
+        if(compareFieldID(temp, "attempt".toLowerCase()) == true) {
+            if(!value.equals("")) attempt = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "connect".toLowerCase()) == true) {
+            if(!value.equals("")) connect = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "org_rel".toLowerCase()) == true) {
+            if(!value.equals("")) org_rel = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "to_trying".toLowerCase()) == true) {
+            if(!value.equals("")) to_trying = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "no_ans".toLowerCase()) == true) {
+            if(!value.equals("")) no_ans = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "ter_busy".toLowerCase()) == true) {
+            if(!value.equals("")) ter_busy = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "callbar".toLowerCase()) == true) {
+            if(!value.equals("")) callbar = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "nrg_user".toLowerCase()) == true) {
+            if(!value.equals("")) nrg_user = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "inv_user".toLowerCase()) == true) {
+            if(!value.equals("")) inv_user = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "sys_flt".toLowerCase()) == true) {
+            if(!value.equals("")) sys_flt = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "c_ratio".toLowerCase()) == true) {
+            if(!value.equals("")) c_ratio = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "ahdtime".toLowerCase()) == true) {
+            if(!value.equals("")) ahdtime = Str.CheckNullInt(value);
+            return 0;
+        }
+        log.error("SessionDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "emsId", idx, value) == true) {
+            errorcode = getString(emsId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "equipmentId", idx, value) == true) {
+            errorcode = getString(equipmentId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "collectionTime", idx, value) == true) {
+            errorcode = getString(collectionTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "statisticstype", idx, value) == true) {
+            errorcode = getString(statisticstype.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "from_to", idx, value) == true) {
+            errorcode = getString(from_to.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "attempt", idx, value) == true) {
+            errorcode = getInteger(attempt, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "connect", idx, value) == true) {
+            errorcode = getInteger(connect, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "org_rel", idx, value) == true) {
+            errorcode = getInteger(org_rel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "to_trying", idx, value) == true) {
+            errorcode = getInteger(to_trying, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "no_ans", idx, value) == true) {
+            errorcode = getInteger(no_ans, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ter_busy", idx, value) == true) {
+            errorcode = getInteger(ter_busy, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "callbar", idx, value) == true) {
+            errorcode = getInteger(callbar, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "nrg_user", idx, value) == true) {
+            errorcode = getInteger(nrg_user, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "inv_user", idx, value) == true) {
+            errorcode = getInteger(inv_user, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "sys_flt", idx, value) == true) {
+            errorcode = getInteger(sys_flt, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "c_ratio", idx, value) == true) {
+            errorcode = getInteger(c_ratio, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ahdtime", idx, value) == true) {
+            errorcode = getInteger(ahdtime, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+
+    public String toXmlString( String blank, String emsId, String eqId, String time ) {
+		StringBuilder xml = new StringBuilder();
+
+		xml.append ( blank+"   <emsId>" + emsId + "</emsId>\n") ;
+		xml.append ( blank+"   <equipmentId>" + eqId + "</equipmentId>\n") ;
+		xml.append ( blank+"   <collectionTime>" + time + "</collectionTime>\n") ;
+		xml.append ( blank+"   <statisticstype>" + getStatisticstype() + "</statisticstype>\n") ;
+		xml.append ( blank+"   <from_to>" + getFrom_to() + "</from_to>\n") ;
+		xml.append ( blank+"   <attempt>" + getAttempt() + "</attempt>\n") ;
+		xml.append ( blank+"   <connect>" + getConnect() + "</connect>\n") ;
+		xml.append ( blank+"   <org_rel>" + getOrg_rel() + "</org_rel>\n") ;
+		xml.append ( blank+"   <to_trying>" + getTo_trying() + "</to_trying>\n") ;
+		xml.append ( blank+"   <no_ans>" + getNo_ans() + "</no_ans>\n") ;
+		xml.append ( blank+"   <ter_busy>" + getTer_busy() + "</ter_busy>\n") ;
+		xml.append ( blank+"   <callbar>" + getCallbar() + "</callbar>\n") ;
+		xml.append ( blank+"   <nrg_user>" + getNrg_user() + "</nrg_user>\n") ;
+		xml.append ( blank+"   <inv_user>" + getInv_user() + "</inv_user>\n") ;
+		xml.append ( blank+"   <sys_flt>" + getSys_flt() + "</sys_flt>\n") ;
+		xml.append ( blank+"   <c_ratio>" + getC_ratio() + "</c_ratio>\n") ;
+		xml.append ( blank+"   <ahdtime>" + getAhdtime() + "</ahdtime>\n") ;
+
+		return xml.toString();
+    }
+}

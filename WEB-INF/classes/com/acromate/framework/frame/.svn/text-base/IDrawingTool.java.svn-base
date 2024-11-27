@@ -1,0 +1,11 @@
+package com.acromate.framework.frame;
+
+public interface IDrawingTool {
+	public boolean showWindow( int mode );
+	public Object getDrawPart();
+	public void setDrawPart(Object editorPart);
+	public boolean setFocus();
+	public void setParent(Object parent);
+	public void setSelf(Object self);
+	public Object getSelf();
+}

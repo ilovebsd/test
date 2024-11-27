@@ -1,0 +1,1264 @@
+package	acromate.common.util;
+import java.util.*;
+import java.text.*;
+import acromate.common.exception.*;
+
+public class StringUtil
+{
+
+
+	public StringUtil()
+	{}
+
+	/**
+	 * <div	id=description>	Replace	String </div>
+	 * <div	id=detail> 문자열(origin_txt) 안에 있는	일부문자열(find_str)을 원하는 문자열(replace_str)로	바꿔준다. </div>
+	 * @param	String origin_txt	원본 문자열.
+	 * @param	String find_str		바꾸고 싶은	문자열.
+	 * @param	String replace_str	바꿀 문자열.
+	 * @return	String Replaced	String 결과값.
+	 */
+	public static String replaceInStr(String origin_txt, String	find_str, String replace_str) {
+		int	itmp = 0;
+		if (origin_txt==null) return "";
+
+		String tmp = origin_txt;
+		StringBuffer sb	= new StringBuffer();
+		sb.append("");
+		while (tmp.indexOf(find_str)>-1) {
+			itmp = tmp.indexOf(find_str);
+			sb.append(tmp.substring(0,itmp));
+			sb.append(replace_str);
+			tmp	= tmp.substring(itmp+find_str.length());
+		}
+		sb.append(tmp);
+		return sb.toString();
+	}
+
+	public static boolean checkNumeric(String sData) {
+		String sNum[]={"0","1","2","3","4","5","6","7","8","9"};
+		int	j =	0;
+		String sNumber = checkTrim(sData);
+		if (sNumber.equals("") || (sNumber == null))	{
+			return false;
+		}
+		for	(int i=	0;i	< sNumber.length();i++)	 {
+			for	(j=	0 ;	j <	10;j++ ) { 
+				if ( sNumber.substring(i,i+1).equals(sNum[j])){
+					break;
+				}
+				if (j == 9) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/////////////////////////////////////////////////////////////////
+	//  miripark 20030530  Interger,real...check
+	//  Num and + - .이 아닌 문자가 포함된 경우는 False
+	public static boolean checkReal(String sData) {
+		String sNum[]={"0","1","2","3","4","5","6","7","8","9",".","+","-"};
+		int	j =	0;
+		String sNumber = checkTrim(sData);
+		
+		for	(int i=	0;i	< sNumber.length();i++)	 {
+			for	(j=	0 ;	j <	10+3;j++ ) { 
+				if ( sNumber.substring(i,i+1).equals(sNum[j])){
+					break;
+				}
+				if ((j+1) == (10+3)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public static String checkTrim(String sData) {
+		if (sData == null){
+			return "";
+		}	
+		return sData.trim();
+	}
+
+	public static String makeDotNum(String sData) {
+
+		String sNumber = "";
+		if (sData == null ){
+			return "";
+		}
+		if (!checkNumeric(sData)) {
+			return "";
+	    }
+		String sTrimData = checkTrim(sData);
+		if ( sTrimData.length()	> 2	) {
+			sNumber	= sTrimData.substring(0,sTrimData.length()-2);
+			sNumber	+= "." + sTrimData.substring(sTrimData.length()-2,sTrimData.length());
+		} else {
+			sNumber	+="."+ sTrimData;
+		}
+		return sNumber;
+	}
+
+	
+	public static boolean checkValidDate(String	sDate) {
+		int	iYear =	0;
+		int	iMonth = 0;
+		int	iDay = 0;
+		int	iLastday = 0;
+		
+		int	days[]={0,31,28,31,30,31,30,31,31,30,31,30,31};
+
+		sDate =	checkTrim(sDate);
+
+		if (sDate.length() != 8) {
+			return false;
+		}
+		if (!checkNumeric(sDate)) {
+			return false;
+		}
+		iYear  = Integer.valueOf(sDate.substring(0,4)).intValue();
+		iMonth = Integer.valueOf(sDate.substring(4,6)).intValue();
+		iDay   = Integer.valueOf(sDate.substring(6,8)).intValue();
+
+		if ( iYear < 1900) {
+			return false;
+		}
+
+		if ( iMonth	< 1	|| iMonth >	12){ 
+			return false;
+		}
+
+		if (iMonth == 2)  {
+			if((iYear%4	== 0) && (iYear%100!=0)	|| (iYear%400 ==0))
+				iLastday = 29;
+			else
+				iLastday = 28;
+		} else {
+			iLastday = days[iMonth];
+		}
+
+		if ( iDay <	1 || iDay >	iLastday) {
+			return false;
+		}
+		return true;
+	}
+	public static String checkFormatDate(String	sDate,String sDateType)	{
+		String sRet	= "";
+		String sTempDateType = replaceInStr(sDateType,"/","");
+		sTempDateType =	replaceInStr(sTempDateType,"-","");
+		sTempDateType= sTempDateType.toLowerCase();
+
+		if (sDate.length() < 8 || sDate.length() > 8){
+			return sDate;
+		}
+
+		if (sTempDateType.equals("yyyymmdd")){
+			sRet  =	sDate.substring(0,4) + sDate.substring(4,6)	+ sDate.substring(6,8);
+		} else if (sTempDateType.equals("mmddyyyy")){
+			sRet  =	sDate.substring(4,8) + sDate.substring(0,2)	+ sDate.substring(2,4);
+		} else if (sTempDateType.equals("ddmmyyyy")){
+			sRet  =	sDate.substring(4,8) + sDate.substring(2,4)	+ sDate.substring(0,2);
+		} else {
+			sRet = sDate;
+		}
+
+		return sRet;
+	}
+
+	/**
+	 * <div	id=description>	leftPadtwithZero </div>
+	 * @param	String origin  원본	문자열.
+	 * @param	String size	   원하는 자리수
+	 * @return	String 원하는 자리수의 String 결과값. 
+	 * @사용법	leftPadtwithZero('23', 4) -> '0023'	
+	*/
+	public static String leftPadWithZero(String	origin,	int	size)
+	{
+		int	size_origin	= origin.length();
+		String stReturn	= new String();
+		
+		if(	size_origin	< size )
+			for( int i = 0 ; i < size -	size_origin	; i++ )
+				stReturn +=	"0";
+		
+		return (stReturn + origin);
+	}
+	/**
+	* textarea의 내용을	String으로 
+	* added	by bhkye, 20030229
+	*/
+	public static String convertTextAreaToString(String	sOrgString)	{
+		StringBuffer	sbRet	= new StringBuffer();
+		
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			case '\n':
+				sbRet.append("<br>");
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\r')
+					i++;
+				break;
+			case '\r':
+				sbRet.append("<br>");
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+					i++;
+				break;
+			case '\t':
+				sbRet.append('\\').append('t');
+				break;
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break;	
+/*
+			case '<':
+				sbRet.append("&lt;");
+				break;
+			case '>':
+				sbRet.append("&gt;");
+				break;
+*/
+			case '"':
+				sbRet.append("&quot;");
+				break;
+							
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0 )	{
+					if (i+1	>= sOrgString.length() )
+						break;
+					sbRet.append(sOrgString.charAt(i) );
+					i++;
+				}
+
+				sbRet.append(sOrgString.charAt(i));
+			}
+		}		
+				return sbRet.toString();
+	
+	}
+
+	/**
+	* textarea의 내용을	String으로 
+	* added	by ygkim, 2004-09-08
+	*/
+	public static String convertTextAreaToStringCRLF(String	sOrgString)	{
+		StringBuffer	sbRet	= new StringBuffer();
+
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			case '\n':
+				sbRet.append("<br>");
+					i++;
+				break;
+			case '\r':
+				sbRet.append('\\').append('n');
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+					i++;
+				break;
+			case '\t':
+				sbRet.append('\\').append('t');
+				break;
+			case '"':
+				sbRet.append('\\').append('"');
+				break;
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break;	
+			case '<':
+				sbRet.append("&lt;");
+				break;
+			case '>':
+				sbRet.append("&gt;");
+				break;			
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0) {
+					if (i+1	>= sOrgString.length() )
+						break;
+					sbRet.append(sOrgString.charAt(i) );
+					i++;
+				}
+				sbRet.append(sOrgString.charAt(i));
+			}
+			
+			
+		}		
+		return sbRet.toString();
+	}
+
+	/**
+	* textarea의 내용을	String으로  
+	*/
+	public static String convertToJavaString(String	sOrgString)	{
+		StringBuffer	sbRet	= new StringBuffer();
+		
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			case '\n':
+				sbRet.append('\\').append('n');
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\r')
+					i++;
+				break;
+			case '\r':
+				sbRet.append('\\').append('n');
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+					i++;
+				break;
+			case '\t':
+				sbRet.append('\\').append('t');
+				break;
+			case '"':
+				sbRet.append('\\').append('"');
+				break;
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break;	
+			case '<':
+				sbRet.append("&lt;");
+				break;
+			case '>':
+				sbRet.append("&gt;");
+				break;			
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0) {
+					if (i+1	>= sOrgString.length() )
+						break;
+					sbRet.append(sOrgString.charAt(i) );
+					i++;
+				}
+				sbRet.append(sOrgString.charAt(i));
+			}
+			
+			
+		}		
+				return sbRet.toString();
+	
+	}
+
+    // String 길이만큼 Return
+	public static String  getStringByLength(String str, int len) {
+		StringBuffer	sbRet	= new StringBuffer();
+		int    iLength      = 0;
+		int    inx            = 0;
+
+		iLength = str.length();
+		
+		if( iLength < 1 ) return str;
+		if( iLength <= len ) return str;
+
+		for	(inx = 0;inx < iLength; inx++) {
+
+			if ( inx < len )
+				sbRet.append(str.charAt(inx));
+			else {
+				if (str.charAt(inx) == ' ')
+					break;
+				else
+					sbRet.append(str.charAt(inx));
+			}
+
+	        }
+	        
+		return sbRet.toString();
+	}
+
+    // 문자열 숫자에 콤마 셋팅
+	public static String  setComma(String str) {
+		String sTempStr1     = "";
+		String sTempStr2     = "";
+		String sMinus        = "";
+		int    iDotPosition = 0;
+		int    iLength      = 0;
+		int    i            = 0;
+		
+		iLength = str.length();
+		
+		if( iLength < 1 ) return str;
+		
+		if( "-".equals( str.substring( 0,1 ) ) ){
+		    sMinus = "-";
+		    iLength -= 1;
+		    str = str.substring( 1 );
+		}
+		
+		iDotPosition = str.lastIndexOf(".");
+
+		if( iDotPosition == -1 ) iDotPosition = iLength;
+		else                     sTempStr2    = str.substring( iDotPosition   + 1 );
+		
+		sTempStr1 = str.substring( 0,iDotPosition );
+		
+	    str = "";
+	    
+        for(i=iDotPosition; i>3 ; i-=3){
+            str = "," + sTempStr1.substring(i-3,i) + str;
+        }
+        
+        str = sTempStr1.substring(0,i) + str;
+
+        if(!"".equals(sTempStr2)) str += "." + sTempStr2;
+        
+        str = sMinus + str;
+		
+		return str;
+	}	
+		
+	public static String  convertFormatedString(String sOrgString) {
+		DecimalFormat df = new DecimalFormat();
+		df.applyPattern("###,###,###.##");
+		//df.applyPattern(sFormatType);
+		sOrgString = sOrgString.substring(0, sOrgString.lastIndexOf(".") +4);
+		double lOrgString =	Double.parseDouble(sOrgString);
+		return df.format((double)lOrgString	/ 1.0);
+		
+	}	
+
+
+	
+	public static String  getCharSet(String	sLangCodeCharSet) {
+		String sCharSet	= null;
+		
+		int	iGubun = sLangCodeCharSet.lastIndexOf(",")	+ 1;
+		if (iGubun != -1) {
+			sCharSet = sLangCodeCharSet.substring(iGubun);	// includes	","
+		}
+		else {
+			sCharSet = "";
+		}
+		return sCharSet;	
+	}
+	
+	/*
+	* file의 내용을	화면에 보여	줄때사용...
+	*
+	*/
+	public static String convertHtmlStringFromFileString(String	sOrgString,	String[] sFileName)	{
+		
+		StringBuffer	sbRet	= new StringBuffer();
+		String tagCheck	= "";
+		int	inx	= 0;
+		int	cntChar	= 0;
+		int	j =	0;
+		try	{
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			case '\n':
+				sbRet.append("<br>");
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\r')
+					i++;
+				break;
+			case '\r':
+				sbRet.append("<br>");
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+					i++;
+				break;
+			/*case '\t':
+				sbRet.append('\\').append('t');
+				break;
+				*/
+			//case '"':
+			//	sbRet.append('\\').append('"');
+			//	break;
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break;	
+			case '<':
+				if (i+4	< sOrgString.length() && 
+					(sOrgString.charAt(i+1)	== '!')	&& 
+					(sOrgString.charAt(i+4)	== '>')) {//<!%2>
+					System.out.println((int)sOrgString.charAt(i+3) - (int)('0'));
+
+					if ((int)sOrgString.charAt(i+3)	< (	int)('1') || 
+						(int)sOrgString.charAt(i+3)	> (int)('9') )	{
+						//iFilePointer
+//						sbRet.append(sOrgString.charAt(i));
+//						break;
+					}
+					if (sOrgString.charAt(i+2) == '%' || sOrgString.charAt(i+2)	== '$' ) {
+						try	{
+						sbRet.append("<IMG SRC="+sFileName[(int)sOrgString.charAt(i+3)-(int)('0')]+" >");
+						} catch	(Exception e) {} 
+					}
+					if (sOrgString.charAt(i+2) == 'f') {
+						try{
+						sbRet.append("<embed src="+sFileName[(int)sOrgString.charAt(i+3)-(int)('0')]+" menu=false quality=high type=\"application/x-shockwave-flash\" width=\"600\"	height=\"140\"></embed>");
+						} catch	(Exception e) {} 
+					} 
+								
+					i =	i+4;	
+					//sbRet.append("<a href='test.html'>aaa</a>");
+				} else if (i+4 < sOrgString.length() &&	
+						(sOrgString.indexOf(">", i)	!= -1 )	) {	// JJ Park
+					inx=0;
+					tagCheck = "";
+					for(cntChar=0;sOrgString.charAt(i+cntChar) != '>';cntChar++)
+					{
+						if (sOrgString.charAt(i+cntChar) ==	' ')
+							continue;
+						else if	(sOrgString.charAt(i+cntChar) == '<')
+							try	{
+							sbRet.append(sOrgString.charAt(i+cntChar));
+							} catch	(Exception e) {e.printStackTrace();} 
+						else
+						{
+							tagCheck +=	sOrgString.charAt(i+cntChar); // TTT
+							tagCheck = tagCheck.toUpperCase();
+							inx++;
+						}
+//					System.out.println("tagCheck-->"+tagCheck);
+						/***printf("<script>alert('%s %d');</script>", sOrgString.charAt(i), i);***/
+	
+						if(inx == 4)
+						{
+							if (tagCheck.equals("HTML")	||
+								tagCheck.equals("BODY")	||
+								tagCheck.equals("META")	||
+								tagCheck.equals("BASE")	||
+								tagCheck.equals("HEAD")	)
+							{
+								j=0;
+								try	{
+								sbRet.append("!--");
+								} catch	(Exception e) {e.printStackTrace();} 
+								while(sOrgString.charAt(i+j+1) != '>')
+								{
+									try	{
+									sbRet.append(sOrgString.charAt(i+j+1));
+									} catch	(Exception e) {e.printStackTrace();} 
+									j++;
+								}
+								try	{
+								sbRet.append("-->");
+								} catch	(Exception e) {e.printStackTrace();} 
+								i =	i+j+1;
+								tagCheck = "";
+								break;
+	
+							}
+						}
+						else if	(inx ==	5)
+						{
+							if (tagCheck.equals("/HTML") ||
+								tagCheck.equals("/BODY") ||
+								tagCheck.equals("/HEAD"))
+							{
+								j=0;
+								try	{
+								sbRet.append("!--");
+								} catch	(Exception e) {e.printStackTrace();} 
+								while(sOrgString.charAt(i+j+1) != '>')
+								{
+									try	{
+									sbRet.append(sOrgString.charAt(i+j+1));
+									} catch	(Exception e) {e.printStackTrace();} 
+									j++;
+								}
+								try	{
+								sbRet.append("-->");
+								} catch	(Exception e) {e.printStackTrace();} 
+								i =	i+j+1;
+								tagCheck = "";
+								break;
+							}
+						}
+						else if	(inx > 6)
+							break;
+					} // for
+				
+				} else {	 //not <!%1>
+//					sbRet.append("&lt;");
+				}
+				break;
+//			case '>':
+//				sbRet.append("&gt;");
+//				break;
+//			case '"':
+//				sbRet.append("&quot;");
+//				break;
+							
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0) {
+					if (i+1	>= sOrgString.length() )
+						break;
+					try	{
+					sbRet.append(sOrgString.charAt(i) );
+					} catch	(Exception e) {e.printStackTrace();} 
+					i++;
+				}
+				try	{
+				sbRet.append(sOrgString.charAt(i));
+				} catch	(Exception e) {e.printStackTrace();} 
+			}
+			
+			
+		} // for
+		} catch	(Exception e) {e.printStackTrace();} 
+		return sbRet.toString();
+		
+	}
+	
+	
+	/*
+	* file의 내용을	화면에 보여	줄때사용...
+	*
+	*/
+	public static String convertHtmlStringFromFileString(String	sOrgString,	String[] sFileName,	int	dummy) {
+		
+		StringBuffer	sbRet	= new StringBuffer();
+		String tagCheck	= "";
+		int	inx	= 0;
+		int	cntChar	= 0;
+		int	j =	0;
+		try	{
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break;	
+			case '<':
+				if (i+4	< sOrgString.length() && 
+					(sOrgString.charAt(i+1)	== '!')	&& 
+					(sOrgString.charAt(i+4)	== '>')) {//<!%2>
+					System.out.println((int)sOrgString.charAt(i+3) - (int)('0'));
+
+					if ((int)sOrgString.charAt(i+3)	< (	int)('1') || 
+						(int)sOrgString.charAt(i+3)	> (int)('9') )	{
+						//iFilePointer
+//						sbRet.append(sOrgString.charAt(i));
+//						break;
+					}
+					if (sOrgString.charAt(i+2) == '%' || sOrgString.charAt(i+2)	== '$' ) {
+						try	{
+						sbRet.append("<IMG SRC="+sFileName[(int)sOrgString.charAt(i+3)-(int)('0')]+" >");
+						} catch	(Exception e) {} 
+					}
+					if (sOrgString.charAt(i+2) == 'f') {
+						try{
+						sbRet.append("<embed src="+sFileName[(int)sOrgString.charAt(i+3)-(int)('0')]+" menu=false quality=high type=\"application/x-shockwave-flash\" width=\"600\"	height=\"140\"></embed>");
+						} catch	(Exception e) {} 
+					} 
+								
+					i =	i+4;	
+					//sbRet.append("<a href='test.html'>aaa</a>");
+				} else if (i+4 < sOrgString.length() &&	
+						(sOrgString.indexOf(">", i)	!= -1 )	) {	// JJ Park
+					inx=0;
+					tagCheck = "";
+					for(cntChar=0;sOrgString.charAt(i+cntChar) != '>';cntChar++)
+					{
+						if (sOrgString.charAt(i+cntChar) ==	' ')
+							continue;
+						else if	(sOrgString.charAt(i+cntChar) == '<')
+							try	{
+							sbRet.append(sOrgString.charAt(i+cntChar));
+							} catch	(Exception e) {e.printStackTrace();} 
+						else
+						{
+							tagCheck +=	sOrgString.charAt(i+cntChar); // TTT
+							tagCheck = tagCheck.toUpperCase();
+							inx++;
+						}
+//					System.out.println("tagCheck-->"+tagCheck);
+						/***printf("<script>alert('%s %d');</script>", sOrgString.charAt(i), i);***/
+	
+						if(inx == 4)
+						{
+							if (tagCheck.equals("HTML")	||
+								tagCheck.equals("BODY")	||
+								tagCheck.equals("META")	||
+								tagCheck.equals("BASE")	||
+								tagCheck.equals("HEAD")	)
+							{
+								j=0;
+								try	{
+								sbRet.append("!--");
+								} catch	(Exception e) {e.printStackTrace();} 
+								while(sOrgString.charAt(i+j+1) != '>')
+								{
+									try	{
+									sbRet.append(sOrgString.charAt(i+j+1));
+									} catch	(Exception e) {e.printStackTrace();} 
+									j++;
+								}
+								try	{
+								sbRet.append("-->");
+								} catch	(Exception e) {e.printStackTrace();} 
+								i =	i+j+1;
+								tagCheck = "";
+								break;
+	
+							}
+						}
+						else if	(inx ==	5)
+						{
+							if (tagCheck.equals("/HTML") ||
+								tagCheck.equals("/BODY") ||
+								tagCheck.equals("/HEAD"))
+							{
+								j=0;
+								try	{
+								sbRet.append("!--");
+								} catch	(Exception e) {e.printStackTrace();} 
+								while(sOrgString.charAt(i+j+1) != '>')
+								{
+									try	{
+									sbRet.append(sOrgString.charAt(i+j+1));
+									} catch	(Exception e) {e.printStackTrace();} 
+									j++;
+								}
+								try	{
+								sbRet.append("-->");
+								} catch	(Exception e) {e.printStackTrace();} 
+								i =	i+j+1;
+								tagCheck = "";
+								break;
+							}
+						}
+						else if	(inx > 6)
+							break;
+					} // for
+				
+				} else {	 //not <!%1>
+//					sbRet.append("&lt;");
+				}
+				break;
+//			case '>':
+//				sbRet.append("&gt;");
+//				break;
+//			case '"':
+//				sbRet.append("&quot;");
+//				break;
+							
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0) {
+					if (i+1	>= sOrgString.length() )
+						break;
+					try	{
+					sbRet.append(sOrgString.charAt(i) );
+					} catch	(Exception e) {e.printStackTrace();} 
+					i++;
+				}
+				try	{
+				sbRet.append(sOrgString.charAt(i));
+				} catch	(Exception e) {e.printStackTrace();} 
+			}
+			
+			
+		} // for
+		} catch	(Exception e) {e.printStackTrace();} 
+		return sbRet.toString();
+		
+	}
+	/*****
+	** String 문자를 new line character로 구분하여 vector로 return
+	* 2003.06.11 
+	*/
+	public static Vector converToWrcString(String sOrgString) {
+		StringBuffer	sbRet	= new StringBuffer();
+		Vector vRet = new Vector();
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			    case '\n':
+			    	if (sbRet.length() > 0 )
+			    	vRet.add(sbRet.toString());
+			    	sbRet = new StringBuffer();
+			    	if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\r')
+			    		i++;
+			    	break;
+			    case '\r':
+			        if (sbRet.length() > 0 )
+			    	vRet.add(sbRet.toString());
+			    	sbRet = new StringBuffer();
+			    	if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+			    		i++;
+			    	break;
+			    	
+			    case '' :
+			        break;
+
+			    case 'ø' :
+			        sbRet.append(' ').append(' ');
+			            i++;
+			        break;
+
+			    default:
+			    	if ((sOrgString.charAt(i) &	0x80) >	0) {
+			    		if (i+1	>= sOrgString.length() )
+			    			break;
+			    		sbRet.append(sOrgString.charAt(i) );
+			    		i++;
+				    }
+				sbRet.append(sOrgString.charAt(i));
+				
+			}
+		}
+		if (sbRet.length()> 0)
+		    vRet.add(sbRet.toString());
+		return vRet;
+	}		
+				
+		
+	/*****
+	** 들어가는	문자는 textbox를 통해서	들어온다고 가정
+	* enter까지	처리해줌...	
+	*/
+	public static String converToTextString(String sOrgString) {
+		StringBuffer	sbRet	= new StringBuffer();
+		
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			case '\n':
+				sbRet.append('\\').append('n');
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\r')
+					i++;
+				break;
+			case '\r':
+				sbRet.append('\\').append('n');
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+					i++;
+				break;
+			case '\t':
+				sbRet.append('\\').append('t');
+				break;
+			case '"':
+				sbRet.append('\\').append('"');
+				break;
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break;	
+			case '<':
+				sbRet.append("&lt;");
+				break;
+			case '>':
+				sbRet.append("&gt;");
+				break;			
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0) {
+					if (i+1	>= sOrgString.length() )
+						break;
+					sbRet.append(sOrgString.charAt(i) );
+					i++;
+				}
+				sbRet.append(sOrgString.charAt(i));
+			}
+			
+			
+		}		
+				return sbRet.toString();
+	}	
+
+	public static Vector getArrayFormString(String sOrgString, String sDelimeter) {
+		int	i =	0;
+		boolean	bFlag =	true;
+		Vector vRet	= new Vector();
+		while (true) {	
+			i =	sOrgString.indexOf(sDelimeter);
+			if (i <	1) {
+				vRet.add(sOrgString);
+				break;
+			}	
+			vRet.add(sOrgString.substring(0, i));
+			sOrgString = sOrgString.substring(i+1);
+		}	
+		 
+		return vRet;
+	}
+	/**		* 구분자가 "|"로 구분되어있는 문자열을 입력받아	배열로 리턴합니다.	   * @param		String		strsrc	  *	@return		String[]	 */
+	public static String[] splitStr(String strsrc) {
+		ArrayList rowlist =	new	ArrayList();
+		StringTokenizer	st = new StringTokenizer(strsrc, "|");
+		while (st.hasMoreElements())
+		{
+			String sr =	st.nextToken().trim();
+			rowlist.add(sr);
+		}
+		String[] cl	= new String[rowlist.size()];
+		rowlist.toArray(cl);
+		return cl;
+	}
+
+	/**		* 구분자로 구분되어있는	문자열을 입력받아 배열로 리턴합니다.	* @param		String		strsrc	   * @param		String		delimit		* @return		String[]
+	 */
+	public static String[] splitStr(String strsrc, String delimit) {
+		strsrc = replaceInStr(strsrc, "||",	"|Z-99|");
+		ArrayList rowlist =	new	ArrayList();
+		StringTokenizer	st = new StringTokenizer(strsrc, delimit);
+		
+		///*******************************************
+		while (st.hasMoreElements())
+		{
+			String sr =	st.nextToken().trim();
+			rowlist.add(sr);
+		}
+
+		String[] cl	= new String[rowlist.size()];
+		rowlist.toArray(cl);
+		return cl;
+	}
+
+	public static String null2Str(Object	str, String	strDefault)	{
+		if(str == null || str.toString().length()==	0)
+		  return strDefault;
+		else
+		  return str.toString();
+	}
+	public static String convertTextToString(String	sOrgString)	{
+		StringBuffer	sbRet	= new StringBuffer();
+		
+		for	(int i = 0;	i <	sOrgString.length(); i++) {
+			switch (sOrgString.charAt(i)) {
+			case '\n':
+				sbRet.append("<br>");
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\r')
+					i++;
+				break;
+			case '\r':
+				sbRet.append("<br>");
+				if (i +	1 <	sOrgString.length()	&& sOrgString.charAt(i+1) == '\n')
+					i++;
+				break;
+			case '\t':
+				sbRet.append('\\').append('t');
+				break;
+			case '\\':
+				sbRet.append('\\').append('\\');
+				break; 
+			default:
+				if ((sOrgString.charAt(i) &	0x80) >	0 )	{
+					if (i+1	>= sOrgString.length() )
+						break;
+					sbRet.append(sOrgString.charAt(i) );
+					i++;
+				}
+
+				sbRet.append(sOrgString.charAt(i));
+			}
+		}		
+				return sbRet.toString();
+	}
+	
+	/* lek 2008.12.30 추가
+     * replace - 문자열중의 특정 토큰을 찾아서, 치환한다
+     *
+     * @param   String  소스 문자열
+     * @param   String  검색 토큰
+     * @return  String  치환된 문자열
+     */
+	public static String replace(String src, String token, String repl)	{
+		if (src == null) return null;
+		String ret = "";
+		int len = token.length();
+
+		for(int i=0;i<src.length();i++) {
+			if(len!=0&&((i+len)<=src.length())&&(src.substring(i,i+len).equals(token))) {
+				ret = ret + repl;
+				i = i + len -1;
+			} else {
+				ret = ret + src.substring(i,i+1);
+			}
+		}
+		return ret;
+	}
+	
+	/** lek 2008.12.30 추가
+	 * getParser - 문자열을 받아서 구분자로 구분하여 String[]을 리턴
+	 *
+	 * @param   String  구분자가 포함된 문자열
+	 * @param   String  구분자
+	 * @return  String[] 토큰 문자열
+	 * 예시)
+	 * StringUtil.getParser( "abc|def", "|") ==>  [0]=abc , [1]=def
+	 */
+	public static String[] getParser(String str,String sep) {
+	    if (str == null || str.length()==0) return new String[0];
+	
+	    int count = 0;
+	    int index = 0;
+	    do {
+	        ++count;
+	        if (count != 1) ++index;         // 처음에는 index를 증가 안시킨다
+	        index = str.indexOf(sep, index);
+	    } while (index != -1);
+	    String[] substr = new String[count];
+	    index = 0;
+	    int endIndex = 0;
+	    for ( int i = 0; i < (count); i++ ) {
+	        endIndex = str.indexOf(sep, index);
+	        if ( endIndex == -1) {
+	            substr[i] = str.substring(index);
+	        } else {
+	            substr[i] = str.substring(index, endIndex);
+	        }
+	        index = endIndex + 1;
+	    }
+	    return substr;
+	}
+	
+    /** lek 2008.12.30 추가
+     * getKSTFormat - 현재 날짜 및 시간을 원하는 포맷으로 얻는다
+     *
+     * @param   String  포맷
+     * @return  String  주어진 포맷의 현재 날짜 및 시간
+     * 예시)
+     * Format Pattern                                       Result
+     * --------------                                       -------
+     * "yyyy.MM.dd G 'at' HH:mm:ss z"  ->>  1996.07.10 AD at 15:08:56 PDT
+     * "EEE, MMM d, ''yy"              ->>  Wed, July 10, '96
+     * "h:mm a"                        ->>  2:08 PM
+     * "hh 'o''clock' a, zzzz"         ->>  12 o'clock PM, Pacific Daylight Time
+     * "K:mm a, z"                     ->>  0:00 PM, PST
+     * "yyyyy.MMMMM.dd GGG hh:mm aaa"  ->>  1996.July.10 AD 12:08 PM
+     */
+    public static String getKSTFormat(String kfFormat) {
+        SimpleDateFormat formatter = new SimpleDateFormat (kfFormat);
+        return formatter.format(new Date());
+    }
+    
+    /** lek 2008.12.30 추가
+     * getKSTDate - 현재 날짜를 얻는 함수(8자리) : yyyyMMdd 포맷
+     *
+     * @return  String  현재시간 yyyyMMdd
+     */
+    public static String getKSTDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat ("yyyyMMdd");
+        return formatter.format(new Date());
+    }
+    
+    /* lek 2008.12.30 추가
+     * nvl - 문자열이 Null 일 경우, "" 을 리턴한다
+     *
+     * @param   String  문자열(Null 여부 체크값)
+     * @return  String  문자열 또는 ""
+     */
+	public static String nvl(String str) {
+		return (str = ( str == null ) ? "" : str );
+	}
+	
+	/** lek 2008.12.30 추가
+     * getLong - 숫자 String을  long형으로 반환해준다.
+     *
+     * @param   String  숫자문자열
+     * @return  long    long형 숫자
+     */
+	public static long getLong(String str) {
+		long retValue = 0L;
+		try {
+			if (str == null) {
+				return 0L;
+			} else if (str.trim().equals("")) {
+				return 0L;
+			} else {
+				str = replace(str.trim(),",","");
+				int pos = str.indexOf(".");
+				if (pos != -1) {
+					str = str.substring(0, pos);
+				}
+				retValue = Long.parseLong(str);
+			}
+		} catch (Exception e) {
+			return 0L;
+		}
+		return retValue;
+	}
+	
+	/** lek 2008.12.30 추가
+     * getDouble - 숫자 String을  double형으로 반환해준다.
+     *
+     * @param   String  숫자문자열
+     * @return  double  double형 숫자
+     */
+	public static double getDouble(String str) {
+		double retValue = 0d;
+		try {
+			if (str == null) {
+				return 0d;
+			} else if (str.trim().equals("")) {
+				return 0d;
+			} else {
+				str = replace(str.trim(),",","");
+				retValue = Double.parseDouble(str);
+			}
+		} catch (Exception e) {
+			return 0d;
+		}
+		return retValue;
+	}
+	
+	/** lek 2008.12.30 추가
+     * getString - 한글깨짐처리
+     *
+     * @param   String  문자열
+     * @return  String  문자열
+     */
+	public static String Conv_EUC_KR(String str) {
+    	String temp = "";
+
+    	try {
+    		temp = new String(str.getBytes("8859_1"), "EUC-KR");
+
+    	} catch (Exception e) {}
+
+    	return temp;
+    }
+	
+	/** lek 2009.1.07 추가
+     * getString - 전화번호를 분리하여 리턴
+     *
+     * @param   String  문자열
+     * @return  String  문자열
+     */
+	public static String[] phoneNumber(String str) {
+		String[] returnValue = new String[3];
+		if (str == null || "".equals(str.trim())) {
+			returnValue[0] = "";
+			returnValue[1] = "";
+			returnValue[2] = "";
+		} else {
+			str = str.trim();
+			if(str.length() < 4){
+				returnValue[0] = str;
+				returnValue[1] = "";
+				returnValue[2] = "";
+			}else{
+				if("02".equals(str.substring(0,2))){
+					returnValue[0] = "02";
+					str = str.substring(2);
+				}else{
+					returnValue[0] = str.substring(0,3);
+					str = str.substring(3);
+				}
+				if(str.length() == 7){
+					returnValue[1] = str.substring(0,3);
+					returnValue[2] = str.substring(3);
+				}else if(str.length() > 7){
+					returnValue[1] = str.substring(0,4);
+					returnValue[2] = str.substring(4);
+				}else{
+					returnValue[1] = str;
+					returnValue[2] = "";
+				}
+			}
+		}
+    	return returnValue;
+    }
+	
+	/**@@
+    *
+    *  milsecTotime -   초의 값을 'HH:MM:DD'의 형식으로 변경하는 메서드
+    *
+    * @author 	2009.1.30 lek 추가
+    * @param 		long
+    * @return 	String
+    *
+    */
+   public static String milsecTotime(int ltimes){
+
+   	DecimalFormat formatter = new DecimalFormat ("00");
+
+   	String str = "";
+		long  hours			= (long)ltimes/60/60;
+		int  hoursRound		= (int)Math.floor(hours);
+		long  minutes		= (long)ltimes/60 - (60* hoursRound);
+		int  minutesRound	= (int)Math.floor(minutes);
+		long  seconds		= (long)ltimes - (60*60*hoursRound) - (60* minutesRound);
+		int  secondsRound   = 0;
+		if(seconds > 0){
+			if(seconds < 1){
+				secondsRound	= 1;
+			}else {
+				secondsRound	= (int)Math.round(seconds);
+			}
+		}
+
+
+
+//		str = ""  + String.valueOf(hoursRound) + "시간 ";
+//		str = str + formatter.format(minutesRound) + "분 " + formatter.format(secondsRound) + "초 ";
+		str = ""  + String.valueOf(hoursRound) + ":";
+		str = str + formatter.format(minutesRound) + ":" + formatter.format(secondsRound);
+   	return str;
+
+   }
+   
+   /**
+    * getDate - 날짜를 받아서 포맷된 날짜 형식으로 리턴한다. yyyy-mm-dd
+    * @author 	2009.2.2 lek 추가
+    * @param   String 날짜(년월-6자리, 년월일-8자리)
+    * @return  String yyyy-mm-dd 형식으로 리턴
+    */
+   public static String getDate(String sDate) {
+   	sDate = nvl(sDate).trim();
+   	sDate = replace(sDate,"-","").trim();
+   	sDate = replace(sDate,"/","").trim();
+   	if (sDate.length()==8) return sDate.substring(0,4)+"-"+sDate.substring(4,6)+"-"+sDate.substring(6);
+   	if (sDate.length()==6) return sDate.substring(0,4)+"-"+sDate.substring(4);
+   	return sDate;
+   }
+   
+   /**
+    * dateCal - 날짜를 받아서 , 특정 일,달,년 만큼 계산된 날자를 리턴한다.
+    * @author 	2009.2.2 lek 추가
+    * @param   String  날짜
+    * @param   String  어느항목을 계산할 것인가("YEAR":년도, "MONTH":월, "DAY":일)
+    * @param   int     계산값
+    * @return  String  계산된 날짜
+    */
+   public static String dateCal(String sDate, String type, int iValue) {
+   	if (sDate ==null) return sDate;
+   	sDate = StringUtil.replace(sDate,"-","").trim();
+   	if (sDate.length() != 8) return sDate;
+
+   	Calendar cal = Calendar.getInstance();
+   	cal.set(Calendar.YEAR, Integer.parseInt(sDate.substring(0,4)));
+   	cal.set(Calendar.MONTH, (Integer.parseInt(sDate.substring(4,6))-1));
+   	cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(sDate.substring(6,8)));
+
+   	if ("YEAR".equals(type.toUpperCase())) {
+   		cal.add(Calendar.YEAR,iValue);
+   	} else if ("MONTH".equals(type.toUpperCase())) {
+   		cal.add(Calendar.MONTH,iValue);
+   	} else if ("DAY".equals(type.toUpperCase())) {
+   		cal.add(Calendar.DAY_OF_MONTH,iValue);
+   	}
+   	String monValue  = Integer.toString(cal.get(Calendar.MONTH)+1);
+   	String dateValue = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+
+   	monValue  = getLpadB(monValue, "0",2);
+   	dateValue = getLpadB(dateValue,"0",2);
+
+   	return Integer.toString(cal.get(Calendar.YEAR))+"-"+monValue+"-"+dateValue;
+   }
+   
+   /**
+    * getLpadB - 한글/한문을 2Byte로 계산하여 필요한 문자를 왼쪽에 포함하여 원하는 자릿수로 만듬
+    * @author 	2009.2.2 lek 추가
+    * @param   String  소스 문자열
+    * @param   String  자릿수를 채울 문자
+    * @param   int     필요한 자릿수
+    * @return  String  변환된 String
+    */
+   public static String getLpadB(String str, String apnd, int cipher) {
+       StringBuffer sb = new StringBuffer();
+       int j = lengthB(str);
+       int a = cipher - j;
+       for (int i = 1; i <= a; i++) {
+           sb.append(apnd);
+       }
+       sb.append(str);
+       return sb.toString();
+   }
+   
+   /**
+    * lengthB - 한글/한문을 2Byte로 계산하여 문자열의 길이를 반환한다.
+    * @author 	2009.2.2 lek 추가
+    * @param   String  문자열
+    * @return  int     길이
+    */
+   public static int lengthB(String str) {
+       return str.getBytes().length;
+   }
+
+
+}
+//javac -classpath $CLASSPATH:/home2/haneri/www/WEB-INF/classes StringUtil.java

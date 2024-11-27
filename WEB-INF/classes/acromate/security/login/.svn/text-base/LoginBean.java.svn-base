@@ -1,0 +1,114 @@
+package acromate.security.login;
+
+public class LoginBean implements java.io.Serializable
+{
+/**
+ * member variables
+ */
+private String username;
+private String userlevel;
+private String userip;
+private String cfg_ssw;
+private String cfg_element;
+private String cfg_service;
+private String cfg_emsmanage;
+private String cfg_performance;
+private boolean cfg_isblockaddr;
+private String active_hostname;
+private String active_host;
+private String active_dbname;
+private String active_dbpwd;
+private String active_dbclass;
+private String standby_hostname;
+private String standby_host;
+private String standby_dbname;
+private String standby_dbpwd;
+private String standby_dbclass;
+
+/**
+ * member functions
+ */
+public String	getUserName() { return this.username; }
+public void	setUserName(String vUserName ) { this.username = vUserName; }
+
+public String	getUserLevel() { return this.userlevel; }
+public void	setUserLevel(String vUserLevel ) { this.userlevel = vUserLevel; }
+
+public String	getUserIP() { return this.userip; }
+public void	setUserIP(String vUserIP ) { this.userip = vUserIP; }
+
+public String	getSsw() { return this.cfg_ssw; }
+public void	setSsw(String vSsw ) { this.cfg_ssw = vSsw; }
+
+public String	getElement() { return this.cfg_element; }
+public void	setElement(String vElement ) { this.cfg_element = vElement; }
+
+public String	getService() { return this.cfg_service; }
+public void	setService(String vService ) { this.cfg_service = vService; }
+
+public String	getPerformance() { return this.cfg_performance; }
+public void	setPerformance(String vPerformance ) { this.cfg_performance = vPerformance; }
+
+public boolean	getIsblockaddr() { return this.cfg_isblockaddr; }
+public void	setIsBlockAddr(boolean isblockaddr ) { this.cfg_isblockaddr = isblockaddr; }
+
+public String	getEMSManage() { return this.cfg_emsmanage; }
+public void	setEMSManage(String vEMSManage ) { this.cfg_emsmanage = vEMSManage; }
+
+public String	getActive_hostname() { return this.active_hostname; }
+public void	setActive_hostname(String vActive_hostname ) { this.active_hostname = vActive_hostname; }
+
+public String	getActive_host() { return this.active_host; }
+public void	setActive_host(String vActive_host ) { this.active_host = vActive_host; }
+
+public String	getActive_dbname() { return this.active_dbname; }
+public void	setActive_dbname(String vActive_dbname ) { this.active_dbname = vActive_dbname; }
+
+public String	getActive_dbpwd() { return this.active_dbpwd; }
+public void	setActive_dbpwd(String vActive_dbpwd ) { this.active_dbpwd = vActive_dbpwd; }
+
+public String	getActive_dbclass() { return this.active_dbclass; }
+public void	setActive_dbclass(String vActive_dbclass ) { this.active_dbclass = vActive_dbclass; }
+
+public String	getStandby_hostname() { return this.standby_hostname; }
+public void	setStandby_hostname(String vStandby_hostname ) { this.standby_hostname = vStandby_hostname; }
+
+public String	getStandby_host() { return this.standby_host; }
+public void	setStandby_host(String vStandby_host ) { this.standby_host = vStandby_host; }
+
+public String	getStandby_dbname() { return this.standby_dbname; }
+public void	setStandby_dbname(String vStandby_dbname ) { this.standby_dbname = vStandby_dbname; }
+
+public String	getStandby_dbpwd() { return this.standby_dbpwd; }
+public void	setStandby_dbpwd(String vStandby_dbpwd ) { this.standby_dbpwd = vStandby_dbpwd; }
+
+public String	getStandby_dbclass() { return this.standby_dbclass; }
+public void	setStandby_dbclass(String vStandby_dbclass ) { this.standby_dbclass = vStandby_dbclass; }
+
+public String toString()
+{
+        StringBuffer sb = new StringBuffer("");
+        sb.append("(userid:" 	        + getUserName() + ") ") ;
+
+        sb.append("[userlevel:"         + getUserLevel() + "] ") ;
+        sb.append("[userip:"   	        + getUserLevel() + "] ") ;
+        sb.append("[cfg_ssw:"           + getSsw() + "] ") ;
+        sb.append("[cfg_element:"       + getElement() + "] ") ;
+        sb.append("[cfg_service:"        + getService() + "] ") ;
+        sb.append("[cfg_performance:" 	+ getPerformance() + "] ") ;
+        sb.append("[cfg_emsmanage:"      + getEMSManage() + "] ") ;
+        sb.append("[cfg_isblockaddr:"      + getIsblockaddr() + "] ") ;
+        sb.append("[active_hostname:" 	+ getActive_hostname() + "] ") ;
+        sb.append("[active_host:" 	+ getActive_host() + "] ") ;
+        sb.append("[active_dbname:" 	+ getActive_dbname() + "] ") ;
+        sb.append("[active_dbpwd:" 	+ getActive_dbpwd() + "] ") ;
+        sb.append("[active_dbclass:" 	+ getActive_dbclass() + "] ") ;
+        sb.append("[standby_hostname:" 	+ getStandby_hostname() + "] ") ;
+        sb.append("[standby_host:" 	+ getStandby_host() + "] ") ;
+        sb.append("[standby_dbname:" 	+ getStandby_dbname() + "] ") ;
+        sb.append("[standby_dbpwd:" 	+ getStandby_dbpwd() + "] ") ;
+        sb.append("[standby_dbclass:" 	+ getStandby_dbclass() + "] ") ;
+
+        return sb.toString();
+}
+}

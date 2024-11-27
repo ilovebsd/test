@@ -1,0 +1,81 @@
+package com.acromate.dataio.noms ;
+
+import org.apache.log4j.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class RouteInfoDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder routeId = new StringBuilder();
+    private StringBuilder sigType = new StringBuilder();
+    private StringBuilder hunt = new StringBuilder();
+
+    public String getRouteId() { return routeId.toString() ; }
+    public void   setRouteId( String routeId ) {
+        this.routeId.delete(0,this.routeId.length());
+        this.routeId.append(routeId) ;
+    }
+
+    public String getSigType() { return sigType.toString() ; }
+    public void   setSigType( String sigType ) {
+        this.sigType.delete(0,this.sigType.length());
+        this.sigType.append(sigType) ;
+    }
+
+    public String getHunt() { return hunt.toString() ; }
+    public void   setHunt( String hunt ) {
+        this.hunt.delete(0,this.hunt.length());
+        this.hunt.append(hunt) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "routeId".toLowerCase()) == true) {
+            return setString(routeId, value);
+        }
+        if(compareFieldID(temp, "sigType".toLowerCase()) == true) {
+            return setString(sigType, value);
+        }
+        if(compareFieldID(temp, "hunt".toLowerCase()) == true) {
+            return setString(hunt, value);
+        }
+        log.error("RouteInfoDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "routeId", idx, value) == true) {
+            errorcode = getString(routeId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "sigType", idx, value) == true) {
+            errorcode = getString(sigType.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hunt", idx, value) == true) {
+            errorcode = getString(hunt.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+    public String toXmlString( String blank ) {
+		StringBuilder xml = new StringBuilder();
+
+		xml.append ( blank+"   <routeId>" + getRouteId() + "</routeId>\n") ;
+		xml.append ( blank+"   <sigType>" + getSigType() + "</sigType>\n") ;
+		xml.append ( blank+"   <hunt>" + getHunt() + "</hunt>\n") ;
+
+		return xml.toString();
+    }
+}

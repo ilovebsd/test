@@ -1,0 +1,14 @@
+package com.acromate.dto.reporttool.report;
+
+import com.acromate.data.ListIO;
+import com.acromate.data.DataIO;
+
+public class ReportNameListDTO extends ListIO {
+
+    protected DataIO newListNode() {
+        return new ReportNameDTO();
+    }
+    public void removeAll() {
+        list.clear();
+    }
+}

@@ -1,0 +1,56 @@
+package dto;
+
+public class KeynumberForwardDaysDTO {
+	
+	private String 	keynumber 		= "";
+	private String 	forwardday		= "";
+	private String	starttime		= "";
+	private String	endtime			= "";
+	private String 	forwardnumber	= "";
+	private int    	vmsforward		= 0;
+	
+	public KeynumberForwardDaysDTO () {}
+
+	public String getKeynumber() {
+		return keynumber;
+	}
+	public void setKeynumber(String keynumber) {
+		this.keynumber = keynumber;
+	}
+
+	public String getForwardDay() {
+		return forwardday;
+	}
+	public void setForwardDay(String forwardday) {
+		this.forwardday = forwardday;
+	}
+
+	public String getStartTime() {
+		return starttime;
+	}
+	public void setStartTime(String starttime) {
+		this.starttime = starttime;
+	}
+
+	public String getEndTime() {
+		return endtime;
+	}
+	public void setEndTime(String endtime) {
+		this.endtime = endtime;
+	}
+
+	public String getForwardNumber() {
+		return forwardnumber;
+	}
+	public void setForwardNumber(String forwardnumber) {
+		this.forwardnumber = forwardnumber;
+	}
+
+	public int getVmsForward () {
+		return vmsforward ;
+	}
+	public void setVmsForward(int vmsforward ) {
+		this.vmsforward  = vmsforward ;
+	}
+
+}

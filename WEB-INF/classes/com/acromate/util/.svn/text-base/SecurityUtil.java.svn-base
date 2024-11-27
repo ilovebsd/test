@@ -1,0 +1,50 @@
+package com.acromate.util;
+
+import java.security.MessageDigest;
+import java.util.Random;
+
+public class SecurityUtil {
+    public SecurityUtil() {}
+
+    public static String makeMD5(String userID, String password , String keyValue) {
+        StringBuffer md5 = new StringBuffer();
+        StringBuilder strSum = new StringBuilder();
+        strSum.append(keyValue).append(userID).append(password);
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("MD5").digest(strSum.toString().getBytes());
+
+            for (int i = 0; i < digest.length; i++) {
+                md5.append(Integer.toString((digest[i] & 0xf0) >> 4, 16));
+                md5.append(Integer.toString(digest[i] & 0x0f, 16));
+            }
+        } catch(java.security.NoSuchAlgorithmException ne) {
+            ne.printStackTrace();
+        }
+
+        return md5.toString();
+    }
+
+    public static String makeSessionID(String ip, int length) {
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<length-4; i++) {
+            if(i % 2 == 0) { // 짝수면 소문자 생성
+                sb.append((char)(Math.floor(Math.random() * (122 - 97 + 1)) + 97));
+            } else { // 홀수면 대문자 생성
+                sb.append((char)(Math.floor(Math.random() * (90 - 65 + 1)) + 65));
+            }
+        }
+        int nIp = Str.CheckNullInt(ip.replace('.','1'));
+        long lRandom = System.currentTimeMillis() + nIp;
+
+        String strRandom = String.valueOf(lRandom);
+        strRandom = strRandom.substring(strRandom.length()-4);
+        sb.append(strRandom);
+        return sb.toString();
+    }
+
+    public static String makeNonceValue() {
+        Random random=new Random();
+        int iRandom = random.nextInt(10000000);
+        return String.valueOf(iRandom);
+    }
+}

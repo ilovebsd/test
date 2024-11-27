@@ -1,0 +1,73 @@
+<style type="text/css">
+* { margin: 0; padding: 0; color: #FFFFFF; }
+body { font-family: Gulim, sans-serif; font-size: 12px; margin: 10px; }
+#box { border-collapse: collapse; border-top: 1px solid #a0a0a0; border-bottom: 1px solid #a0a0a0; border-right: 1px solid #a0a0a0; border-left: 1px solid #a0a0a0; width: 100%; text-align: center; }
+#box th, #box td { border-right: 1px solid #CBCBCB; border-bottom: 1px solid #CBCBCB; }
+#box td { padding: 1px 0 1px 0; height: 20px;}
+#box .last-child { border-right: 0; }
+.bdNum { font-size:12px; }
+.bdTitle { text-align: left; }
+.bdTitle name { padding: 0 1px; color: #3C3C3C; text-decoration: bold; }
+.bdName { }
+</style>
+
+/* SelectBox */
+.selectBoxSelectedAreaGlobal {color:#626262; font-size:12px; font-family:Gulim; font-weight:bold; background-color:#ffffff; padding-top:2px; line-height:20px; padding-left:5px; letter-spacing:-1px;}
+.selectBoxSelectedAreaFocusGlobal {color:#626262; font-size:12px; font-weight:bold; font-family:Gulim; background-color:#ffffff; padding-top:2px; line-height:20px; padding-left:5px; letter-spacing:-1px;}
+.selectBoxOptionGlobal {color:#626262; font-size:12px; font-family:Gulim; font-weight:bold; background-color:#ffffff; padding-top:2px; line-height:20px; padding-left:5px; letter-spacing:-1px;}
+.selectBoxOptionOverGlobal {color:#626262; font-size:12px; font-family:Gulim; font-weight:bold; background-color:#e6e6e6; padding-top:2px; line-height:20px; padding-left:5px; letter-spacing:-1px;}
+
+.selectBoxOptionInnerLayer {overflow:auto;background-color:#f5f5f5;
+    scrollbar-face-color:#F3F3F3;
+    scrollbar-shadow-color:#6C6C6C;
+    scrollbar-highlight-color:#FFFFFF;
+    scrollbar-3dlight-color:#C9C9C9;
+    scrollbar-darkshadow-color:#FFFFFF;
+    scrollbar-track-color:#F3F3F3;
+    scrollbar-arrow-color:#000000;
+
+
+.title {
+	font-family: Gulim;
+    font-size: 12px;
+	line-height: 20px;
+	font-weight: bold;
+	color: #ffffff;
+}
+
+.subtitle {
+	font-family: Gulim;
+	font-size: 12px;
+	line-height: 20px;
+    color: #5a5a5a;
+}
+
+.header {
+	font-family: Gulim;
+	font-size: 12px;
+    color: #bebcb6;
+}
+
+a:link {
+    text-decoration: none;
+	color: #3c3c3c;
+}
+
+a:visited {
+    text-decoration: none;
+    color: #3c3c3c;
+}
+
+a:hover {
+	text-decoration: none;
+	color: #fed18e;
+}
+
+a:active {
+	text-decoration: none;
+	color: #fed18e;
+}
+
+.cell_01 { background-color: #f3f5f7; }
+
+.cell_02 { background-color: #ffffff; }

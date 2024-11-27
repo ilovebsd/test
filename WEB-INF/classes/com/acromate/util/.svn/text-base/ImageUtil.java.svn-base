@@ -1,0 +1,23 @@
+package com.acromate.util;
+
+import javax.swing.ImageIcon;
+
+public class ImageUtil {
+    public ImageUtil() {
+
+    }
+    public static ImageIcon createImageIcon(String file)
+    {
+        String path = "/image/" + file;
+        java.net.URL url = (com.acromate.util.ImageUtil.class).getResource(path);
+        if(url != null)
+        {
+            return new ImageIcon(url);
+        } else
+        {
+            System.err.println("Couldn't find Image: " + path);
+            return null;
+        }
+    }
+}
+

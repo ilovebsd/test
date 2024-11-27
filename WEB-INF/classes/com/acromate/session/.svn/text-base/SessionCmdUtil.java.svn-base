@@ -1,0 +1,339 @@
+package com.acromate.session;
+
+import java.rmi.ConnectException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import com.acromate.data.code.NetworkConst;
+import com.acromate.driver.core.IClassObject;
+import com.acromate.driver.core.IDataObject;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.driver.net.IPacket;
+import com.acromate.driver.net.Packet;
+import com.acromate.util.Logger;
+import com.acromate.util.Str;
+
+public class SessionCmdUtil {
+    private IDataObject dataObject;
+    private String sessionID;
+    private Logger log ;
+    
+    public SessionCmdUtil(IDataObject dataObject, String sessionID){
+    	this.dataObject = dataObject;
+    	this.sessionID = sessionID;
+        log = Logger.getLogger(this.getClass());
+    }
+    // 모든 리소스 script 리턴[EMS]
+    public String getRootScript( String field) {
+        String result = null;
+        try {
+            IClassObject classObject = dataObject.getGroups(sessionID);
+            result = classObject.getParam(field);
+        } catch (RemoteException ex) {
+            log.error("exception occurred > ", ex);
+            return result;
+        }   return result;
+    }
+
+    // [EMS]
+    public  boolean forcibleLogoutManager(String userID) {
+        int nResult = 0;
+        if(dataObject != null) {
+            try {
+                nResult = dataObject.setUserLogOutForcibly(userID);
+             } catch (ConnectException ex) {
+                log.error("exception occurred > ", ex);
+                nResult = -5;
+            } catch (RemoteException ex1) {
+                log.error("exception occurred > ", ex1);
+                nResult = -6;
+            }
+        }
+        if ( nResult < 0) return false;
+        else return true;    
+    }
+
+    //################ 1.REQUEST #############//
+    public Packet reqPacket(String systemPath, Object... args) {
+        Packet result  = null;
+        if(dataObject != null) {
+            try {
+                IPacket packet = (IPacket)dataObject.reqPacket(sessionID, systemPath, args);
+                if(packet != null)
+                   result  = new Packet(packet);
+            } catch (RemoteException ex) {
+                log.error("exception occurred > ", ex); return result;
+            }
+        }   return result;
+    }
+
+    /** EMS Active서버에 Request  */
+    public Packet reqPacketEms(int requestCode, String... args){
+        return reqPacket("(ems).active", (byte)requestCode, args);
+    }
+
+    /** SSW Active 서버에 Request  */
+    public Packet reqPacketSsw(String systemPath, int requestCode, String... args){
+        return reqPacket(systemPath, (byte)requestCode, args);
+    }
+
+    //################ 2.COMMAND #############//
+
+    /** EMS Active 서버에 Command (인자없음) */
+    public int cmdPacketEms(int requestCode){
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    /** EMS Active 서버에 Command (인자 문자배열 Obejct[]) */
+    public int cmdPacketEms(int requestCode, String... args){
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    /** SSW Active 서버에 Command (인자없음) */
+    public int cmdPacketSsw(int requestCode){
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    /** SSW Active 서버에 Command (인자 문자배열 String[]) */
+    public int cmdPacketSsw(int requestCode, String... args){
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    /** 지정 서버에 Command (인자 문자배열 Obejct[]) (EMS01, SSW02 등)*/
+    public int cmdPacket(String MachineID, int requestCode, String... args){
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    //################ 3.형식 지정 COMMAND #############//
+
+    /** DDOS IP Table (WhiteList, DenyList) 를 업데이트 한다. */
+
+    public int updateDdosTable ( int reqType , String systemPath, String script) {
+        Packet result  = null;
+        if(dataObject != null) {
+            try {
+                IPacket packet = (IPacket)dataObject.reqPacket(sessionID, systemPath, (byte)reqType, script);
+                if(packet != null)
+                   result  = new Packet(packet);
+            } catch (RemoteException ex) {
+                log.error("exception occurred > ", ex);
+            }
+        }
+        if (result == null) return -1 ;
+        return 0;        
+    }
+    /** 지정한 SSW의 Config 를 업데이트 한다. */
+    public int updateSswConfig (String systemPath, String MachineID, String section, String member, String value) {
+              String clusterId = systemPath.substring(systemPath.indexOf(")(")+1);
+              int end = clusterId.indexOf(".");
+              clusterId = clusterId.substring(0,end);
+              return updateConfig (clusterId + Str.cover(MachineID), section, member, value);
+
+    }
+
+    /** 지정한 SSW의 Config 를 업데이트 한다. */
+    public int updateConfig (String path, String section, String member, String value) {
+        Packet result = null;
+        try{
+              IPacket packet = (IPacket)dataObject.reqPacket(sessionID,path,
+				                                   (byte)NetworkConst.REQUEST_UPDATE_EMS_CONFIG,
+				                                   (short)1,
+				                                   (short)0,
+				                                   section,member," "," ",value);
+            if (packet == null) return -1;
+            return 0;
+        }catch(Exception e){}
+        return 0;
+    }
+
+    public int refreshSswConfigSection (String systemPath, String MachineID, String section ) {
+        int nReturn = -1;
+
+        return nReturn;
+    }
+    public int refreshSswConfigSection (String MachineID, String section ) {
+        int nReturn = -1;
+
+        return nReturn;
+    }
+
+    public int refreshConfigSection (String path, String section ) {
+        int nReturn = -1;
+
+        return nReturn;
+    }
+
+    /** 액티브 SSW의 Call Drop */
+    public int callDrop(String dropCall, String systemPath ) {
+        if("".equals(dropCall)) return -1;
+        int nReturn = -1;
+        Packet packet = reqPacket(systemPath,(byte)NetworkConst.REQUEST_DROP_CALL,dropCall);
+        if (packet == null) return -1;
+        nReturn = packet.getInt();
+        return nReturn;    
+    }
+
+    /** 액티브 SSW의 UnRegister Endpoint */
+    public int unregisterEndpoint(String endpointid, short endpointtype, short forceType, String contactid ){
+        // falseType ==> 0 : 진행중인 호 있으면 Deregi 실패.
+        if ("".equals(endpointid))return -1;
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    /** 액티브 SSW의 UnRegister Endpoint */
+    public int reAuthEndpoint(String endpointid, short endpointtype, short forceType, String contactid ){
+        // falseType ==> 0 : 진행중인 호 있으면 Deregi 실패.
+        if ("".equals(endpointid))return -1;
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    /** 액티브 SSW의 audit Endpoint */
+    public int auditEndpoint(String endpointid, short endpointtype, String contactid){
+        if ("".equals(endpointid))return -1;
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    public int updateEndpoint(short endpoint_class, short update_type, String endpointid, String domain_id, String path){
+        int nReturn = -1;
+        Packet packet = reqPacket( path  ,(byte) NetworkConst.REQUEST_UPDATE_ENDPOINT, (short)endpoint_class, (short)update_type, endpointid, domain_id);
+        if (packet == null)return -1;
+        nReturn = packet.getInt();
+        return nReturn;
+    }
+
+    /** 액티브 SSW의 Update Endpoint */
+    public void updateImsHssE164(DataStatement statement, String strE164 ) throws Exception {
+    }
+
+
+    /** 액티브 SSW의 Module Load/Unload */
+    public int updateLoadModule( String strHwD, short load_type, String module_name, short module_version, String directory_name, String file_name, String function_name, String ex_function){
+        int nReturn = -1;
+
+        return nReturn;
+    }
+
+
+    /** 액티브 프로세스 관리  stop (re)start */
+    public int manageProcess(String hardwareScript, short manage_type, String process_name){
+        int nReturn = -1;
+        return nReturn;
+    }
+
+    //################ 4.RESOURCE #############//
+
+
+    /** RegisterClient를 실행하여 DataStub 초기화 */
+    public ArrayList getGroupList() {
+        String groupid = "";
+        String groupname = "";
+        String groupList = "";
+        ArrayList list = new ArrayList() ;
+        String[] strTemp = new String[4];
+
+        return list;
+    }
+
+    /** 가져올 자원, 가져올자원상세, 가져올 장비를 받아 해당 리소스를 리턴 */
+    public String getRecourceSSW(String clusterID, String detailTarget, String MachineID){
+        String result = "false";
+
+        return result;
+    }
+
+    /** 가져올 자원, 가져올자원상세, 가져올 장비를 받아 해당 리소스를 리턴 */
+    public String getObjectScript(String systemId, String param){
+        String result = "";
+        return result;
+    }
+
+    /** 가져올 자원, 가져올자원상세, 가져올 장비를 받아 해당 리소스를 리턴 */
+    public String getObjectScript(String param){
+        String result = "";
+        return result;
+    }
+
+// Call Method ----------------------------------------------------------------
+    public String callScriptCallMethod(String method, Object... argument) {
+        String result = "";
+        return result;
+    }
+
+    public String getEmsServiceLevel() {
+        String result = "";
+        return result;
+    }
+
+    public String getMessageTypeList(String grupID) {
+        String result = "";
+        return result;
+    }
+
+    public String getMessageList(String key, String strIdx) {
+        String result = "";
+        return result;
+    }
+
+    public String getEmsServerTime() {
+        String result = "" ;
+        return result ;
+    }
+
+    public String getEmsDBConnectonCount() {
+        String result = "" ;
+        return result ;
+    }
+
+    public String getEmsNetworkChannel(String sysGroupID) {
+        String result = "" ;
+        return result ;
+    }
+
+    public String getRackList(String script) {
+        String result = "";
+        return result;
+    }
+
+    public String getSystemObject(String systemPath, String systemObject) {
+        String result = "";
+        return result;
+    }
+
+    /** 가져올 자원, 가져올자원상세, 가져올 장비를 받아 해당 리소스를 리턴 */
+    public int setObjectScript(String field, String value){
+        int result = -1;
+        return result;
+    }
+
+    public int setObjectScript(String systemId, String field, String value){
+        int result = -1;
+        return result;
+    }
+
+    /** 가져올 자원, 가져올자원상세, 가져올 장비를 받아 해당 리소스를 리턴 */
+    public int setRootScript(String field, String value){
+        int result = -1;
+        return result;
+    }
+
+    public String rootCallMethod(String path, String method , Object... argument){
+        String result = "";
+        return result;
+    }
+    public String shapeCallMethod(String path, String method , Object... argument){
+        String result = "";
+        return result;
+    }
+
+    //패킷 핸들링(구체화되지 않음)
+    public void responseHandler(IPacket iPacket) {
+    }
+}
+

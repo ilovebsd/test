@@ -1,0 +1,55 @@
+package com.acromate.dto.reporttool.report;
+
+import com.acromate.data.DataIO;
+
+public class ReportNameDTO extends DataIO {
+
+        String name;
+        String time;
+
+        public ReportNameDTO() {}
+
+        public void setName(String name) { this.name = name; }
+        public String getName() { return name; }
+
+        public void setTime(String time) { this.time = time; }
+        public String getTime() { return time; }
+
+        @Override
+        protected int getFieldData(String field, Index idx, StringBuilder value) {
+                int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "name", idx, value) == true) {
+            errorcode = getString(name.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "time", idx, value) == true) {
+            errorcode = getString(time.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        return (0);
+        }
+        @Override
+        protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "name") == true) {
+            if(!value.equals("")) name = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "time") == true) {
+            if(!value.equals("")) time = value;
+            return 0;
+        }
+
+                return (-1);
+        }
+}

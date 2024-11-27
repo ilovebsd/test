@@ -1,0 +1,46 @@
+package dto.system;
+
+public class SystemClusterDTO {
+	/**
+	 * member variables
+	 */
+	private String	sysgroupid;
+	private String	clusterid;
+	private String	clustername;
+	private String	servicetype;
+	private int		clustertype;
+	
+	public SystemClusterDTO() {      		
+		
+	}
+	
+	public SystemClusterDTO(String sysgroupid, String clusterid, String clustername, String servicetype, int clustertype) {      		
+		
+		super();
+		
+		this.sysgroupid 	= sysgroupid;
+		this.clusterid 		= clusterid;
+		this.clustername 	= clustername;
+		this.servicetype 	= servicetype;
+		this.clustertype 	= clustertype;
+	}
+
+	/**
+	 * member functions
+	 */
+	public String	getSysgroupid() { return this.sysgroupid; }
+	public void	setSysgroupid(String sysgroupid ) { this.sysgroupid = sysgroupid; }
+
+	public String	getClusterid() { return this.clusterid; }
+	public void	setClusterid(String clusterid ) { this.clusterid = clusterid; }
+
+	public String	getClustername() { return this.clustername; }
+	public void	setClustername(String clustername ) { this.clustername = clustername; }
+
+	public String	getServicetype() { return this.servicetype; }
+	public void	setServicetype(String servicetype ) { this.servicetype = servicetype; }
+
+	public int	getClustertype() { return this.clustertype; }
+	public void	setClustertype(int clustertype ) { this.clustertype = clustertype; }
+	
+}

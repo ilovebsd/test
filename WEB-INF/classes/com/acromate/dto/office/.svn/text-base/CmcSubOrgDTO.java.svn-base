@@ -1,0 +1,45 @@
+package com.acromate.dto.office;
+
+
+
+
+public class CmcSubOrgDTO {
+
+    private String subOrgID;
+    private String subOrgName;
+    private String groupID;
+    private int useFlag;
+
+    public CmcSubOrgDTO(){}
+
+    public CmcSubOrgDTO(String subOrgID, String subOrgName, String groupID, int useFlag ) {
+        this.subOrgID = subOrgID;
+        this.subOrgName = subOrgName;
+        this.groupID = groupID;
+        this.useFlag = useFlag;
+    }
+
+    public String getSubOrgID() {return this.subOrgID; }
+    public void   setSubOrgID(String subOrgID ) { this.subOrgID = subOrgID; }
+
+    public String getSubOrgName() {return this.subOrgName; }
+    public void   setSubOrgName(String subOrgName ) { this.subOrgName = subOrgName; }
+
+    public String getGroupID() {return this.groupID; }
+    public void   setGroupID(String groupID ) { this.groupID = groupID; }
+
+    public int getUseFlag() {return this.useFlag; }
+    public void   setUseFlag(int useFlag ) { this.useFlag = useFlag; }
+
+    public String toString(){
+
+    StringBuffer sb = new StringBuffer("");
+    sb.append("(subOrgID:" 	+ getSubOrgID() + ") ") ;
+    sb.append("[subOrgName:"  	+ getSubOrgName() + "] ") ;
+    sb.append("[groupID:"  	+ getGroupID() + "] ") ;
+    sb.append("[useFlag:"  	+ getUseFlag() + "] ") ;
+
+    return sb.toString();
+    }
+
+}

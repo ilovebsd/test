@@ -1,0 +1,88 @@
+package bizportal.nasacti.ipivr.dto;
+
+public class VoiceDTO {
+	private String strWIndex = "";
+	private String strServerIp = "";
+	private String strWName = "";
+	private String strWFile = "";
+	private String strWMemeo = "";
+	private String strWDiv = "";
+	private String strWSend = "";
+	private String strWKind = "";
+	private String strWSendFile = "";
+	private String strWRegDate = "";
+	private String strWAcceptDate = "";
+
+
+	public void setWIndex(String strWIndex) {
+		this.strWIndex = strWIndex;
+	}
+	public void setServerIp(String strServerIp) {
+		this.strServerIp = strServerIp;
+	}
+	public void setWName(String strWName) {
+		this.strWName = strWName;
+	}
+	public void setWFile(String strWFile) {
+		this.strWFile = strWFile;
+	}
+	public void setWMemo(String strWMemeo) {
+		this.strWMemeo = strWMemeo;
+	}
+	public void setWDiv(String strWDiv) {
+		this.strWDiv = strWDiv;
+	}
+	public void setWSend(String strWSend) {
+		this.strWSend = strWSend;
+	}
+	public void setWKind(String strWKind) {
+		this.strWKind = strWKind;
+	}
+	public void setWSendFile(String strWSendFile) {
+		this.strWSendFile = strWSendFile;
+	}
+	public void setWRegDate(String strWRegDate) {
+		this.strWRegDate = strWRegDate;
+	}
+	public void setWAcceptDate(String strWAcceptDate) {
+		this.strWAcceptDate = strWAcceptDate;
+	}
+
+
+
+
+	public String getWIndex() {
+		return this.strWIndex;
+	}
+	public String getServerIp() {
+		return this.strServerIp;
+	}
+	public String getWName() {
+		return this.strWName;
+	}
+	public String getWFile() {
+		return this.strWFile;
+	}
+	public String getWMemo() {
+		return this.strWMemeo;
+	}
+	public String getWDiv() {
+		return this.strWDiv;
+	}
+	public String getWSend() {
+		return this.strWSend;
+	}
+	public String getWKind() {
+		return this.strWKind;
+	}
+	public String getWSendFile() {
+		return this.strWSendFile;
+	}
+	public String getWRegDate() {
+		return this.strWRegDate;
+	}
+	public String getWAcceptDate() {
+		return this.strWAcceptDate;
+	}
+
+}

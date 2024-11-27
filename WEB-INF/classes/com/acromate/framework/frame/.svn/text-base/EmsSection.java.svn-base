@@ -1,0 +1,21 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+
+public class EmsSection extends ListIO {
+	public String member = null;
+	public String value = null;
+	public String comment = null;
+
+	@Override
+	protected DataIO newListNode() {
+		// TODO Auto-generated method stub
+		return new EmsField();
+	}
+
+	@Override
+	public String getClassID() {
+		return member;
+	}
+}

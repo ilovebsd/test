@@ -1,0 +1,37 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class SpecialNoGIDDTO
+{
+
+    private String specialNoGID;
+    private String description;
+
+    public String getSpecialNoGID() { return this.specialNoGID; }
+    public void   setSpecialNoGID(String vSpecialNoGID ) { this.specialNoGID = vSpecialNoGID; }
+
+    public String getDescription() { return this.description; }
+    public void   setDescription(String vDescription ) { this.description = vDescription; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(specialNoGID:"              + getSpecialNoGID() + ") ") ;
+        sb.append("[description:"               + getDescription() + "] ") ;
+
+        return sb.toString();
+    }
+}

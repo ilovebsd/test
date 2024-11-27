@@ -1,0 +1,53 @@
+package dto;
+
+public class AlarmServiceDTO {
+	
+	private String e164 ;
+	private int    sequenceNo = 0;
+	private int    alarmType = 0;
+	private String alarmTime ;
+	private String alarmDate ;
+	
+	public AlarmServiceDTO () {}
+
+	public String getE164() {
+		return e164;
+	}
+
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public int getSequenceNo() {
+		return sequenceNo;
+	}
+
+	public void setSequenceNo(int sequenceNo) {
+		this.sequenceNo = sequenceNo;
+	}
+
+	public int getAlarmType() {
+		return alarmType;
+	}
+
+	public void setAlarmType(int alarmType) {
+		this.alarmType = alarmType;
+	}
+
+	public String getAlarmTime() {
+		return alarmTime;
+	}
+
+	public void setAlarmTime(String alarmTime) {
+		this.alarmTime = alarmTime;
+	}
+
+	public String getAlarmDate() {
+		return alarmDate;
+	}
+
+	public void setAlarmDate(String alarmDate) {
+		this.alarmDate = alarmDate;
+	}
+
+}

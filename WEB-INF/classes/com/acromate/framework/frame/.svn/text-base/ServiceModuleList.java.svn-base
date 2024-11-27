@@ -1,0 +1,22 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+
+public class ServiceModuleList extends  ListIO {
+
+        @Override
+        protected DataIO newListNode() {
+                // TODO Auto-generated method stub
+                return new ExServiceModule() ;
+        }
+        public DataIO getNode(String pNodeID){
+                DataIO pNode = null;
+                if   ( (pNode = super.getNode( pNodeID ) )!= null)
+                     return pNode ;
+                if   ( (pNode = new ExServiceModule( pNodeID )) !=null  )
+                     appendTail( pNode ) ;
+                return pNode ;
+        }
+
+}

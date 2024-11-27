@@ -1,0 +1,213 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.code.AppCode;
+
+/* menu item ////////////////////////// */
+public class MenuItem extends ListIO
+{
+// construction
+	public MenuItem(){
+		
+	}
+	public MenuItem(MenuClassType eClassType){
+		menuName = new StringBuilder(); 
+		this.eClassType = eClassType ;
+		nModule = nVersion = 0 ; eMakeType = eMakeType.mc_unknown ;
+	}
+	public MenuItem( MenuClassType eClassType, String pMenuName ) {
+		if(pMenuName == null ) menuName = new StringBuilder(); 
+		else menuName = new StringBuilder(pMenuName);
+		this.eClassType = eClassType ;
+		nModule = nVersion = 0 ; eMakeType = eMakeType.mc_unknown ;
+		nActionID = 0;
+	}
+	
+// attribute
+	// object type
+	protected MenuClassType		eClassType ;
+	
+	// object identifier
+	protected StringBuilder   menuName = new StringBuilder();
+
+	// optional data parameter
+	public int	nActionID = 0;
+	// item type only)
+	public int	nModule,nVersion ;
+
+	// class data i/o
+	public int getFieldData( String field, Index indx, StringBuilder data) {
+		boolean stop = (field != null) ;
+		int errcode;
+		
+		if (field == null) field = "";
+		StringBuilder sbField =new StringBuilder(field);
+		// common field
+		if( compareFieldID( sbField, "classType", indx, data) )
+		{    switch( eClassType )
+		     {  case mc_folder :
+		    	 data.append("folder");
+		          break ;
+		        case mc_item :
+			    	 data.append("item");
+		          break ;
+		        default :
+			    	 data.append("unknown");
+		          break ;
+		     }
+		     if   ( stop )	return  AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbField, "name", indx, data ) )
+		{    errcode = getString( menuName.toString(), data, ! stop ) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR)	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "action", indx, data ) )
+		{     errcode = getInteger( nActionID, data) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR)	return errcode ;
+		}
+		// item type
+		if   ( eClassType == eClassType.mc_item )
+		{    if   ( compareFieldID( sbField, "module", indx, data ) )
+		     {    errcode = getInteger( nModule, data) ;
+		          if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		     }
+		     if   ( compareFieldID( sbField, "version", indx, data) )
+		     {    errcode = getInteger( nVersion, data) ;
+		          if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		     }
+		     return AppCode.ERR_NOERROR ;
+		}
+		return super.getFieldData( field, indx, data) ;
+	}
+	public int setFieldData( String field, String value) {
+		//System.out.println("MenuItem.setFieldData ["+field+"]"+"["+value+"]");
+
+		// common field
+		StringBuilder sbfield = new StringBuilder(field);
+		if( compareFieldID( sbfield, "classType" ) )
+		{    
+			if ("folder".equals(value) )
+			{
+				eClassType = eClassType.mc_folder ;
+				return AppCode.ERR_NOERROR ;
+			}
+			if ("item".equals(value)  )
+			{
+				eClassType = eClassType.mc_item ;
+				return AppCode.ERR_NOERROR ;
+			}
+			if ("unknown".equals(value) )
+			{    
+				eClassType = eClassType.mc_unknown ;
+				return AppCode.ERR_NOERROR ;
+			}
+			return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+		}
+		if ( compareFieldID( sbfield, "name" ) )
+			return setString( menuName, value ) ;
+		if ( compareFieldID( sbfield, "action" ) ){
+			if(value != null)
+				nActionID = a2i( value ) ;
+			return AppCode.ERR_NOERROR ;
+		}
+		// item type
+		if ( compareFieldID( sbfield, "module" ) )
+		{    
+			if ( eClassType == eMakeType )
+				return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+			if ( value != null )
+				nModule = a2i( value ) ;
+			return AppCode.ERR_NOERROR ;
+		}
+		if ( compareFieldID( sbfield, "version" ) )
+		{    
+			if ( eClassType == eClassType.mc_folder )
+				return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+			if( value != null )
+				nVersion = a2i( value ) ;
+			return AppCode.ERR_NOERROR ;
+		}
+		if ( eClassType == eMakeType.mc_item )
+			return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+		// folder type
+		if ( compareFieldID( sbfield, "folder" ) )
+		{    
+			eMakeType = eMakeType.mc_folder ;
+			return setParam( sbfield.toString(), value ) ;
+		}
+		if ( compareFieldID( sbfield, "item" ) )
+		{    
+			eMakeType = eMakeType.mc_item ;
+			return setParam( sbfield.toString(), value ) ;
+		}
+		return super.setFieldData( field, value ) ;
+		
+	}
+	// object identifier
+	public String getClassID() { if(menuName != null ) return menuName.toString() ; else return null; }
+	// item descriptor
+	public MenuClassType getClassType()	{ return eClassType ; }
+	// optional parameter
+	int getActionID()			{ return nActionID ; }
+
+	public int getModuleType()	{ return nModule ; }
+	public int getVersionNo()	{ return nVersion ; }
+	// index i/o
+	public DataIO getNode( String pNodeID ) {
+		DataIO pNode  =null;
+		if(pNodeID != null){    
+			char temp[] = pNodeID.toCharArray();
+			int nStar = 0;
+			int nEnd = 0;
+			nEnd = temp.length-1;
+			for(int i=0;i<nEnd;i++){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nStar++;
+				else break;
+			}
+			for(int i = temp.length-1;i> nStar;i--){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nEnd--;
+				else break;
+			}
+			pNodeID = pNodeID.substring(nStar, nEnd+1);
+		}
+		if   ( (pNode = super.getNode( pNodeID )) != null )
+		     return pNode ;
+		if   (pNodeID == null  )
+		     return null ;
+		if   (( pNode = new MenuItem( eMakeType, pNodeID ) ) != null)
+		     appendTail( pNode ) ;
+		return pNode;
+	}
+	public DataIO search(  String pNodeID ) {
+		if(pNodeID != null){    
+			char temp[] = pNodeID.toCharArray();
+			int nStar = 0;
+			int nEnd = 0;
+			nEnd = temp.length;
+			for(int i=0;i<nEnd;i++){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nStar++;
+				else break;
+			}
+			for(int i = temp.length-1;i> nStar;i--){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nEnd--;
+				else break;
+			}
+			pNodeID = pNodeID.substring(nStar, nEnd+1);
+		}
+		return super.getNode( pNodeID ) ;
+	}
+
+// operations
+	@Override
+	protected DataIO newListNode() {
+		return new MenuItem( eMakeType ) ;
+	}
+// implement
+	protected MenuClassType	eMakeType ;
+	public Object m_pAppLinker[] = new Object[5];	/* appication linker */
+	
+
+}
+
+

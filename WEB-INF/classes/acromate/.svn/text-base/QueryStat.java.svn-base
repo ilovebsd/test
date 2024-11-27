@@ -1,0 +1,87 @@
+/*
+ * DataStatement.java
+ *
+ * Created on 2006년 10월 10일 (화), 오후 6:11
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package acromate ;
+
+import java.sql.*;
+import com.acromate.db.QueryStatement;
+import com.acromate.db.DbFunctionGet;
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class QueryStat extends DbFunctionGet implements  QueryStatement {
+
+    public StringBuilder queryScript = null ;
+    public Statement statement = null ;
+    public Connection connection = null ;
+    public QueryStat(Connection connection , Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
+    }
+
+    public void stxTransaction() {
+        if (connection == null) return ;
+        
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException ex) {
+            close();
+            ex.printStackTrace();
+        }
+    }
+    public void endTransaction(boolean cancel) {
+        if (connection == null) return ;
+        try {
+             if(!cancel)
+                   connection.rollback();
+             else connection.commit();
+         } catch (SQLException ex) {
+           close();
+           ex.printStackTrace();
+         }
+    }
+    public ResultSet executeQuery(String query) {
+        ResultSet resultSet = null;
+        try {
+        	resultSet = statement.executeQuery(query);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return resultSet;
+        }   return resultSet;
+    }
+    public int executeUpdate(String query) {
+        int rowCount = 0;
+        try {
+            rowCount = statement.executeUpdate(query);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return rowCount;
+        }   return rowCount;
+    }
+    public void close() {
+        try {
+            if(statement  != null) {
+                statement.close();
+            }
+
+            if(connection != null) {
+               connection.close();
+            }
+        }catch(SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public String setLimit(String query, int start, int size) {
+        return setLimit(query, start, size);
+    }
+
+
+ }
+

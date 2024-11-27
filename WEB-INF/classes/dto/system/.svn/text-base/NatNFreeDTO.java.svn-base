@@ -1,0 +1,76 @@
+package dto.system;
+
+public class NatNFreeDTO {
+	/**
+	 * member variables
+	 */
+	private String	trid;
+	private String	trip;
+	private int		trport;
+	private int		maxchannel;
+	private int		minchannel;
+	private int		normchannel;
+	private String	description;
+	private int		maxcall;
+	private int		alarmcall;
+	private int		currentcall;
+	private int		tosvalue;
+		
+	public NatNFreeDTO() {      		
+		
+	}
+	
+	public NatNFreeDTO(String trid, String trip, int trport, String description, int maxchannel, int minchannel, int normchannel, int maxcall, int alarmcall, int currentcall, int tosvalue) {      		
+		
+		super();
+		
+		this.trid 			= trid;
+		this.trip 			= trip;
+		this.trport 		= trport;
+		this.description 	= description;
+		this.maxchannel 	= maxchannel;
+		this.minchannel 	= minchannel;
+		this.normchannel 	= normchannel;
+		this.maxcall 		= maxcall;
+		this.alarmcall 		= alarmcall;
+		this.currentcall 	= currentcall;
+		this.tosvalue 		= tosvalue;
+	}
+
+	/**
+	 * member functions
+	 */
+	public String	getTrid() { return this.trid; }
+	public void	setTrid(String trid ) { this.trid = trid; }
+
+	public String	getTrip() { return this.trip; }
+	public void	setTrip(String trip ) { this.trip = trip; }
+
+	public int	getTrport() { return this.trport; }
+	public void	setTrport(int trport ) { this.trport = trport; }
+	
+	public int	getMaxchannel() { return this.maxchannel; }
+	public void	setMaxchannel(int maxchannel ) { this.maxchannel = maxchannel; }
+
+	public int	getMinchannel() { return this.minchannel; }
+	public void	setMinchannel(int minchannel ) { this.minchannel = minchannel; }
+
+	public int	getNormchannel() { return this.normchannel; }
+	public void	setNormchannel(int normchannel ) { this.normchannel = normchannel; }
+	
+	public String	getDescription() { return this.description; }
+	public void	setDescription(String description ) { this.description = description; }
+
+	public int	getMaxcall() { return this.maxcall; }
+	public void	setMaxcall(int maxcall ) { this.maxcall = maxcall; }
+
+	public int	getAlarmcall() { return this.alarmcall; }
+	public void	setAlarmcall(int alarmcall ) { this.alarmcall = alarmcall; }
+
+	public int	getCurrentcall() { return this.currentcall; }
+	public void	setCurrentcall(int currentcall ) { this.currentcall = currentcall; }
+
+	public int	getTosvalue() { return this.tosvalue; }
+	public void	setTosvalue(int tosvalue ) { this.tosvalue = tosvalue; }
+	
+}

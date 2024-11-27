@@ -1,0 +1,337 @@
+package waf;
+
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+import waf.BaseEntity;
+
+/**
+ * Client HttpSession object를 관리하는 Manager object
+ * 
+ */
+public class SessionManager {
+	
+	/** Singleton */
+	private static SessionManager instance;
+	/** HttpSession의 Collection */
+	private HashMap sessions;
+	private int session_expire_time = 1800;//30mins
+	
+	/**	SESSION_KEY	*/
+	public static final String SESSION_KEY="USERINFO";
+	
+	/**
+	 *	Default Constructor
+	 */
+	private SessionManager() {
+		sessions = new HashMap();	
+	}
+
+	/**
+	 *	SessionManager의 factory method
+	 *
+	 *	@return	SessionManager object
+	 */
+	public static SessionManager getInstance() {
+		if(instance == null) 
+		{
+			//	Double Check Locking
+			synchronized(SessionManager.class)
+			{
+				if(instance == null)
+				{
+					instance = new SessionManager();
+				}
+			}
+		}
+
+		return instance;
+	}
+
+	/**
+	 *	클라이언트 로그인 여부를 반화하는 method
+	 *
+	 *	@param	request	HttpServletRequest
+	 *	@return	로그인 여부를 반환
+	 */
+	public static boolean isLogin(HttpServletRequest request)
+	{
+		HttpSession hs = request.getSession();
+		Object obj = hs.getAttribute(SessionManager.SESSION_KEY);
+		if( (obj!=null) && (obj instanceof waf.BaseEntity) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 *	사용자 userId의 로그인 여부를 반화하는 method
+	 *
+	 *	@param	userId	사용자 id
+	 *	@return	로그인 여부를 반환
+	 */
+	public boolean isLocalLogin(String userId)
+	{
+		Collection col = sessions.values();
+		Iterator it = col.iterator();
+
+		while(it.hasNext()) {
+			HttpSession hs = (HttpSession)it.next();
+			BaseEntity be = (BaseEntity)hs.getAttribute(SessionManager.SESSION_KEY);
+			if(be.getUserId().equals(userId)) return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 *	사용자 User IP 로 로그인 여부를 반화하는 method
+	 *
+	 *	@param	userIp	사용자 ip
+	 *	@return	로그인 여부를 반환
+	 */
+	public boolean isLoginByIP(String userIp)
+	{
+		return isLoginByIP(userIp, null);
+	}
+	public boolean isLoginByIP(String userIp, HttpServletRequest request)
+	{
+		Collection col = sessions.values();
+		Iterator it = col.iterator();
+
+		while(it.hasNext()) {
+			HttpSession hs = (HttpSession)it.next();
+			BaseEntity be = (BaseEntity)hs.getAttribute(SessionManager.SESSION_KEY);
+			if(be.getUserIp().equals(userIp)) {
+				if(request!=null){
+					hs.invalidate();//Expired old session
+					HttpSession new_hs = request.getSession(true);		
+					new_hs.setMaxInactiveInterval(session_expire_time);
+					new_hs.setAttribute(SessionManager.SESSION_KEY, be);//call : BaseEntity.valueBound()
+					System.out.println("\nInsert new session for update expire time : "+ session_expire_time);
+				}else{
+					int maxInactiveInterval = hs.getMaxInactiveInterval();
+					int currentInactiveTime = (int) ( (System.currentTimeMillis() - hs.getLastAccessedTime()) / 1000);
+					hs.setMaxInactiveInterval(maxInactiveInterval + currentInactiveTime);
+					System.out.println("\nUpdate session expire time : "+session_expire_time);
+				}
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	/**
+	 * 접속했던 user IP 로  만료되지 않음 session 을 검색함.   
+	 * @param userIp
+	 * @return session
+	 */
+	public HttpSession getSessionByIP(String userIp)
+	{
+		Collection col = sessions.values();
+		Iterator it = col.iterator();
+
+		while(it.hasNext()) {
+			HttpSession hs = (HttpSession)it.next();
+			BaseEntity be = (BaseEntity)hs.getAttribute(SessionManager.SESSION_KEY);
+			if(be.getUserIp().equals(userIp)) return hs;
+		}
+
+		return null;
+	}
+	
+	/**
+	 * 사용자 IP 값을 넘겨줌.
+	 * @param request 
+	 * @return
+	 */
+	public String getClientIP(HttpServletRequest request) {
+	    String ip = request.getHeader("X-FORWARDED-FOR"); 
+	    if (ip == null || ip.length() == 0)
+	        ip = request.getHeader("Proxy-Client-IP");
+	    if (ip == null || ip.length() == 0)
+	        ip = request.getHeader("WL-Proxy-Client-IP");  // 웹로직
+	    if (ip == null || ip.length() == 0)
+	        ip = request.getRemoteAddr() ;
+	    if("0:0:0:0:0:0:0:1".equals(ip))
+	    	ip = "127.0.0.1";
+	    return ip;
+	}
+	
+	/**
+	 *	사용자 로그인을 처리하는 메서드
+	 *
+	 *	@param	request	javax.servlet.http.HttpServletRequest
+	 *	@param	entity	사용자 세션 정보인 BaseEntity object
+	 */
+	public void doLogin(HttpServletRequest request, BaseEntity entity)
+	throws ServletException
+	{
+		if(entity == null) {
+			throw new ServletException("waf.admin.nullBaseEntity");
+		}
+
+		HttpSession hs = request.getSession(true);		
+		int to = 3600*24;	//24hours	
+		to = 1800;//to = 1;//1sec
+		to = session_expire_time;
+		hs.setMaxInactiveInterval(to);
+		
+		if(entity.getUserIp().length()>0){
+			HttpSession old_hs = getSessionByIP(entity.getUserIp());
+			if(old_hs!=null) old_hs.invalidate();//Expired old session
+		}
+		
+		hs.setAttribute(SessionManager.SESSION_KEY,entity);
+	}
+
+
+	/**
+	 *	사용자 로그아웃을 처리하는 메서드
+	 *
+	 *	@param	request	javax.servlet.http.HttpServletRequest
+	 */
+	public void doLogout(HttpServletRequest request)
+	{
+		HttpSession hs = request.getSession();
+		hs.invalidate();
+	}
+
+	/**
+	 *	HttpSession 객체를 저장하는 메서드
+	 *
+	 *	@param	session		javax.servlet.http.HttpServlet
+	 */	
+	public void addHttpSession(HttpSession session)
+	{
+		session.setAttribute("WOOGA", new Long(System.currentTimeMillis())); 
+		sessions.put(session.getId(),session);
+	}
+
+	/** 
+	 *	HttpSession 객체를 삭제하는 메서드
+	 *
+	 *	@param	sessionId	삭제하려는 HttpSession의 id
+	 *	@return		삭제한 HttpSession object
+	 */
+	public HttpSession removeHttpSession(String sessionId)
+	{
+		HttpSession session = (HttpSession)sessions.get(sessionId);		
+		return (HttpSession)sessions.remove(sessionId);
+	}
+
+	/**
+	 *	HttpSession 객체를 삭제하는 메서드
+	 *
+	 *	@param	request	javax.servlet.http.HttpServletRequest
+	 *	@return 삭제한 HttpSession object
+	 */
+	public HttpSession removeHttpSession(HttpServletRequest request) {
+		
+		HttpSession hs = request.getSession();
+		return removeHttpSession(hs.getId());
+	}
+
+	/**
+	 *	sessionId에 해당하는 HttpSession 객체를 반환하는 getter method
+	 *
+	 *	@param	sessionId	얻고자 하는 HttpSession의 id
+	 *	@return	HttpSession object
+	 */
+	public HttpSession getHttpSession(String sessionId)
+	{
+		return (HttpSession)sessions.get(sessionId);
+	}
+
+	/**
+	 *	request에 해당하는 HttpSession 객체를 반환하는 getter method
+	 *	
+	 *	@param	request javax.servlet.http.HttpServletRequest
+	 *	@return	HttpSession object
+	 */
+	public HttpSession getHttpSession(HttpServletRequest request)
+	{
+		HttpSession hs = request.getSession();
+		return getHttpSession(hs.getId());
+	}
+
+	/**
+	 *	sessionId에 해당하는 사용자 세션 정보 객체인 BaseEntity를 반환하는 메서드
+	 *
+	 *	@param	sessionId	클라이언트 HttpSession의 id
+	 *	@return	사용자 세션 정보 객체인 BaseEntity object
+	 */
+	public BaseEntity getBaseEntity(String sessionId)
+	{
+		HttpSession hs = (HttpSession)sessions.get(sessionId);
+
+		return hs!=null?(BaseEntity)hs.getAttribute(SessionManager.SESSION_KEY):null;
+	}
+
+	/**
+	 *	request에 해당하는 사용자 세션 정보 객체인 BaseEntity를 반환하는 메서드
+	 *
+	 *	@param	request	javax.servlet.ServletRequest
+	 *	@return BaseEntity object
+	 */
+	public BaseEntity getBaseEntity(ServletRequest request)
+	{
+		HttpSession hs = ((HttpServletRequest)request).getSession();
+		return getBaseEntity(hs.getId());
+	}
+
+	/**
+	 *	request에 해당하는 사용자 세션 정보 객체인 BaseEntity를 반환하는 메서드
+	 *
+	 *	@param	request	javax.servlet.http.HttpServletRequest
+	 *	@return BaseEntity object
+	 */
+	public BaseEntity getBaseEntity(HttpServletRequest request)
+	{
+		HttpSession hs = request.getSession();
+		return getBaseEntity(hs.getId());
+	}
+
+	/** 
+	 *	SessionManager가 저장하고 있는 BaseEntity object의 collection을 반환하는 메서드
+	 *
+	 *	@return BaseEntity object의 collection
+	 */
+	public ArrayList getAllBaseEntitys()
+	{
+		Set set = sessions.entrySet();
+		Iterator it = set.iterator();
+
+		ArrayList al = new ArrayList();
+		while(it.hasNext()) {
+			HttpSession hs = (HttpSession)it.next();
+			al.add(hs.getAttribute(SessionManager.SESSION_KEY));
+		}
+		return al;
+	}	
+
+	/**
+	 *	로그인한 전체 사용자 수를 반환하는 메서드
+	 *
+	 *	@return 로그인한 전체 사용자 수
+	 */
+	public int getTotalCount()
+	{
+		return sessions.size();
+	}
+
+	/** 
+	 *	SessionManager가 저장하고 있는 HttpSession object의 collection을 반환하는 메서드
+	 *
+	 *	@return HttpSession object의 collection
+	 */
+	public ArrayList getAllHttpSessions()
+	{
+		Set set = sessions.entrySet();
+		ArrayList al = new ArrayList(set);
+		return al;
+	}
+}

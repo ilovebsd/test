@@ -1,0 +1,49 @@
+package dto;
+
+public class CallForwardListDTO {
+	private String forwardNUM;
+	private String forwardType;
+	private String priority;
+	private String waitTime;
+	
+	public CallForwardListDTO(){}
+	public CallForwardListDTO(String forwardNUM, String forwardType, String priority, String waitTime) {
+		super();
+		this.forwardNUM = forwardNUM;
+		this.forwardType = forwardType;
+		this.priority = priority;
+		this.waitTime = waitTime;
+	}
+
+	public String getForwardNUM() {
+		return forwardNUM;
+	}
+
+	public void setForwardNUM(String forwardNUM) {
+		this.forwardNUM = forwardNUM;
+	}
+
+	public String getForwardType() {
+		return forwardType;
+	}
+
+	public void setForwardType(String forwardType) {
+		this.forwardType = forwardType;
+	}
+
+	public String getWaitTime() {
+		return waitTime;
+	}
+
+	public void setWaitTime(String waitTime) {
+		this.waitTime = waitTime;
+	}
+	
+	public String getPriority() {
+		return priority;
+	}
+	
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+}

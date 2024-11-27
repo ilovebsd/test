@@ -1,0 +1,43 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class PrefixTableIDDTO
+{
+
+
+    private String prefixTableID;
+    private int    tableType;
+    private String description;
+
+    public String getPrefixTableID() { return this.prefixTableID; }
+    public void   setPrefixTableID(String vPrefixTableID ) { this.prefixTableID = vPrefixTableID; }
+
+    public int    getTableType() { return this.tableType; }
+    public void   setTableType(int vTableType ) { this.tableType = vTableType; }
+
+    public String getDescription() { return this.description; }
+    public void   setDescription(String vDescription ) { this.description = vDescription; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(prefixTableID:"              + getPrefixTableID() + ") ") ;
+        sb.append("[tableType:"                  + getTableType() + "] ") ;
+        sb.append("[description:"                + getDescription() + "] ") ;
+
+        return sb.toString();
+    }
+}

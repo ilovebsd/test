@@ -1,0 +1,348 @@
+/*
+ * SswSystem.java
+ *
+ * Created on 2006년 9월 29일 (금), 오전 11:04
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Logger;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class SswSystem extends CustomSystem {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int     errorcode;
+    private int     concurrentCallCount;   // Table_ConnectedCall 에서 가져옴.
+
+    private int     currentCallCount;
+    private int     h323EndpointsCount;
+    private int     sipEndpointsCount;
+    private int     mgcpDomainCount;
+    private int     h248DomainCount;
+
+    private int     callControlThreadCount;
+    private int     rasControlThreadCount;
+    private int     q931ConnectionThreadCount;
+    private int     h245ChannelControlThreadCount;
+    private int     h323EndpointTimerThreadCount;
+
+    private int     sipTransactionControlThreadCount;
+    private int     sipEndpointTimerThreadCount;
+
+    private int     mgcpTransactionControlThreadCount;
+    private int     mgcpEndpointTimerThreadCount;
+
+    private int     h248TransactionControlThreadCount;
+    private int     h248EndpointTimerThreadCount;
+
+    private int     dbBasicTotalCount;
+    private int     dbBasicFreeCount;
+    private int     dbFeatureTotalCount;
+    private int     dbFeatureFreeCount;
+    private int     dbBasicTransactionTotalCount;
+    private int     dbBasicTransactionFreeCount;
+
+    /** Creates a new instance of SswSystem */
+    public SswSystem() {}
+
+    /**
+     *
+     * @return
+     */
+    public DataIO getActiveSystem() {
+        if(procStatus > 0 )
+              return this;
+        else return null;
+    }
+
+    /**
+     * Initializing softswitch service
+     * @return
+     */
+    public boolean initSystem() {
+        boolean result = true;
+        if(database != null) {
+            result = (Boolean)database.callMethod("", "initConnection");
+            if(result) log.info("SSW system is started");
+        }   return result;
+    }
+
+    /**
+     * Starting softswitch service
+     * @return
+     */
+    public boolean startSystem() {
+        return true;
+    }
+
+    /**
+     * Finalize softswitch service
+     */
+    public void finalSystem() {
+        if(database != null) {
+            database.callMethod("", "closeConnection");
+        }
+
+        if(network != null) {
+        	network.callMethod("", "finalService");
+        }
+    }
+
+    /**
+     *
+     * @param method
+     * @param argument
+     * @return
+     */
+    public Object callMethod(String method, Object... argument) {
+        return super.callMethod(method, argument);
+    }
+
+     /**
+     *
+     * @return
+     */
+    public String getClassID() {
+        return processId.toString();
+    }
+
+     /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getFieldObject(String field) {
+        DataIO result = null;
+        if(field != null && field.trim().length() > 0) {
+            StringBuilder temp = new StringBuilder(field.toLowerCase());
+
+            if(compareFieldID(temp, "config") == true) {
+                return config;
+            }
+            if(compareFieldID(temp, "network") == true) {
+                return network;
+            }
+            if(compareFieldID(temp, "database") == true) {
+                return database;
+            }
+        }   return super.getFieldObject(field);
+    }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+         StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "config") == true) {
+            if (config == null) return 0;
+            return config.setParam(field, value);
+        }
+        if(compareFieldID(temp, "groupId") == true) {
+            return setString(groupId, value);
+        }
+        if(compareFieldID(temp, "groupName") == true) {
+            return setString(groupName, value);
+        }
+        if(compareFieldID(temp, "hwName") == true) {
+            return setString(hwName, value);
+        }
+        if(compareFieldID(temp, "hwClusterId") == true) {
+            return setString(hwClusterId, value);
+        }
+        if(compareFieldID(temp, "hwId") == true) {
+            return setString(hwId, value);
+        }
+        if(compareFieldID(temp, "clusterId") == true) {
+            return setString(clusterId, value);
+        }
+        if(compareFieldID(temp, "clusterName") == true) {
+            return setString(clusterName, value);
+        }
+        if(compareFieldID(temp, "processId") == true) {
+            return setString(processId, value);
+        }
+        if(compareFieldID(temp, "status") == true) {
+            if(!value.equals("")) procStatus = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dbConnString") == true) {
+            return setString(dbConnString, value);
+        }
+        if(compareFieldID(temp, "dbUserName") == true) {
+            return setString(dbUserName, value);
+        }
+        if(compareFieldID(temp, "dbPassword") == true) {
+            return setString(dbPassword, value);
+        }
+        if(compareFieldID(temp, "dbDriverClass") == true) {
+            return setString(dbDriverClass, value);
+        }
+        if(compareFieldID(temp, "dbMaxConnection") == true) {
+            if(!value.equals("")) dbMaxConnection = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "defaultSystem") == true) {
+            return setString(defaultSystem, value);
+        }
+        if(compareFieldID(temp, "dbBasicTotalCount") == true) {
+            if(!value.equals("")) dbBasicTotalCount = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dbBasicFreeCount") == true) {
+            if(!value.equals("")) dbBasicFreeCount = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dbFeatureTotalCount") == true) {
+            if(!value.equals("")) dbFeatureTotalCount = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dbFeatureFreeCount") == true) {
+            if(!value.equals("")) dbFeatureFreeCount = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dbBasicTransactionTotalCount") == true) {
+            if(!value.equals("")) dbBasicTransactionTotalCount = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "dbBasicTransactionFreeCount") == true) {
+            if(!value.equals("")) dbBasicTransactionFreeCount = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "currentCallCount") == true) {
+            if(!value.equals("")) currentCallCount = Integer.valueOf(value);
+            return 0;
+        }
+
+
+        log.error("SswSystem - Not founded field :" + field);
+        return(-1);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "config", idx, value) == true) {
+            errorcode = config.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "groupId", idx, value) == true) {
+            errorcode = getString(groupId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hwClusterId", idx, value) == true) {
+            errorcode = getString(hwClusterId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hwId", idx, value) == true) {
+            errorcode = getString(hwId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "clusterId", idx, value) == true) {
+            errorcode = getString(clusterId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "processId", idx, value) == true) {
+            errorcode = getString(processId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "status", idx, value) == true) {
+            errorcode = getInteger(procStatus, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "groupName", idx, value) == true) {
+            errorcode = getString(groupName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hwName", idx, value) == true) {
+            errorcode = getString(hwName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "clusterName", idx, value) == true) {
+            errorcode = getString(clusterName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbConnString", idx, value) == true) {
+            errorcode = getString(dbConnString.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbUserName", idx, value) == true) {
+            errorcode = getString(dbUserName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbPassword", idx, value) == true) {
+            errorcode = getString(dbPassword.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbDriverClass", idx, value) == true) {
+            errorcode = getString(dbDriverClass.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbMaxConnection", idx, value) == true) {
+            errorcode = getInteger(dbMaxConnection, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "defaultSystem", idx, value) == true) {
+            errorcode = getString(defaultSystem.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "dbBasicTotalCount", idx, value) == true) {
+            errorcode = getInteger(dbBasicTotalCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbBasicFreeCount", idx, value) == true) {
+            if ( dbBasicFreeCount > dbBasicTotalCount ) dbBasicFreeCount = dbBasicTotalCount ;
+            errorcode = getInteger(dbBasicFreeCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbFeatureTotalCount", idx, value) == true) {
+            errorcode = getInteger(dbFeatureTotalCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbFeatureFreeCount", idx, value) == true) {
+            if ( dbFeatureFreeCount > dbFeatureTotalCount ) dbFeatureFreeCount = dbFeatureTotalCount ;
+            errorcode = getInteger(dbFeatureFreeCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbBasicTransactionTotalCount", idx, value) == true) {
+            errorcode = getInteger(dbBasicTransactionTotalCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dbBasicTransactionFreeCount", idx, value) == true) {
+            if ( dbBasicTransactionFreeCount > dbBasicTransactionTotalCount ) dbBasicTransactionFreeCount = dbBasicTransactionTotalCount ;
+            errorcode = getInteger(dbBasicTransactionFreeCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "currentCallCount", idx, value) == true) {
+            errorcode = getInteger(currentCallCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        return 0;
+    }
+}
+

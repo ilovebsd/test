@@ -1,0 +1,31 @@
+package com.acromate.dao.system ;
+
+import java.sql.ResultSet ;
+import com.acromate.driver.db.DataStatement;
+
+public class CardInfoDAO {
+    
+	public CardInfoDAO() {}
+    
+    public String getAlarmStatus(DataStatement statement, String groupId) {
+        String queryString = "" ;
+        ResultSet rs = null ;
+        try {
+            queryString = "SELECT count(*) From TABLE_CurrentAlarm";
+            queryString += " WHERE SysGroupID='" + groupId + "'  ";
+            System.out.println(queryString);
+            rs = statement.executeQuery(queryString) ;
+            if ( rs.next() )  {
+                if (rs.getInt(1) > 0) return "NORMAL";
+                else return "ABNORMAL";
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  
+            	if (rs != null) rs.close();  
+        	} catch(Exception e) { e.printStackTrace(); }
+        }
+        return "ABNORMAL";
+    }
+}

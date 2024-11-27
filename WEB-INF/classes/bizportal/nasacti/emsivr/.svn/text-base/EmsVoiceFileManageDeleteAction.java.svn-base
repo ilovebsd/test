@@ -1,0 +1,45 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.common.FileUtil;
+
+public class EmsVoiceFileManageDeleteAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+		String strWIndex = request.getParameter("wIndex");
+		String strWFile = request.getParameter("wFile");
+
+		int iRtn = -1;
+		VoiceDAO voiceDAO = VoiceDAO.getInstance();
+		iRtn = voiceDAO.deleteVoice(strWIndex);
+
+		switch(iRtn) {
+			case 1:
+				FileUtil.delete(ipivrConfig.strRealPath + "/../ipcs_files/fileupwav/" + strWFile);
+				break;
+			case -1:
+				request.setAttribute("msg", "삭제에러가 발생하였습니다.");
+				break;
+		}
+
+		return "./emsVoiceFileManageListForm.do2";
+	}
+}

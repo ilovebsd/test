@@ -1,0 +1,29 @@
+package com.acromate.dto.system;
+
+public class IoiTraceDTO {
+    private String startTime ;
+    private String callerE164 ;
+    private String calleeE164 ;
+    private String callerEndpointID ;
+    private String calleeEndpointID ;
+    private String ioiID ;
+
+    public String getStartTime() { return startTime ; }
+    public void   setStartTime( String startTime ) { this.startTime = startTime ; }
+
+    public String getCallerE164() { return callerE164 ; }
+    public void   setCallerE164( String callerE164 ) { this.callerE164 = callerE164 ; }
+
+    public String getCalleeE164() { return calleeE164 ; }
+    public void   setCalleeE164( String calleeE164 ) { this.calleeE164 = calleeE164 ; }
+
+    public String getCallerEndpointID() { return callerEndpointID ; }
+    public void   setCallerEndpointID( String callerEndpointID ) { this.callerEndpointID = callerEndpointID ; }
+
+    public String getCalleeEndpointID() { return calleeEndpointID ; }
+    public void   setCalleeEndpointID( String calleeEndpointID ) { this.calleeEndpointID = calleeEndpointID ; }
+
+    public String getIoiID() { return ioiID ; }
+    public void   setIoiID( String ioiID ) { this.ioiID = ioiID ; }
+
+}

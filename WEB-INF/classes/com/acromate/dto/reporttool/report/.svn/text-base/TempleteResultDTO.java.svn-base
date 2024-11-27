@@ -1,0 +1,8 @@
+
+package com.acromate.dto.reporttool.report;
+
+public class TempleteResultDTO extends ReportSubjectDTO {
+	public TempleteResultDTO() {
+		super();
+	}
+}

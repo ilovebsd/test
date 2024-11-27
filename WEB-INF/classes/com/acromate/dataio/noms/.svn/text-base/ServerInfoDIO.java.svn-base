@@ -1,0 +1,124 @@
+package com.acromate.dataio.noms ;
+
+import org.apache.log4j.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class ServerInfoDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder serverId = new StringBuilder();
+    private StringBuilder serverName = new StringBuilder();
+    private StringBuilder serverIp = new StringBuilder();
+    private StringBuilder portId = new StringBuilder();
+    private int    adminStatus ;
+    private StringBuilder serviceStatus = new StringBuilder();
+
+    public String    getServerId() { return serverId.toString() ; }
+    public void   setServerId( String serverId ) {
+        this.serverId.delete(0,this.serverId.length());
+        this.serverId.append(serverId) ;
+    }
+
+    public String getServerName() { return serverName.toString() ; }
+    public void   setServerName( String serverName ) {
+        this.serverName.delete(0,this.serverName.length());
+        this.serverName.append(serverName) ;
+    }
+
+    public String getServerIp() { return serverIp.toString() ; }
+    public void   setServerIp( String serverIp ) {
+        this.serverIp.delete(0,this.serverIp.length());
+        this.serverIp.append(serverIp) ;
+    }
+
+    public String getPortId() { return portId.toString() ; }
+    public void   setPortId( String portId ) {
+        this.portId.delete(0,this.portId.length());
+        this.portId.append(portId) ;
+    }
+
+    public int    getAdminStatus() { return adminStatus ; }
+    public void   setAdminStatus( int adminStatus ) { this.adminStatus = adminStatus ; }
+
+    public String getServiceStatus() { return serviceStatus.toString() ; }
+    public void   setServiceStatus( String serviceStatus ) {
+        this.serviceStatus.delete(0,this.serviceStatus.length());
+        this.serviceStatus.append(serviceStatus) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "serverId".toLowerCase()) == true) {
+            return setString(serverId, value);
+        }
+        if(compareFieldID(temp, "serverName".toLowerCase()) == true) {
+            return setString(serverName, value);
+        }
+        if(compareFieldID(temp, "serverIp".toLowerCase()) == true) {
+            return setString(serverIp, value);
+        }
+        if(compareFieldID(temp, "portId".toLowerCase()) == true) {
+            return setString(portId, value);
+        }
+        if(compareFieldID(temp, "adminStatus".toLowerCase()) == true) {
+            if(!value.equals("")) adminStatus = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "serviceStatus".toLowerCase()) == true) {
+            return setString(serviceStatus, value);
+        }
+        log.error("ServerInfoDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "serverId", idx, value) == true) {
+            errorcode = getString(serverId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "serverName", idx, value) == true) {
+            errorcode = getString(serverName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "serverIp", idx, value) == true) {
+            errorcode = getString(serverIp.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "portId", idx, value) == true) {
+            errorcode = getString(portId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "adminStatus", idx, value) == true) {
+            errorcode = getInteger(adminStatus, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "serviceStatus", idx, value) == true) {
+            errorcode = getString(serviceStatus.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+    public String toXmlString( String blank ) {
+		StringBuilder xml = new StringBuilder();
+
+		xml.append ( blank+"   <serverId>" + getServerId() + "</serverId>\n") ;
+		xml.append ( blank+"   <serverName>" + getServerName() + "</serverName>\n") ;
+		xml.append ( blank+"   <serverIp>" + getServerIp() + "</serverIp>\n") ;
+		xml.append ( blank+"   <portId>" + getPortId() + "</portId>\n") ;
+		xml.append ( blank+"   <adminStatus>" + getAdminStatus() + "</adminStatus>\n") ;
+		xml.append ( blank+"   <serviceStatus>" + getServiceStatus() + "</serviceStatus>\n") ;
+
+		return xml.toString();
+    }
+}

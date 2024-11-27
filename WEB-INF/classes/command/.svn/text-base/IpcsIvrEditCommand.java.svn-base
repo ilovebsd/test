@@ -1,0 +1,65 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dao.ipcs.IpcsIvrDAO;
+
+import business.LogHistory;
+
+public class IpcsIvrEditCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+
+        int 	nGroupId = 0;
+        boolean returnVal 	= false;
+        try {
+			String 	hiEi64			= new String(req.getParameter("hiEi64").getBytes("8859_1"), "euc-kr");			// E164
+			String 	hiScCompany		= new String(req.getParameter("hiScCompany").getBytes("8859_1"), "euc-kr");		// 이름
+			String	pageType		= new String(Str.CheckNullString(req.getParameter("pageType")).getBytes("8859_1"), "euc-kr");		// 
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			IpcsIvrDAO dao = new IpcsIvrDAO();
+			
+			System.out.println("hiEi64 값 : "+hiEi64);
+			System.out.println("hiScCompany 값 : "+hiScCompany);
+			
+			// 사용자 정보 수정
+			returnVal = dao.ipcsIvrEdit(hiEi64, hiScCompany);
+
+			if (returnVal) {
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|82|음성안내번호 관리 ("+hiEi64+" 번)|3|"+strIp);
+				// ##############################################
+
+				System.out.println("IPCS 음성안내 수정 성공 .......");
+				//forwardingPage = "/bizportal/publicAddrList.jsp?group=" + nGroupId + "&result=" + Integer.toString(updateResult);
+				if("normal".equals(pageType)){
+					res.sendRedirect("/bizportal/ipcs/ipcsNormalIVRList.jsp");
+				}else{
+					res.sendRedirect("/bizportal/ipcs/ipcsIVRList_Prefix.jsp");
+				}
+			}else{
+				System.out.println("IPCS 음성안내 수정 실패 .......");
+				//forwardingPage = "/address/publicGroupList.jsp?session=0";
+			}
+			
+		} catch (Exception e) {
+			System.out.println("IPCS 에러발생 .......");
+			//forwardingPage = "/address/publicGroupList.jsp?group=" + nGroupId + "&result=-1" ;
+			
+			e.printStackTrace();
+		}		
+		return forwardingPage;
+	}
+}

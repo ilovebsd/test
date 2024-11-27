@@ -1,0 +1,202 @@
+package batch;
+
+import java.sql.*;
+import java.util.*;
+import system.SystemConfigSet;
+
+public class  HddChkBatch
+{
+	// 시스템 정보 멤버변수
+	private String 	tempStr		= "";
+	private String 	beforeStr	= "";
+	private String 	afterStr	= "";
+	private String	tempGubun	= "";
+		
+	private String	sCapacity	= "0";
+	private String	dCapacity	= "0";
+	private String	uCapacity	= "0";	
+	private String	oCapacity	= "0";
+	private String	vCapacity	= "0";
+	
+	Connection dbCon = null;
+	PreparedStatement pstmt = null;
+	
+	public void db_connect(){
+		ConnectionFactory cf = ConnectionFactory.getConnectionFactory();
+		this.dbCon = cf.getConnection();
+	}
+	
+	public void db_connect(int i){
+		ConnectionFactory cf = ConnectionFactory.getConnectionFactory();
+		this.dbCon = cf.getConnection(i);
+	}
+	
+	public HddChkBatch(){
+	}
+	
+    /**
+     * ArrayList에 있는 조회한 데이타를 체크하기위해 HashMap에 저장한다.
+     * @param ArrayList      조회한 데이타
+     */	
+	public void data_Chk_List(ArrayList data_list){
+		try{
+			if(dbCon == null){
+				db_connect(1);
+			}
+			
+			dbCon.setAutoCommit(false);
+			
+			for(int i = 0; i < data_list.size(); i++){
+				HashMap outdata=(HashMap)data_list.get(i);
+				try{
+					String strKey = (String)outdata.get("key");
+					String strVal = (String)outdata.get("value");
+					
+					PreparedStatement pstmtUpdate=null;
+					String sql= "UPDATE table_updateenv SET valueinfo = ? WHERE  ENVNAME = 'systeminfo' AND KEYNAME = ? ";
+					pstmtUpdate = dbCon.prepareStatement(sql);
+					pstmtUpdate.setString(1, strVal);				// HDD 사용률
+					pstmtUpdate.setString(2, strKey);				// HDD 종류
+					pstmtUpdate.execute();
+					if(pstmtUpdate!=null){ 
+						pstmtUpdate.close(); 
+					} 
+					//System.out.println("SQL "+i+"번째 : "+sql);
+				}
+				catch(Exception ex)
+				{
+//					System.out.println("에러내용");
+					dbCon.rollback();
+				}
+				dbCon.commit();
+				
+			}
+
+		}catch(Exception ex)
+		{
+			System.out.println(ex);			
+		}
+		finally
+		{
+			try{
+				dbCon.setAutoCommit(true);
+			}
+			catch(Exception ex){
+				System.out.println(ex);
+			}
+		}
+	}
+	
+    /**
+     * CallBox 장비의 HDD 정보를 읽어옴.
+     */	
+	public void selectBatch() {
+		SystemConfigSet systemConfig 	= new SystemConfigSet();
+		HashMap 		data 			= null;
+		ArrayList 		data_list 		= new ArrayList();			
+
+		try
+		{
+			List 	sList 		= systemConfig.getSystemInfoList();		// 데이타 조회
+			int		configCount	= sList.size();		
+			
+			for(int i=0;i<configCount;i++){		
+				tempStr 	= (String)sList.get(i);	
+				beforeStr	= tempStr;
+				afterStr 	= beforeStr.replace("  "," ");
+			
+				while (!beforeStr.equals(afterStr)) {
+					beforeStr= afterStr;
+			   		afterStr = afterStr.replace("  "," ");
+			    }
+			   	
+			   	String[]	tempInfo;
+			   	tempInfo 	= afterStr.split(" ");
+			   	tempGubun		= tempInfo[5];			
+			   	
+			   	if(tempGubun.equals("/data")){
+			   		sCapacity	= tempInfo[4].replace("%","");
+			   		
+			   		data=new HashMap();
+			   		data.put("key","data");
+			   		data.put("value",sCapacity);
+			   		data_list.add(data);
+			   	}else if(tempGubun.equals("/database")){
+			   		dCapacity	= tempInfo[4].replace("%","");
+			   		
+			   		data=new HashMap();
+			   		data.put("key","database");
+			   		data.put("value",dCapacity);
+			   		data_list.add(data);			   		
+			   	}else if(tempGubun.equals("/usrdata")){
+			   		uCapacity	= tempInfo[4].replace("%","");
+			   		
+			   		data=new HashMap();
+			   		data.put("key","usrdata");
+			   		data.put("value",uCapacity);
+			   		data_list.add(data);
+			   	}else if(tempGubun.equals("/mnt/backup")){
+			   		oCapacity	= tempInfo[4].replace("%","");
+			   		
+			   		data=new HashMap();
+			   		data.put("key","backup");
+			   		data.put("value",oCapacity);
+			   		data_list.add(data);
+			   	}else if(tempGubun.equals("/var")){
+			   		vCapacity	= tempInfo[4].replace("%","");
+			   		
+			   		data=new HashMap();
+			   		data.put("key","var");
+			   		data.put("value",vCapacity);
+			   		data_list.add(data);
+			   	}
+			}
+		}
+		catch(Exception e) {
+			System.out.println("selectBatch() : "+e);
+		}
+		finally {
+			/*
+			try {
+
+			}
+			catch (IOException e) {
+				System.out.println("FileRead Exception : "+e);
+			}
+			*/
+		}
+		
+		data_Chk_List(data_list);					// 		
+	}
+
+    /**
+     * 데이터베이스 연결을 종료 하는 메서드
+     */	
+	public void disconnect() {
+		try{
+			if(dbCon!=null)
+			{
+				pstmt.close();
+				dbCon.close();
+				pstmt=null;
+				dbCon=null;
+			}
+		}
+		catch(SQLException e) {
+			System.out.println(e);
+		}
+//		System.out.println("close");
+	}
+	
+	public static void main(String args[]){
+		HddChkBatch hcb = new HddChkBatch();
+		try{
+			hcb.selectBatch();
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex);
+		}
+	}
+	
+}

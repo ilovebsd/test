@@ -1,0 +1,184 @@
+package business.ipcs;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+import dto.ipcs.IpcsIvrDTO;
+
+public class IpcsIvrList {
+	public List getList(DataStatement stmt, int pageNo, int pageSize, String endpointid) {		
+		IpcsIvrDTO 		ipcsIvrDTO;
+        List<IpcsIvrDTO> 	ipcsIvrList 	= new ArrayList<IpcsIvrDTO>();
+        
+        String sql = "SELECT sc_company, ivr_tel, auth_id from NASA_TRUNK_SET ";
+        sql = sql + " Where trunk_type = 'N' ";
+        
+        if(endpointid != null && !"".equals(endpointid)){
+//        	sql = sql + " WHERE OwnerID = '" + OwnerID + "' And GroupID = " + GroupID + " ";
+        }else{
+        	
+//        	sql = sql + " Order by Name offset "+pageNo+" limit "+pageSize ;
+        }
+        //sql = sql + " Order by a.endpointid offset "+pageNo+" limit "+pageSize ;
+        sql = sql + " Order by tr_idx ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	ipcsIvrDTO = new IpcsIvrDTO(
+                    	Str.CheckNullString(rs.getString("sc_company")),
+                        Str.CheckNullString(rs.getString("ivr_tel")),
+                        Str.CheckNullString(rs.getString("auth_id"))
+                    );
+
+                    ipcsIvrList.add(ipcsIvrDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsIvrList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsIvrList;
+    }
+
+	public int getCount(DataStatement stmt, String endpointid) {
+		int count = 0 ;
+		ResultSet rs = null;
+		
+        String sql = "SELECT count(*) from NASA_TRUNK_SET ";
+        sql = sql + " Where ivr_tel <> 'anonymous' And trunk_type = 'N' ";
+//      sql = sql + " Where trunk_type = 'N' ";
+      
+      if(endpointid != null && !"".equals(endpointid)){
+//      	sql = sql + " WHERE OwnerID = '" + OwnerID + "' And GroupID = " + GroupID + " ";
+      }else{
+      	
+//      	sql = sql + " Order by Name offset "+pageNo+" limit "+pageSize ;
+      }
+		
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+
+	public List getNormalList(DataStatement stmt, int pageNo, int pageSize, String endpointid) {		
+		IpcsIvrDTO 		ipcsIvrDTO;
+        List<IpcsIvrDTO> 	ipcsIvrList 	= new ArrayList<IpcsIvrDTO>();
+        
+        String sql = "SELECT sc_company, ivr_tel, auth_id from NASA_TRUNK_SET ";
+        sql = sql + " Where trunk_type = 'N' ";
+        sql = sql + "   And ivr_tel <> '' ";
+        sql = sql + " Order by tr_idx ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	ipcsIvrDTO = new IpcsIvrDTO(
+                    	Str.CheckNullString(rs.getString("sc_company")),
+                        Str.CheckNullString(rs.getString("ivr_tel")),
+                        Str.CheckNullString(rs.getString("auth_id"))
+                    );
+
+                    ipcsIvrList.add(ipcsIvrDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsIvrList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsIvrList;
+    }
+
+	public int getNormalCount(DataStatement stmt, String endpointid) {
+		int count = 0 ;
+		ResultSet rs = null;
+		
+        String sql = "SELECT count(*) from NASA_TRUNK_SET ";
+        sql = sql + " Where ivr_tel <> 'anonymous' ";
+        sql = sql + "   And ivr_tel <> '' ";
+        
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+
+	public int getTr_Idx(DataStatement stmt) {
+		int tr_idx = 0 ;
+		ResultSet rs = null;
+		
+        String sql = " SELECT tr_idx From NASA_TRUNK_SET Where trunk_type = 'N' ";
+        
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) tr_idx = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return tr_idx;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return tr_idx;
+    }
+	
+}

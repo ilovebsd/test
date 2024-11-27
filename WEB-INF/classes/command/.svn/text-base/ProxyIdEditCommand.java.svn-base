@@ -1,0 +1,208 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.system.RootPrefixDTO;
+import dao.system.RootPrefixDAO;
+import acromate.common.util.WebUtil;
+import business.LogHistory;
+
+public class ProxyIdEditCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		try {
+			// ################### Table_NeighborProxy ###################
+			String 	proxyId			= new String(Str.CheckNullString(req.getParameter("hiProxyId")).getBytes("8859_1"), "euc-kr");			// 프락시 ID
+			String 	inViaIP			= new String(Str.CheckNullString(req.getParameter("hiInViaIP")).getBytes("8859_1"), "euc-kr");			// 입중계 Via 도메인 IP
+			String 	inViaPort		= new String(Str.CheckNullString(req.getParameter("hiInViaPort")).getBytes("8859_1"), "euc-kr");		// 입중계 Via 포트
+			String 	signalIP		= new String(Str.CheckNullString(req.getParameter("hiSignalIP")).getBytes("8859_1"), "euc-kr");			// 출중계 도메인/IP주소
+			String 	signalPort		= new String(Str.CheckNullString(req.getParameter("hiSignalPort")).getBytes("8859_1"), "euc-kr");		// 출중계 도메인 포트
+			String 	outToDomain		= new String(Str.CheckNullString(req.getParameter("hiOutToDomain")).getBytes("8859_1"), "euc-kr");		// 출중계 자국도메인
+			String 	outFromDomain	= new String(Str.CheckNullString(req.getParameter("hiOutFromDomain")).getBytes("8859_1"), "euc-kr");	// 출중계 타국도메인			
+			String 	options			= new String(Str.CheckNullString(req.getParameter("hiOptions")).getBytes("8859_1"), "euc-kr");			// THIG 사용 여부
+			String 	sigComp			= new String(Str.CheckNullString(req.getParameter("hiSigComp")).getBytes("8859_1"), "euc-kr");			// THIG 사용 여부(SigComp 사용 여부 추가해야 함 + 16)
+			String 	uriType			= new String(Str.CheckNullString(req.getParameter("hiUriType")).getBytes("8859_1"), "euc-kr");			// SIP URI 유형
+			String 	chkGlobalNumber	= new String(Str.CheckNullString(req.getParameter("hiChkGlobalNumber")).getBytes("8859_1"), "euc-kr");	// SIP URI 유형(체크박스(Global Numberr Type))
+			String 	uriParam		= new String(Str.CheckNullString(req.getParameter("hiUriParam")).getBytes("8859_1"), "euc-kr");			// URI 파라미터
+			String 	dtmfType		= new String(Str.CheckNullString(req.getParameter("hiDtmfType")).getBytes("8859_1"), "euc-kr");			// DTMF 타입
+			String 	protocol		= new String(Str.CheckNullString(req.getParameter("hiProtocol")).getBytes("8859_1"), "euc-kr");			// 전송 프로토콜 타입(SigComp 사용 여부 추가)
+			
+			// ################### Table_RouteState ###################
+			String 	groupId			= new String(Str.CheckNullString(req.getParameter("hiGroupId")).getBytes("8859_1"), "euc-kr");			// 그룹 ID
+			String 	groupAttach		= new String(Str.CheckNullString(req.getParameter("hiGroupAttach")).getBytes("8859_1"), "euc-kr");		// 그룹적용 타입
+			String 	serviceFlag		= new String(Str.CheckNullString(req.getParameter("hiServiceFlag")).getBytes("8859_1"), "euc-kr");		// 서비스 여부
+			String 	channelMode		= new String(Str.CheckNullString(req.getParameter("hiChannelMode")).getBytes("8859_1"), "euc-kr");		// 최대 채널 제한 설정
+			String 	inMaxCall		= new String(Str.CheckNullString(req.getParameter("hiInMaxCall")).getBytes("8859_1"), "euc-kr");		// 입중계(루트→자국)최대채널
+			String 	outMaxCall		= new String(Str.CheckNullString(req.getParameter("hiOutMaxCall")).getBytes("8859_1"), "euc-kr");		// 출중계(자국→루트)최대채널
+			String 	totalMaxCall	= new String(Str.CheckNullString(req.getParameter("hiTotalMaxCall")).getBytes("8859_1"), "euc-kr");		// TOTAL 최대채널
+			String 	inAlarmCall		= new String(Str.CheckNullString(req.getParameter("hiInAlarmCall")).getBytes("8859_1"), "euc-kr");		// Inbound 경고 발생할 콜수
+			String 	outAlarmCall	= new String(Str.CheckNullString(req.getParameter("hiOutAlarmCall")).getBytes("8859_1"), "euc-kr");		// Outbound 경고 발생할 콜수
+			String 	totalAlarmCall	= new String(Str.CheckNullString(req.getParameter("hiTotalAlarmCall")).getBytes("8859_1"), "euc-kr");	// TOTAL 경고 발생할 콜수			
+			String 	zoneCode		= new String(Str.CheckNullString(req.getParameter("hiZoneCode")).getBytes("8859_1"), "euc-kr");			// zone Code
+			String 	inCutCID		= new String(Str.CheckNullString(req.getParameter("hiInCutCID")).getBytes("8859_1"), "euc-kr");			// CID입중계 CUT
+			String 	inAddCID		= new String(Str.CheckNullString(req.getParameter("hiInAddCID")).getBytes("8859_1"), "euc-kr");			// CID입중계 ADD
+			String 	outCutCID		= new String(Str.CheckNullString(req.getParameter("hiOutCutCID")).getBytes("8859_1"), "euc-kr");		// CID출중계 CUT
+			String 	outAddCID		= new String(Str.CheckNullString(req.getParameter("hiOutAddCID")).getBytes("8859_1"), "euc-kr");		// CID출중계 ADD
+			String 	inStartPosition	= new String(Str.CheckNullString(req.getParameter("hiInStartPosition")).getBytes("8859_1"), "euc-kr");	// Digit출중계 시작점
+			String 	inCutPrefix		= new String(Str.CheckNullString(req.getParameter("hiInCutPrefix")).getBytes("8859_1"), "euc-kr");		// Digit입중계 CUT
+			String 	inAddPrefix		= new String(Str.CheckNullString(req.getParameter("hiInAddPrefix")).getBytes("8859_1"), "euc-kr");		// Digit입중계 ADD
+			String 	outStartPosition= new String(Str.CheckNullString(req.getParameter("hiOutStartPosition")).getBytes("8859_1"), "euc-kr");	// Digit입중계 시작점
+			String 	outCutPrefix	= new String(Str.CheckNullString(req.getParameter("hiOutCutPrefix")).getBytes("8859_1"), "euc-kr");		// Digit출중계 CUT
+			String 	outAddPrefix	= new String(Str.CheckNullString(req.getParameter("hiOutAddPrefix")).getBytes("8859_1"), "euc-kr");		// Digit출중계 ADD
+			String 	maxDetourCount	= new String(Str.CheckNullString(req.getParameter("hiMaxDetourCount")).getBytes("8859_1"), "euc-kr");	// 최대우회횟수			
+			String 	authIP			= new String(Str.CheckNullString(req.getParameter("hiAuthIP")).getBytes("8859_1"), "euc-kr");			// IP 인증
+			String 	authPort		= new String(Str.CheckNullString(req.getParameter("hiAuthPort")).getBytes("8859_1"), "euc-kr");			// Port 인증
+			String 	authDomain		= new String(Str.CheckNullString(req.getParameter("hiAuthDomain")).getBytes("8859_1"), "euc-kr");		// Domain 인증
+			String 	authMd5			= new String(Str.CheckNullString(req.getParameter("hiAuthMd5")).getBytes("8859_1"), "euc-kr");			// MD5 인증
+			String 	authInvite		= new String(Str.CheckNullString(req.getParameter("hiAuthInvite")).getBytes("8859_1"), "euc-kr");		// Invite 인증
+			String 	authP_Identity	= new String(Str.CheckNullString(req.getParameter("hiAuthP_Identity")).getBytes("8859_1"), "euc-kr");	// P-Asserted-Identity 인증			
+			String 	authDomainName	= new String(Str.CheckNullString(req.getParameter("hiAuthDomainName")).getBytes("8859_1"), "euc-kr");	// From 도메인명
+			String 	authID			= new String(Str.CheckNullString(req.getParameter("hiAuthID")).getBytes("8859_1"), "euc-kr");			// 인증ID
+			String 	authPass		= new String(Str.CheckNullString(req.getParameter("hiAuthPass")).getBytes("8859_1"), "euc-kr");			// 비밀번호
+			String 	detour			= new String(Str.CheckNullString(req.getParameter("hiDetour")).getBytes("8859_1"), "euc-kr");			// 인증 ID 수
+			String 	roundAboutCount	= new String(Str.CheckNullString(req.getParameter("hiRoundAboutCount")).getBytes("8859_1"), "euc-kr");	// 우회루트 수
+			String 	roundAboutStr	= new String(Str.CheckNullString(req.getParameter("hiRoundAboutStr")).getBytes("8859_1"), "euc-kr");	// 우회루트 ID
+			String 	oldRoundAboutStr= new String(Str.CheckNullString(req.getParameter("oldRoundAboutCount")).getBytes("8859_1"), "euc-kr");	// 우회루트 ID
+			String 	roundAboutCheck	= new String(Str.CheckNullString(req.getParameter("hiRoundAboutCheck")).getBytes("8859_1"), "euc-kr");	// 우회루트 ID
+			
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			System.out.println("####### inCutPrefix : "+inCutPrefix);
+			System.out.println("####### outCutPrefix : "+outCutPrefix);
+			
+			resStr = "rootAddList.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+		        //calculrate Auth // 인증값
+		        int nRetAuthMode = 0;
+		        if (authIP.equals("1"))		nRetAuthMode += WebUtil.conCheckAuth_IP_Use;			//IP인증 : 2
+		        if (authPort.equals("1")) 	nRetAuthMode += WebUtil.conCheckAuth_IP_Port_Use;		//Port 인증 :1
+		        if (authDomain.equals("1")) nRetAuthMode += WebUtil.conCheckAuth_Via_Domain_Use;	//Via도메인 인증 :512
+		        if (authMd5.equals("1")){ 															//비밀번호 인증 :128
+		            nRetAuthMode += WebUtil.conCheckAuth_Passwd_Use;
+		            if (authInvite.equals("0")){ 													//Inviter관련 : 인증안함 :0
+		                nRetAuthMode += WebUtil.conCheckAuth_Passwd_Invite_Uncheck;
+		            }else{
+		                nRetAuthMode += WebUtil.conCheckAuth_Passwd_Invite_AnyTime;					//Inviter관련 : 항상 인증 :16
+		            }
+		        }
+		        if (authP_Identity.equals("1")) nRetAuthMode += WebUtil.conCheckAuth_P_Aserted_Use; //P-Aserted-Identity 인증 : 8192
+		        
+		        
+				RootPrefixDTO dto = new RootPrefixDTO();
+				// ################## Table_NeighborProxy ###################
+				dto.setEndpointid(proxyId);
+				dto.setEndpointClass(getEndpointClass());				
+				dto.setInviaAddress(inViaIP);
+				dto.setInviaPort(Integer.parseInt(inViaPort));
+				dto.setSignalAddress(signalIP);
+				dto.setSignalPort(Integer.parseInt(signalPort));
+				dto.setOutToDomainname(outToDomain);
+				dto.setOutFromDomainname(outFromDomain);
+				dto.setOptions(Integer.parseInt(options)+Integer.parseInt(sigComp)+Integer.parseInt(protocol));
+				dto.setUritype(Integer.parseInt(uriType)+Integer.parseInt(chkGlobalNumber));
+				dto.seturiparam(uriParam);
+				dto.setDtmfType(Integer.parseInt(dtmfType));				
+				dto.setMessageType(0);								// 
+				dto.setAuthMode(nRetAuthMode);
+				dto.setInDomainname(authDomainName);
+				dto.setUserName(authID);
+				dto.setPassWord(authPass);
+				
+				// ################### Table_RouteState ###################
+				dto.setProtocol(2);
+				dto.setIsLocal(-1);
+				dto.setStateFlag(1);
+				dto.setGroupId(groupId);
+				dto.setGroupAttach(Integer.parseInt(groupAttach));
+				dto.setServiceFlag(Integer.parseInt(serviceFlag));
+				dto.setChannelLimitMode(Integer.parseInt(channelMode));
+				dto.setInMaxcall(Integer.parseInt(inMaxCall));
+				dto.setOutMaxcall(Integer.parseInt(outMaxCall));
+				dto.setTotalMaxcall(Integer.parseInt(totalMaxCall));
+				dto.setInAlarmCall(Integer.parseInt(inAlarmCall));
+				dto.setOutAlarmCall(Integer.parseInt(outAlarmCall));
+				dto.setTotalAlarmCall(Integer.parseInt(totalAlarmCall));				
+				dto.setBlockCount(0);
+				dto.setInCurrentCall(0);
+				dto.setOutCurrentCall(0);				
+				dto.setZoneCode(zoneCode);
+				dto.setInCutcid(Integer.parseInt(inCutCID));
+				dto.setInAddcid(inAddCID);
+				dto.setOutCutcid(Integer.parseInt(outCutCID));
+				dto.setOutAddcid(outAddCID);
+				if(!"".equals(inStartPosition)) dto.setInstartposition(Integer.parseInt(inStartPosition));
+				if(!"".equals(inCutPrefix)) 	dto.setIncutPrefix(Integer.parseInt(inCutPrefix));
+				dto.setInaddprefix(inAddPrefix);
+				if(!"".equals(outStartPosition)) dto.setOutstartPosition(Integer.parseInt(outStartPosition));
+				if(!"".equals(outCutPrefix)) 	dto.setOutcutPrefix(Integer.parseInt(outCutPrefix));
+				dto.setOutaddPrefix(outAddPrefix);
+				dto.setMaxdetourCount(Integer.parseInt(maxDetourCount));
+				
+				stmt = ConnectionManager.allocStatement("SSW");
+								
+				RootPrefixDAO dao = new RootPrefixDAO();
+				int insertResult = dao.update(stmt,dto,proxyId,roundAboutCount,roundAboutStr,oldRoundAboutStr,roundAboutCheck,inStartPosition,inCutPrefix,outStartPosition,outCutPrefix);
+				
+				// CallBox 이원화 ============================
+				if("Pri_CSCF".equals(proxyId)){
+					dto.setEndpointid("Sec_CSCF");
+					dto.setInviaPort(Integer.parseInt(inViaPort));
+					proxyId = "Sec_CSCF";
+					int insertResult2 = dao.update(stmt,dto,proxyId,roundAboutCount,roundAboutStr,oldRoundAboutStr,roundAboutCheck,inStartPosition,inCutPrefix,outStartPosition,outCutPrefix);
+				}else if("Sec_CSCF".equals(proxyId)){
+					dto.setEndpointid("Pri_CSCF");
+					dto.setInviaPort(Integer.parseInt(inViaPort));
+					proxyId = "Pri_CSCF";
+					int insertResult2 = dao.update(stmt,dto,proxyId,roundAboutCount,roundAboutStr,oldRoundAboutStr,roundAboutCheck,inStartPosition,inCutPrefix,outStartPosition,outCutPrefix);
+				}
+				// =========================================
+
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|86|프락시 관리 ("+proxyId+")|3|"+strIp);
+				// ##############################################
+
+				res.sendRedirect("/bizportal/system/"+resStr);
+			} 
+			else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}		
+		return forwardingPage;
+	}
+	
+    public int getEndpointClass() {
+        byte bEPclass = (byte) 0x00;
+        bEPclass = (byte) (bEPclass | WebUtil.conCheckSIPProxy); //SIP Proxy = 28
+        //System.out.println("EndpointClass = " + bEPclass);
+        return bEPclass;
+    }
+	    
+}

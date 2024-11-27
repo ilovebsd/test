@@ -1,0 +1,787 @@
+package acromate.common.util;
+
+import java.util.*;
+import java.awt.*;
+import javax.swing.*;
+import java.io.File;
+import java.text.SimpleDateFormat;
+//import javax.servlet.http.*;
+/**
+Web Utility Class
+*/
+public class WebUtil
+{
+	//---------------------------------------
+	/**load Configration*/
+    public static final boolean isSIU = false;
+    public static final boolean isSBC = true;
+    public static final boolean isEMS = false;
+    public static final boolean isFullSet = true;
+    
+    //  condor-20070122
+    public static final int LOGIN_COMPLETE = 1;
+    public static final int LOGIN_ERROR = 0;
+    public static final int LOGIN_INVALID_USERID = -1;
+    public static final int LOGIN_INVALID_PASSWORD = -2;
+    public static final int LOGIN_DUPLICATE_USERID = -3;
+
+    //condor-20070131
+    public static final int LOGIN_DB_ERROR = -4;
+    public static final int LOGIN_FAIL_EXCEPTION = -5;
+    public static final int LOGIN_APICALL_EXCEPTION = -6;
+    //-----------------------------------------
+	public static final int CALLDROP = 1;
+	public static final int GKCONF = 2;
+	public static final int EPUNREGISTER = 3;
+	public static final int EPDATA = 4;
+	public static final int ALIAS = 5;
+	public static final int CDR = 6;
+	public static final int GATEWAY = 7;
+	public static final int NGK = 8;
+
+	public static final int ERROR_GKNETWORK = 51;
+	public static final int ERROR_NOTMANAGER = 52;
+	public static final int ERROR_MANAGERLOGOUT = 53;
+	public static final int ERROR_MANAGER_DUPLIACTE = 54;
+	public static final int ERROR_CLIENT_DUPLIACTE = 55;
+	public static final int ERROR_COOKIE_TIMEOUT = 56;
+	public static final int ERROR_CONF_ALDY_REQ = 57;
+	public static final int ERROR_EP_ALDY_UNREG = 58;
+	public static final int ERROR_CALLDROP_ALDY_REQ = 59;
+
+	public static final int ERROR_CLIENT_BROWSER = 71;
+	public static final int ERROR_LOGTRACE = 72;
+
+	public static final int INFO_EPUNREGISTER = 81;
+	public static final int INFO_CALLDROP = 82;
+	public static final int INFO_CALLDROP_REQ = 83;
+	public static final int INFO_CONFSET = 84;
+	public static final int INFO_EP_UNREG_REQ = 85;
+
+	public static final byte conCheckIP=(byte)0x10;
+	public static final byte conCheckPasswd=(byte)0x20;
+	public static final byte conCheckE164=(byte)0x40;
+        public static final byte conCheckID=(byte)0x40;
+        public static final byte conCheckDomain=(byte)0x40;
+        public static final byte conCheckEPclass=(byte)0x20;
+
+        public static final byte conCheckSIPProxy=(byte)0x28;
+        public static final byte conCheckSIPTGW=(byte)0x24;
+
+        public static final byte conCheckNeighborSSW=(byte)0x2A;
+        public static final byte conCheckChannelGroup=(byte)0x58;
+
+        public static final byte conCheckNotStart=(byte)0x00;
+        public static final byte conCheckStart=(byte)0x01;
+
+	public static final byte conCheckPasswdFirst=(byte)0x00;
+	public static final byte conCheckPasswdChanged=(byte)0x01;
+	public static final byte conCheckPasswdAnytime=(byte)0x02;
+
+        public static final byte conCheckClassGK=(byte)0x19;
+        public static final byte conCheckClassh323TGW=(byte)0x14;
+
+        public static final byte conCheckClassh323TGWRegister=(byte)0x15;
+
+        public static final byte conCheckEndpointID=(byte)0x01;
+        public static final byte conCheckGKID=(byte)0x00;
+        public static final byte conCheckSubID=(byte)0x01;
+
+        public static final byte conCheckOutGKID=(byte)0x01;
+        public static final byte conCheckOutH323ID=(byte)0x02;
+
+        public static final byte conCheckLocalPrefix=(byte)0x01;
+        public static final byte conCheckSpecialNum=(byte)0x02;
+        public static final byte conCheckLocalPrefixIPPBX=(byte)0x03;
+        public static final byte conCheckCallTermination=(byte)0x00;
+        public static final byte conCheckCallTrnasRoute=(byte)0x10;
+        public static final byte conCheckCallTrnasRouteGroup=(byte)0x20;
+        public static final byte conCheckCallTrnasE164=(byte)0x30;
+        public static final byte conCheckCallTransNum=(byte)0x40;
+        
+        
+        //서버간 통신을 위한 메세지 형식 정의
+        //MESSAGE TYPE
+        public static final int INFORMATION = 0;
+        public static final int FAULT = 1;
+        public static final int ALARM = 2;
+        public static final int OPERATION = 4;
+        public static final int INFORMATION_EMS = 6;
+        public static final int INFORMATION_SBC = 7;
+        public static final int SYSTEM_DATA_RESET = 0;
+        public static final int fromSSW = 0;
+        public static final int fromEMS = 6;
+
+
+        // ALARM LEVEL정의
+        public static final int MINOR = 1;
+        public static final int MAJOR = 2;
+        public static final int CIRTICAL = 3;
+        // ALARM TYPE 정의
+        public static final int SYSTEM_ERROR = 1;
+        public static final int TRAFFIC_ERROR = 2;
+        public static final int GENERAL_ERROR = 3;
+        //SystemInfoServer정의
+        public static final int GETSSWCONFIG_CATEGORI=0;
+        public static final int GETSSWCONFIG_ITEM=1;
+        public static final int SETSSWCONFIG=2;
+        public static final int SETSSSWCONFIG_ONDUPLEX=3;
+        public static final int GET_SSW_TRANSACTION_LOG=4;
+        public static final int GET_SSW_INFORMATION=5;
+        public static final int GET_CIC_UPDATE=6;
+        public static final int GET_File_UPLOAD=7;
+        public static final int GET_MACHINEAGENT_CONFIG=8;
+        public static final int SET_MACHINEAGENT_CONFIG=9;
+        public static final int RUN_MACHINEAGENT_PROCESS=10;
+
+        public static final int GET_SYSTEMLOG_CATEGORI=12;
+        //public static final int KILL_SOFTSWITCH=13;
+        //public static final int RUN_SOFTSWITCH=14;
+        public static final int GET_PROCESS_CHANGE=15;
+        public static final int GET_PROCESS_RECOVER=16;
+        public static final int PROCESS_CHANGE=17;
+        public static final int PROCESS_RECOVER=18;
+        public static final int STOP_DB_BACKUP_BY_OVERFLOW=19;
+        public static final int GET_PROCESS_VERSION=20;
+        //백업방식의 분기 : 데이터손실만 복구 FAST, 데이터 변경도 복구 NORMAL
+        public static final int RECOVER_DATABASE_EMS_FAST=50;
+        public static final int RECOVER_DATABASE_EMS_NORMAL=51;
+        public static final int RECOVER_DATABASE_SSW_FAST=52;
+        public static final int RECOVER_DATABASE_SSW_NORMAL=53;
+        /**프로세스관리 killprocess, runprocess*/
+        public static final int KILL_PROCESS_PERMANENT = 55;
+        public static final int RUN_PROCESS_PERMANENT = 56;
+
+        public static final int SET_ACTIVE_CHANGE=21;
+        public static final int GET_CURRENT_CALL=22;
+        public static final int SET_ENDPOINT_UNREGISTER=30;
+        public static final int SET_CLL_DROP=31;
+        public static final int SET_ENDPOINT_UPDATE=32;
+
+        /**해당 디렉토리의 파일리스트 가져오기*/
+        public static final int GET_FILELIST_IN_DIR = 40;
+        public static final int GET_FILELIST_IN_DIR_FROMSSW = 41;
+		
+        /**EMS Schedule Thread runonce*/
+        public static final int RUN_SCHEDULE_THREAD_ONCE = 43;
+        /**EMS 액티브 변경*/
+        public static final int EMS_ACTIVATE = 44;
+
+        public static final char COMMAND_DIV = 0x18;
+        public static final char PARAMS_DIV = 0x12;
+        public static final char COMMAND_DEFAULT = 0;
+
+        //과부하 타임 해당 장애의 코드값
+        public static final int OVERFLOW_CALL = 30008;
+        public static final int OVERFLOW_CPU = 30004;
+        public static final int OVERFLOW_MEM = 30003;
+        public static final int OVERFLOW_HDD = 30005;
+        public static final int OVERFLOW_PROCESS = 30002;
+
+        //MachineAgent연결 Error정의
+        public static final String MGR_CONNECT_ERROR = "0";
+
+        //메세지코드정의
+        public static final byte CODE_NONE = (byte)0x00;
+        public static final byte CODE_INFO = (byte)0x01;
+        public static final byte CODE_FAULT = (byte)0x02;
+        public static final byte CODE_ALARM_MINOR =(byte)0x04;
+        public static final byte CODE_ALARM_MAJOR = (byte)0x08;
+        public static final byte CODE_ALARM_CRITICAL = (byte)0x10;
+
+        //### Authmode를 위한 값------------------------------------------------------
+        //P-Aserted인증
+        public static final int conCheckAuth_P_Aserted_Use = 8192;
+        public static final int conCheckAuth_P_Aserted_NotUse = 0;
+        //Phone Number (E164, LRQ 인증)
+        public static final int conCheckAuth_Phone_Num_Use = 2048;
+        public static final int conCheckAuth_Phone_Num_NotUse = 0;
+        //Via Domain or LRQ ID 인증
+        public static final int conCheckAuth_Via_Domain_Use = 512;
+        public static final int conCheckAuth_Via_Domain_NotUse = 0;
+        public static final int conCheckAuth_LRQ_ID_Use_More = 256;
+        public static final int conCheckAuth_LRQ_ID_Use_One = 0;
+        //Passwd인증
+        public static final int conCheckAuth_Passwd_Use = 128;
+        public static final int conCheckAuth_Passwd_NotUse = 0;
+        public static final int conCheckAuth_Phone_Num_AKAUse = 4;
+
+        public static final int conCheckAuth_Passwd_Register_IPchange = 64;
+        public static final int conCheckAuth_Passwd_Register_AnyTime = 0;
+        public static final int conCheckAuth_Passwd_Register_Stale = 8;
+
+        public static final int conCheckAuth_Passwd_Invite_Uncheck = 0;
+        public static final int conCheckAuth_Passwd_Invite_AnyTime = 16;
+        public static final int conCheckAuth_Passwd_Invite_IPReject = 32;
+        public static final int conCheckAuth_Passwd_Invite_IPchange = 48;
+        public static final int conCheckAuth_Passwd_ARQ_SetUp = 8;
+        public static final int conCheckAuth_Passwd_LRQ_Auth = 16;
+
+        //IP인증
+        public static final int conCheckAuth_IP_Use = 2;
+        public static final int conCheckAuth_IP_NotUse = 0;
+        //Port인증
+        public static final int conCheckAuth_IP_Port_Use = 1;
+        public static final int conCheckAuth_IP_Port_NotUse = 1;
+//-----------------------------------------------------------------------------------
+
+        
+        //MESSAGE 형식
+        // |0|(MESSAGE TYPE)|(MESSAGE)| 형식이다.
+        // 가장 앞자리는 편의상 비워놓았으며 DEFAULT 0 이다.
+        // 위 형식은 OPERATION, INFOMATION메세지일 경우이며
+        // ALARM, FAULT메세지는 3번째자리 MESSAGE에서 분기한다.
+        // ALARM, FAULT메세지 형식
+        // |0|(MESSAGE TYPE)|(ALARM_LEVEL)|(ALARM_TYPE)|(ALARM_CODE)|(ALARM_NAME)|(ALARM_MESSAGE)|
+        // 추가 분류는 추후에 한다.
+
+        public static boolean getBooleanProperty(Properties properties, String key, String defaultValue)
+        {
+		Object value = properties.getProperty(key, defaultValue);
+
+		if (value == null)
+		{	System.out.println("boolean property " + key + " does not exist");
+			return false;
+		}
+		if (value instanceof String)
+		{	String v = (String) value;
+			if (v.equalsIgnoreCase("true"))
+			return true;
+			if (v.equalsIgnoreCase("false"))
+			return false;
+			if (v.equalsIgnoreCase("t"))
+			return true;
+			if (v.equalsIgnoreCase("f"))
+			return false;
+			System.out.println("unknown string value '" + v + "' for boolean property");
+			return false;
+		}
+		if (value instanceof Boolean)
+		return ((Boolean)value).booleanValue();
+
+		System.out.println("illegal property type: " + value.getClass().getName());
+		return false;
+        }
+
+
+	public static void MessageDialog(String strMessage, boolean isSuccess){
+		if (isSuccess== true)
+			JOptionPane.showMessageDialog(null, strMessage, "성공", JOptionPane.PLAIN_MESSAGE);
+		else
+			JOptionPane.showMessageDialog(null, strMessage, "경고", JOptionPane.ERROR_MESSAGE);
+	}
+	/* Color ***********************************/
+	public static Color GetColorWorkPanel(){
+		return (new Color(242,242,242));
+	}
+	/******************************************/
+	public static String GetInformationMessage(int nWarningCode, String strKey)
+	{
+		String strWarningMessage = "";
+		switch (nWarningCode)
+		{
+			case INFO_EP_UNREG_REQ :
+				strWarningMessage = "정상적으로 SoftSwitch에 <b> " + strKey + "</b>를 Unregister 요청 하였습니다.";
+				break;
+			case INFO_CALLDROP_REQ :
+				strWarningMessage = "정상적으로 SoftSwitch에 <b> " + strKey + "</b>를 Call Drop 요청 하였습니다.";
+				break;
+		}
+		return strWarningMessage;
+	}
+
+	public static String GetInformationMessage(int nWarningCode)
+	{
+		String strWarningMessage = "";
+		switch (nWarningCode)
+		{
+			case INFO_CALLDROP :
+				strWarningMessage = "Call Drop에 대해서는 SoftSwitch의 상황에 따라서 즉시 반영되지 않을 수도 있습니다.";
+				break;
+			case INFO_EPUNREGISTER :
+				strWarningMessage = "EndPoint Unregister에 대해서는 SoftSwitch의 상황에 따라서 즉시 반영되지 않을 수도 있습니다.";
+				break;
+			case INFO_CONFSET :
+				strWarningMessage = "정상적으로 SoftSwitch에 <b>환경설정</b>을 변경 요청 하였습니다.";
+				break;
+		}
+		return strWarningMessage;
+	}
+
+	public static String GetErrorMessage(int nErrorCode)
+	{
+		String strErrorMsg = "";
+		switch (nErrorCode)
+		{
+			case ERROR_GKNETWORK:
+				strErrorMsg = "SoftSwitch와의 Network 연결이 종료되었습니다.  SoftSwitch가 작동중이지 않거나 Network 연결설정 오류입니다.";
+				break;
+			case ERROR_NOTMANAGER:
+				strErrorMsg = "등록된 관리자가 아닙니다. 관리자 ID와 암호를 정확하게 입력하시고 다시한번 시도해 주시기 바랍니다.";
+				break;
+			case ERROR_MANAGERLOGOUT:
+				strErrorMsg = "로그아웃된 상태 이거나 Admin 관리자가 접속을 끊었습니다.";
+				break;
+			case ERROR_CLIENT_BROWSER:
+				strErrorMsg = "Microsoft Internet Explorer 5.5 이상에서만 사용 가능합니다.";
+				break;
+			case ERROR_LOGTRACE:
+				strErrorMsg = "귀하의 운영체제의 버전으로는 SoftSwitch의 실시간 메시지를 Trace할 수 없습니다.<br>";
+				strErrorMsg += "(사용 가능한 운영체제는 Windows NT계열, Windows 2000계열, Windows XP계열, Windows2003입니다.)";
+				break;
+			case ERROR_MANAGER_DUPLIACTE:
+				strErrorMsg = "다른 클라이언트에서 로그인을 하고 로그아웃을 하지 않았으므로 현재의 클라이언트에서 로그인할 수 없습니다.<br>";
+				strErrorMsg += "(서로 다른 PC라고 하더라도 Dacom SSW Management System 에서 웹 로그인을 했을 경우 반드시 로그 아웃을 하셔야 합니다.)";
+				break;
+			case ERROR_CLIENT_DUPLIACTE:
+				strErrorMsg = "같은 PC에서 SoftSwitch Web Management System에 두번 로그인 할 수 없습니다.<br>";
+				strErrorMsg += "(이미 로그인한 Web Browser를 로그아웃 하시고 난 후에 다시 로그인 하시기 바랍니다.)";
+				break;
+			case ERROR_COOKIE_TIMEOUT:
+				strErrorMsg = "로그인한 뒤 1일동안 사용하지 않으셨습니다. 다시한번 로그인을 해주시기 바랍니다.<br>";
+				break;
+		}
+		return strErrorMsg;
+	}
+
+	public static String GetErrorMessage(int nErrorCode, String strKey)
+	{
+		String strErrorMsg = "";
+		switch (nErrorCode)
+		{
+			case ERROR_CONF_ALDY_REQ :
+				strErrorMsg = "환경변수 <b>" + strKey + "</b>번째 Field는 이미 SoftSwitch에 변경 요청된 상태입니다.";
+				break;
+			case ERROR_EP_ALDY_UNREG :
+				strErrorMsg = "Endpoint ID <b>" + strKey + "</b>는 이미 Unregister 요청된 상태입니다.";
+				break;
+			case ERROR_CALLDROP_ALDY_REQ :
+				strErrorMsg = "CallerID<b> " + strKey + "</b>는 이미 Call Drop 요청된 상태입니다.";
+				break;
+		}
+		return strErrorMsg;
+	}
+
+	/**
+	String Value Check
+	*/
+
+
+	public static String CheckNullString(String str)
+	{
+		String strReturn = "";
+		if ((str == null) || ("".equals(str) == true))
+			strReturn = "";
+		else
+			strReturn = str;
+		return strReturn;
+	}
+
+	/**
+	int Value Check
+	*/
+	public static int CheckNullInt(String str)
+	{
+		int nReturn = -1;
+		if ((str == null) || ("".equals(str) == true))
+			nReturn = 0;
+		else
+		{
+			try
+			{
+				nReturn = Integer.parseInt(str);
+			}
+			catch(NumberFormatException e)
+			{
+				nReturn = -1;
+			}
+		}
+		return nReturn;
+	}
+
+	public static String CheckSetNull(String str)
+	{
+		if(str==null) return null;
+		if(str.length()==0) return null;
+		return str ;
+	}
+
+	public static String getOrderString(int nOrder)
+	{
+		String strReturn;
+		switch (nOrder)
+		{
+			case CALLDROP :
+				strReturn = "Call Drop";
+				break;
+			case GKCONF :
+				strReturn = "SSW Configure";
+				break;
+			case EPUNREGISTER :
+				strReturn = "EndPoint Unregister";
+				break;
+			case EPDATA :
+				strReturn = "EndPoint Data";
+				break;
+			case ALIAS :
+				strReturn = "EndPoint Alias Value";
+				break;
+			case CDR :
+				strReturn = "CDR";
+				break;
+			case GATEWAY :
+				strReturn = "Gateway";
+				break;
+			case NGK :
+				strReturn = "Neighbor Gateway";
+				break;
+			default :
+				strReturn = "No Data Found";
+				break;
+		}
+		return strReturn;
+	}
+
+	public static String getResultString(int nResult)
+	{
+		String strReturn = "";
+		switch(nResult)
+		{
+			case 0 :
+				strReturn = "SSW 처리중";
+				break;
+			case 1 :
+				strReturn  = "Success";
+				break;
+			case 2 :
+				strReturn = "Fail";
+				break;
+		}
+		return strReturn;
+	}
+
+	public static String ConvertMillisecondtoDateString(long lngMilli)
+	{
+		Calendar pCal = Calendar.getInstance();
+		pCal.setTimeInMillis(lngMilli);
+		String strDate = "";
+		strDate = Integer.toString(pCal.get(Calendar.YEAR));
+		if ((pCal.get(Calendar.MONTH) + 1) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.MONTH) + 1);
+		else
+			strDate += Integer.toString(pCal.get(Calendar.MONTH) + 1);
+		if (pCal.get(Calendar.DAY_OF_MONTH) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+		else
+			strDate += Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+		strDate += " ";
+		if (pCal.get(Calendar.HOUR_OF_DAY) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.HOUR_OF_DAY));
+		else
+			strDate += Integer.toString(pCal.get(Calendar.HOUR_OF_DAY));
+		strDate += ":";
+		if (pCal.get(Calendar.MINUTE) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.MINUTE));
+		else
+			strDate += Integer.toString(pCal.get(Calendar.MINUTE));
+		strDate += ":";
+		if (pCal.get(Calendar.SECOND) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.SECOND));
+		else
+			strDate += Integer.toString(pCal.get(Calendar.SECOND));
+		return strDate;
+	}
+
+	public static String ConvertMillisecondtoDateString_YYYYMMDD(long lngMilli)
+	{
+		Calendar pCal = Calendar.getInstance();
+		pCal.setTimeInMillis(lngMilli);
+		String strDate = "";
+		strDate = Integer.toString(pCal.get(Calendar.YEAR));
+		if ((pCal.get(Calendar.MONTH) + 1) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.MONTH) + 1);
+		else
+			strDate += Integer.toString(pCal.get(Calendar.MONTH) + 1);
+		if (pCal.get(Calendar.DAY_OF_MONTH) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+		else
+			strDate += Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+		return strDate;
+	}
+
+	public static String ConvertMillisecondtoDateString1(long lngMilli)
+	{
+		Calendar pCal = Calendar.getInstance() ;
+        pCal.setTime(new	java.util.Date(lngMilli*1000)) ;
+
+		String strDate = "";
+		strDate = Integer.toString(pCal.get(Calendar.YEAR)) ;
+		if ((pCal.get(Calendar.MONTH) + 1) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.MONTH) + 1) ;
+		else
+			strDate += Integer.toString(pCal.get(Calendar.MONTH) + 1) ;
+		if (pCal.get(Calendar.DAY_OF_MONTH) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.DAY_OF_MONTH)) ;
+		else
+			strDate += Integer.toString(pCal.get(Calendar.DAY_OF_MONTH)) ;
+		strDate += " ";
+		if (pCal.get(Calendar.HOUR_OF_DAY) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.HOUR_OF_DAY)) ;
+		else
+			strDate += Integer.toString(pCal.get(Calendar.HOUR_OF_DAY)) ;
+		strDate += ":";
+		if (pCal.get(Calendar.MINUTE) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.MINUTE)) ;
+		else
+			strDate += Integer.toString(pCal.get(Calendar.MINUTE)) ;
+		strDate += ":";
+		if (pCal.get(Calendar.SECOND) < 10)
+			strDate += "0" + Integer.toString(pCal.get(Calendar.SECOND));
+		else
+			strDate += Integer.toString(pCal.get(Calendar.SECOND));
+		return strDate;		
+	}
+
+        public static String getYear(long lngMilli)
+        {
+                Calendar pCal = Calendar.getInstance();
+                pCal.setTimeInMillis(lngMilli);
+                String strDate = "";
+                strDate = Integer.toString(pCal.get(Calendar.YEAR));
+
+                return strDate;
+	}
+        public static String getMonth(long lngMilli)
+        {
+          Calendar pCal = Calendar.getInstance();
+          pCal.setTimeInMillis(lngMilli);
+          String strDate = "";
+          if ((pCal.get(Calendar.MONTH) + 1) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.MONTH) + 1);
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.MONTH) + 1);
+          return strDate;
+	}
+        public static String getDay(long lngMilli)
+        {
+          Calendar pCal = Calendar.getInstance();
+          pCal.setTimeInMillis(lngMilli);
+          String strDate = "";
+          if (pCal.get(Calendar.DAY_OF_MONTH) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+          return strDate;
+	}
+
+	public static int GetAmount(int nDuration, int nAccUnit, int nUnitChg)
+	{
+		int nAmount = 0;
+		if (nAccUnit == 0) return 0;
+		int nMok = (int) (nDuration / nAccUnit);
+		int nNam = (int) (nDuration % nAccUnit);
+		if (nNam == 0)
+		{
+			nAmount = nMok * nUnitChg;
+		}
+		else
+		{
+			nAmount = (nMok + 1) * nUnitChg;
+		}
+		return nAmount;
+	}
+	/**
+	 *  현재 월의 마지막 일자
+	 *  usage : DateUtil.getDaysOfMonth();
+	 */
+	public static int GetDaysOfMonth()
+	{
+		return Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
+	}
+
+	/**
+	 *  특정 월의 마지막 일자
+	 *  usage : DateUtil.getDaysOfMonth( 2 ); // 2월의 마지막 날을 가져 올 때
+	 */
+	public static int GetDaysOfMonth(int vMonth)
+	{
+		int days = 0 ;
+
+		if ( vMonth < 1 || vMonth > 12 ) vMonth = Calendar.getInstance().get(Calendar.MONTH)+1;
+
+		switch ( vMonth )
+		{
+			case 1:	days=31;	break; // 1월
+			case 2:	days=28;  days = ( Calendar.getInstance().get(Calendar.YEAR)%4 == 0 ) ? 29 : 28  ; 	break;  // 윤달 계산 4년에 한번
+			case 3:	days=31;	break;
+			case 4:	days=30;	break;
+			case 5:	days=31;	break;
+			case 6:	days=30;	break;
+			case 7:	days=31;	break;
+			case 8:	days=31;	break;
+			case 9:	days=30;	break;
+			case 10:	days=31;	break;
+			case 11:	days=30;	break;
+			case 12:	days=31;	break; // 12월
+		}
+
+		return days;
+	}
+	public static void println(Object object) {
+		System.out.println(object);
+	}
+	public static void printErr(Object object) {
+		System.out.println(object);
+	}
+	public static void printDebug(Object object) {
+		// System.out.println(object);
+	}
+	public static void printDebugChannel(Object object) {
+		System.out.println(object);
+	}
+	public static void printDebugSystemInfoServer(Object object) {
+		System.out.println(object);
+	}
+	public static ImageIcon createImageIcon(String file)
+	{
+		String path = "/image/" + file;
+		java.net.URL url = (acromate.common.util.WebUtil.class).getResource(path);
+		if(url != null)
+		{
+			return new ImageIcon(url);
+		} else
+		{
+			System.err.println("Couldn't find Image: " + path);
+			return null;
+		}
+	}
+        // 경로를 얻고 해당 경로가 없을 경우 그 경로의 디렉토리를 만든다.
+        // mkdir -r 의 의미
+        // target에는 절대경로가 들어가야 한다.
+        public static String makeFullDirectory(String strFullPath){
+            File f = new File(strFullPath);
+            if(f.exists()) return strFullPath;
+            Vector v = new Vector();
+            boolean END = false;
+            while(!END){
+                if(!f.exists()){
+                    v.addElement(f);
+                    f = new File(f.getParent());
+                }else END = !END;
+            }
+            for(int i=v.size()-1;i>=0;i--){
+                ((File)v.elementAt(i)).mkdir();
+            }
+            return strFullPath;
+        }
+        /**PATH를 넘겨받아 해당 폴더의 파일리스트를 스트링으로리턴*/
+        public static String getFileList_fromDir(String strPath){
+            String returnString = "";
+            String getDir = strPath;
+            if("".equals(getDir.trim())) return "false";
+            File m_Dir = new File(getDir);
+            if(!m_Dir.exists()) return "false";
+            File[] list_f = m_Dir.listFiles();
+            for(int i=0;i<list_f.length;i++){
+                if(list_f[i].isDirectory()) continue;
+                String modi_Time = WebUtil.ConvertMillisecondtoDateString(list_f[i].lastModified());
+                returnString+=list_f[i].getName()+"|"+modi_Time+WebUtil.PARAMS_DIV;
+            }
+            return returnString;
+        }
+        public static String ConvertMillisecondtoDateString_noBlank(long lngMilli)
+        {
+                Calendar pCal = Calendar.getInstance();
+                pCal.setTimeInMillis(lngMilli);
+                String strDate = "";
+                strDate = Integer.toString(pCal.get(Calendar.YEAR));
+                if ((pCal.get(Calendar.MONTH) + 1) < 10)
+                        strDate += "0" + Integer.toString(pCal.get(Calendar.MONTH) + 1);
+                else
+                        strDate += Integer.toString(pCal.get(Calendar.MONTH) + 1);
+                if (pCal.get(Calendar.DAY_OF_MONTH) < 10)
+                        strDate += "0" + Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+                else
+                        strDate += Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+                strDate += "";
+                if (pCal.get(Calendar.HOUR_OF_DAY) < 10)
+                        strDate += "0" + Integer.toString(pCal.get(Calendar.HOUR_OF_DAY));
+                else
+                        strDate += Integer.toString(pCal.get(Calendar.HOUR_OF_DAY));
+                if (pCal.get(Calendar.MINUTE) < 10)
+                        strDate += "0" + Integer.toString(pCal.get(Calendar.MINUTE));
+                else
+                        strDate += Integer.toString(pCal.get(Calendar.MINUTE));
+                if (pCal.get(Calendar.SECOND) < 10)
+                        strDate += "0" + Integer.toString(pCal.get(Calendar.SECOND));
+                else
+                        strDate += Integer.toString(pCal.get(Calendar.SECOND));
+                return strDate;
+        }
+        public static String transferSSW2Proxy(String strMachineID){
+            String MachineID = strMachineID.trim();
+            if((MachineID != null) && ("".equals(MachineID) == false)){
+                if(MachineID.indexOf("SSW") > -1) MachineID = MachineID.replaceAll("SSW", "SSW");
+            }
+            return MachineID;
+        }
+        public static String getBinDir(){
+            //하드코딩을 피하기위한 잔머리 EMS기본폴더를 들고와서 server앞 디록토리가 기본디렉토리다.
+            ///data/ems/server/classes->/data/ems
+            String strDir = System.getProperty("user.dir");
+            strDir = strDir.substring(0, strDir.indexOf("server"));
+            strDir = strDir + "acromate_home" + File.separator + "bin" + File.separator;
+            ///data/ems/acromate_home/bin/
+            return strDir;
+        }
+        //지금부터 nCount 이전 날짜 구하기
+        public static String getDateBeforeCount(int nCount){
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE,-nCount); //nDelLimit일전
+            Date currentTime=cal.getTime();
+            SimpleDateFormat formatters1=new SimpleDateFormat("yyyyMMdd");
+            String Date=formatters1.format(currentTime);
+            return Date;
+        }
+        //String->short
+        public static short stringToshort(String arg){
+            short sReturn = 0;
+            if("".equals(arg)) return sReturn;
+            try{
+                sReturn = Short.parseShort(arg);
+            }catch(Exception e){ sReturn = 0; }
+            return sReturn;
+        }
+        
+        public static String ConvertMillisecondtoDateString_old(long lngMilli)
+        {
+          Calendar pCal = Calendar.getInstance();
+          pCal.setTimeInMillis(lngMilli);
+          String strDate = "";
+          strDate = Integer.toString(pCal.get(Calendar.YEAR));
+          if ((pCal.get(Calendar.MONTH) + 1) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.MONTH) + 1);
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.MONTH) + 1);
+          if (pCal.get(Calendar.DAY_OF_MONTH) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.DAY_OF_MONTH));
+          strDate += " ";
+          if (pCal.get(Calendar.HOUR_OF_DAY) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.HOUR_OF_DAY));
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.HOUR_OF_DAY));
+          strDate += ":";
+          if (pCal.get(Calendar.MINUTE) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.MINUTE));
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.MINUTE));
+          strDate += ":";
+          if (pCal.get(Calendar.SECOND) < 10)
+                  strDate += "0" + Integer.toString(pCal.get(Calendar.SECOND));
+          else
+                  strDate += Integer.toString(pCal.get(Calendar.SECOND));
+                return strDate;
+	}
+}

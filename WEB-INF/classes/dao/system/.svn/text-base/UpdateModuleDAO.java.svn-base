@@ -1,0 +1,142 @@
+package dao.system;
+
+import java.sql.ResultSet;
+import java.util.List;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import acromate.common.util.StringUtil;
+import acromate.*;
+
+public class UpdateModuleDAO {
+
+    public UpdateModuleDAO() {}
+    
+    public int restore(DataStatement stmt, String localip, String restoreTime) {
+
+        ResultSet 	rs 		= null;
+        String 		sql		= "";
+        int 		nResult = 0;
+
+        int nPrefixType = 0;
+        
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+	            int count1 = 0;
+            	sql  = " select count(*) from table_updateenv where envname = 'restore' and keyname = 'ip' ";
+                rs = stmt.executeQuery(sql);
+				if (rs.next()){ 
+					count1 = rs.getInt(1);
+				}
+				rs.close();
+                if (rs != null) rs.close();
+
+                if (count1 > 0) {
+                	sql = " UPDATE table_updateenv SET  valueinfo = '" + localip + "' ";
+                	sql = sql + "\n WHERE envname = 'restore' and keyname = 'ip' ";
+                }else {
+                	sql = " insert into table_updateenv(envname, keyname, valueinfo) values('restore', 'ip', '" + localip + "') ";
+                }                                
+                nResult = stmt.executeUpdate(sql);
+
+	            int count2 = 0;
+            	sql  = " select count(*) from table_updateenv where envname = 'restore' and keyname = 'date' ";
+                rs = stmt.executeQuery(sql);
+				if (rs.next()){ 
+					count2 = rs.getInt(1);
+				}
+				rs.close();
+                if (rs != null) rs.close();
+                
+                if (count2 > 0) {
+                	sql = " UPDATE table_updateenv SET  valueinfo = '" + restoreTime + "' ";
+                	sql = sql + "\n WHERE envname = 'restore' and keyname = 'date' ";
+                }else {
+                	sql = " insert into table_updateenv(envname, keyname, valueinfo) values('restore', 'date', '" + restoreTime + "') ";
+                }                                
+                nResult = stmt.executeUpdate(sql);
+                
+                nResult = 1;
+                                
+//                sql = " insert into table_systemhistory(code, ip, worktime) values('SL006', '" + localip + "', now()) ";
+//                nResult = stmt.executeUpdate(sql);
+
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+    
+    public int logInsert(DataStatement stmt, String code, String localip) {
+
+        ResultSet 	rs 		= null;
+        String 		sql		= "";
+        int 		nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                sql = " insert into table_systemhistory(code, ip, worktime) values('" + code + "', '" + localip + "', now()) ";
+                nResult = stmt.executeUpdate(sql);
+
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int logInsert2(DataStatement stmt, String code, String localip, String version) {
+
+        ResultSet 	rs 		= null;
+        String 		sql		= "";
+        int 		nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                sql = " insert into table_systemhistory(code, ip, version, worktime) values('" + code + "', '" + localip + "', '" + version + "', now()) ";
+                nResult = stmt.executeUpdate(sql);
+
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+}

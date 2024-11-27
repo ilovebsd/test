@@ -1,0 +1,98 @@
+package dto.system;
+
+public class SIPRegServerDTO {
+	/**
+	 * member variables
+	 */
+	private String	subid;
+	private String	serverip;
+	private int		serverport;
+	private int		servertransport;
+	private String  userdomain;
+	private String  usernumber;
+	private String	userauthid;
+	private String	userauthpasswd;
+	private int		expiretime;
+	private String	descriptor;
+	
+	public SIPRegServerDTO() {      		
+		
+	}
+	
+	public SIPRegServerDTO(String subid) {      		
+		super();		
+		this.subid 		= subid;
+	}
+	
+	public SIPRegServerDTO(String subid, String serverip, int serverport, int servertransport, String userdomain, String usernumber, int expiretime) {      				
+		super();
+		this.subid 				= subid;
+		this.serverip 			= serverip;
+		this.serverport 		= serverport;
+		this.servertransport 	= servertransport;
+		this.userdomain 		= userdomain;		
+		this.usernumber 		= usernumber;
+		this.expiretime 		= expiretime;
+	}
+
+	public SIPRegServerDTO(String subid, String serverip, int serverport, int servertransport, String userdomain, String usernumber, int expiretime, String userauthid, String userauthpasswd) {      		
+		super();
+		this.subid 				= subid;
+		this.serverip 			= serverip;
+		this.serverport 		= serverport;
+		this.servertransport 	= servertransport;
+		this.userdomain 		= userdomain;		
+		this.usernumber 		= usernumber;
+		this.expiretime 		= expiretime;
+		this.userauthid 		= userauthid;
+		this.userauthpasswd		= userauthpasswd;
+	}
+	
+	public SIPRegServerDTO(String subid, String serverip, int serverport, int servertransport, String userdomain, String usernumber, int expiretime, String userauthid, String userauthpasswd, String descriptor) {      		
+		super();
+		this.subid 				= subid;
+		this.serverip 			= serverip;
+		this.serverport 		= serverport;
+		this.servertransport 	= servertransport;
+		this.userdomain 		= userdomain;		
+		this.usernumber 		= usernumber;
+		this.expiretime 		= expiretime;
+		this.userauthid 		= userauthid;
+		this.userauthpasswd		= userauthpasswd;
+		this.descriptor		= descriptor;
+	}
+	
+	/**
+	 * member functions
+	 */
+	public String	getSubid() { return this.subid; }
+	public void	setSubid(String subid ) { this.subid = subid; }
+
+	public String	getServerip() { return this.serverip; }
+	public void	setServerip(String serverip ) { this.serverip = serverip; }
+
+	public int	getServerport() { return this.serverport; }
+	public void	setServerport(int serverport ) { this.serverport = serverport; }
+
+	public int	getServertransport() { return this.servertransport; }
+	public void	setServertransport(int servertransport ) { this.servertransport = servertransport; }
+	
+	public String	getUserdomain() { return this.userdomain; }
+	public void	setUserdomain(String userdomain ) { this.userdomain = userdomain; }
+
+	public String	getUsernumber() { return this.usernumber; }
+	public void	setUsernumber(String usernumber ) { this.usernumber = usernumber; }
+
+	public String	getUserauthid() { return this.userauthid; }
+	public void	setUserauthid(String userauthid ) { this.userauthid = userauthid; }
+	
+	public String	getUserauthpasswd() { return this.userauthpasswd; }
+	public void	setUserauthpasswd(String userauthpasswd ) { this.userauthpasswd = userauthpasswd; }
+
+	public int	getExpiretime() { return this.expiretime; }
+	public void	setExpiretime(int expiretime ) { this.expiretime = expiretime; }
+
+	public String	getDescriptor() { return this.descriptor; }
+	public void	setDescriptor(String descriptor ) { this.descriptor = descriptor; }
+
+}

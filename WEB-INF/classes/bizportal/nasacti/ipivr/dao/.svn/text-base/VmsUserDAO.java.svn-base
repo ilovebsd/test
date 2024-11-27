@@ -1,0 +1,274 @@
+package bizportal.nasacti.ipivr.dao;
+
+import java.sql.*;
+import java.util.*;
+import bizportal.nasacti.ipivr.DBPoolConnector;
+import bizportal.nasacti.ipivr.dto.VmsUserDTO;
+
+
+public class VmsUserDAO extends DBPoolConnector {
+
+    private static VmsUserDAO instance = new VmsUserDAO();
+
+    public static VmsUserDAO getInstance() {
+        return instance;
+    }
+
+    private VmsUserDAO() {
+    }
+
+
+    public int insertUser(VmsUserDTO vmsUserDTO) throws Exception {
+        Connection cn = null;
+        PreparedStatement pstmt1 = null;
+        PreparedStatement pstmt2 = null;
+        ResultSet rs = null;
+        StringBuffer sb1 = new StringBuffer();
+        StringBuffer sb2 = new StringBuffer();
+        int iRtn = -1;
+        int iRtnCnt = 0;
+
+        try {
+            cn = this.getConnection();
+
+            sb1.append("SELECT COUNT(*) FROM nasa_vms_user         \n");
+            sb1.append("WHERE vms_id = ?                           \n");
+
+            pstmt1 = cn.prepareStatement(sb1.toString());
+
+            pstmt1.setString(1, vmsUserDTO.getMailBox());
+
+            rs = pstmt1.executeQuery();
+            if(rs.next()) {
+                if(rs.getInt(1) == 0) {
+                    sb2.append("INSERT INTO nasa_vms_user(vms_id, vms_name, vms_pswd, vms_ext, vms_lang, vms_silence_time, vms_msave, vms_rectime, vms_msgretention, vms_email, vms_cellnum, vms_nextbox, vms_greetingfile, vms_ng_code1, vms_ng_code2, vms_ng_code3, vms_userauth)     \n");
+                    sb2.append("values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)  \n");
+
+                    pstmt2 = cn.prepareStatement(sb2.toString());
+
+                    pstmt2.setString(1, vmsUserDTO.getMailBox());
+                    pstmt2.setString(2, vmsUserDTO.getBoxName());
+                    pstmt2.setString(3, vmsUserDTO.getUserPwd());
+                    pstmt2.setString(4, vmsUserDTO.getMailBox());
+                    pstmt2.setString(5, vmsUserDTO.getLang());
+                    pstmt2.setInt(6, Integer.parseInt(vmsUserDTO.getSlienceTime()));
+                    pstmt2.setString(7, vmsUserDTO.getMSave());
+                    pstmt2.setInt(8, Integer.parseInt(vmsUserDTO.getRecTime()));
+                    pstmt2.setInt(9, Integer.parseInt(vmsUserDTO.getMsgRetention()));
+                    pstmt2.setString(10, vmsUserDTO.getEmail());
+                    pstmt2.setString(11, vmsUserDTO.getCellNum());
+                    pstmt2.setString(12, vmsUserDTO.getNextBox());
+                    pstmt2.setString(13, vmsUserDTO.getGreetingFile());
+                    pstmt2.setString(14, vmsUserDTO.getNgCode1());
+                    pstmt2.setString(15, vmsUserDTO.getNgCode2());
+                    pstmt2.setString(16, vmsUserDTO.getNgCode3());
+                    pstmt2.setString(17, vmsUserDTO.getUserAuthority());
+                    iRtnCnt = pstmt2.executeUpdate();
+
+                    if(iRtnCnt > 0) iRtn = 1;
+
+                } else {
+                    iRtn = 2;   // 내선번호 중복
+                }
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(pstmt1 != null) try{ pstmt1.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(pstmt2 != null) try{ pstmt2.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+        }
+        return iRtn;
+
+    }
+
+    public int deleteUser(String strExtension) throws Exception {
+        Connection cn = null;
+        PreparedStatement pstmt = null;
+        StringBuffer sb = new StringBuffer();
+        int iRtn = -1;
+        int iRtnCnt = 0;
+
+        try {
+            cn = this.getConnection();
+            sb.append("DELETE FROM nasa_vms_user        \n");
+            sb.append("WHERE vms_id = ?                   ");
+
+            pstmt = cn.prepareStatement(sb.toString());
+
+            pstmt.setString(1, strExtension);
+
+            iRtnCnt = pstmt.executeUpdate();
+
+            if(iRtnCnt > 0) iRtn = 1;
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+        }
+        return iRtn;
+
+    }
+
+    public int updateUser(VmsUserDTO vmsUserDTO) throws Exception {
+        Connection cn = null;
+        PreparedStatement pstmt = null;
+        StringBuffer sb = new StringBuffer();
+        int iRtn = -1;
+        int iRtnCnt = 0;
+
+        try {
+            cn = this.getConnection();
+            sb.append("UPDATE nasa_vms_user SET        \n");
+            sb.append("vms_name = ?,                   \n");
+            sb.append("vms_pswd = ?,                   \n");
+            sb.append("vms_rectime = ?,                \n");
+            sb.append("vms_msgretention = ?,           \n");
+            sb.append("vms_ng_code1 = ?,               \n");
+            sb.append("vms_ng_code2 = ?,               \n");
+            sb.append("vms_ng_code3 = ?,               \n");
+            sb.append("vms_userauth = ?                \n");
+            sb.append("WHERE vms_id = ?                  ");
+
+            pstmt = cn.prepareStatement(sb.toString());
+
+            pstmt.setString(1, vmsUserDTO.getBoxName());
+            pstmt.setString(2, vmsUserDTO.getUserPwd());
+            pstmt.setInt(3, Integer.parseInt(vmsUserDTO.getRecTime()));
+            pstmt.setInt(4, Integer.parseInt(vmsUserDTO.getMsgRetention()));
+            pstmt.setString(5, vmsUserDTO.getNgCode1());
+            pstmt.setString(6, vmsUserDTO.getNgCode2());
+            pstmt.setString(7, vmsUserDTO.getNgCode3());
+            pstmt.setString(8, vmsUserDTO.getUserAuthority());
+            pstmt.setString(9, vmsUserDTO.getMailBox());
+
+            iRtnCnt = pstmt.executeUpdate();
+
+            if(iRtnCnt > 0) iRtn = 1;
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+        }
+        return iRtn;
+
+    }
+
+    public List getAllUser() throws Exception {
+
+        Connection cn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        StringBuffer sb = new StringBuffer();
+
+        ArrayList userList = null;
+        try {
+            cn = this.getConnection();
+
+            sb.append("SELECT   ");
+            sb.append("vms_id, vms_name, vms_pswd, vms_ext, vms_lang, vms_silence_time, vms_msave, vms_rectime, ");
+            sb.append("vms_msgretention, vms_email, vms_cellnum, vms_nextbox, vms_greetingfile, vms_ng_code1, vms_ng_code2, vms_ng_code3 , vms_userauth, ");
+            sb.append("(SELECT ('[' || NG_Name1 || ']-[' || NG_Name2 || ']-[' || NG_Name3 || ']') FROM NASA_GROUP3 WHERE(ng_action3='Y') AND (S.vms_ng_code3 IS NOT NULL) AND (ng_code3=S.vms_ng_code3)) As groupposition ");
+            sb.append("FROM nasa_vms_user AS S  ");
+
+
+            pstmt = cn.prepareStatement(sb.toString());
+            rs = pstmt.executeQuery();
+
+            userList = new ArrayList();
+            if(rs.next()) {
+                do {
+                    VmsUserDTO vmsUserDTO = new VmsUserDTO();
+                    vmsUserDTO.setMailBox(rs.getString("vms_id"));
+                    vmsUserDTO.setBoxName(rs.getString("vms_name"));
+                    vmsUserDTO.setUserPwd(rs.getString("vms_pswd"));
+                    vmsUserDTO.setExtension(rs.getString("vms_ext"));
+                    vmsUserDTO.setLang(rs.getString("vms_lang"));
+                    vmsUserDTO.setSilenceTime(String.valueOf(rs.getInt("vms_silence_time")));
+                    vmsUserDTO.setMSave(rs.getString("vms_msave"));
+                    vmsUserDTO.setRecTime(String.valueOf(rs.getInt("vms_rectime")));
+                    vmsUserDTO.setMsgRetention(String.valueOf(rs.getInt("vms_msgretention")));
+                    vmsUserDTO.setEmail(rs.getString("vms_email"));
+                    vmsUserDTO.setCellNum(rs.getString("vms_cellnum"));
+                    vmsUserDTO.setNextBox(rs.getString("vms_nextbox"));
+                    vmsUserDTO.setGreetingFile(rs.getString("vms_greetingfile"));
+                    vmsUserDTO.setNgCode1(rs.getString("vms_ng_code1"));
+                    vmsUserDTO.setNgCode2(rs.getString("vms_ng_code2"));
+                    vmsUserDTO.setNgCode3(rs.getString("vms_ng_code3"));
+                    vmsUserDTO.setUserAuthority(rs.getString("vms_userauth"));
+                    vmsUserDTO.setGroupPosition(rs.getString("groupposition"));
+                    userList.add(vmsUserDTO);
+                } while(rs.next());
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+        }
+        if(userList != null) userList.trimToSize();;
+        return userList;
+    }
+
+    public VmsUserDTO getUser(String strExtension) throws Exception {
+
+        Connection cn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        StringBuffer sb = new StringBuffer();
+
+        VmsUserDTO vmsUserDTO = new VmsUserDTO();
+        try {
+            cn = this.getConnection();
+
+            sb.append("SELECT   ");
+            sb.append("vms_id, vms_name, vms_pswd, vms_ext, vms_lang, vms_silence_time, vms_msave, vms_rectime, ");
+            sb.append("vms_msgretention, vms_email, vms_cellnum, vms_nextbox, vms_greetingfile, vms_ng_code1, vms_ng_code2, vms_ng_code3 , vms_userauth, ");
+            sb.append("(SELECT ('[' || NG_Name1 || ']-[' || NG_Name2 || ']-[' || NG_Name3 || ']') FROM NASA_GROUP3 WHERE(ng_action3='Y') AND (S.vms_ng_code3 IS NOT NULL) AND (ng_code3=S.vms_ng_code3)) As groupposition ");
+            sb.append("FROM nasa_vms_user AS S  ");
+            sb.append("WHERE S.vms_id = ?  ");
+
+
+
+            pstmt = cn.prepareStatement(sb.toString());
+            pstmt.setString(1, strExtension);
+            rs = pstmt.executeQuery();
+
+            if(rs.next()) {
+                vmsUserDTO.setMailBox(rs.getString("vms_id"));
+                vmsUserDTO.setBoxName(rs.getString("vms_name"));
+                vmsUserDTO.setUserPwd(rs.getString("vms_pswd"));
+                vmsUserDTO.setExtension(rs.getString("vms_ext"));
+                vmsUserDTO.setLang(rs.getString("vms_lang"));
+                vmsUserDTO.setSilenceTime(String.valueOf(rs.getInt("vms_silence_time")));
+                vmsUserDTO.setMSave(rs.getString("vms_msave"));
+                vmsUserDTO.setRecTime(String.valueOf(rs.getInt("vms_rectime")));
+                vmsUserDTO.setMsgRetention(String.valueOf(rs.getInt("vms_msgretention")));
+                vmsUserDTO.setEmail(rs.getString("vms_email"));
+                vmsUserDTO.setCellNum(rs.getString("vms_cellnum"));
+                vmsUserDTO.setNextBox(rs.getString("vms_nextbox"));
+                vmsUserDTO.setGreetingFile(rs.getString("vms_greetingfile"));
+                vmsUserDTO.setNgCode1(rs.getString("vms_ng_code1"));
+                vmsUserDTO.setNgCode2(rs.getString("vms_ng_code2"));
+                vmsUserDTO.setNgCode3(rs.getString("vms_ng_code3"));
+                vmsUserDTO.setUserAuthority(rs.getString("vms_userauth"));
+                vmsUserDTO.setGroupPosition(rs.getString("groupposition"));
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+            if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+        }
+        return vmsUserDTO;
+    }
+
+}

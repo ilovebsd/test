@@ -1,0 +1,51 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class KeyNumberDTO
+{
+    private String keynumberID;
+    private String e164;
+    private int    indexNo;
+    private String fromTime;
+    private String toTime;
+
+    public String getKeynumberID() { return this.keynumberID; }
+    public void   setKeynumberID(String vKeynumberID ) { this.keynumberID = vKeynumberID; }
+
+    public String getE164() { return this.e164; }
+    public void   setE164(String vE164 ) { this.e164 = vE164; }
+
+    public int    getIndexNo() { return this.indexNo; }
+    public void   setIndexNo(int vIndexNo ) { this.indexNo = vIndexNo; }
+
+    public String getFromTime() { return this.fromTime; }
+    public void   setFromTime(String vFromTime ) { this.fromTime = vFromTime; }
+
+    public String getToTime() { return this.toTime; }
+    public void   setToTime(String vToTime ) { this.toTime = vToTime; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(keynumberID:"         + getKeynumberID() + ") ") ;
+        sb.append("[e164:"                + getE164() + "] ") ;
+        sb.append("[indexNo:"             + getIndexNo() + "] ") ;
+        sb.append("[fromTime:"            + getFromTime() + "] ") ;
+        sb.append("[toTime:"              + getToTime() + "] ") ;
+
+        return sb.toString();
+    }
+}

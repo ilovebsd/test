@@ -1,0 +1,479 @@
+package bizportal.nasacti.ipivr.dao;
+
+import java.sql.*;
+import java.util.*;
+import bizportal.nasacti.ipivr.DBPoolConnector;
+import bizportal.nasacti.ipivr.dto.SystemDTO;
+
+public class SystemDAO extends DBPoolConnector {
+	private static SystemDAO instance = new SystemDAO();
+
+	public static SystemDAO getInstance() {
+		return instance;
+	}
+
+	private SystemDAO() {
+	}
+
+	public int deleteSystem(String strServerIp) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+		StringBuffer sb1 = new StringBuffer();
+		StringBuffer sb2 = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+
+		try {
+			cn = this.getConnection();
+			sb1.append("DELETE FROM nasa_line        \n");
+			sb1.append("WHERE system_idx = (select system_idx from nasa_system_info where ns_server_ip = ?)       ");
+
+			pstmt1 = cn.prepareStatement(sb1.toString());
+
+			pstmt1.setString(1, strServerIp);
+
+			iRtnCnt = pstmt1.executeUpdate();
+
+			if(iRtnCnt > 0) iRtn = 1;
+
+			sb2.append("DELETE FROM nasa_system_info      \n");
+			sb2.append("WHERE ns_server_ip = ?       ");
+
+			pstmt2 = cn.prepareStatement(sb2.toString());
+
+			pstmt2.setString(1, strServerIp);
+
+			iRtnCnt = pstmt2.executeUpdate();
+
+			if(iRtnCnt > 0) iRtn = 1;
+
+
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(pstmt1 != null) try{ pstmt1.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt2 != null) try{ pstmt2.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+	public int updateSystem(SystemDTO systemDTO) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+		PreparedStatement pstmt3 = null;
+		PreparedStatement pstmt4 = null;
+		PreparedStatement pstmt5 = null;
+		ResultSet rs1 = null;
+		ResultSet rs2 = null;
+		StringBuffer sb1 = new StringBuffer();
+		StringBuffer sb2 = new StringBuffer();
+		StringBuffer sb3 = new StringBuffer();
+		StringBuffer sb4 = new StringBuffer();
+		StringBuffer sb5 = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+
+		try {
+			cn = this.getConnection();
+
+			sb1.append("SELECT COUNT(*) FROM nasa_system_info               \n");
+			sb1.append("WHERE system_idx <> ? AND ns_server_ip = ?    \n");
+
+			pstmt1 = cn.prepareStatement(sb1.toString());
+
+			pstmt1.setInt(1, Integer.parseInt(systemDTO.getSystemIdx()));
+			pstmt1.setString(2, systemDTO.getNsServerIp());
+
+			rs1 = pstmt1.executeQuery();
+			if(rs1.next()) {
+				if(rs1.getInt(1) == 0) {
+
+					sb2.append("UPDATE nasa_system_info SET           \n");
+					sb2.append("ns_line = ?, 				");
+					sb2.append("ns_server_ip = ?, 			");
+					sb2.append("ns_name = ?, 				");
+					sb2.append("ns_mailid = ?, 				");
+					sb2.append("ns_ext_len = ?, 			");
+					sb2.append("ns_default_lang = ?, 		");
+					sb2.append("ns_pbx_name = ?, 			");
+					sb2.append("ns_trunk_len = ?, 			");
+					sb2.append("ns_trunk_code = ?, 			");
+					sb2.append("ns_mw_ip = ?, 				");
+					sb2.append("ns_msgdir = ?, 				");
+					sb2.append("ns_pbx_ip = ?, 				");
+					sb2.append("ns_pbx_ip2 = ?, 			");
+					sb2.append("ns_sys_id = ?, 				");
+					sb2.append("ns_write_log = ?, 			");
+					sb2.append("ns_protocol = ?, 			");
+					sb2.append("ns_protocol_ver = ?, 		");
+					sb2.append("ns_protocol_type = ?, 		");
+					sb2.append("outbound_reg = ?, 			");
+					sb2.append("outbound_tel = ?, 			");
+					sb2.append("outbound_proxy = ?, 		");
+					sb2.append("outbound_domain = ?, 		");
+					sb2.append("outbound_local_port = ?, 	");
+					sb2.append("outbound_remote_port = ?,	");
+					sb2.append("outbound_time = ?, 			");
+					sb2.append("ns_dtmf_type = ?, 			");
+					sb2.append("ns_write_day = ?, 			");
+					sb2.append("ns_sip_write_log = ?, 	    ");
+					sb2.append("ns_sip_write_day = ? 		");
+					sb2.append("WHERE system_idx = ?        ");
+
+					pstmt2 = cn.prepareStatement(sb2.toString());
+
+					pstmt2.setString(1, systemDTO.getNsLine());
+					pstmt2.setString(2, systemDTO.getNsServerIp());
+					pstmt2.setString(3, systemDTO.getNsName());
+					pstmt2.setString(4, systemDTO.getNsMailId());
+					pstmt2.setInt(5, Integer.parseInt(systemDTO.getNsExtLen()));
+					pstmt2.setString(6, systemDTO.getNsDefaultLang());
+					pstmt2.setString(7, systemDTO.getNsPbxName());
+					pstmt2.setInt(8, Integer.parseInt(systemDTO.getNsTrunkLen()));
+					pstmt2.setString(9, systemDTO.getNsTrunkCode());
+					pstmt2.setString(10, systemDTO.getNsMwIp());
+					pstmt2.setString(11, systemDTO.getNsMsgDir());
+					pstmt2.setString(12, systemDTO.getNsPbxIp());
+					pstmt2.setString(13, systemDTO.getNsPbxIp2());
+					pstmt2.setString(14, systemDTO.getNsSysId());
+					pstmt2.setString(15, systemDTO.getNsWriteLog());
+					pstmt2.setString(16, systemDTO.getNsProtocol());
+					pstmt2.setString(17, systemDTO.getNsProtocolVer());
+					pstmt2.setString(18, systemDTO.getNsProtocolType());
+					pstmt2.setString(19, systemDTO.getOutBoundReg());
+					pstmt2.setString(20, systemDTO.getOutBoundTel());
+					pstmt2.setString(21, systemDTO.getOutBoundProxy());
+					pstmt2.setString(22, systemDTO.getOutBoundDomain());
+					pstmt2.setInt(23, Integer.parseInt(systemDTO.getOutBoundLocalPort()));
+					pstmt2.setInt(24, Integer.parseInt(systemDTO.getOutBoundRemotePort()));
+					pstmt2.setInt(25, Integer.parseInt(systemDTO.getOutBoundTime()));
+					pstmt2.setString(26, systemDTO.getNsDtmfType());
+					pstmt2.setInt(27, Integer.parseInt(systemDTO.getNsWriteDay()));
+					pstmt2.setString(28, systemDTO.getNsSipWriteLog());
+					pstmt2.setInt(29, Integer.parseInt(systemDTO.getNsSipWriteDay()));
+					pstmt2.setInt(30, Integer.parseInt(systemDTO.getSystemIdx()));
+
+					iRtnCnt = pstmt2.executeUpdate();
+
+					if(iRtnCnt > 0) iRtn = 1;
+
+					//sb3.append("UPDATE nasa_line SET server_ip = ? WHERE server_ip = ?   \n");
+
+					//pstmt3 = cn.prepareStatement(sb3.toString());
+					//pstmt3.setString(1, systemDTO.getNsServerIp());
+					//pstmt3.setString(2, strOldServerIp);
+
+					//iRtnCnt = pstmt3.executeUpdate();
+
+					//if(iRtnCnt > 0) iRtn = 1;
+
+					sb4.append("SELECT COUNT(*) FROM nasa_line WHERE system_idx = (select system_idx from nasa_system_info where ns_server_ip = ?)   \n");
+
+					pstmt4 = cn.prepareStatement(sb4.toString());
+
+					pstmt4.setString(1, systemDTO.getNsServerIp());
+
+					rs2 = pstmt4.executeQuery();
+
+					if(rs2.next()) {
+						if(Integer.parseInt(systemDTO.getNsLine()) > rs2.getInt(1)) {
+							sb5.append("INSERT INTO nasa_line(system_idx, server_ch, server_ext, server_line_type, server_inband, server_outband, server_callout)         \n");
+							sb5.append("VALUES(?,?,?,?,?,?,?)                                                                      ");
+							pstmt5 = cn.prepareStatement(sb5.toString());
+							for(int i=rs2.getInt(1)+1; i <= Integer.parseInt(systemDTO.getNsLine()); i++) {
+								pstmt5.setInt(1, Integer.parseInt(systemDTO.getSystemIdx()));
+								pstmt5.setInt(2, i);
+								pstmt5.setString(3, String.valueOf(1000+i));
+								pstmt5.setString(4, "I");
+								pstmt5.setString(5, "O");
+								pstmt5.setString(6, "O");
+								pstmt5.setString(7, "O");
+
+								iRtnCnt = pstmt5.executeUpdate();
+								if(iRtnCnt > 0) iRtn = 1;
+							}
+						} else {
+							sb5.append("DELETE FROM nasa_line WHERE server_ch = ? AND system_idx = ?  ");
+							pstmt5 = cn.prepareStatement(sb5.toString());
+							for(int i=Integer.parseInt(systemDTO.getNsLine())+1; i <= rs2.getInt(1); i++) {
+								pstmt5.setInt(1, i);
+								pstmt5.setInt(2, Integer.parseInt(systemDTO.getSystemIdx()));
+
+								iRtnCnt = pstmt5.executeUpdate();
+								if(iRtnCnt > 0) iRtn = 1;
+							}
+						}
+					}
+				} else {
+					iRtn = 2;
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs1 != null) try{ rs1.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(rs2 != null) try{ rs2.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt1 != null) try{ pstmt1.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt2 != null) try{ pstmt2.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt3 != null) try{ pstmt3.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt4 != null) try{ pstmt4.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt5 != null) try{ pstmt5.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+	public int insertSystem(SystemDTO systemDTO) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+		PreparedStatement pstmt3 = null;
+		PreparedStatement pstmt4 = null;
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		StringBuffer sb1 = new StringBuffer();
+		StringBuffer sb2 = new StringBuffer();
+		StringBuffer sb3 = new StringBuffer();
+		StringBuffer sb4 = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+
+		try {
+			cn = this.getConnection();
+
+			sb1.append("SELECT COUNT(*) FROM nasa_system_info         \n");
+			sb1.append("WHERE ns_server_ip = ?                 \n");
+
+			pstmt1 = cn.prepareStatement(sb1.toString());
+
+			pstmt1.setString(1, systemDTO.getNsServerIp());
+
+			rs = pstmt1.executeQuery();
+			if(rs.next()) {
+				if(rs.getInt(1) == 0) {
+					sb2.append("INSERT INTO nasa_system_info(system_idx, ns_line, ns_server_ip, ns_name, ns_mailid, ns_ext_len, ns_default_lang, ns_pbx_name, ns_trunk_len, ");
+					sb2.append("ns_trunk_code, ns_mw_ip, ns_msgdir, ns_pbx_ip, ns_pbx_ip2, ns_sys_id, ns_write_log, ns_protocol, ns_protocol_ver, ns_protocol_type, ");
+					sb2.append("outbound_reg, outbound_tel, outbound_proxy, outbound_domain, outbound_local_port, outbound_remote_port, outbound_time, ns_dtmf_type, ");
+					sb2.append("ns_write_day, ns_sip_write_log, ns_sip_write_day) ");
+					sb2.append("values(nextval('nasa_system_info_system_idx_seq'),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)  ");
+
+					pstmt2 = cn.prepareStatement(sb2.toString());
+
+					pstmt2.setString(1, systemDTO.getNsLine());
+					pstmt2.setString(2, systemDTO.getNsServerIp());
+					pstmt2.setString(3, systemDTO.getNsName());
+					pstmt2.setString(4, systemDTO.getNsMailId());
+					pstmt2.setInt(5, Integer.parseInt(systemDTO.getNsExtLen()));
+					pstmt2.setString(6, systemDTO.getNsDefaultLang());
+					pstmt2.setString(7, systemDTO.getNsPbxName());
+					pstmt2.setInt(8, Integer.parseInt(systemDTO.getNsTrunkLen()));
+					pstmt2.setString(9, systemDTO.getNsTrunkCode());
+					pstmt2.setString(10, systemDTO.getNsMwIp());
+					pstmt2.setString(11, systemDTO.getNsMsgDir());
+					pstmt2.setString(12, systemDTO.getNsPbxIp());
+					pstmt2.setString(13, systemDTO.getNsPbxIp2());
+					pstmt2.setString(14, systemDTO.getNsSysId());
+					pstmt2.setString(15, systemDTO.getNsWriteLog());
+					pstmt2.setString(16, systemDTO.getNsProtocol());
+					pstmt2.setString(17, systemDTO.getNsProtocolVer());
+					pstmt2.setString(18, systemDTO.getNsProtocolType());
+					pstmt2.setString(19, systemDTO.getOutBoundReg());
+					pstmt2.setString(20, systemDTO.getOutBoundTel());
+					pstmt2.setString(21, systemDTO.getOutBoundProxy());
+					pstmt2.setString(22, systemDTO.getOutBoundDomain());
+					pstmt2.setInt(23, Integer.parseInt(systemDTO.getOutBoundLocalPort()));
+					pstmt2.setInt(24, Integer.parseInt(systemDTO.getOutBoundRemotePort()));
+					pstmt2.setInt(25, Integer.parseInt(systemDTO.getOutBoundTime()));
+					pstmt2.setString(26, systemDTO.getNsDtmfType());
+					pstmt2.setInt(27, Integer.parseInt(systemDTO.getNsWriteDay()));
+					pstmt2.setString(28, systemDTO.getNsSipWriteLog());
+					pstmt2.setInt(29, Integer.parseInt(systemDTO.getNsSipWriteDay()));
+
+					iRtnCnt = pstmt2.executeUpdate();
+
+
+					if(iRtnCnt > 0) iRtn = 1;
+
+					sb4.append("select last_value from nasa_system_info_system_idx_seq");
+
+					pstmt4 = cn.prepareStatement(sb4.toString());
+					rs2 = pstmt4.executeQuery();
+					rs2.next();
+
+					sb3.append("INSERT INTO nasa_line(system_idx, server_ch, server_ext, server_line_type, server_inband, server_outband, server_callout)         \n");
+					sb3.append("VALUES(?,?,?,?,?,?,?)                                                                      ");
+
+					pstmt3 = cn.prepareStatement(sb3.toString());
+
+					for(int i=0; i < Integer.parseInt(systemDTO.getNsLine()); i++) {
+						pstmt3.setInt(1, rs2.getInt(1));
+						pstmt3.setInt(2, i+1);
+						pstmt3.setString(3, String.valueOf(1000+i+1));
+						pstmt3.setString(4, "I");
+						pstmt3.setString(5, "O");
+						pstmt3.setString(6, "O");
+						pstmt3.setString(7, "O");
+						iRtnCnt = pstmt3.executeUpdate();
+						if(iRtnCnt > 0) iRtn = 1;
+					}
+				} else {
+					iRtn = 2;
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(rs2 != null) try{ rs2.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt1 != null) try{ pstmt1.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt2 != null) try{ pstmt2.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt3 != null) try{ pstmt3.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt4 != null) try{ pstmt4.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+	public SystemDTO getSystem(String strServerIp) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuffer sb = new StringBuffer();
+
+		SystemDTO systemDTO = new SystemDTO();
+		try {
+			cn = this.getConnection();
+
+			sb.append("SELECT system_idx, ns_line, ns_server_ip, ns_name, ns_mailid, ns_ext_len, ns_default_lang, ns_pbx_name, ns_trunk_len,                ");
+			sb.append("ns_trunk_code, ns_mw_ip, replace(ns_msgdir, '\\\\', '^') as ns_msgdir, ns_pbx_ip, ns_pbx_ip2, ns_sys_id, ns_write_log, ns_protocol, ns_protocol_ver, ns_protocol_type,  ");
+			sb.append("outbound_reg, outbound_tel, outbound_proxy, outbound_domain, outbound_local_port, outbound_remote_port, outbound_time, ns_dtmf_type, ");
+			sb.append("COALESCE(ns_write_day, 7) as ns_write_day, ns_sip_write_log, COALESCE(ns_sip_write_day, 7) as ns_sip_write_day                       ");
+			sb.append("FROM nasa_system_info                                                                                                                ");
+			sb.append("WHERE ns_server_ip = ?                                                                                                               ");
+
+
+			pstmt = cn.prepareStatement(sb.toString());
+			pstmt.setString(1, strServerIp);
+			rs = pstmt.executeQuery();
+
+			if(rs.next()) {
+				systemDTO.setSystemIdx(String.valueOf(rs.getString("system_idx")));
+				systemDTO.setNsLine(rs.getString("ns_line"));
+				systemDTO.setNsServerIp(rs.getString("ns_server_ip"));
+				systemDTO.setNsName(rs.getString("ns_name"));
+				systemDTO.setNsMailId(rs.getString("ns_mailid"));
+				systemDTO.setNsExtLen(String.valueOf(rs.getInt("ns_ext_len")));
+				systemDTO.setNsDefaultLang(rs.getString("ns_default_lang"));
+				systemDTO.setNsPbxName(rs.getString("ns_pbx_name"));
+				systemDTO.setNsTrunkLen(String.valueOf(rs.getInt("ns_trunk_len")));
+				systemDTO.setNsTrunkCode(rs.getString("ns_trunk_code"));
+				systemDTO.setNsMwIp(rs.getString("ns_mw_ip"));
+				systemDTO.setNsMsgDir(rs.getString("ns_msgdir").replace('^','\\'));
+				systemDTO.setNsPbxIp(rs.getString("ns_pbx_ip"));
+				systemDTO.setNsPbxIp2(rs.getString("ns_pbx_ip2"));
+				systemDTO.setNsSysId(rs.getString("ns_sys_id"));
+				systemDTO.setNsWriteLog(rs.getString("ns_write_log"));
+				systemDTO.setNsProtocol(rs.getString("ns_protocol"));
+				systemDTO.setNsProtocolVer(rs.getString("ns_protocol_ver"));
+				systemDTO.setNsProtocolType(rs.getString("ns_protocol_type"));
+				systemDTO.setOutBoundReg(rs.getString("outbound_reg"));
+				systemDTO.setOutBoundTel(rs.getString("outbound_tel"));
+				systemDTO.setOutBoundProxy(rs.getString("outbound_proxy"));
+				systemDTO.setOutBoundDomain(rs.getString("outbound_domain"));
+				systemDTO.setOutBoundLocalPort(String.valueOf(rs.getInt("outbound_local_port")));
+				systemDTO.setOutBoundRemotePort(String.valueOf(rs.getInt("outbound_remote_port")));
+				systemDTO.setOutBoundTime(String.valueOf(rs.getInt("outbound_time")));
+				systemDTO.setNsDtmfType(rs.getString("ns_dtmf_type"));
+				systemDTO.setNsWriteDay(String.valueOf(rs.getInt("ns_write_day")));
+				systemDTO.setNsSipWriteLog(rs.getString("ns_sip_write_log"));
+				systemDTO.setNsSipWriteDay(String.valueOf(rs.getInt("ns_sip_write_day")));
+			}
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return systemDTO;
+
+	}
+
+
+
+	public List getAllSystem() throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuffer sb = new StringBuffer();
+
+		ArrayList systemList = null;
+
+		try {
+			cn = this.getConnection();
+			sb.append("SELECT system_idx, ns_line, ns_server_ip, ns_name, ns_mailid, ns_ext_len, ns_default_lang, ns_pbx_name, ns_trunk_len, ");
+			sb.append("ns_trunk_code, ns_mw_ip, replace(ns_msgdir, '\\\\', '^') as ns_msgdir, ns_pbx_ip, ns_pbx_ip2, ns_sys_id, ns_write_log, ns_protocol, ns_protocol_ver, ns_protocol_type, ");
+			sb.append("outbound_reg, outbound_tel, outbound_proxy, outbound_domain, outbound_local_port, outbound_remote_port, outbound_time, ns_dtmf_type ");
+			sb.append("FROM nasa_system_info                    ");
+
+
+			pstmt = cn.prepareStatement(sb.toString());
+			rs = pstmt.executeQuery();
+
+			systemList = new ArrayList();
+			if(rs.next()) {
+				do {
+					SystemDTO systemDTO = new SystemDTO();
+					systemDTO.setSystemIdx(String.valueOf(rs.getString("system_idx")));
+					systemDTO.setNsLine(rs.getString("ns_line"));
+					systemDTO.setNsServerIp(rs.getString("ns_server_ip"));
+					systemDTO.setNsName(rs.getString("ns_name"));
+					systemDTO.setNsMailId(rs.getString("ns_mailid"));
+					systemDTO.setNsExtLen(String.valueOf(rs.getInt("ns_ext_len")));
+					systemDTO.setNsDefaultLang(rs.getString("ns_default_lang"));
+					systemDTO.setNsPbxName(rs.getString("ns_pbx_name"));
+					systemDTO.setNsTrunkLen(String.valueOf(rs.getInt("ns_trunk_len")));
+					systemDTO.setNsTrunkCode(rs.getString("ns_trunk_code"));
+					systemDTO.setNsMwIp(rs.getString("ns_mw_ip"));
+					systemDTO.setNsMsgDir(rs.getString("ns_msgdir").replace('^','\\'));
+					systemDTO.setNsPbxIp(rs.getString("ns_pbx_ip"));
+					systemDTO.setNsPbxIp2(rs.getString("ns_pbx_ip2"));
+					systemDTO.setNsSysId(rs.getString("ns_sys_id"));
+					systemDTO.setNsWriteLog(rs.getString("ns_write_log"));
+					systemDTO.setNsProtocol(rs.getString("ns_protocol"));
+					systemDTO.setNsProtocolVer(rs.getString("ns_protocol_ver"));
+					systemDTO.setNsProtocolType(rs.getString("ns_protocol_type"));
+					systemDTO.setOutBoundReg(rs.getString("outbound_reg"));
+					systemDTO.setOutBoundTel(rs.getString("outbound_tel"));
+					systemDTO.setOutBoundProxy(rs.getString("outbound_proxy"));
+					systemDTO.setOutBoundDomain(rs.getString("outbound_domain"));
+					systemDTO.setOutBoundLocalPort(String.valueOf(rs.getInt("outbound_local_port")));
+					systemDTO.setOutBoundRemotePort(String.valueOf(rs.getInt("outbound_remote_port")));
+					systemDTO.setOutBoundTime(String.valueOf(rs.getInt("outbound_time")));
+					systemDTO.setNsDtmfType(rs.getString("ns_dtmf_type"));
+					systemList.add(systemDTO);
+				} while(rs.next());
+			}
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+		if(systemList != null) systemList.trimToSize();
+		return systemList;
+
+	}
+
+}

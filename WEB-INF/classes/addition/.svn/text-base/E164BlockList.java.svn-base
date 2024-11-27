@@ -1,0 +1,100 @@
+package addition;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.E164BlockListDTO;
+
+public class E164BlockList {
+	
+	public List getList(DataStatement stmt, String e164) {
+		E164BlockListDTO e164BlockListDTO;
+        List<E164BlockListDTO> e164BlockListList = new ArrayList<E164BlockListDTO>();
+        
+        String sql = "\n Select e164, startprefix, blockidtype, description From Table_E164block ";
+        sql = sql +  "\n  WHERE e164 = '" + e164 + "' And inoutflag = 1 ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("착신거부 : "+sql);
+                while (rs.next()) {
+                	e164BlockListDTO = new E164BlockListDTO();
+                	
+                	e164BlockListDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	e164BlockListDTO.setStartPrefix(Str.CheckNullString(rs.getString("startprefix")));
+                	e164BlockListDTO.setBlockType(rs.getInt("blockidtype"));
+                	e164BlockListDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+
+                	e164BlockListList.add(e164BlockListDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e164BlockListList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return e164BlockListList;
+    }
+
+	public String getAnswerService(DataStatement stmt, String e164) {
+        String answerService = "";
+        
+		String sql = "SELECT answerservice FROM table_E164 WHERE e164 = '" + e164 + "'";        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) answerService = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return answerService;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return answerService;
+    }
+
+	public String getDescription(DataStatement stmt, String e164, String blockPrefixNo) {
+        String description = "";
+        
+		String sql = "SELECT Description FROM Table_E164block WHERE e164 = '" + e164 + "' And startprefix = '" + blockPrefixNo + "' And inoutflag = 1 ";        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) description = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return description;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return description;
+    }
+	
+}

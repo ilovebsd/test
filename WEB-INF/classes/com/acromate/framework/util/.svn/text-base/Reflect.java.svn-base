@@ -1,0 +1,163 @@
+/*
+ * Reflect.java
+ *
+ * Created on 2006년 9월 5일 (화), 오후 11:15
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.framework.util;
+
+import java.lang.reflect.*;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class Reflect {
+
+    /** Creates a new instance of Reflect */
+    public Reflect() {        
+    }   
+    
+    /**
+     * 
+     * @return 
+     */
+    @SuppressWarnings("unchecked")
+	public Object getNewInstance(String name) {
+        Object object = null;
+        
+        try {
+            Class cl = Class.forName(name); 
+            object = cl.newInstance();
+        }catch(InstantiationException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch(ClassNotFoundException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch(IllegalAccessException ex) {
+            ex.printStackTrace();
+            return object;
+        }
+        return object;
+    }
+    
+    /**
+     * 
+     * @param name 
+     * @param args 
+     * @return 
+     */
+    @SuppressWarnings("unchecked")
+    public Object getNewInstance(String name, Object args) {
+
+        Constructor ctor;
+        Object object = null;
+        
+        try {
+            Class[] argsClass = new Class[] {args.getClass().getSuperclass()};
+            Object[] ctorargs = new Object[] {args};
+        
+            Class c = Class.forName(name);
+            ctor = c.getConstructor(argsClass);
+            object = ctor.newInstance(ctorargs);            
+        }catch(InstantiationException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch(ClassNotFoundException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch(IllegalAccessException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch (InvocationTargetException ex) {
+            ex.printStackTrace();
+            return object;
+        }catch(NoSuchMethodException ex) {
+            ex.printStackTrace();
+            return object;
+        }
+        return object;
+    }
+    
+    /**
+     * 
+     * @param name
+     * @param arg1
+     * @param arg2
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Object getNewInstance(String name, Object arg1, Object arg2) {
+
+        Constructor ctor;
+        Object object = null;
+        
+        try {
+            Class[] argsClass = new Class[] {arg1.getClass(),
+                                             arg2.getClass().getSuperclass() };
+            Object[] ctorargs = new Object[] {arg1, arg2};
+        
+            Class c = Class.forName(name);
+            ctor = c.getConstructor(argsClass);
+            object = ctor.newInstance(ctorargs);            
+        }catch(InstantiationException e) {
+            return object;
+        }catch(ClassNotFoundException e) {
+             return object;
+        }catch(IllegalAccessException e) {
+            return object;
+        }catch (IllegalArgumentException e) {
+            return object;
+        }catch (InvocationTargetException e) {
+             return object;
+        }catch(NoSuchMethodException e) {
+            return object;
+        }
+        return object;
+    }    
+    
+    /**
+     * 
+     * @param name
+     * @param arg1
+     * @param arg2
+     * @param arg3
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Object getNewInstance(String name, Object arg1, Object arg2, Object arg3) {
+
+        Constructor ctor;
+        Object object = null;
+        
+        try {
+            Class[] argsClass = new Class[] {arg1.getClass(),
+                                             arg2.getClass().getSuperclass(),
+                                             arg3.getClass()};
+            Object[] ctorargs = new Object[] {arg1, arg2, arg3};
+        
+            Class c = Class.forName(name);
+            ctor = c.getConstructor(argsClass);
+            object = ctor.newInstance(ctorargs);            
+        }catch(InstantiationException e) {
+            return object;
+        }catch(ClassNotFoundException e) {
+             return object;
+        }catch(IllegalAccessException e) {
+             return object;
+        }catch (IllegalArgumentException e) {
+            return object;
+        }catch (InvocationTargetException e) {
+             return object;
+        }catch(NoSuchMethodException e) {
+             return object;
+        }
+        return object;
+    }        
+}

@@ -1,0 +1,81 @@
+package dto.system;
+
+public class SystemHardwareDTO {
+	/**
+	 * member variables
+	 */
+	private String	sysgroupid;
+	private String	hwclusterid;
+	private String	hwid;
+	private String	hwname;
+	private int		hwstatus;
+	private String	ipaddress;
+	private int		port;
+	private int		serviceline;
+	private int		heartbeatline;
+	private int		managerline;
+	private int		locationx;
+	private int		locationy;
+	
+	public SystemHardwareDTO() {      		
+		
+	}
+	
+	public SystemHardwareDTO(String sysgroupid, String hwclusterid, String hwid, String hwname, int hwstatus, String ipaddress, int port, int serviceline, int heartbeatline, int managerline, int locationx, int locationy) {      		
+		
+		super();
+		
+		this.sysgroupid 	= sysgroupid;
+		this.hwclusterid 	= hwclusterid;
+		this.hwid 			= hwid;
+		this.hwname 		= hwname;
+		this.hwstatus 		= hwstatus;
+		this.ipaddress 		= ipaddress;
+		this.port 			= port;
+		this.serviceline 	= serviceline;
+		this.heartbeatline 	= heartbeatline;
+		this.managerline 	= managerline;
+		this.locationx 		= locationx;
+		this.locationy 		= locationy;
+	}
+
+	/**
+	 * member functions
+	 */
+	public String	getSysgroupid() { return this.sysgroupid; }
+	public void	setSysgroupid(String sysgroupid ) { this.sysgroupid = sysgroupid; }
+
+	public String	getHwclusterid() { return this.hwclusterid; }
+	public void	setHwclusterid(String hwclusterid ) { this.hwclusterid = hwclusterid; }
+
+	public String	getHwid() { return this.hwid; }
+	public void	setHwid(String hwid ) { this.hwid = hwid; }
+
+	public String	getHwname() { return this.hwname; }
+	public void	setHwname(String hwname ) { this.hwname = hwname; }
+
+	public int	getHwstatus() { return this.hwstatus; }
+	public void	setHwstatus(int hwstatus ) { this.hwstatus = hwstatus; }
+
+	public String	getIpaddress() { return this.ipaddress; }
+	public void	setIpaddress(String ipaddress ) { this.ipaddress = ipaddress; }
+	
+	public int	getPort() { return this.port; }
+	public void	setPort(int port ) { this.port = port; }
+
+	public int	getServiceline() { return this.serviceline; }
+	public void	setServiceline(int serviceline ) { this.serviceline = serviceline; }
+
+	public int	getHeartbeatline() { return this.heartbeatline; }
+	public void	setHeartbeatline(int heartbeatline ) { this.heartbeatline = heartbeatline; }
+
+	public int	getManagerline() { return this.managerline; }
+	public void	setManagerline(int managerline ) { this.managerline = managerline; }
+
+	public int	getLocationx() { return this.locationx; }
+	public void	setLocationx(int locationx ) { this.locationx = locationx; }
+
+	public int	getLocationy() { return this.locationy; }
+	public void	setLocationy(int locationy ) { this.locationy = locationy; }
+	
+}

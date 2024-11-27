@@ -1,0 +1,36 @@
+/*
+ * BaseObject.java
+ *
+ * Created on 2006년 9월 27일 (수), 오후 5:44
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.framework;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ */
+public abstract class BaseObject {
+    private String version = "0";
+    public BaseObject() {
+    }
+
+     /**
+     *
+     * @return
+     */
+
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     *
+     * @param version
+     */
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+}

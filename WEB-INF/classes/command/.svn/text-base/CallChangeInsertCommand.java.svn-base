@@ -1,0 +1,55 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.acromate.util.Str;
+import dao.useconfig.AddServiceDAO;
+
+public class CallChangeInsertCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 	forwardingPage 	= "";
+		boolean returnVal 		= false;
+
+		try {			
+			String 	insertStr 	= new String(Str.CheckNullString(req.getParameter("insertStr")).getBytes("8859_1"), "euc-kr");		// 
+			String 	changeNum 	= new String(Str.CheckNullString(req.getParameter("hiNumber")).getBytes("8859_1"), "euc-kr");		//
+			String 	changeType 	= new String(Str.CheckNullString(req.getParameter("hiChangeType")).getBytes("8859_1"), "euc-kr");	//
+			
+			String 	conditionType 	= new String(Str.CheckNullString(req.getParameter("hiConditionType")).getBytes("8859_1"), "euc-kr");	// 1 : 무조건 착신전환, 2 : 조건별 착신전화
+			String 	forwardingType 	= new String(Str.CheckNullString(req.getParameter("hiForwardingType")).getBytes("8859_1"), "euc-kr");	// 1 : 일자별 시간 조건, 2 : 요일별 시간 조건
+			String 	fDay 			= new String(Str.CheckNullString(req.getParameter("hiDay")).getBytes("8859_1"), "euc-kr");				// 착신전화 일자
+			String 	fWeek 			= new String(Str.CheckNullString(req.getParameter("hiWeek")).getBytes("8859_1"), "euc-kr");				// 착신전화 요일 (일월화수목금토)
+			String 	startTime 		= new String(Str.CheckNullString(req.getParameter("hiToTime")).getBytes("8859_1"), "euc-kr");			// 시작시간
+			String 	endTime 		= new String(Str.CheckNullString(req.getParameter("hiFromTime")).getBytes("8859_1"), "euc-kr");			// 종료시간
+			
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			AddServiceDAO dao 	= new AddServiceDAO();
+			//returnVal = dao.callChangeNumberInsert(insertStr, changeNum, changeType);
+			
+			// ############### LogHistory 처리  ###############
+			//returnVal = dao.callChangeNumberInsert_New(insertStr, changeNum, changeType, conditionType, forwardingType, fDay, fWeek, startTime, endTime);
+			returnVal = dao.callChangeNumberInsert_New(insertStr, changeNum, changeType, conditionType, forwardingType, fDay, fWeek, startTime, endTime, req.getRemoteAddr(), userID);
+			// ##############################################
+			
+			if (returnVal) {
+				res.sendRedirect("/bizportal/useconfig/addServiceCallChangeList.jsp");
+			}else{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}			
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			
+			
+		}
+		return forwardingPage;
+	}
+}

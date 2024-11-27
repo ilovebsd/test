@@ -1,0 +1,744 @@
+package business;
+
+import java.net.InetAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+//import java.io.*;
+//import java.applet.*;
+import java.util.Calendar;
+import java.util.List;
+
+import com.acromate.driver.db.DataStatement;
+
+import acromate.ConnectionManager;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import dto.SystemAccessDTO;
+import webuser.ServerLogin;
+
+public class LogHistory {
+
+    public LogHistory() {}   
+    
+    public String GetIP(){
+    	String strIp = "";
+    	try {
+    		InetAddress thisIp = InetAddress.getLocalHost();
+    		System.out.println("IP:"+thisIp.getHostAddress());
+    		strIp = thisIp.getHostAddress();
+    		return strIp;
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return strIp;
+    	}
+    }
+
+    public int LogHistoryDelete(){
+    	if(1==1) return LogHistoryDelete2();
+    	int       		nResult		= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 			= "";
+	    	ResultSet 	rs 				= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("EMS");
+	    	statement.stxTransaction();
+	    	
+			Calendar cal = Calendar.getInstance ( );	// 오늘 날짜를 기준으루..
+			cal.add ( cal.MONTH, -3 ); 					// 3개월 전....
+			
+			int s_Year 	= cal.get(cal.YEAR);
+			int s_Month = cal.get(cal.MONTH)+1;
+			int s_Day 	= cal.get(cal.DATE);
+			
+			String s_Date = Integer.toString(s_Year);
+			if(s_Month > 9){
+				s_Date = s_Date + Integer.toString(s_Month);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Month);
+			}
+			if(s_Day > 9){
+				s_Date = s_Date + Integer.toString(s_Day);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Day);
+			}
+			//System.out.println ("########## 조회날짜 : "+s_Date);
+			
+	    	sql = sql +  "\n  Delete From table_operationhistory ";    	
+	    	sql = sql +  "\n  Where to_char(checktime, 'yyyymmdd') <= '" + s_Date + "' ";
+        	statement.executeUpdate(sql);
+        	System.out.println("sql Login Delete Log : "+sql);
+			System.out.println("Log Delete Success!!");
+	        			
+            statement.endTransaction(true);			// commit 처리
+            nResult = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ){
+            	ConnectionManager.freeStatement(statement);
+            }
+            
+        }
+        return nResult;
+    }
+    public int LogHistoryDelete2(){
+    	int       		nResult		= 0;
+    	Statement 	stmt3 	= null;
+    	try {
+    		String		sql 			= "";
+	    	// 서버로부터 DataStatement 객체를 할당
+    		stmt3 = ConnectionManager.allocStatementDirect("EMS");
+	    	
+			Calendar cal = Calendar.getInstance ( );	// 오늘 날짜를 기준으루..
+			cal.add ( cal.MONTH, -3 ); 					// 3개월 전....
+			
+			int s_Year 	= cal.get(cal.YEAR);
+			int s_Month = cal.get(cal.MONTH)+1;
+			int s_Day 	= cal.get(cal.DATE);
+			
+			String s_Date = Integer.toString(s_Year);
+			if(s_Month > 9){
+				s_Date = s_Date + Integer.toString(s_Month);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Month);
+			}
+			if(s_Day > 9){
+				s_Date = s_Date + Integer.toString(s_Day);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Day);
+			}
+			//System.out.println ("########## 조회날짜 : "+s_Date);
+			
+	    	sql = sql +  "\n  Delete From table_operationhistory ";    	
+	    	sql = sql +  "\n  Where to_char(checktime, 'yyyymmdd') <= '" + s_Date + "' ";
+	    	System.out.println("sql : "+sql);
+	    	stmt3.executeUpdate(sql);
+			System.out.println("Log Delete2 Success!!");
+
+			nResult = 1;
+	        
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+        	ConnectionManager.closeStatementDirect(stmt3);
+        }
+        return nResult;
+    }
+    
+    public int LogHistorySave(String strTmp){
+    	if(1==1) return LogHistorySave2(strTmp);
+    			
+    	int       		nResult		= 0;
+    	DataStatement 	statement 	= null;
+    	try {
+    		String		sql 			= "";
+	    	ResultSet 	rs 				= null;
+    		
+    		// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("EMS");
+	    	statement.stxTransaction();
+	    	
+			String[] 	blockStr 	= StringUtil.getParser(strTmp, "|");
+			String		userId 		= blockStr[0];
+			int			categori	= Integer.parseInt(blockStr[1]);
+			String		subject 	= blockStr[2];
+			int			action		= Integer.parseInt(blockStr[3]);
+			String		clientIp	= blockStr[4];
+			
+			int len = userId.indexOf("@");
+			if(len>0) userId = userId.substring(0, len);
+			
+        	sql = " INSERT INTO table_operationhistory(checktime, managerid, sysgroupid, categori, subject, actiondml, ipaddress) ";
+        	sql = sql + " VALUES(now(), '"+userId+"', 'callbox', "+categori+", '"+subject+"', "+action+", '"+clientIp+"') ";
+        	statement.executeUpdate(sql);
+        	System.out.println("sql Login Log : "+sql);
+        	
+			System.out.println("Log Save Success!!");
+	        			
+            statement.endTransaction(true);			// commit 처리
+            nResult = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ){
+            	ConnectionManager.freeStatement(statement);
+            }
+            
+        }
+        return nResult;
+    }
+    public int LogHistorySave2(String strTmp){
+    	int       		nResult		= 0;
+    	Statement 	stmt3	= null;
+    	try {
+    		String		sql 			= "";
+    		
+    		// 서버로부터 Statement 객체를 할당
+    		stmt3 = ConnectionManager.allocStatementDirect("EMS");
+	    	
+			String[] 	blockStr 	= StringUtil.getParser(strTmp, "|");
+			String		userId 		= blockStr[0];
+			int			categori	= Integer.parseInt(blockStr[1]);
+			String		subject 	= blockStr[2];
+			int			action		= Integer.parseInt(blockStr[3]);// [ 1:insert, 2:delete, 3:update ]
+			String		clientIp	= blockStr[4];
+			
+			int len = userId.indexOf("@");
+			if(len>0) userId = userId.substring(0, len);
+			
+        	sql = " INSERT INTO table_operationhistory(checktime, managerid, sysgroupid, categori, subject, actiondml, ipaddress) ";
+        	sql = sql + " VALUES(now(), '"+userId+"', 'callbox', "+categori+", '"+subject+"', "+action+", '"+clientIp+"') ";
+        	stmt3.executeUpdate(sql);
+        	System.out.println("sql Login Log : "+sql);
+        	
+			System.out.println("Log Save2 Success!!");
+	        			
+            nResult = 1;
+	        
+        } catch (Exception e) {
+        	System.out.println("Log Save2 Failed!!");
+            e.printStackTrace();
+        } finally {
+            //할당받은 Statement 객체는 반납
+        	ConnectionManager.closeStatementDirect(stmt3);
+        }
+        return nResult;
+    }
+
+
+    public int LogHistoryGetIpSave(String strTmp){
+    	if(1==1) return LogHistoryGetIpSave2(strTmp);
+    	
+    	int       		nResult		= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 			= "";
+	    	ResultSet 	rs 				= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("EMS");
+	    	statement.stxTransaction();
+	    	
+			String[] 	blockStr 	= StringUtil.getParser(strTmp, "|");
+			String		userId 		= blockStr[0];
+			int			categori	= Integer.parseInt(blockStr[1]);
+			String		subject 	= blockStr[2];
+			int			action		= Integer.parseInt(blockStr[3]);
+			String		clientIp	= GetIP();
+			
+			int len = userId.indexOf("@");
+			if(len>0) userId = userId.substring(0, len);
+			
+        	sql = " INSERT INTO table_operationhistory(checktime, managerid, sysgroupid, categori, subject, actiondml, ipaddress) ";
+        	sql = sql + " VALUES(now(), '"+userId+"', 'callbox', "+categori+", '"+subject+"', "+action+", '"+clientIp+"') ";
+        	statement.executeUpdate(sql);
+        	System.out.println("sql Login Log : "+sql);
+        	
+			System.out.println("Log Save Success!!");
+	        			
+            statement.endTransaction(true);			// commit 처리
+            nResult = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ){
+            	ConnectionManager.freeStatement(statement);
+            }
+            
+        }
+        return nResult;
+    }
+    public int LogHistoryGetIpSave2(String strTmp){
+    	int       		nResult		= 0;
+        Statement stmt3 = null;
+    	try {
+    		String		sql 			= "";
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+    		stmt3 = ConnectionManager.allocStatementDirect("EMS");
+	    	
+			String[] 	blockStr 	= StringUtil.getParser(strTmp, "|");
+			String		userId 		= blockStr[0];
+			int			categori	= Integer.parseInt(blockStr[1]);
+			String		subject 	= blockStr[2];
+			int			action		= Integer.parseInt(blockStr[3]);
+			String		clientIp	= GetIP();
+			
+			int len = userId.indexOf("@");
+			if(len>0) userId = userId.substring(0, len);
+			
+        	sql = " INSERT INTO table_operationhistory(checktime, managerid, sysgroupid, categori, subject, actiondml, ipaddress) ";
+        	sql = sql + " VALUES(now(), '"+userId+"', 'callbox', "+categori+", '"+subject+"', "+action+", '"+clientIp+"') ";
+        	stmt3.executeUpdate(sql);
+        	System.out.println("sql Login Log : "+sql);
+        	
+			System.out.println("Log Save2 Success!!");
+	        			
+            nResult = 1;
+	        
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+        	ConnectionManager.closeStatementDirect(stmt3);
+        }
+        return nResult;
+    }
+
+	public int getCount(DataStatement stmt, String startDate, String endDate, String gubun, String str, String cdrtype, String e164) {
+		int count = 0 ;
+
+        String sql = "\n SELECT count(*) ";
+    	sql = sql +  "\n   FROM table_operationhistory ";    	
+    	sql = sql +  "\n  WHERE to_char(checktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	sql = sql +  "\n    AND sysgroupid = 'callbox' ";
+    	
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+	public int getCount(Statement stmt, String startDate, String endDate, String gubun, String str, String cdrtype, String e164) {
+		int count = 0 ;
+
+        String sql = "\n SELECT count(*) ";
+    	sql = sql +  "\n   FROM table_operationhistory ";    	
+    	sql = sql +  "\n  WHERE to_char(checktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	sql = sql +  "\n    AND sysgroupid = 'callbox' ";
+    	
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+
+	/*
+	 * 조회
+	 */
+	public List getAccessList(DataStatement stmt, int pageNo, int pageSize, String startDate, String endDate, String gubun, String str, String cdrtype, String e164) {
+		SystemAccessDTO systemAccessDTO;
+        List<SystemAccessDTO> systemAccessList = new ArrayList<SystemAccessDTO>();
+
+        String sql = "\n SELECT managerid, categori, subject, actiondml, ipaddress, checktime ";
+    	sql = sql +  "\n   FROM table_operationhistory ";    	
+    	sql = sql +  "\n  WHERE to_char(checktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	sql = sql +  "\n    AND sysgroupid = 'callbox' And categori <> 89 ";
+//        if("1".equals(cdrtype)){
+//        	sql +=   "\n    AND b.success = '0' ";
+//        }
+//        if(!"".equals(e164)){
+//        	sql +=   "\n    AND b.e164 = '" + e164 + "' ";
+//        }
+//    	if(!"".equals(str.trim())){
+//        	if("1".equals(gubun)){
+//        		sql += "\n    AND c.name LIKE '%" + str + "%'";
+//        	}
+//        }
+        sql = sql +  "\n  Order By checktime desc offset "+pageNo+" limit "+pageSize ;
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	systemAccessDTO = new SystemAccessDTO();
+                	
+                	systemAccessDTO.setManagerid(Str.CheckNullString(rs.getString("managerid")));
+                	systemAccessDTO.setCategori(rs.getInt("categori"));
+                	systemAccessDTO.setSubject(Str.CheckNullString(rs.getString("subject")));
+                	systemAccessDTO.setActiondml(rs.getInt("actiondml"));
+                	systemAccessDTO.setIpaddress(Str.CheckNullString(rs.getString("ipaddress")));
+                	systemAccessDTO.setChecktime(Str.CheckNullString(rs.getString("checktime")));
+                	systemAccessList.add(systemAccessDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return systemAccessList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return systemAccessList;
+    }
+	public List getAccessList(Statement stmt, int pageNo, int pageSize, String startDate, String endDate, String gubun, String str, String cdrtype, String e164) {
+		SystemAccessDTO systemAccessDTO;
+        List<SystemAccessDTO> systemAccessList = new ArrayList<SystemAccessDTO>();
+        String sql = "\n SELECT managerid, categori, subject, actiondml, ipaddress, checktime ";
+    	sql = sql +  "\n   FROM table_operationhistory ";    	
+    	sql = sql +  "\n  WHERE to_char(checktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	sql = sql +  "\n    AND sysgroupid = 'callbox' And categori <> 89 ";
+        sql = sql +  "\n  Order By checktime desc offset "+pageNo+" limit "+pageSize ;
+        System.out.println("SQL문 : "+sql);
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	systemAccessDTO = new SystemAccessDTO();
+                	
+                	systemAccessDTO.setManagerid(Str.CheckNullString(rs.getString("managerid")));
+                	systemAccessDTO.setCategori(rs.getInt("categori"));
+                	systemAccessDTO.setSubject(Str.CheckNullString(rs.getString("subject")));
+                	systemAccessDTO.setActiondml(rs.getInt("actiondml"));
+                	systemAccessDTO.setIpaddress(Str.CheckNullString(rs.getString("ipaddress")));
+                	systemAccessDTO.setChecktime(Str.CheckNullString(rs.getString("checktime")));
+                	systemAccessList.add(systemAccessDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return systemAccessList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return systemAccessList;
+    }
+
+	/*
+	 * 조회(엑셀)
+	 */
+	public List getLatelyExcelList(DataStatement stmt, String startDate, String endDate) {
+		SystemAccessDTO systemAccessDTO;
+        List<SystemAccessDTO> systemAccessList = new ArrayList<SystemAccessDTO>();
+
+        String sql = "\n SELECT managerid, categori, subject, actiondml, ipaddress, checktime ";
+    	sql = sql +  "\n   FROM table_operationhistory ";    	
+    	sql = sql +  "\n  WHERE to_char(checktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	sql = sql +  "\n    AND sysgroupid = 'callbox' ";
+    	sql = sql +  "\n  Order By checktime desc ";
+    	
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	systemAccessDTO = new SystemAccessDTO();
+                	
+                	systemAccessDTO.setManagerid(Str.CheckNullString(rs.getString("managerid")));
+                	systemAccessDTO.setCategori(rs.getInt("categori"));
+                	systemAccessDTO.setSubject(Str.CheckNullString(rs.getString("subject")));
+                	systemAccessDTO.setActiondml(rs.getInt("actiondml"));
+                	systemAccessDTO.setIpaddress(Str.CheckNullString(rs.getString("ipaddress")));
+                	systemAccessDTO.setChecktime(Str.CheckNullString(rs.getString("checktime")));
+                	systemAccessList.add(systemAccessDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return systemAccessList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return systemAccessList;
+    }
+	public List getLatelyExcelList(Statement stmt, String startDate, String endDate) {
+		SystemAccessDTO systemAccessDTO;
+        List<SystemAccessDTO> systemAccessList = new ArrayList<SystemAccessDTO>();
+
+        String sql = "\n SELECT managerid, categori, subject, actiondml, ipaddress, checktime ";
+    	sql = sql +  "\n   FROM table_operationhistory ";    	
+    	sql = sql +  "\n  WHERE to_char(checktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	sql = sql +  "\n    AND sysgroupid = 'callbox' ";
+    	sql = sql +  "\n  Order By checktime desc ";
+    	
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	systemAccessDTO = new SystemAccessDTO();
+                	
+                	systemAccessDTO.setManagerid(Str.CheckNullString(rs.getString("managerid")));
+                	systemAccessDTO.setCategori(rs.getInt("categori"));
+                	systemAccessDTO.setSubject(Str.CheckNullString(rs.getString("subject")));
+                	systemAccessDTO.setActiondml(rs.getInt("actiondml"));
+                	systemAccessDTO.setIpaddress(Str.CheckNullString(rs.getString("ipaddress")));
+                	systemAccessDTO.setChecktime(Str.CheckNullString(rs.getString("checktime")));
+                	systemAccessList.add(systemAccessDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return systemAccessList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return systemAccessList;
+    }
+
+	public int SmsMessageDelete(){
+    	int       		nResult		= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 			= "";
+	    	ResultSet 	rs 				= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+			Calendar cal = Calendar.getInstance ( );	// 오늘 날짜를 기준으루..
+			cal.add ( cal.MONTH, -3 ); 					// 3개월 전....
+			
+			int s_Year 	= cal.get(cal.YEAR);
+			int s_Month = cal.get(cal.MONTH)+1;
+			int s_Day 	= cal.get(cal.DATE);
+			
+			String s_Date = Integer.toString(s_Year);
+			if(s_Month > 9){
+				s_Date = s_Date + Integer.toString(s_Month);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Month);
+			}
+			if(s_Day > 9){
+				s_Date = s_Date + Integer.toString(s_Day);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Day);
+			}
+			//System.out.println ("########## 조회날짜 : "+s_Date);
+			
+	    	sql = " Delete From table_smsreceive ";    	
+	    	sql = sql +  " Where substr(receivetime, 0, 9) <= '" + s_Date + "' ";
+        	statement.executeUpdate(sql);
+        	//System.out.println("sql SmsMessage Delete_01 : "+sql);
+			//System.out.println("SmsMessage Delete Success!!");
+
+			
+			sql = " Delete From table_smssend ";    	
+	    	sql = sql +  " Where substr(sendtime, 0, 9) <= '" + s_Date + "' ";
+        	statement.executeUpdate(sql);
+        	//System.out.println("sql SmsMessage Delete_02 : "+sql);
+			//System.out.println("SmsMessage Delete Success!!");
+
+            statement.endTransaction(true);			// commit 처리
+            nResult = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ){
+            	ConnectionManager.freeStatement(statement);
+            }
+            
+        }
+        return nResult;
+    }
+	
+	public int CdrDataDelete(){
+    	int       		nResult		= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 			= "";
+	    	ResultSet 	rs 				= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+			Calendar cal = Calendar.getInstance ( );	// 오늘 날짜를 기준으루..
+			cal.add ( cal.MONTH, -3 ); 					// 3개월 전....
+			
+			int s_Year 	= cal.get(cal.YEAR);
+			int s_Month = cal.get(cal.MONTH)+1;
+			int s_Day 	= cal.get(cal.DATE);
+			
+			String s_Date = Integer.toString(s_Year);
+			if(s_Month > 9){
+				s_Date = s_Date + Integer.toString(s_Month);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Month);
+			}
+			if(s_Day > 9){
+				s_Date = s_Date + Integer.toString(s_Day);
+			}else{
+				s_Date = s_Date + "0" + Integer.toString(s_Day);
+			}
+			//System.out.println ("########## 조회날짜 : "+s_Date);
+			
+	    	sql = " Delete From table_cdr ";    	
+	    	sql = sql +  " Where to_char(startTime, 'yyyymmdd') <= '" + s_Date + "' ";
+        	statement.executeUpdate(sql);
+        	System.out.println("sql CdrData Delete_01 : "+sql);
+			System.out.println("CdrData Delete Success!!");
+
+            statement.endTransaction(true);			// commit 처리
+            nResult = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ){
+            	ConnectionManager.freeStatement(statement);
+            }
+            
+        }
+        return nResult;
+    }
+	
+	/*
+	 * FTP 자동실행 로그 조회
+	 */
+	public List getFTPLogList(DataStatement stmt) {
+		SystemAccessDTO systemAccessDTO;
+        List<SystemAccessDTO> systemAccessList = new ArrayList<SystemAccessDTO>();
+
+        String sql = "\n SELECT managerid, categori, subject, actiondml, ipaddress, checktime ";
+    	sql = sql +  "\n   FROM table_operationhistory ";
+    	sql = sql +  "\n  WHERE sysgroupid = 'callbox' And categori = 89 ";
+        sql = sql +  "\n  Order By checktime desc " ;
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	systemAccessDTO = new SystemAccessDTO();
+                	
+                	systemAccessDTO.setManagerid(Str.CheckNullString(rs.getString("managerid")));
+                	systemAccessDTO.setCategori(rs.getInt("categori"));
+                	systemAccessDTO.setSubject(Str.CheckNullString(rs.getString("subject")));
+                	systemAccessDTO.setActiondml(rs.getInt("actiondml"));
+                	systemAccessDTO.setIpaddress(Str.CheckNullString(rs.getString("ipaddress")));
+                	systemAccessDTO.setChecktime(Str.CheckNullString(rs.getString("checktime")));
+                	systemAccessList.add(systemAccessDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return systemAccessList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return systemAccessList;
+    }
+	public List getFTPLogList() {
+		SystemAccessDTO systemAccessDTO;
+        List<SystemAccessDTO> systemAccessList = new ArrayList<SystemAccessDTO>();
+
+        String sql = "\n SELECT managerid, categori, subject, actiondml, ipaddress, checktime ";
+    	sql = sql +  "\n   FROM table_operationhistory ";
+    	sql = sql +  "\n  WHERE sysgroupid = 'callbox' And categori = 89 ";
+        sql = sql +  "\n  Order By checktime desc " ;
+        
+        System.out.println("SQL문 : "+sql);
+        
+        Statement stmt3 = null;
+        ResultSet rs = null;
+        try {
+    		stmt3 = ConnectionManager.allocStatementDirect("EMS");
+    		
+            if (stmt3 != null) {
+                rs = stmt3.executeQuery(sql);
+                while (rs.next()) {
+                	systemAccessDTO = new SystemAccessDTO();
+                	
+                	systemAccessDTO.setManagerid(Str.CheckNullString(rs.getString("managerid")));
+                	systemAccessDTO.setCategori(rs.getInt("categori"));
+                	systemAccessDTO.setSubject(Str.CheckNullString(rs.getString("subject")));
+                	systemAccessDTO.setActiondml(rs.getInt("actiondml"));
+                	systemAccessDTO.setIpaddress(Str.CheckNullString(rs.getString("ipaddress")));
+                	systemAccessDTO.setChecktime(Str.CheckNullString(rs.getString("checktime")));
+                	systemAccessList.add(systemAccessDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+//            return systemAccessList;
+        } finally {
+            if(rs != null) try{rs.close();}catch(Exception sqle){}
+            ConnectionManager.closeStatementDirect(stmt3);
+        }
+        return systemAccessList;
+    }
+
+}

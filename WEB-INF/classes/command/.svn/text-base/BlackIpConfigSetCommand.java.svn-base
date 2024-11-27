@@ -1,0 +1,68 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import acromate.common.util.WebUtil;
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import system.SystemConfigFileMake;
+import framework.url.Urldownload;
+import dao.system.CommonDAO;
+import java.util.ArrayList;
+import java.util.HashMap;
+import system.SystemInfoList;
+import gateway.AutomaticDialingSNMP;
+
+public class BlackIpConfigSetCommand implements Command {
+	private int nEmergency;
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+
+		try {
+			String 	errCount	= new String(Str.CheckNullString(req.getParameter("hiErrCount")).getBytes("8859_1"), "euc-kr");		// 오류횟수
+			String 	selectTime 	= new String(Str.CheckNullString(req.getParameter("hiTime")).getBytes("8859_1"), "euc-kr");			// 검색시간
+			
+			String 	userID		= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			int 	insertResult= 0;
+			
+			SystemConfigFileMake makeFile = new SystemConfigFileMake();
+			
+			insertResult = makeFile.makeFile_BlackIpConfig(errCount, selectTime);
+					
+			if(insertResult==1){
+				resStr = "blackIpList.jsp";
+				res.sendRedirect("/bizportal/system/"+resStr);
+				
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|90|ACL [Black IP] 설정 변경 (횟수:"+errCount+", 시간:"+selectTime+")|1|"+strIp);
+				// ##############################################
+			}else{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}
+
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+	
+	
+}

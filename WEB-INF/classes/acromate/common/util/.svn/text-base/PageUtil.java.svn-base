@@ -1,0 +1,286 @@
+package	acromate.common.util;
+
+import acromate.common.StaticString;
+	
+public class PageUtil
+{
+
+	
+	// 페이지에서 보여줄 리스트의 건수
+	public static final	int	iLIST_COUNT	= 20;
+	// 하단	페이지 리스트 사이즈
+	public static final	int	iPAGE_SIZE = 10;
+
+	/**
+	 * Page	List Module
+	 * @param	iSumCnt	   전체	건 수
+	 * @param	iCurPage   현재	페이지
+	 * @param	iListCount 페이지에서 보여줄 리스트의 건수
+	 * @param	iPageSize  하단	페이지 리스트 사이즈	 
+	 * @return	Page List.(String) <br>
+	 *			ex)	" |<<  [1]	2  3  4	 5	>  >>| "  <br>
+	 */	
+	public static String pagingView(int	iSumCnt, int iCurPage, int iListCount ,	int	iPageSize) {
+
+		String sStrPage	= "";
+		
+		int	pageTotal =	0;		// 전체	페이지 수
+		int	pageGroupStart = 0;	// 페이지 리스트 그룹시작번
+		int	pageGroupEnd = 0;	// 페이지 리스트 그룹 끝번
+
+		// 페이지값이 없는경우의 초기화
+		if (iCurPage ==	0 )	iCurPage = 1;
+
+		// 전체	건수가 0 인경우, 웹공백	반환.
+		if (iSumCnt	== 0 ) {
+			sStrPage = "&nbsp;";
+			return sStrPage;
+		}
+		
+		
+		// 전체	페이지 수
+		pageTotal =	((iSumCnt%iListCount)==	0)?iSumCnt/iListCount :iSumCnt/iListCount +	1;
+		
+		if (iCurPage>pageTotal)	iCurPage=pageTotal;
+		
+		// 페이지 그룹의 '이전그룹'	설정.
+			if (iCurPage%iPageSize == 0)
+				pageGroupStart = (int)(iCurPage/iPageSize) * iPageSize - iPageSize +1;
+			else
+				pageGroupStart = (int)(iCurPage/iPageSize) * iPageSize +1;
+		
+		// 페이지 그룹의 '다음그룹'	설정.		
+			pageGroupEnd   = pageGroupStart	+ iPageSize	-1;
+		
+		if (pageGroupEnd>pageTotal)	pageGroupEnd = pageTotal ;
+
+
+		
+		sStrPage = sStrPage	+ "<a href=\"javascript:goPage(1)\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image28','','"+StaticString.ContextRoot+"/imgs/Content_page02_btn.gif',0)\">"	+ "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page01_btn.gif' border='0' name='Image28' width='13' height='16' align='absmiddle'>" + "</a>&nbsp;";
+		
+		if (iCurPage-iPageSize>0)
+		{
+		   sStrPage	= sStrPage + "<a href=\"javascript:goPage("+(pageGroupStart -1)+")\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image29','','"+StaticString.ContextRoot+"/imgs/Content_page04_btn.gif',0)\">" + "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page03_btn.gif' border='0' name='Image29' width='13' height='16' align='absmiddle'>" +	"</a>&nbsp;&nbsp;";
+		} else {
+		   sStrPage	= sStrPage + "&nbsp;";
+		}
+		
+		for(int	i=0	; i< (pageGroupEnd - pageGroupStart+1) ;i++)
+		{
+			if (pageGroupStart+i==iCurPage)
+			{
+				sStrPage = sStrPage	+ "<font style='color:rgb(140,153,162); padding-top:2 '>" + (pageGroupStart+i)	+ "</font>&nbsp;&nbsp;";
+			}
+			else
+			{
+			   sStrPage	= sStrPage + "<a href=\"javascript:goPage(" +	(pageGroupStart+i) + ")\" class='b2'>"	+ (pageGroupStart+i) + "</a>&nbsp;&nbsp;";
+			}
+		}
+		if ((pageGroupStart+iPageSize)<(pageTotal+1)) {
+			sStrPage = sStrPage	+ "<a href=\"javascript:goPage(" + (pageGroupStart+iPageSize)	+ ")\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image30','','"+StaticString.ContextRoot+"/imgs/Content_page06_btn.gif',0)\">" + "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page05_btn.gif' border='0' name='Image30' width='13' height='16' align='absmiddle'>" + "</a>&nbsp;";
+		} else {
+		   sStrPage	= sStrPage + "&nbsp;";
+		}
+		
+		sStrPage = sStrPage	+ "<a href=\"javascript:goPage(" + pageTotal + ")\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image31','','"+StaticString.ContextRoot+"/imgs/Content_page08_btn.gif',0)\">"	+ "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page07_btn.gif' border='0' name='Image31' width='13' height='16' align='absmiddle'>"	+ "</a>&nbsp;&nbsp;";
+		
+		return sStrPage	;
+	}
+
+	/**
+	 * Page	List Module
+	 * @param	iSumCnt	   전체	건 수
+	 * @param	iCurPage   현재	페이지
+	 * @param	iListCount 페이지에서 보여줄 리스트의 건수
+	 * @param	iPageSize  하단	페이지 리스트 사이즈	 
+	 * @return	Page List.(String) <br>
+	 *			ex)	" |<<  [1]	2  3  4	 5	>  >>| "  <br>
+	 */	
+	public static String pagingView2(int	iSumCnt, int iCurPage, int iListCount ,	int	iPageSize) {
+
+		String sStrPage	= "";
+		
+		int	pageTotal =	0;		// 전체	페이지 수
+		int	pageGroupStart = 0;	// 페이지 리스트 그룹시작번
+		int	pageGroupEnd = 0;	// 페이지 리스트 그룹 끝번
+
+		// 페이지값이 없는경우의 초기화
+		if (iCurPage ==	0 )	iCurPage = 1;
+
+		// 전체	건수가 0 인경우, 웹공백	반환.
+		if (iSumCnt	== 0 ) {
+			sStrPage = "&nbsp;";
+			return sStrPage;
+		}
+		
+		
+		// 전체	페이지 수
+		pageTotal =	((iSumCnt%iListCount)==	0)?iSumCnt/iListCount :iSumCnt/iListCount +	1;
+		
+		if (iCurPage>pageTotal)	iCurPage=pageTotal;
+		
+		// 페이지 그룹의 '이전그룹'	설정.
+			if (iCurPage%iPageSize == 0)
+				pageGroupStart = (int)(iCurPage/iPageSize) * iPageSize - iPageSize +1;
+			else
+				pageGroupStart = (int)(iCurPage/iPageSize) * iPageSize +1;
+		
+		// 페이지 그룹의 '다음그룹'	설정.		
+			pageGroupEnd   = pageGroupStart	+ iPageSize	-1;
+		
+		if (pageGroupEnd>pageTotal)	pageGroupEnd = pageTotal ;
+
+
+		
+		sStrPage = sStrPage	+ "<a href=\"javascript:goPage(1)\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image28','','"+StaticString.ContextRoot+"/imgs/Content_page02b_btn.gif',0)\">"	+ "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page01b_btn.gif' border='0' name='Image28' width='13' height='16' align='absmiddle'>" + "</a>&nbsp;";
+		
+		if (iCurPage-iPageSize>0)
+		{
+		   sStrPage	= sStrPage + "<a href=\"javascript:goPage("+(pageGroupStart -1)+")\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image29','','"+StaticString.ContextRoot+"/imgs/Content_page04b_btn.gif',0)\">" + "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page03b_btn.gif' border='0' name='Image29' width='13' height='16' align='absmiddle'>" +	"</a>&nbsp;&nbsp;";
+		} else {
+		   sStrPage	= sStrPage + "&nbsp;";
+		}
+		
+		for(int	i=0	; i< (pageGroupEnd - pageGroupStart+1) ;i++)
+		{
+			if (pageGroupStart+i==iCurPage)
+			{
+				sStrPage = sStrPage	+ "<font style='color:rgb(140,153,162); padding-top:2 '>" + (pageGroupStart+i)	+ "</font>&nbsp;&nbsp;";
+			}
+			else
+			{
+			   sStrPage	= sStrPage + "<a href=\"javascript:goPage(" +	(pageGroupStart+i) + ")\" class='b2'>"	+ (pageGroupStart+i) + "</a>&nbsp;&nbsp;";
+			}
+		}
+		if ((pageGroupStart+iPageSize)<(pageTotal+1)) {
+			sStrPage = sStrPage	+ "<a href=\"javascript:goPage(" + (pageGroupStart+iPageSize)	+ ")\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image30','','"+StaticString.ContextRoot+"/imgs/Content_page06b_btn.gif',0)\">" + "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page05b_btn.gif' border='0' name='Image30' width='13' height='16' align='absmiddle'>" + "</a>&nbsp;";
+		} else {
+		   sStrPage	= sStrPage + "&nbsp;";
+		}
+		
+		sStrPage = sStrPage	+ "<a href=\"javascript:goPage(" + pageTotal + ")\" onMouseOut=\"MM_swapImgRestore()\" onMouseOver=\"MM_swapImage('Image31','','"+StaticString.ContextRoot+"/imgs/Content_page08b_btn.gif',0)\">"	+ "<img	src='"+StaticString.ContextRoot+"/imgs/Content_page07b_btn.gif' border='0' name='Image31' width='13' height='16' align='absmiddle'>"	+ "</a>&nbsp;&nbsp;";
+		
+		return sStrPage	;
+	}
+
+	/**
+	 * Page	List Combo Module
+	 * @param	iSumCnt	   전체	건 수
+	 * @param	iCurPage   현재	페이지
+	 * @return	Page List.(String Combo) <br>
+	 *			ex)	" Total	: 435 (	 1 2 3 4 5 6 7 8 9 10 11 / 11 Pages	)  "  <br>
+	 */
+	public static String pagingComboBox(int	iSumCnt, int iCurPage) {
+
+		StringBuffer sStrComboPage = new StringBuffer();
+
+		// 페이지값이 없는경우의 초기화
+		if (iCurPage ==	0 )	iCurPage = 1;
+
+		// 전체	건수가 0 인경우, 웹공백	반환.
+		if (iSumCnt	== 0 ) {
+			sStrComboPage.append("&nbsp;");
+			return sStrComboPage.toString();
+		}
+
+		sStrComboPage.append(iSumCnt).append(" ( ")
+			.append("<select name='PAGE_NUM' class='field_05' OnChange='javascript:form.submit();'>\n");
+			
+			for	( int i	= 1	; i	<= (((iSumCnt-1)/iLIST_COUNT) +	1) ; i++ ) {
+	
+				sStrComboPage.append("<option value='").append(i).append("'	");
+	
+					if (i == iCurPage )	{
+						sStrComboPage.append("selected");
+					}
+				sStrComboPage.append(">").append(i).append("</option>\n");
+			}
+
+		sStrComboPage.append("</select>\n /	").append(((iSumCnt-1)/iLIST_COUNT)	+ 1);
+
+	return sStrComboPage.toString();
+	}
+	
+	
+	/**
+	 * Page	List Combo Module
+	 * @param	iSumCnt	   전체	건 수
+	 * @param	iCurPage   현재	페이지
+	 * @param	iListCount 페이지에서 보여줄 리스트의 건수
+	 * @return	Page List.(String Combo) <br>
+	 *			ex)	" Total	: 435 (	 1 2 3 4 5 6 7 8 9 10 11 / 11 Pages	)  "  <br>
+	 */
+	public static String pagingComboBox(int	iSumCnt, int iCurPage, int iListCount) {
+
+		StringBuffer sStrComboPage = new StringBuffer();
+
+		// 페이지값이 없는경우의 초기화
+		if (iCurPage ==	0 )	iCurPage = 1;
+
+		// 전체	건수가 0 인경우, 웹공백	반환.
+		if (iSumCnt	== 0 ) {
+			sStrComboPage.append("&nbsp;");
+			return sStrComboPage.toString();
+		}
+
+		sStrComboPage.append(iSumCnt).append(" ( ")
+			.append("<select name='PAGE_NUM' class='field_05' OnChange='javascript:form.submit();'>\n");
+			
+			for	( int i	= 1	; i	<= (((iSumCnt-1)/iListCount) + 1) ;	i++	) {
+	
+				sStrComboPage.append("<option value='").append(i).append("'	");
+	
+					if (i == iCurPage )	{
+						sStrComboPage.append("selected");
+					}
+				sStrComboPage.append(">").append(i).append("</option>\n");
+			}
+
+		sStrComboPage.append("</select>\n /	").append(((iSumCnt-1)/iListCount) + 1);
+
+	return sStrComboPage.toString();
+	}
+
+	/**
+	 * Page	List Combo Go Page Module
+	 * @param	iSumCnt	   전체	건 수
+	 * @param	iCurPage   현재	페이지
+	 * @param	iListCount 페이지에서 보여줄 리스트의 건수
+	 * @param	bIsmovePage	goPage 자바스크립트 함수이용
+	 * @return	Page List.(String Combo) <br>
+	 *			ex)	" Total	: 435 (	 1 2 3 4 5 6 7 8 9 10 11 / 11 Pages	)  "  <br>
+	 */
+	public static String pagingComboBox(int	iSumCnt, int iCurPage, int iListCount, boolean bIsmovePage)	{
+
+		StringBuffer sStrComboPage = new StringBuffer();
+
+		// 페이지값이 없는경우의 초기화
+		if (iCurPage ==	0 )	iCurPage = 1;
+
+		// 전체	건수가 0 인경우, 웹공백	반환.
+		if (iSumCnt	== 0 ) {
+			sStrComboPage.append("&nbsp;");
+			return sStrComboPage.toString();
+		}
+
+		sStrComboPage.append(iSumCnt).append(" ( ")
+			.append("<select name='PAGE_NUM' class='field_05' OnChange='javascript:goPage(0);'>\n");
+			
+			for	( int i	= 1	; i	<= (((iSumCnt-1)/iListCount) + 1) ;	i++	) {
+	
+				sStrComboPage.append("<option value='").append(i).append("'	");
+	
+					if (i == iCurPage )	{
+						sStrComboPage.append("selected");
+					}
+				sStrComboPage.append(">").append(i).append("</option>\n");
+			}
+
+		sStrComboPage.append("</select>\n /	").append(((iSumCnt-1)/iListCount) + 1);
+
+	return sStrComboPage.toString();
+	}
+
+}
+
+//javac	-classpath $CLASSPATH:/home2/pear/www/WEB-INF/classes PageUtil.java

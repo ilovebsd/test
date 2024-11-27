@@ -1,0 +1,54 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class HuntingGroupIDDTO
+{
+
+    private String groupID;
+    private String huntingGroupID;
+    private String huntingGroupName;
+    private int    ringTime;
+    private int    huntType;
+
+    public String getGroupID() { return this.groupID; }
+    public void   setGroupID(String vGroupID ) { this.groupID = vGroupID; }
+
+    public String getHuntingGroupID() { return this.huntingGroupID; }
+    public void   setHuntingGroupID(String vHuntingGroupID ) { this.huntingGroupID = vHuntingGroupID; }
+
+    public String getHuntingGroupName() { return this.huntingGroupName; }
+    public void   setHuntingGroupName(String vHuntingGroupName ) { this.huntingGroupName = vHuntingGroupName; }
+
+    public int    getRingTime() { return this.ringTime; }
+    public void   setRingTime(int vRingTime ) { this.ringTime = vRingTime; }
+
+    public int    getHuntType() { return this.huntType; }
+    public void   setHuntType(int vHuntType ) { this.huntType = vHuntType; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(groupID:"                  + getGroupID() + ") ") ;
+        sb.append("[huntingGroupID:"           + getHuntingGroupID() + "] ") ;
+        sb.append("[huntingGroupName:"         + getHuntingGroupName() + "] ") ;
+        sb.append("[ringTime:"                 + getRingTime() + "] ") ;
+        sb.append("[huntType:"                 + getHuntType() + "] ") ;
+
+        return sb.toString();
+    }
+}
+
+

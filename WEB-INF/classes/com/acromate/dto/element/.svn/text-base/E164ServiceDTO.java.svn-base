@@ -1,0 +1,178 @@
+package com.acromate.dto.element;
+
+import java.util.ArrayList;
+
+import com.acromate.dto.element.service.number.data.AnswerService;
+import com.acromate.dto.element.service.number.data.CallerService;
+import com.acromate.dto.element.service.number.data.CommonService;
+import com.acromate.dto.element.service.number.data.MakeCallService;
+
+
+public class E164ServiceDTO
+{
+    /***********************************************************/
+    private int    nMenuType = 0;
+    /*************************************************************/
+
+    private String e164 = "" ;
+
+    private CallerService callerService = new CallerService() ;
+    private AnswerService answerService = new AnswerService() ;
+    private CommonService commonService = new CommonService() ;
+    private MakeCallService makeCallService = new MakeCallService() ;
+
+    private String virtualcid = "" ;
+    private String directforwardnumber = "" ;
+    private String hotlinenumber = "" ;
+    private int    hotlinedelaytime = 0;
+    private String lastreceivednumber = "" ;
+    private String lastdialednumber = "" ;
+    private String mailbox = "" ;
+    private String defaultSoundFile = "" ;
+
+    private ArrayList shortcutNumber = new ArrayList() ;
+    private ArrayList callerCallLimit = new ArrayList() ;
+    private ArrayList answerCallLimit = new ArrayList() ;
+    private ArrayList mrbt = new ArrayList() ;//
+
+    private ArrayList forwardBusy = new ArrayList() ;
+    private ArrayList forwardNoAnswer = new ArrayList() ;
+    private ArrayList forwardTerm = new ArrayList() ;
+    private ArrayList forwardWrongPhone = new ArrayList() ;
+
+    private ArrayList alarmCall = new ArrayList() ;
+    private E164ChangedDTO changeNumberInfo = new E164ChangedDTO() ;
+    private ArrayList addibleServiceList = new ArrayList() ;
+
+    private ArrayList serviceApplicationList = new ArrayList() ;
+
+    public ArrayList getShortcutNumber() { return this.shortcutNumber; }
+    public void   setShortcutNumber(ArrayList shortcutNumber ) { this.shortcutNumber = shortcutNumber; }
+
+    public ArrayList getCallerCallLimit() { return this.callerCallLimit; }
+    public void   setCallerCallLimit(ArrayList callerCallLimit ) { this.callerCallLimit = callerCallLimit; }
+
+    public ArrayList getAnswerCallLimit() { return this.answerCallLimit; }
+    public void   setAnswerCallLimit(ArrayList answerCallLimit ) { this.answerCallLimit = answerCallLimit; }
+
+    public ArrayList getMrbt() { return this.mrbt; }
+    public void   setMrbt(ArrayList mrbt ) { this.mrbt = mrbt; }
+
+    public String getDefaultSoundFile() { return this.defaultSoundFile; }
+    public void   setDefaultSoundFile(String defaultSoundFile ) { this.defaultSoundFile = defaultSoundFile; }
+
+    public ArrayList getForwardBusy() { return this.forwardBusy; }
+    public void   setForwardBusy(ArrayList forwardBusy ) { this.forwardBusy = forwardBusy; }
+
+    public ArrayList getForwardNoAnswer() { return this.forwardNoAnswer; }
+    public void   setForwardNoAnswer(ArrayList forwardNoAnswer ) { this.forwardNoAnswer = forwardNoAnswer; }
+
+    public ArrayList getForwardTerm() { return this.forwardTerm; }
+    public void   setForwardTerm(ArrayList forwardTerm ) { this.forwardTerm = forwardTerm; }
+
+    public ArrayList getForwardWrongPhone() { return this.forwardWrongPhone; }
+    public void   setForwardWrongPhone(ArrayList forwardWrongPhone ) { this.forwardWrongPhone = forwardWrongPhone; }
+
+    public ArrayList getAlarmCall() { return this.alarmCall; }
+    public void   setAlarmCall(ArrayList alarmCall ) { this.alarmCall = alarmCall; }
+
+    public E164ChangedDTO getChangeNumberInfo() { return this.changeNumberInfo; }
+    public void   setChangeNumberInfo(E164ChangedDTO changeNumberInfo ) { this.changeNumberInfo = changeNumberInfo; }
+
+    public ArrayList getAddibleServiceList() { return this.addibleServiceList; }
+    public void   setAddibleServiceList(ArrayList addibleServiceList ) { this.addibleServiceList = addibleServiceList; }
+
+    public String getE164() { return this.e164; }
+    public void   setE164(String vE164 ) { this.e164 = vE164; }
+
+    public String getCallerService64() { return this.callerService.get64ByteString(); }
+    public void   setCallerService64(String callerService ) { this.callerService.set64ByteString( callerService ) ; }
+
+    public CallerService getCallerService() { return this.callerService; }
+    public void   setCallerservice(CallerService callerService ) { this.callerService = callerService ; }
+
+    public String getAnswerService64() { return this.answerService.get64ByteString(); }
+    public void   setAnswerService64(String answerService ) { this.answerService.set64ByteString( answerService); }
+
+    public AnswerService getAnswerService() { return this.answerService; }
+    public void   setAnswerService( AnswerService answerService ) { this.answerService = answerService ; }
+
+    public String getCommonService32() { return this.commonService.get64ByteString(); }
+    public void   setCommonService32(String commonService ) { this.commonService.set64ByteString(commonService); }
+
+    public CommonService getCommonService() { return this.commonService ; }
+    public void   setCommonService(CommonService commonService ) { this.commonService = commonService ; }
+
+    public MakeCallService getMakeCallService() { return this.makeCallService; }
+    public void   setMakeCallService(MakeCallService makeCallService ) { this.makeCallService = makeCallService ; }
+
+    public ArrayList getServiceApplicationList() { return this.serviceApplicationList; }
+    public void   setServiceApplicationList(ArrayList serviceApplicationList ) { this.serviceApplicationList = serviceApplicationList ; }
+
+    public String getVirtualcid() { return this.virtualcid; }
+    public void   setVirtualcid(String vVirtualcid ) { this.virtualcid = vVirtualcid; }
+
+    public String getDirectforwardnumber() { return this.directforwardnumber; }
+    public void   setDirectforwardnumber(String vDirectforwardnumber ) { this.directforwardnumber = vDirectforwardnumber; }
+
+    public String getHotlinenumber() { return this.hotlinenumber; }
+    public void   setHotlinenumber(String vHotlinenumber ) { this.hotlinenumber = vHotlinenumber; }
+
+    public int    getHotlinedelaytime() { return this.hotlinedelaytime; }
+    public void   setHotlinedelaytime(int vHotlinedelaytime ) { this.hotlinedelaytime = vHotlinedelaytime; }
+
+    public String getLastreceivednumber() { return this.lastreceivednumber; }
+    public void   setLastreceivednumber(String vLastreceivednumber ) { this.lastreceivednumber = vLastreceivednumber; }
+
+    public String getLastdialednumber() { return this.lastdialednumber; }
+    public void   setLastdialednumber(String vLastdialednumber ) { this.lastdialednumber = vLastdialednumber; }
+
+    public String getMailbox() { return this.mailbox; }
+    public void   setMailbox(String vMailbox ) { this.mailbox = vMailbox; }
+
+    public FeatureServiceDTO getAddibleServiceDTO(int serviceNo) {
+        int size = addibleServiceList.size();
+        FeatureServiceDTO featureServiceDTO = null ;
+
+        for ( int i = 0 ; i < size ; i ++ ) {
+            featureServiceDTO = (FeatureServiceDTO) addibleServiceList.get(i) ;
+            if ( featureServiceDTO != null && featureServiceDTO.getServiceNo() == serviceNo ) return featureServiceDTO  ;
+        }
+        return null ;
+    }
+
+    public boolean removeAddibleServiceDTO(int serviceNo) {
+        int size = addibleServiceList.size();
+        FeatureServiceDTO featureServiceDTO = null ;
+        for ( int i = 0 ; i < size ; i ++ ) {
+            featureServiceDTO = (FeatureServiceDTO) addibleServiceList.get(i) ;
+            if ( featureServiceDTO != null && featureServiceDTO.getServiceNo() == serviceNo ) {
+                addibleServiceList.remove(i) ;
+                return true ;
+            }
+        }
+        return false ;
+    }
+    /*************************************************************************/
+    public int    getMenuType() { return this.nMenuType; }
+    public void   setMenuType(int vMenuType ) { this.nMenuType = vMenuType; }
+    /*************************************************************************/
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("") ;
+        sb.append("(e164:"                  + getE164() + ") ") ;
+        sb.append("[callerservice:"       + getCallerService64()+ "] ") ;
+        sb.append("[answerservice:"      + getAnswerService64()+ "] ") ;
+        sb.append("[commonservice:"      + getCommonService32()+ "] ") ;
+        sb.append("[virtualcid:"          + getVirtualcid() + "] ") ;
+        sb.append("[directforwardnumber:"  + getDirectforwardnumber() + "] ") ;
+        sb.append("[hotlinenumber:"      + getHotlinenumber() + "] ") ;
+        sb.append("[hotlinedelaytime:"   + getHotlinedelaytime() + "] ") ;
+        sb.append("[lastreceivednumber:"  + getLastreceivednumber() + "] ") ;
+        sb.append("[lastdialednumber:"    + getLastdialednumber() + "] ") ;
+        sb.append("[mailbox:"            + getMailbox() + "] ") ;
+
+        return sb.toString();
+    }
+}

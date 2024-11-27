@@ -1,0 +1,70 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import acromate.common.util.WebUtil;
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.system.SIPRegServerDTO;
+import dto.system.SystemConfigDTO;
+import system.SystemConfigFileMake;
+import framework.url.Urldownload;
+import dao.system.CommonDAO;
+import java.util.ArrayList;
+import java.util.HashMap;
+		
+public class GeoIpApplyCommand implements Command {
+	private int nEmergency;
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+
+		try {
+			String 	geoipType	= new String(Str.CheckNullString(req.getParameter("hiGeoipType")).getBytes("8859_1"), "euc-kr");		//  
+			String 	userID	  	= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "geoIpList.jsp";
+
+			SystemConfigFileMake makeFile = new SystemConfigFileMake();
+			int insertResult = makeFile.geoIP_acrosswConfig(geoipType);
+			
+			if(insertResult==1){
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				if("0".equals(geoipType)){
+					int int_result = logHistory.LogHistorySave(userID+"|90|GeoIP 기능중지 실행 |1|"+strIp);
+				}else if("1".equals(geoipType)){
+					int int_result = logHistory.LogHistorySave(userID+"|90|GeoIP 기능사용 실행 |1|"+strIp);
+				}else{
+					int int_result = logHistory.LogHistorySave(userID+"|90|GeoIP 실행 에러 |1|"+strIp);
+				}
+				// ##############################################
+
+				res.sendRedirect("/bizportal/system/"+resStr);
+			}else{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+//			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}		
+		return forwardingPage;
+	}
+	
+	
+}

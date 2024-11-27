@@ -1,0 +1,157 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.code.AppCode;
+
+
+public class WinModule extends  TaskModule
+{
+	
+// construction
+	/*
+	public WinModule( char *pWinName = NULL ) {
+	}
+	*/
+	public WinModule() {
+		nWidth = nHeight = 0 ;
+		pDrawer = null ;
+	}
+	public WinModule( String pWinName ) {
+	}
+	protected void finalize() throws Throwable {
+		super.finalize();
+		// 기타 추가 코드
+		pDrawer = null;
+	}
+
+// attribute
+	// window size
+	protected int			nWidth,	nHeight ;
+	// tagetModule
+	protected String targetModule = "";
+	// linked drawing tool
+	public IDrawingTool 			pDrawer ;
+
+	// class data i/o
+	public int getFieldData( String field, Index indx, StringBuilder value ) {
+		boolean stop = (field != null) ;
+		int  errcode ;
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "width", indx, value ) )
+		{    errcode = getInteger( nWidth, value) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "height", indx, value ) )
+		{    errcode = getInteger( nHeight, value ) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "targetModule", indx, value ) )
+		{    errcode = getString( targetModule, value ,!stop) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		return super.getFieldData( field, indx, value ) ;
+	}
+	public int setFieldData( String field, String value ) {
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "width" ) )
+		{    if   ( value != null )
+		          nWidth = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "height" ) )
+		{    if   ( value != null )
+		          nHeight = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if	( compareFieldID( sbfield, "targetModule") )
+		{   
+			targetModule = value;
+			return (AppCode.ERR_NOERROR) ;
+		}
+		return super.setFieldData( field, value ) ;
+	}
+	// window size
+	public int		getWidth()	{ return nWidth ; }
+	public int		getHeight()	{ return nHeight ; }
+
+	public void	 setSize( int width, int height ) {
+		if   ( width  > 0 )	nWidth  = width ;
+		if   ( height > 0 )	nHeight = height ;
+	}
+
+	// drawing tool
+	public IDrawingTool 	getDrawer()	{ return pDrawer ; }
+	public void			setDrawer( IDrawingTool pDrawer ) {
+		this.pDrawer = pDrawer ;	
+	}
+		
+	public IDrawingTool 	getParentDrawer() {
+		if(pParent == null) 
+			return ( pActionTask != null ? ((WindowTask )pActionTask).getBoundary() : null ) ;
+		else return ((WinModule )pParent).getDrawer();
+	}
+
+// operations
+	public boolean showWindow( int mode ) {return false ; }
+	public void	updateWindow() {
+		WinModule pModule ;
+		TaskModule forNext;
+		
+		Object obj = null;
+		obj = getHead() ;
+		while( obj != null ){
+			 if( obj instanceof WinModule ) {
+				 pModule = ( WinModule ) obj;
+				 pModule.updateWindow() ;
+				 obj = pModule.m_pNext;
+			 }else{
+				 forNext = (TaskModule)obj;
+				 obj = forNext.m_pNext;
+			 }
+		}
+		/*
+		pModule = (WinModule )getHead() ;
+		while( pModule != null )
+		{    pModule.updateWindow() ;
+		     pModule = (WinModule )pModule.m_pNext ;
+		}
+		*/
+	}
+
+	public boolean setFocusWindow() { return false ; }	
+ 
+	// initial constructor
+	public boolean makeDrawer(){return makeDrawer(0 , 0);}
+	public boolean makeDrawer( int left ){return makeDrawer(left , 0);}
+	public boolean makeDrawer( int left , int top) {
+		WinModule pModule ;
+		TaskModule forNext;
+		Object obj = null;
+		obj = getHead() ;
+		while( obj != null)
+		{   if( obj instanceof WinModule ) {
+				pModule = ( WinModule ) obj;
+				if   ( ! pModule.makeDrawer() )
+		          return false ;
+				obj = pModule.m_pNext ;
+			}else{
+				forNext = (TaskModule)obj;
+				obj = forNext.m_pNext;
+			}
+		}
+		/*
+		pModule = (WinModule )getHead() ;
+		while( pModule != null)
+		{    if   ( ! pModule.makeDrawer() )
+		          return false ;
+		     pModule = (WinModule )pModule.m_pNext ;
+		}
+		*/
+		return true ;
+	}
+	public int terminateData(){return 0;}
+	public int validation(){return 0;}
+	public int updateMode(){return 0;}
+	public  DataIO newListNode(String moduleName){return null;}
+		
+} ;

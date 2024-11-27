@@ -1,0 +1,74 @@
+package com.acromate.server;
+
+import java.util.*;
+import java.sql.*;
+
+public class ConnectionManager {
+	private Hashtable connectionList = null;
+	private static ConnectionManager connManagerInst = null;
+		
+	/*******************************************************************
+	 * 
+	 *
+	 */
+	public ConnectionManager() {
+		connectionList = new Hashtable();
+		
+	}
+	
+	/*******************************************************************
+	 * 
+	 * @return
+	 */
+	public static ConnectionManager getInstance()
+	{
+		if(connManagerInst == null)
+			connManagerInst = new ConnectionManager();
+		
+		return connManagerInst;
+	}
+	
+	/*******************************************************************
+	/**
+	 * 
+	 * @return
+	 */
+	public Enumeration getIterator() {
+		return connectionList.elements();
+	}
+	
+	/*******************************************************************
+	 * 
+	 * @param sswid
+	 * @param pool
+	 */	
+	public void addConnectionPool(String sswid, ConnectionPool pool) {
+		connectionList.put(sswid, pool);
+	}
+		
+	/*******************************************************************
+	 * 
+	 * @param sswid
+	 * @return
+	 */
+	public ConnectionPool getConnectionPool(String sswid) {
+		if(connectionList.containsKey(sswid)) {
+			  return (ConnectionPool)connectionList.get(sswid);
+		}else return null;
+	}
+		
+	/*******************************************************************
+	/**
+	 * 
+	 * @param sswid
+	 * @throws SQLException
+	 */
+	public void deleteConnectionPool(String sswid) throws SQLException {
+		if(connectionList.containsKey(sswid)){
+			ConnectionPool pool = (ConnectionPool)connectionList.get(sswid);
+			if(pool != null) {
+				pool.freeConnection();
+			}
+		}
+	}
+}

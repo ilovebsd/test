@@ -1,0 +1,68 @@
+package com.acromate.dao.system;
+
+import com.acromate.db.QueryStatement;
+import java.sql.ResultSet;
+import java.sql.*;
+
+public class RegiTrcDAO {
+
+    public RegiTrcDAO() {}
+
+    public boolean update (QueryStatement statement, int protocol, String keyNo, int trace, int traceType) {
+        String queryString  = "" ;
+        int count = 0 ;
+        int dbTrace = 0;
+        ResultSet rs = null;
+
+        try {
+//            if (protocol == 1 || protocol == 2) {
+//              queryString = " UPDATE Table_H323ENDPOINT ";
+//              queryString += " SET  Trace = 1";
+//              queryString += " WHERE EndpointID = '" + keyNo + "'";
+//              count = statement.executeUpdate(queryString);
+//            }
+//            if (protocol == 1 || protocol == 3) {
+            queryString  = " SELECT Trace FROM Table_SIPENDPOINT  ";
+            queryString += " WHERE EndpointID LIKE '" + keyNo + "%'";
+            rs = statement.executeQuery(queryString);
+            if (rs.next())
+               dbTrace = rs.getInt("Trace");
+            rs.close();
+
+            System.out.println(" == DB Trace ===> " + dbTrace );
+            System.out.println(" == Trace ===> " + trace );
+
+            if (trace == 0){
+              if (traceType == 1)
+                trace = (byte) dbTrace&(0xFF^0x01);
+              else
+                trace = (byte)dbTrace&(0xFF^0x02);
+            } else {
+              if (traceType == 1)
+                trace = (byte)dbTrace|0x01;
+              else
+                trace = (byte)dbTrace|0x02;
+            }
+
+
+            System.out.println(" == Updated Trace ===> " + trace );
+
+            queryString  = " UPDATE Table_SIPENDPOINT ";
+            queryString += " SET  Trace = " + trace;
+            queryString += " WHERE EndpointID LIKE '" + keyNo + "%'";
+            count = statement.executeUpdate(queryString);
+            if (count == 0)
+              return false;
+//            }
+
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        } finally {
+            try { if (rs != null) rs.close();
+            } catch (SQLException ex) {}
+        }
+        return true;
+    }
+
+}

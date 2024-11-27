@@ -1,0 +1,80 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.DataIO;
+
+public class DetailDTO extends DataIO {
+	CallDTO callDTO = new CallDTO();
+	EndpointDTO epDTO = new EndpointDTO();
+	AlarmDTO alarmDTO = new AlarmDTO();
+	BackUpDTO backUpDTO = new BackUpDTO();
+	SystemInfoDTO systemDTO = new SystemInfoDTO();
+
+	public void setCallDTO(CallDTO callDTO) {this.callDTO = callDTO;}
+	public CallDTO getCallDTO() {return callDTO;}
+
+	public void setEpDTO(EndpointDTO epDTO) {this.epDTO = epDTO;}
+	public EndpointDTO getEpDTO() {return epDTO;}
+
+	public void setAlarmDTO(AlarmDTO alarmDTO) {this.alarmDTO = alarmDTO;}
+	public AlarmDTO getAlarmDTO() {return alarmDTO;}
+
+	public void setBackUpDTO(BackUpDTO backUpDTO) {this.backUpDTO = backUpDTO;}
+	public BackUpDTO getBackUpDTO() {return backUpDTO;}
+
+	public void setSystemDTO(SystemInfoDTO systemDTO) {this.systemDTO = systemDTO;}
+	public SystemInfoDTO getSystemDTO() {return systemDTO;}
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "callDTO", idx, value) == true) {
+            errorcode = callDTO.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "epDTO", idx, value) == true) {
+            errorcode = epDTO.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "alarmDTO", idx, value) == true) {
+            errorcode = alarmDTO.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "backUpDTO", idx, value) == true) {
+            errorcode = backUpDTO.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "systemDTO", idx, value) == true) {
+            errorcode = systemDTO.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		return (0);
+	}
+	@Override
+	protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "callDTO") == true) {
+            return callDTO.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "epDTO") == true) {
+            return epDTO.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "alarmDTO") == true) {
+            return alarmDTO.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "backUpDTO") == true) {
+            return backUpDTO.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "systemDTO") == true) {
+            return systemDTO.setParam(temp.toString(), value);
+        }
+		return (-1);
+	}
+}

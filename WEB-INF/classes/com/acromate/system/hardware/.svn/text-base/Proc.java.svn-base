@@ -1,0 +1,251 @@
+package com.acromate.system.hardware;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Logger;
+import com.acromate.system.ManSystem;
+import com.acromate.util.Str;
+import com.acromate.data.code.CheckConst;
+import com.acromate.dataio.server.alarm.AlarmObject;
+import com.acromate.util.TimeUtil;
+import com.acromate.driver.core.AlarmSingleton;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class Proc extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int          errorcode;
+    private int          cpuUsage;   // %
+    private int          memUsage; // %
+    private int          mem;// K Byte
+    private int          oldPid = 100000;// K Byte
+    private int          pid = 1;// K Byte
+    private int          errCheckCount = 0;
+    private boolean          executable  = true;// boolean
+    private boolean          failover  = true;// boolean
+    private boolean          duplexType  = true;// boolean
+    private StringBuilder processName;
+    private StringBuilder processType;
+    private StringBuilder startTime;
+
+
+    private ManSystem manSystem;
+    public Proc( ManSystem manSystem ) {
+        this.processName    = new StringBuilder();
+        this.processType = new StringBuilder();
+        this.startTime  = new StringBuilder();
+        this.manSystem = manSystem;
+    }
+
+    public String getClassID() {
+        return processName.toString();
+    }
+
+    public void setExecutable(boolean executable) { this.executable = executable; }
+
+    public boolean getExecutable() { return this.executable; }
+
+    public void setCpuUsage(int cpuUsage) { this.cpuUsage = cpuUsage; }
+
+    public int getCpuUsage() { return this.cpuUsage; }
+
+    public void setMem(int memUsage) { this.mem = mem; }
+
+    public int getMem() {   return this.mem;   }
+
+    public int getMemUsage() {
+        int totalMem = manSystem.getMemory().getTotal();
+        if ( totalMem == 0 ) return 0;
+         else return 100 *  this.mem / totalMem ;
+    }
+
+    public void setProcessName(StringBuilder processName) { this.processName = processName; }
+
+    public StringBuilder getProcessName() { return this.processName; }
+
+    public void setProcessType(StringBuilder processType) { this.processType = processType; }
+
+    public StringBuilder getProcessType() { return this.processType; }
+
+
+    public void setPid(int newPid) {
+                if (oldPid == newPid) {
+                  errCheckCount ++ ;
+                  if (errCheckCount  < 5) return ;
+                }
+
+              errCheckCount = 0 ;
+
+              if ( pid != newPid && newPid == 0 ) {
+                // alarm
+                AlarmObject alarmObject = new AlarmObject();
+                alarmObject.setSysGroupID(manSystem.getGroupId());
+                alarmObject.setHwClusterID(manSystem.getHwClusterId());
+                alarmObject.setstrHwID(manSystem.getHwId());
+                alarmObject.setClusterID(manSystem.getClusterId());
+                String script = Str.cover(manSystem.getGroupId()) + Str.cover(manSystem.getHwClusterId()) + Str.cover(manSystem.getHwId());
+                alarmObject.setSystemPath(script);
+                alarmObject.setObjectPath("process(" + processName.toString()+")");
+                alarmObject.setObjectName("process_live");
+                alarmObject.setMessageType(CheckConst.MESSAGE_TYPE_ALARM);
+                alarmObject.setAlarmType(CheckConst.ALARM_TYPE_SYSTEM);
+                alarmObject.setAlarmLevel(CheckConst.ALARM_LEVEL_MAJOR);
+                alarmObject.setViewInfo(1);
+                alarmObject.setAlarmMessage("Process " + processName.toString()+" Died  " );
+                alarmObject.setAlarmCode("30006");
+                alarmObject.setAlarmName("Process Live Check");
+                String strTime = TimeUtil.ConvertMillisecondtoDateString(System.currentTimeMillis());
+                alarmObject.setCheckTime(strTime);
+                alarmObject.setAutoCloseWait(0);
+                DataIO alarmHanler = AlarmSingleton.getInstance().getHandler();
+                if ( alarmHanler != null ) alarmHanler.callMethod("", "handlerAlarm", alarmObject );
+                // PID 를 새로운 PID 로 변경한다.
+            }
+            else if ( pid <= 1 && newPid > 0 ){
+                //ClearAlarm
+                String systemPath = Str.cover(manSystem.getGroupId()) + Str.cover(manSystem.getHwClusterId()) + Str.cover(manSystem.getHwId());
+                String objectPath = "process(" + processName.toString()+")";
+                DataIO alarmHanler = AlarmSingleton.getInstance().getHandler();
+                // 알람이 clear 되었을 경우에만 새로운 PID 로 교체한다.
+                if ( alarmHanler != null ) alarmHanler.callMethod("", "autoClearAlarm", systemPath, objectPath );
+            }
+            if (this.pid > 0) this.oldPid = this.pid ;
+            this.pid = newPid ;
+        }
+
+    public int getPid() { return this.pid; }
+    public void setUpTime(String strUpTime) {
+        this.startTime.delete(0,startTime.length());
+        this.startTime.append(strUpTime);
+    }
+    public String getUpTime() { return this.startTime.toString(); }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+         StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "processName") == true) {
+            return setString(processName, value);
+        }
+        if(compareFieldID(temp, "processType") == true) {
+            return setString(processType, value);
+        }
+        if(compareFieldID(temp, "failover") == true) {
+            failover = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "executable") == true) {
+            executable = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "pid") == true) {
+            int pid = Str.CheckNullInt(value);
+            setPid(pid);
+            return 0;
+        }
+        if(compareFieldID(temp, "cpuUsage") == true) {
+            if(!value.equals("")) cpuUsage = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "memUsage") == true) {
+            return 0;
+        }
+        if(compareFieldID(temp, "cpu") == true) {
+            if(!value.equals("")) cpuUsage = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "mem") == true) {
+            if(!value.equals("")) mem = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "startTime") == true) {
+            return 0;
+        }
+        if(compareFieldID(temp, "uptime") == true) {
+            return setString(startTime, value);
+        }
+        if(compareFieldID(temp, "duplexType") == true) {
+            executable = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        log.error("Proc - Not founded field :" + field);
+        return(-1);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "processName", idx, value) == true) {
+            errorcode = getString(processName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "processType", idx, value) == true) {
+            errorcode = getString(processType.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "pid", idx, value) == true) {
+            errorcode = getInteger(pid, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "cpuUsage", idx, value) == true) {
+            errorcode = getInteger(cpuUsage, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "duplexType", idx, value) == true) {
+            errorcode = getString(Boolean.toString(duplexType), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "memUsage", idx, value) == true) {
+            errorcode = getInteger( getMemUsage() , value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "mem", idx, value) == true) {
+            errorcode = getInteger( mem , value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "startTime", idx, value) == true) {
+            errorcode = getString(startTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "uptime", idx, value) == true) {
+            errorcode = getString(startTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "executable", idx, value) == true) {
+            errorcode = getString(Boolean.toString(executable), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "failover", idx, value) == true) {
+            errorcode = getString(Boolean.toString(failover), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}
+

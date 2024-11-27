@@ -1,0 +1,81 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+
+/* menu set list ////////////////////// */
+public class MenuSetList extends ListIO
+{
+// construction
+	public MenuSetList() {
+		pSystemMenu = null ;
+	}
+
+// attribute
+	protected SystemMenu pSystemMenu ;	/* up linker */
+	// index i/o
+	public DataIO getNode( String pNodeID ) {
+		DataIO pNode = null;
+		if(pNodeID != null){    
+			char temp[] = pNodeID.toCharArray();
+			int nStar = 0;
+			int nEnd = 0;
+			nEnd = temp.length-1;
+			for(int i=0;i<nEnd;i++){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nStar++;
+				else break;
+			}
+			for(int i = temp.length-1;i> nStar;i--){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nEnd--;
+				else break;
+			}
+			pNodeID = pNodeID.substring(nStar, nEnd+1);
+		}
+		if( (pNode = super.getNode( pNodeID )) != null )
+			return pNode ;
+		if( pNodeID == null)
+			return null ;
+		if( (pNode = new MenuSet( pNodeID )) != null )
+			appendTail( pNode ) ;
+		return pNode ;
+	}
+	public DataIO search(  String pNodeID ) {
+		if(pNodeID != null){    
+			char temp[] = pNodeID.toCharArray();
+			int nStar = 0;
+			int nEnd = 0;
+			nEnd = temp.length-1;
+			for(int i=0;i<nEnd;i++){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nStar++;
+				else break;
+			}
+			for(int i = temp.length-1;i> nStar;i--){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nEnd--;
+				else break;
+			}
+			pNodeID = pNodeID.substring(nStar, nEnd+1);
+		}
+		return super.getNode( pNodeID ) ;	
+	}
+
+// operations
+	protected DataIO newListNode() { return new MenuSet() ; }
+	// list tools
+	public void appendHead( DataIO pNode ) {
+		super.appendHead( pNode ) ;
+		((MenuSet)(pNode)).setSystemMenu(pSystemMenu);
+	}
+	public void	appendTail( DataIO pNode ) {
+		super.appendTail( pNode ) ;
+		((MenuSet)(pNode)).setSystemMenu(pSystemMenu);
+	}
+
+	public void insertNode( DataIO pPosAfter, DataIO pNode ) {
+		super.insertNode( pPosAfter, pNode ) ;
+		((MenuSet)(pNode)).setSystemMenu(pSystemMenu);
+	}
+	public void	 insertNode( int nIndex, DataIO pNode ) {
+		super.insertNode( nIndex, pNode ) ;
+		((MenuSet)(pNode)).setSystemMenu(pSystemMenu);
+	}
+} 

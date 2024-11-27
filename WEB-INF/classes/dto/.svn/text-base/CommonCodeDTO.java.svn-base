@@ -1,0 +1,31 @@
+package dto;
+
+public class CommonCodeDTO {
+	/**
+	 * member variables
+	 */
+	private String	codeId;
+	private String  codeName;
+	
+	public CommonCodeDTO(String codeId) {      		
+		super();		
+		this.codeId 		= codeId;
+	}
+
+	public CommonCodeDTO(String codeId, String codeName) {      		
+		super();		
+		this.codeId 		= codeId;
+		this.codeName 		= codeName;
+	}
+	
+	/**
+	 * member functions
+	 */
+	public String	getCodeId() { return this.codeId; }
+	public void	setCodeId(String codeId ) { this.codeId = codeId; }
+
+	public String	getCodeName() { return this.codeName; }
+	public void	setCodeName(String codeName ) { this.codeName = codeName; }
+
+	
+}

@@ -1,0 +1,217 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.ResponseModeDAO;
+import bizportal.nasacti.ipivr.dto.ResponseModeDTO;
+import bizportal.nasacti.ipivr.common.FileUtil;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+
+public class EmsResponseModeManageInputAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		request.setCharacterEncoding("euc-kr");
+		int iRtn = -1;
+		String strScName = request.getParameter("scName").trim();
+		String strScHour = request.getParameter("scHour").trim();
+		String strScMakeCallTime = request.getParameter("scMakeCallTime").trim();
+		String strScLang = request.getParameter("scLang");
+
+		String strScLogCheck = request.getParameter("scLogCheck");
+		if(strScLogCheck == null)
+			strScLogCheck = "N";
+
+		String strScAgain = request.getParameter("scAgain").trim();
+
+		String strScKeyTo = request.getParameter("keyto");
+		String strWordTo = request.getParameter("wordto").trim();
+		strScKeyTo += strWordTo;
+
+		String strScKey0 = request.getParameter("key0");
+		String strWord0 = request.getParameter("word0").trim();
+		strScKey0 += strWord0;
+
+		String strScKey1 = request.getParameter("key1");
+		String strWord1 = request.getParameter("word1").trim();
+		strScKey1 += strWord1;
+
+		String strScKey2 = request.getParameter("key2");
+		String strWord2 = request.getParameter("word2").trim();
+		strScKey2 += strWord2;
+
+		String strScKey3 = request.getParameter("key3");
+		String strWord3 = request.getParameter("word3").trim();
+		strScKey3 += strWord3;
+
+		String strScKey4 = request.getParameter("key4");
+		String strWord4 = request.getParameter("word4").trim();
+		strScKey4 += strWord4;
+
+		String strScKey5 = request.getParameter("key5");
+		String strWord5 = request.getParameter("word5").trim();
+		strScKey5 += strWord5;
+
+		String strScKey6 = request.getParameter("key6");
+		String strWord6 = request.getParameter("word6").trim();
+		strScKey6 += strWord6;
+
+		String strScKey7 = request.getParameter("key7");
+		String strWord7 = request.getParameter("word7").trim();
+		strScKey7 += strWord7;
+
+		String strScKey8 = request.getParameter("key8");
+		String strWord8 = request.getParameter("word8").trim();
+		strScKey8 += strWord8;
+
+		String strScKey9 = request.getParameter("key9");
+		String strWord9 = request.getParameter("word9").trim();
+		strScKey9 += strWord9;
+
+
+		String strScKeyA = request.getParameter("keya");
+		String strWordA = request.getParameter("worda").trim();
+		strScKeyA += strWordA;
+
+		String strScKeyB = request.getParameter("keyb");
+		String strWordB = request.getParameter("wordb").trim();
+		strScKeyB += strWordB;
+
+		String strScKeyC = request.getParameter("keyc");
+		String strWordC = request.getParameter("wordc").trim();
+		strScKeyC += strWordC;
+
+		String strScKeyD = request.getParameter("keyd");
+		String strWordD = request.getParameter("wordd").trim();
+		strScKeyD += strWordD;
+
+		String strScKeyAs = request.getParameter("keyas");
+		String strWordAs = request.getParameter("wordas").trim();
+		strScKeyAs += strWordAs;
+
+		String strScKeySh = request.getParameter("keysh");
+		String strWordSh = request.getParameter("wordsh").trim();
+		strScKeySh += strWordSh;
+
+		String strDgCheck = request.getParameter("dgCheck");
+		if(strDgCheck == null)
+			strDgCheck = "N";
+
+		String strWFile = request.getParameter("wfile").trim();
+		String strWIndex = request.getParameter("wcode").trim();
+
+		String strWaveFileFormat = ".wav";
+		String strScVoiceFile = "Ancd";
+
+		String strScCidRoute = request.getParameter("scCidRoute");
+		if(strScCidRoute == null)
+			strScCidRoute = "N";
+
+		ResponseModeDAO responseModeDAO = ResponseModeDAO.getInstance();
+		ResponseModeDTO responseModeDTO = new ResponseModeDTO();
+
+		responseModeDTO.setScName(strScName);
+		responseModeDTO.setScHour(strScHour);
+		responseModeDTO.setScMakeCallTime(strScMakeCallTime);
+		responseModeDTO.setScLang(strScLang);
+		responseModeDTO.setScLogCheck(strScLogCheck);
+		responseModeDTO.setScAgain(strScAgain);
+		responseModeDTO.setScKeyTo(strScKeyTo);
+		responseModeDTO.setScKey0(strScKey0);
+		responseModeDTO.setScKey1(strScKey1);
+		responseModeDTO.setScKey2(strScKey2);
+		responseModeDTO.setScKey3(strScKey3);
+		responseModeDTO.setScKey4(strScKey4);
+		responseModeDTO.setScKey5(strScKey5);
+		responseModeDTO.setScKey6(strScKey6);
+		responseModeDTO.setScKey7(strScKey7);
+		responseModeDTO.setScKey8(strScKey8);
+		responseModeDTO.setScKey9(strScKey9);
+		responseModeDTO.setScKeyAs(strScKeyAs);
+		responseModeDTO.setScKeySh(strScKeySh);
+		responseModeDTO.setScKeyA(strScKeyA);
+		responseModeDTO.setScKeyB(strScKeyB);
+		responseModeDTO.setScKeyC(strScKeyC);
+		responseModeDTO.setScKeyD(strScKeyD);
+		responseModeDTO.setScVoiceFile(strScVoiceFile);
+		responseModeDTO.setDgCheck(strDgCheck);
+		responseModeDTO.setScCidRoute(strScCidRoute);
+		responseModeDTO.setScType("I");
+		responseModeDTO.setScUse("Y");
+
+		iRtn = responseModeDAO.insertResponseMode(responseModeDTO);  // 성공: ScCode를 리턴, 실패: -1
+
+
+		switch(iRtn) {
+			case -1:
+				request.setAttribute("msg", "등록에러가 발생하였습니다.");
+				break;
+
+			default:
+				strScVoiceFile = strScVoiceFile + iRtn + strWaveFileFormat;
+
+
+				int kRtn = -1;
+				kRtn = responseModeDAO.updateVoiceFile(String.valueOf(iRtn), strScVoiceFile);
+
+				if(kRtn > 0) {
+					int jRtn = -1;
+
+					if(!strWFile.equals("")) // 음성파일이 선택되었을 경우
+						jRtn = FileUtil.copy(ipivrConfig.strRealPath + "/../ipcs_files/fileupwav/" + strWFile, ipivrConfig.strRealPath + "/../ipcs_files/fileup/" + strScVoiceFile);
+					else
+						jRtn = 2;
+					switch(jRtn) {
+					    case 1:
+                            VoiceDAO voiceDAO = VoiceDAO.getInstance();
+							int lRtn = -1;
+							lRtn = FileUtil.copy(ipivrConfig.strRealPath + "/../ipcs_files/fileup/" + strScVoiceFile, ipivrConfig.strAnCodePath + "/kor/" + strScVoiceFile);
+
+							if(lRtn == 1) {
+							    //request.setAttribute("msg", "응답모드가 생성되었습니다.");
+								voiceDAO.insertResponseModeVoiceReg("A",strScVoiceFile,strWIndex, strScName);
+								voiceDAO.updateAcceptDate(strWIndex);
+							} else {
+							    request.setAttribute("msg", "응답모드가 생성되지 않았습니다.");
+								responseModeDAO.deleteResponseMode(String.valueOf(iRtn));
+							}
+							break;
+						case 2:
+							//request.setAttribute("msg", "[IPIVR 응답모드가 생성되었습니다.]");
+							break;
+						case -1:
+							request.setAttribute("msg", "원본파일을 오픈할 수 없습니다.");
+							responseModeDAO.deleteResponseMode(String.valueOf(iRtn));
+							break;
+						case -2:
+							request.setAttribute("msg", "목적파일을 오픈할 수 없습니다.");
+							responseModeDAO.deleteResponseMode(String.valueOf(iRtn));
+							break;
+						case -3:
+							request.setAttribute("msg", "목적파일을 생성할 수 없습니다.");
+							responseModeDAO.deleteResponseMode(String.valueOf(iRtn));
+							break;
+					}
+				} else {// 음성파일 업데이트 에러
+					request.setAttribute("msg", "등록에러가 발생하였습니다.");
+					responseModeDAO.deleteResponseMode(String.valueOf(iRtn));
+				}
+				break;
+        }
+		return "./emsResponseModeManageListForm.do2";
+	}
+}

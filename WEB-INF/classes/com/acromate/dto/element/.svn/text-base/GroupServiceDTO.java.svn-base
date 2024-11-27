@@ -1,0 +1,55 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class GroupServiceDTO
+{
+
+    private String groupID;
+    private int    serviceNo;
+    private int    priority;
+    private String userParam;
+    private int    inoutFlag;
+
+    public String getGroupID() { return this.groupID; }
+    public void   setGroupID(String vGroupID ) { this.groupID = vGroupID; }
+
+    public int    getServiceNo() { return this.serviceNo; }
+    public void   setServiceNo(int vServiceNo ) { this.serviceNo = vServiceNo; }
+
+    public int    getPriority() { return this.priority; }
+    public void   setPriority(int vPriority ) { this.priority = vPriority; }
+
+    public String getUserParam() { return this.userParam; }
+    public void   setUserParam(String vUserParam ) { this.userParam = vUserParam; }
+
+    public int    getInoutFlag() { return this.inoutFlag; }
+    public void   setInoutFlag(int vInoutFlag ) { this.inoutFlag = vInoutFlag; }
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:"                  + getGroupID() + ") ") ;
+        sb.append("[serviceNo:"                   + getServiceNo() + "] ") ;
+        sb.append("[priority:"                    + getPriority() + "] ") ;
+        sb.append("[userParam:"                   + getUserParam() + "] ") ;
+        sb.append("[inoutFlag:"                   + getInoutFlag() + "] ") ;
+
+        return sb.toString();
+    }
+}
+
+

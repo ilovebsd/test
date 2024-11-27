@@ -1,0 +1,56 @@
+package dto;
+
+public class SmsReceiveDTO {
+	
+	private String receivenumber    = "";
+	private String receivetime		= "";
+	private String sendnumber		= "";
+	private int state 				= 0;
+	private int contenttype 		= 0;
+	private String content 			= "";
+	
+	public SmsReceiveDTO () {}
+
+	public String getReceivenumber() {
+		return receivenumber;
+	}
+	public void setReceivenumber(String receivenumber) {
+		this.receivenumber = receivenumber;
+	}
+
+	public String getReceiveTime() {
+		return receivetime;
+	}
+	public void setReceiveTime(String receivetime) {
+		this.receivetime = receivetime;
+	}
+
+	public String getSendnumber() {
+		return sendnumber;
+	}
+	public void setSendnumber(String sendnumber) {
+		this.sendnumber = sendnumber;
+	}
+
+	public int getState() {
+		return state;
+	}
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public int getContenttype() {
+		return contenttype;
+	}
+	public void setContenttype(int contenttype) {
+		this.contenttype = contenttype;
+	}
+
+	public String getContent() {
+		return content ;
+	}
+	public void setContent(String content ) {
+		this.content  = content ;
+	}
+
+}

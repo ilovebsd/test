@@ -1,0 +1,42 @@
+package com.acromate.system.hardware;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.system.ManSystem;
+import com.acromate.util.Logger;
+import com.acromate.driver.core.SystemSingleton;
+
+public class ProcList extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private ManSystem manSystem;
+
+    public ProcList( ManSystem manSystem ) {
+        this.manSystem = manSystem;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        return super.getFieldData(field, idx, value);
+    }
+
+    protected DataIO newListNode() {
+        return new Proc(manSystem);
+    }
+
+    public DataIO getNode(String field) {
+        DataIO node = super.getNode(field);
+        if ( node != null) return node;
+        node = new Proc(manSystem);
+        node.setParam("processName", field);
+        appendTail(node);
+        DataIO systemHandler = SystemSingleton.getInstance().getHandler();
+        systemHandler.callMethod("", "insertProcessList", manSystem.getGroupId(), manSystem.getHwClusterId(), manSystem.getHwId(), field);
+        return node;
+    }
+
+    public void removeAll() {
+        list.clear();
+        DataIO systemHandler = SystemSingleton.getInstance().getHandler();
+        systemHandler.callMethod("", "clearProcessList", manSystem.getGroupId(), manSystem.getHwClusterId(), manSystem.getHwId());
+    }
+}

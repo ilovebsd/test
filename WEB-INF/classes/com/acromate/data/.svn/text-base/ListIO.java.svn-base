@@ -1,0 +1,501 @@
+/*
+ * ListConfig.java
+ *
+ * Created on 2006년 10월 13일 (금), 오후 12:01
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.data;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import com.acromate.data.DataIO.Index;
+import com.acromate.util.Str;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public abstract class ListIO extends DataIO {
+
+    protected ArrayList<DataIO>  list;
+
+    /**
+     * ListIO constructor
+     */
+    public ListIO() {
+        this.list = new ArrayList<DataIO>();
+    }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+        int result;
+        DataIO   node = null;
+        StringBuilder indexId = new StringBuilder();
+        Index idx = new Index(0);
+        StringBuilder temp    = new StringBuilder(field);
+        result      = getListIndex(temp, idx, indexId);
+        int tempIdx = idx.v;
+        if(result == 3) {
+            int tempLength = idx.v;
+            indexId.replace(0, indexId.length(), indexId.substring(0, tempLength));
+            DataIO tempNode = getNode(indexId.toString());
+            if(tempNode != null )
+            {
+                if(value != null && value.equals("REMOVE")) {
+                    removeNode(tempNode);
+                    return 0;
+                }
+                return tempNode.setParam(temp.toString(), value);
+            } else return(-1);
+        }
+        if(result == 1)  return(-1);
+        if(result == 2 && value.trim().equals("REMOVE")) {
+            removeNode(tempIdx);
+            return 0;
+        }
+
+        if(tempIdx < 0) {
+            appendHead(node = newListNode());
+        } else if(tempIdx < list.size() && result == 2) {
+            node = getNode(tempIdx);
+        } else appendTail(node = newListNode());
+        if(node == null) return(-1);
+        field = temp.toString();
+        return node.setParam(field, value);
+    }
+
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        int result, tmpIdx;
+        DataIO node = null;
+
+        if ( idx.v < 0 ) {
+            if ( idx.v < -1 )
+                 value.append(",");
+            String format = "", indexId = "";
+            tmpIdx = 0 ;
+            Iterator<DataIO> iter = list.iterator() ;
+            while( iter.hasNext() ) {
+                node = (DataIO)iter.next() ;
+                String tmpName = node.getClassID() ;
+                if ( tmpName.equals("") )
+                     format = String.format("%s[%d]", indexId, tmpIdx );
+                else format = String.format("%s(%s)", indexId, tmpName);
+                indexId = ","; value.append(format); tmpIdx++;
+            }   return 0;
+        }
+
+        StringBuilder tmpField  = new StringBuilder( Str.CheckNullString( field ) ) ;
+        Index nidx = new Index(0) ;
+        StringBuilder tmpID  = new StringBuilder() ;
+
+        if ( (result = getListIndex( tmpField, nidx, tmpID )) == 0 || nidx.v < 0 )
+            return(-1) ;
+        if ( result == 3 ) {
+            if ( (node = search(tmpID.toString())) == null )
+                return(-1);
+	    return node.getParam( tmpField.toString(), value ) ;
+        }
+        if ( result == 2 ) {
+            if ( nidx.v >= list.size() || (node = getNode(nidx.v)) == null )
+                return(-1);
+           return node.getParam( tmpField.toString(), value ) ;
+        }
+        for( tmpIdx = 0; tmpIdx < list.size(); tmpIdx++) {
+            String format = String.format("%s[%d] = ", idx.v++ > 0? ",":" ", tmpIdx);
+            value.append( format );
+            node = (DataIO)list.get(tmpIdx);
+            if ( node == null) {
+                System.out.println("ListIO Error:"+format);
+            }
+            if ( node == null || node.getParam(null, value) < 0 ) return(-1);
+        }
+
+        return 0;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public DataIO getHead() {
+        DataIO config = null;
+        try {
+        	if(list.size() == 0) return null;//sunwoo
+            config = (DataIO)list.get(0);
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        } return config;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public DataIO getTail() {
+        DataIO config = null;
+        try {
+        	if(list.size() == 0) return null;
+            config = (DataIO)list.get(list.size() - 1);
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        } return config;
+    }
+
+    /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getNode(String field) {
+        DataIO node = null;
+        Iterator<DataIO> iter = list.iterator();
+        while(iter.hasNext()) {
+            node = (DataIO)iter.next();
+            if(node != null) {
+                if(field.equals("default")) return node.getFieldObject(field);
+                String temp = node.getClassID();
+                if(temp == null) temp="";
+                //if(field.equals(node.getClassID().replace("'","") )) return node;
+                if(field.equals(temp.replace("'","") )) return node;
+                else node = null;
+            }
+        }   return node;
+    }
+
+    /**
+     *
+     * @param index
+     * @return
+     */
+    public DataIO getNode(int index) {
+        DataIO config = null;
+        try {
+            config = (DataIO)list.get(index);
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        } return config;
+    }
+    /**
+    *
+    * @param field
+    * @return
+    */
+   public DataIO search(String field) {
+	   return getNode(field);
+   }
+
+   /**
+    *
+    * @param index
+    * @return
+    */
+   public DataIO search(int index) {
+	   return getNode(index);
+   }
+
+
+    /**
+     *
+     * @return
+     */
+    public int getCount() { return list.size(); }
+
+
+    /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getFieldObject(String field) {
+        DataIO tempObject = null;
+        StringBuilder tempField = new StringBuilder();
+        StringBuilder tempNodeId= new StringBuilder();
+        Index idx = new Index(0);
+        if(field.length() == 0) {
+            return this;
+        }
+
+        tempField.append(field);
+        int returnIndex = -1;
+        returnIndex = getListIndex(tempField, idx, tempNodeId);
+        if( returnIndex == 0) {
+            returnIndex = idx.v;
+            if(returnIndex < 0 || returnIndex >= list.size()) {
+                return null;
+            }
+        }
+
+        if(returnIndex == 3) {
+             int tempLength = idx.v;
+             tempNodeId.replace(0, tempNodeId.length(), tempNodeId.substring(0, tempLength));
+             tempObject = search(tempNodeId.toString());
+            if(tempObject != null && tempField.toString().length() > 0) {
+                return tempObject.getFieldObject(tempField.toString());
+            }
+        } else {
+            tempObject = getNode(idx.v);
+            if(tempObject == null) return null;
+            if(tempField.length() > 0) return tempObject.getFieldObject(tempField.toString());
+        }
+        return tempObject;
+    }
+
+
+    /**
+     *
+     * @return
+     */
+    protected abstract DataIO newListNode();
+
+    /**
+     *
+     * @param config
+     */
+    public void appendHead(DataIO config) {
+        try {
+        	DataIO before = null;
+        	if(list.size()==0){
+        		list.add(config);
+        	}else{
+        		before = list.get(0);
+        		list.add(0, config);
+        		before.m_pPrev = config;
+        		config.m_pNext = before;
+        	}
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param config
+     */
+    public void appendTail(DataIO config) {
+        try {
+        	DataIO before = null;
+        	if(list.size() > 0){
+        		before = list.get(list.size()-1);
+        	}
+            list.add(list.size(), config);
+            if(before != null) {before.m_pNext = config; config.m_pPrev = before;}
+
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param after
+     * @param node
+     */
+    public void insertNode(DataIO after, DataIO node) {
+        int index = -1;
+        try {
+            if(list.size() > 0) {
+               index = list.indexOf(after);
+            }
+            if(index >= 0) {
+            	DataIO next = null;
+            	if(list.size() > index + 1 )  next = list.get( index+1 );
+                list.add(index + 1, node);
+                after.m_pNext = node; //sunwoo
+                node.m_pPrev = after;
+                if(next != null ) {node.m_pNext = next; next.m_pPrev = node;}
+
+
+            }
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param index
+     * @param node
+     */
+    public void insertNode(int index, DataIO node) {
+        try {
+        	   DataIO before = null;
+                   if(list.size() > index) before = list.get(index);
+        	   DataIO  next = null;
+        	   if(list.size() > index + 1) next = list.get(index+1);
+               list.add(index, node);
+               if (before !=null) before.m_pNext = node;
+               node.m_pPrev = before;
+               node.m_pNext = next;
+               if(next != null) next.m_pPrev = node;
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param node
+     */
+    public void removeNode(DataIO node) {
+        try {
+        	 DataIO before = null;
+        	 DataIO  next = null;
+            int index = list.indexOf(node);
+            if(index >= 0) {
+            	if(index > 0) before=list.get(index-1);
+            	if(list.size() > index + 1) next = list.get(index+1);
+                list.remove(index);
+                if(before != null) before.m_pNext = next;
+                if(next != null) next.m_pPrev = before;
+            }
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param node
+     */
+    public void removeNode(String node) {
+        try {
+            DataIO before = null;
+            DataIO  next = null;
+            Iterator<DataIO> iter = list.iterator();
+            while(iter.hasNext()) {
+                DataIO tempNode = (DataIO)iter.next();
+                if(tempNode.getClassID().equals(node)) {
+                    int index = list.indexOf(tempNode);
+                    if(index >= 0) {
+                    	if(index > 0) before=list.get(index-1);
+                    	if(list.size() > index + 1) next = list.get(index+1);
+                        list.remove(index);
+                        if(before != null) before.m_pNext = next;
+                        if(next != null) next.m_pPrev = before;
+                        break;
+                    }
+                }
+            }
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param index
+     * @return
+     */
+    public DataIO removeNode(int index) {
+        DataIO node = null;
+        try {
+        	DataIO before = null;
+        	DataIO  next = null;
+            node = (DataIO)list.get(index);
+            if(node != null) {
+            	if(index > 0) before=list.get(index-1);
+            	if(list.size() > index + 1) next = list.get(index+1);
+                list.remove(index);
+                if(before != null) before.m_pNext = next;
+                if(next != null) next.m_pPrev = before;
+            }
+        } catch(IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }  return node;
+    }
+
+    /**
+     *
+     * @param index
+     * @return
+     */
+    public void removeAll() {
+        list.clear();
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @return
+     */
+    protected int getListIndex(StringBuilder field, Index index, StringBuilder indexId) {
+        int lindx = 0, rindx = 0, eindx = 0, length, ch, istate = 1;
+
+        if (field != null && field.length() > 0) {
+            for (index.v = 0, length = field.length(); lindx < length; lindx++) {
+                ch = field.charAt(lindx);
+                if (0 < ch && ch < 0x21)
+                    continue;
+                if (istate != 3) {
+                    if (0x30 <= ch && ch <= 0x39) {
+                        index.v = index.v * 10 + (ch - 0x30);
+                        istate = 2;
+                        continue;
+                    }
+                    if (ch == '-' && index.v == 0) {
+                        index.v = -1;
+                        continue;
+                    }
+                }
+                if (ch == '(' || ch == '{') {
+                    index.v = 0;
+                    istate = 3;
+                    continue;
+                }
+                if (ch == '[') {
+                    index.v = 0;
+                    istate = 1;
+                    rindx++;
+                    continue;
+                }
+                if (ch == ']' || ch == ')' || ch == '}') {
+                    eindx = lindx++;
+                    while (lindx < length && field.charAt(lindx) < 0x21)
+                        lindx++;
+                    break;
+                }
+                if (ch == '.')break;
+
+                if (istate == 2) {
+                    field = field.delete(0, lindx);
+                    return 0;
+                }
+		  /* ID 에 # 이 가능하도록 하기 위해 주석처리함.  2008-10-06 천정호
+                * if (ch == '#') {
+                *   istate = 2;
+                *   continue;
+                * }
+                */
+                if ( index.v++ != 0) continue;
+
+                istate = 3;
+                rindx = lindx;
+            }
+            indexId.append(field.substring(rindx, eindx == 0 ? lindx : eindx));
+            if (lindx < field.length() && field.charAt(lindx) == '.')
+                lindx++;
+            field.delete(0, lindx);
+        } else index.v = 0;
+
+        return istate;
+    }
+    public ArrayList getList() { return list ; }
+}
+

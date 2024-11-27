@@ -1,0 +1,78 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.CodecDAO;
+import bizportal.nasacti.ipivr.dto.CodecDTO;
+import bizportal.nasacti.ipivr.dao.DTMFDAO;
+import bizportal.nasacti.ipivr.dto.DTMFDTO;
+import bizportal.nasacti.ipivr.dao.SystemUpdateDAO;
+
+import java.util.List;
+import java.util.ArrayList;
+
+public class CodecDTMFConfigEditAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		request.setCharacterEncoding("euc-kr");
+		int iRtn = -1;
+		int jRtn = -1;
+		String strMsg = "";
+
+        String strNsDtmfType = request.getParameter("nsDtmfType");
+
+		String[] strANcoSort = request.getParameterValues("ncoSort");
+		String[] strANcoCode = request.getParameterValues("ncoCode");
+		String[] strAUseCodec = request.getParameterValues("useCodec");
+
+		List codecList = new ArrayList();
+
+		for(int i=0; i < strAUseCodec.length; i++) {
+			if(strAUseCodec[i].equals("Y")) {
+				CodecDTO codec = new CodecDTO();
+				codec.setNcoCode(strANcoCode[i]);
+				codec.setNcoName(strANcoCode[i]);
+				codec.setNcoSort(strANcoSort[i]);
+				codec.setNcoDiv("I");
+				codecList.add(codec);
+			}
+		}
+
+		CodecDAO codecDAO = CodecDAO.getInstance();
+		iRtn = codecDAO.updateCodec(codecList);
+
+		DTMFDAO dtmfDAO = DTMFDAO.getInstance();
+		DTMFDTO dtmfDTO = new DTMFDTO();
+		dtmfDTO.setNsDtmfType(strNsDtmfType);
+		jRtn = dtmfDAO.updateDTMF(dtmfDTO);
+
+		SystemUpdateDAO systemUpdateDAO = SystemUpdateDAO.getInstance();
+
+		systemUpdateDAO.update();       // 코덱 및 DTMF설정 변경 알림
+
+		if(iRtn == -1)
+			strMsg = "코덱수정에러가 발생하였습니다.";
+
+		if(jRtn == -1)
+			strMsg += "\\nDTMF수정에러가 발생하였습니다.";
+
+		if(iRtn == -1 || jRtn == -1)
+		    request.setAttribute("msg", strMsg);
+
+		return "./codecDTMFConfigForm.do2";
+	}
+}

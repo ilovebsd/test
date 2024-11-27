@@ -1,0 +1,65 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class ConditionalReplaceDTO
+{
+
+    private String endpointID;
+    private int    protocol;
+    private int    direction;
+    private int    orderNumber;
+    private int    startPosition;
+    private String conditionDigit;
+    private String updateDigit;
+
+    public String getEndpointID() { return this.endpointID; }
+    public void   setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+    public int    getProtocol() { return this.protocol; }
+    public void   setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public int    getDirection() { return this.direction; }
+    public void   setDirection(int vDirection ) { this.direction = vDirection; }
+
+    public int    getOrderNumber() { return this.orderNumber; }
+    public void   setOrderNumber(int vOrderNumber ) { this.orderNumber = vOrderNumber; }
+
+    public int    getStartPosition() { return this.startPosition; }
+    public void   setStartPosition(int vStartPosition ) { this.startPosition = vStartPosition; }
+
+    public String getConditionDigit() { return this.conditionDigit; }
+    public void   setConditionDigit(String vConditionDigit ) { this.conditionDigit = vConditionDigit; }
+
+    public String getUpdateDigit() { return this.updateDigit; }
+    public void   setUpdateDigit(String vUpdateDigit ) { this.updateDigit = vUpdateDigit; }
+
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:"                + getEndpointID() + ") ") ;
+        sb.append("[protocol:"                  + getProtocol() + "] ") ;
+        sb.append("[direction:"                 + getDirection() + "] ") ;
+        sb.append("[orderNumber:"               + getOrderNumber() + "] ") ;
+        sb.append("[startPosition:"             + getStartPosition() + "] ") ;
+        sb.append("[conditionDigit:"            + getConditionDigit() + "] ") ;
+        sb.append("[updateDigit:"               + getUpdateDigit() + "] ") ;
+        return sb.toString();
+    }
+}
+
+

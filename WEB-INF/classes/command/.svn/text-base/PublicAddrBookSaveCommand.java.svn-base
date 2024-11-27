@@ -1,0 +1,119 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import acromate.common.util.StringUtil;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.AddrBookDTO;
+import dto.SubscriberInfoDTO;
+import dao.AddrBookDAO;
+
+public class PublicAddrBookSaveCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+        AddrBookDTO dto = new AddrBookDTO();
+		DataStatement stmt = null;
+		String resStr = "";
+
+		try {			
+			String 	company			= new String(Str.CheckNullString(req.getParameter("hiCompany")).getBytes("8859_1"), "euc-kr");		// 회사
+			String 	position		= new String(Str.CheckNullString(req.getParameter("hiPosition")).getBytes("8859_1"), "euc-kr");		// 직급
+			String 	department		= new String(Str.CheckNullString(req.getParameter("hiDepartment")).getBytes("8859_1"), "euc-kr");	// 부서
+			String 	mobile			= new String(Str.CheckNullString(req.getParameter("hiMobile")).getBytes("8859_1"), "euc-kr");		// 핸드폰
+			String 	phoneNum		= new String(Str.CheckNullString(req.getParameter("hiPhoneNum")).getBytes("8859_1"), "euc-kr");		// 집
+			String 	companyNumber	= new String(Str.CheckNullString(req.getParameter("hiCompanyNumber")).getBytes("8859_1"), "euc-kr");	// 회사
+			String 	fax				= new String(Str.CheckNullString(req.getParameter("hiFax")).getBytes("8859_1"), "euc-kr");			// 팩스
+			String 	mail			= new String(Str.CheckNullString(req.getParameter("hiMail")).getBytes("8859_1"), "euc-kr");			// 이메일
+			String 	memo			= new String(Str.CheckNullString(req.getParameter("hiMemo")).getBytes("8859_1"), "euc-kr");			// 메모
+
+			String 	name			= new String(Str.CheckNullString(req.getParameter("name")).getBytes("8859_1"), "euc-kr");			// 이름
+			String 	group			= new String(Str.CheckNullString(req.getParameter("group")).getBytes("8859_1"), "euc-kr");			// 공유그룹
+			String 	keynumber		= new String(Str.CheckNullString(req.getParameter("keynumber")).getBytes("8859_1"), "euc-kr");		// 대표번호
+			String 	birth			= new String(Str.CheckNullString(req.getParameter("birth")).getBytes("8859_1"), "euc-kr");			// 생일
+			String 	introduction	= new String(Str.CheckNullString(req.getParameter("introduction")).getBytes("8859_1"), "euc-kr");	// 소개자
+			String 	common			= new String(Str.CheckNullString(req.getParameter("hiCommon")).getBytes("8859_1"), "euc-kr");		// 공유여부
+			String 	publicGroup     = new String(Str.CheckNullString(req.getParameter("hiPublicGroup")).getBytes("8859_1"), "euc-kr");	// 공유그룹
+			String 	publicChk       = new String(Str.CheckNullString(req.getParameter("hiPublicChk")).getBytes("8859_1"), "euc-kr");	// 개인공유등록여부 (1:일반, 2:공유)
+
+			if("1".equals(common)){
+				resStr = "userAddrList.jsp";
+			}else if("2".equals(common)){
+				resStr = "publicAddrList.jsp";
+			}
+			
+	        String[] idStr = StringUtil.getParser(group, "|");
+	        String[] publicIdStr = StringUtil.getParser(publicGroup, "|");
+
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				SubscriberInfoDTO scDTO = entity.getScDtoAttribute("scDTO");
+
+				stmt = ConnectionManager.allocStatement("SSW");
+				// 트랜잭션 시작
+				stmt.stxTransaction();
+
+				dto.setOwnerID(idStr[0]);
+				dto.setGroupID(Integer.parseInt(idStr[1]));
+				dto.setCompany(company);
+				dto.setPosition(position);
+				dto.setDepartment(department);
+				dto.setMobile(mobile);
+				dto.setPhoneNum(phoneNum);
+				dto.setCompanyNumber(companyNumber);
+				dto.setFax(fax);
+				dto.setMailAddress(mail);
+				dto.setMemo(memo);
+				dto.setName(name);
+				dto.setGroup(group);
+				dto.setKeyNumber(keynumber);
+				dto.setBirthday(birth);
+				dto.setIntroduction(introduction);
+				dto.setCommon(Integer.parseInt(common));
+
+				AddrBookDAO dao = new AddrBookDAO();
+				if("2".equals(publicChk) && dto.getCommon() == 1){
+					dto.setSharedOwnerID(publicIdStr[0]);
+					dto.setSharedGroupID(Integer.parseInt(publicIdStr[1]));
+					int publicResult = dao.insert2(stmt,dto);
+				}else{
+					int updateResult = dao.insert(stmt,dto);
+				}				
+				if (stmt != null)
+					stmt.endTransaction(true);
+				//forwardingPage = "/address/publicAddrList.jsp?group=" + nGroupId + "&result=" + Integer.toString(updateResult);
+				res.sendRedirect("/bizportal/address/"+resStr);
+			} 
+			else
+				res.sendRedirect("/bizportal/address/"+resStr+"?session=0");
+//				forwardingPage = "/address/publicAddrList.jsp?session=0";
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/address/"+resStr+"?result=-1");
+			} catch (Exception ee) {
+			}
+//			forwardingPage = "/address/publicAddrList.jsp?result=-1" ;
+			
+			//ServerLogin.getServerLogin().login();
+
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}
+		return forwardingPage;
+	}
+}

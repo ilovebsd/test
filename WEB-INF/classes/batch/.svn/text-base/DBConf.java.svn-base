@@ -1,0 +1,21 @@
+package batch;
+
+public class DBConf {
+/*	
+	final static String DRIVER="oracle.jdbc.driver.OracleDriver";
+	final static String URL=(String)ConfigParser.getInstance().getProperty("", "URL");
+	final static String USER=(String)ConfigParser.getInstance().getProperty("", "USER");
+	final static String PASS=(String)ConfigParser.getInstance().getProperty("", "PASS");
+*/	
+	
+	final static String DRIVER="org.postgresql.Driver";
+	final static String URL="jdbc:postgresql://127.0.0.1:39999/ssw";			// CallBox 장비
+	//final static String URL="jdbc:postgresql://203.242.63.70:39999/ssw";			// Test 70번 CallBox 장비
+	//final static String URL="jdbc:postgresql://203.242.63.83:5432/ssw";			// Test 83번 장비
+	//final static String URL="jdbc:oracle:thin:@192.168.1.55:1521:RMSORA9I";
+	//final static String URL="jdbc:odbc:데이타원본이름";
+	final static String USER="ssw";
+	final static String PASS="ssw123";
+	
+
+}

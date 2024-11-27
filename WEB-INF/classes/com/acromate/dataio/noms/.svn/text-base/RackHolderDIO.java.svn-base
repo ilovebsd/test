@@ -1,0 +1,70 @@
+package com.acromate.dataio.noms ;
+
+import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+
+public class RackHolderDIO extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder rackId = new StringBuilder();
+
+    public String getRackId() { return rackId.toString() ; }
+    public void   setRackId( String rackId ) {
+        this.rackId.delete(0,this.rackId.length());
+        this.rackId.append(rackId) ;
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "rackId".toLowerCase()) == true) {
+            return setString(rackId, value);
+        }
+        int result = super.setFieldData( field,  value);
+        if (result == 0 ) return result;
+        log.error("RackHolderDIO - Not founded field :" + field);
+        return super.setFieldData(field, value);
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "rackId", idx, value) == true) {
+            errorcode = getString(rackId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return super.getFieldData(field, idx, value);
+    }
+    protected DataIO newListNode() {
+       return new ShelfHolderDIO();
+    }
+    public String toXmlString( String blank ) {
+        StringBuilder xml = new StringBuilder() ;
+        int size = 0;
+		xml.append ( blank+"   <rackId>" + getRackId() + "</rackId>\n") ;
+        xml.append("      <shelfHolder>\n");
+        ArrayList shelfHolderList = getList();
+        if (shelfHolderList != null) {
+        	size = shelfHolderList.size();
+        	for (int i = 0; i < size; i++) {
+        		ShelfHolderDIO shelfHolder = (ShelfHolderDIO)shelfHolderList.get(i);
+        		xml.append("            <item>\n");
+        		String str = shelfHolder.toXmlString("         ");
+        		xml.append(str);
+        		xml.append("            </item>\n"); //
+        	}
+        }
+        xml.append("      </shelfHolder>\n"); //
+
+        return xml.toString();
+    }
+}

@@ -1,0 +1,26 @@
+package com.acromate.dto.service ;
+
+public class AddMRBTDTO {
+    private String E164 ;
+    private String DAYValue ;
+    private String StartTime ;
+    private String EndTime ;
+    private String Sound ;
+
+    public String getE164() { return E164 ; } 
+    public void   setE164( String E164 ) { this.E164 = E164 ; }
+
+    public String getDAYValue() { return DAYValue ; } 
+    public void   setDAYValue( String DAYValue ) { this.DAYValue = DAYValue ; }
+
+    public String getStartTime() { return StartTime ; } 
+    public void   setStartTime( String StartTime ) { this.StartTime = StartTime ; }
+
+    public String getEndTime() { return EndTime ; } 
+    public void   setEndTime( String EndTime ) { this.EndTime = EndTime ; }
+
+    public String getSound() { return Sound ; } 
+    public void   setSound( String Sound ) { this.Sound = Sound ; }
+
+}
+

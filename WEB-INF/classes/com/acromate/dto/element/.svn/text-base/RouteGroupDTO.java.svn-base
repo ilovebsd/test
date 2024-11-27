@@ -1,0 +1,59 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class RouteGroupDTO
+{
+
+    private String	routegroupid;
+    private int	        routeindex;
+    private String      endpointID;
+    private int	        protocol;
+    private int         routeRate;
+    private int	        endpointClass;
+
+
+/**
+ * member functions
+ */
+public String	getRoutegroupid() { return this.routegroupid; }
+public void	setRoutegroupid(String vRoutegroupid ) { this.routegroupid = vRoutegroupid; }
+
+public int	getRouteIndex() { return this.routeindex; }
+public void	setRouteIndex(int vRouteIndex ) { this.routeindex = vRouteIndex; }
+
+public String	getEndpointID() { return this.endpointID; }
+public void	setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+public int	getProtocol() { return this.protocol; }
+public void	setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+public int	getRouteRate() { return this.routeRate; }
+public void	setRouteRate(int vRouteRate ) { this.routeRate = vRouteRate; }
+
+public int	getEndpointClass() { return this.endpointClass; }
+public void	setEndpointClass(int endpointClass ) { this.endpointClass = endpointClass; }
+
+public String toString()
+{
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(routegroupid:" 	                + getRoutegroupid() + ") ") ;
+        sb.append("[routeindex:"    	                + getRouteIndex() + "] ") ;
+        sb.append("[endpointID:"     	                + getEndpointID() + "] ") ;
+        sb.append("[protocol:" 	                        + getProtocol() + "] ") ;
+        sb.append("[routeRate:" 	                + getRouteRate() + "] ") ;
+
+         return sb.toString();
+     }
+ }

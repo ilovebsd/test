@@ -1,0 +1,45 @@
+package com.acromate.util;
+
+import java.util.logging.Logger;
+
+public class ConcurrentQueue {
+    private int nMax = 1;
+    private int current = 0;
+    private Object object = new Object();
+    private java.util.logging.Logger log = java.util.logging.Logger.getLogger(this.getClass().getName());
+    public ConcurrentQueue(int nMax) {
+        this.nMax = nMax;
+        this.current = nMax;
+    }
+
+    private int count(int value) {
+        synchronized (this) {
+            if (value < 0) {
+                if (current <= 0) {
+                    return -1;
+                }
+                current += value;
+                return current;
+            } else {
+                current += value;
+                if (value > nMax) {
+                    current = nMax;
+                }
+            }
+        }
+        return current;
+    }
+
+    public boolean getToken() {
+        int res = count( -1);
+        if (res < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public void putToken() {
+        count( +1);
+        return;
+    }
+}

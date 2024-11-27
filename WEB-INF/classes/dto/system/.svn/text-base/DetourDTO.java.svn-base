@@ -1,0 +1,42 @@
+package dto.system;
+
+public class DetourDTO {
+	/**
+	 * member variables
+	 */
+	private String	endpointid;
+	private int		protocol;
+	private int		detourindex;
+	private String	detourendpointid;
+	private int		detourprotocol;
+		
+	public DetourDTO() {      		
+		
+	}
+	
+	public DetourDTO(String detourendpointid, int detourprotocol) {      		
+		
+		super();
+		
+		this.detourendpointid 			= detourendpointid;
+		this.detourprotocol 		= detourprotocol;
+	}
+
+	/**
+	 * member functions
+	 */
+	public String	getEndpointid() { return this.endpointid; }
+	public void	setEndpointid(String endEndpointid ) { this.endpointid = endpointid; }
+
+	public int	getProtocol() { return this.protocol; }
+	public void	setProtocol(int protocol ) { this.protocol = protocol; }
+
+	public int	getDetourindex() { return this.detourindex; }
+	public void	setDetourindex(int detourindex ) { this.detourindex = detourindex; }
+	
+	public String	getDetourendpointid() { return this.detourendpointid; }
+	public void	setDetourendpointid(String detourendpointid ) { this.detourendpointid = detourendpointid; }
+	
+	public int	getDetourprotocol() { return this.detourprotocol; }
+	public void	setDetourprotocol(int detourprotocol ) { this.detourprotocol = detourprotocol; }
+}

@@ -1,0 +1,34 @@
+package com.acromate.dto.element;
+
+
+
+public class BlockIPRangeDTO {
+
+    private String endpointID  = "";
+    private String startIP  = "";
+    private String endIP  = "";
+    private String descriptor = "";
+
+    public String getEndpointID() {return this.endpointID; }
+    public void setEndpointID(String endpointID ) { this.endpointID = endpointID; }
+
+    public String getStartIP() {return this.startIP; }
+    public void setStartIP(String startIP ) { this.startIP = startIP; }
+
+    public String getEndIP() {return this.endIP; }
+    public void setEndIP(String endIP ) { this.endIP = endIP; }
+
+    public String getDescriptor() {return this.descriptor; }
+    public void setDescriptor(String descriptor ) { this.descriptor = descriptor; }
+
+    public String toString(){
+
+        StringBuffer sb = new StringBuffer("");
+        sb.append("(endpointID:" 	+ getEndpointID() + ") ") ;
+        sb.append("(startIP:" 	        + getStartIP() + ") ") ;
+        sb.append("[endIP:"  	        + getEndIP() + "] ") ;
+        sb.append("[descriptor:"      	+ getDescriptor() + "] ") ;
+
+        return sb.toString();
+    }
+}

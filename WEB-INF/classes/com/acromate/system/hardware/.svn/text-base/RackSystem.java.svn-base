@@ -1,0 +1,157 @@
+/*
+ * SystemRack.java
+ *
+ * Created on 2006년 9월 29일 (금), 오후 7:33
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system.hardware;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.util.Logger;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @verion 2.0.0
+ */
+public class RackSystem extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private String      rackId = "";       /* System rack rack Id */
+    private String      rackName = "";     /* System rack rack name */
+
+    public RackSystem() {}
+
+    /**
+     *
+     * @param rackId
+     * @param rackName
+     */
+    public RackSystem(String rackId, String rackName) {
+        this.rackId   = rackId;
+        this.rackName = rackName;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList getShelfs() {
+        return this.list;
+    }
+
+    /**
+     *
+     * @param rackId
+     */
+    public void setRackId(String rackId) {
+        this.rackId = rackId;
+    }
+
+    /**
+     *
+     * @param rackName
+     */
+    public void setRackName(String rackName) {
+        this.rackName = rackName;
+    }
+
+    /**
+     *
+     * @param value
+     */
+    public String getRackId() {
+        return this.rackId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getRackName() {
+        return this.rackName;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getClassID() {
+        return rackId;
+    }
+
+    public DataIO getFieldObject(String field) {
+        DataIO result = null;
+        if(field != null && field.trim().length() > 0) {
+            //StringBuilder temp = new StringBuilder(field.toLowerCase());
+            StringBuilder temp = new StringBuilder(field);
+            if(compareFieldID(temp, rackId.toString())  == true) {
+                return this;
+            }
+        }   return super.getFieldObject(field);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+
+   /* operations //////////////////////////// */
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "rackName") == true) {
+            if(!value.equals("")) rackName = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "rackId") == true) {
+            if(!value.equals("")) rackId = value;
+            return 0;
+        }
+        return super.setFieldData( field,  value);
+    }
+
+    protected int getFieldData(String field, Index idx , StringBuilder value) {
+        int     errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder len  = new StringBuilder();
+        StringBuilder fldAlias;
+
+        if(field != null && !field.equals("")) resultVal = true ;
+
+        if( field != null && field.toLowerCase().equals("nodelist") == true ) {
+            idx.v = -1;
+            return super.getFieldData(null, idx, value);
+        }
+        fldAlias = new StringBuilder(Str.CheckNullString(field));
+
+        if(compareFieldID(fldAlias, "rackName", idx, value) == true) {
+            errorcode = getString(rackName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "rackId", idx, value) == true) {
+            errorcode = getString(rackId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        return super.getFieldData(field, idx, value);
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected DataIO newListNode() {
+        log.info("ShelfSystem is created");
+        return new ShelfSystem();
+    }
+
+}

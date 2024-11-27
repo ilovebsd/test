@@ -1,0 +1,15 @@
+package acromate.common.util;
+
+public class LanguageMode {
+
+   public static int langType = 0;
+
+   public LanguageMode(int langType){
+      this.langType = langType ;
+   }
+
+   public static String x( String kor, String Eng ){
+      if (langType == 0) return kor ;
+      else return Eng ;
+   }
+}

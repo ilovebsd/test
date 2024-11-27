@@ -1,0 +1,110 @@
+package dto.system;
+
+public class AutoPhoneSetDTO{
+	
+	private String 	name ;
+	private String 	position;
+	private String 	signalAddress;
+	private String 	endPointId;
+	private String 	e164;
+	private String	registerid;
+	private String	deptName;
+	private String	extensionnumber;
+	private String	authPwd;
+	private String	authName;
+	private String	descriptor;
+	
+	public AutoPhoneSetDTO() {}
+
+	public AutoPhoneSetDTO(String name,String position, String signalAddress, String endPointId, String extensionnumber, String e164, String registerid, String deptName, String authPwd, String descriptor, String authName) {      
+			
+		super();
+		
+		this.name 				= name;
+		this.position 			= position;
+		this.signalAddress 		= signalAddress;
+		this.endPointId 		= endPointId;
+		this.extensionnumber 	= extensionnumber;
+		this.e164 				= e164;
+		this.registerid 		= registerid;
+		this.deptName 			= deptName;
+		this.authPwd 			= authPwd;
+	}
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public String getSignalAddress() {
+		return signalAddress;
+	}
+	public void setSignalAddress(String signalAddress) {
+		this.signalAddress = signalAddress;
+	}
+	
+	public String getEndPointId() {
+		return endPointId;
+	}
+	public void setEndPointId(String endPointId) {
+		this.endPointId = endPointId;
+	}
+	
+	public String getE164() {
+		return e164;
+	}
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public String getRegisterid() {
+		return registerid;
+	}
+	public void setRegisterid(String registerid) {
+		this.registerid = registerid;
+	}
+
+	public String getDeptName() {
+		return deptName;
+	}
+	public void setDeptName(String deptName) {
+		this.deptName = deptName;
+	}
+
+	public String getExtensionnumber() {
+		return extensionnumber;
+	}
+	public void setExtensionnumber(String extensionnumber) {
+		this.extensionnumber = extensionnumber;
+	}	
+
+	public String getAuthPwd() {
+		return authPwd;
+	}
+	public void setAuthPwd(String authPwd) {
+		this.authPwd = authPwd;
+	}
+	
+	public String getAuthName() {
+		return authName;
+	}
+	public void setAuthName(String authName) {
+		this.authPwd = authName;
+	}
+	
+	public String getDescriptor() {
+		return descriptor;
+	}
+	public void setDescriptor(String descriptor) {
+		this.descriptor = descriptor;
+	}
+}

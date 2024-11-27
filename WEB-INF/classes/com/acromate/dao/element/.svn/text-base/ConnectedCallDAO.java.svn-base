@@ -1,0 +1,59 @@
+package com.acromate.dao.element;
+
+import com.acromate.db.QueryStatement ;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+import java.sql.ResultSet;
+import com.acromate.dto.element.NeighborGKDTO;
+import com.acromate.dto.element.ConnectedCallDTO;
+import com.acromate.util.Logger;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+    public class ConnectedCallDAO {
+        private Logger log = Logger.getLogger(this.getClass());
+
+        private ConnectedCallDTO connectedCallDTO;
+        QueryStatement statement;
+
+        public ConnectedCallDAO() {}
+
+        public ConnectedCallDAO(QueryStatement statement, ConnectedCallDTO connectedCallDTO) {
+            this.statement = statement;
+            this.connectedCallDTO = connectedCallDTO;
+        }
+
+        public int getCount(QueryStatement statement) {
+
+            int nCount = 0;
+            String strQuery = "";
+
+            ResultSet rs = null;
+
+            try {
+
+                strQuery = " SELECT COUNT(*) FROM TABLE_CONNECTEDCALL ";
+                log.info(strQuery);
+                rs = statement.executeQuery(strQuery);
+                if (rs.next())
+                    nCount += rs.getInt(1);
+            } catch (Exception e) {
+                log.error("exception occurred > ", e);
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                } catch (Exception e) { log.error("exception occurred > ", e); }
+            }
+            return nCount;
+        }
+    }

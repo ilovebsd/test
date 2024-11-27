@@ -1,0 +1,8 @@
+package com.acromate.dataio.server.alarm;
+
+public interface AlarmHandler {
+    public void handlerAlarm(AlarmObject alarmObject) ;
+    public boolean autoClearAlarm(String systemPath, String objectPath) ;
+    public boolean manualClearAlarm(String systemPath, String objectPath) ;
+}
+

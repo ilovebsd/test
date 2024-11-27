@@ -1,0 +1,164 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import acromate.common.util.WebUtil;
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.system.LocalprefixDTO;
+import dao.system.LocalprefixDAO;
+
+public class CountryNumSaveCommand implements Command {
+	private int nEmergency;
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		try {
+			String 	prefixSelect	= new String(Str.CheckNullString(req.getParameter("hiPrefixSelect")).getBytes("8859_1"), "euc-kr");		// prefix 종류 
+			String 	startPrefix 	= new String(Str.CheckNullString(req.getParameter("hiStartPrefix")).getBytes("8859_1"), "euc-kr");		// 시작 prefix
+			String 	endPrefix		= new String(Str.CheckNullString(req.getParameter("hiEndPrefix")).getBytes("8859_1"), "euc-kr");		// 종료 prefix
+			String 	errorSelect 	= new String(Str.CheckNullString(req.getParameter("hiErrorSelect")).getBytes("8859_1"), "euc-kr");		// 장애조건
+			String 	select5 		= new String(Str.CheckNullString(req.getParameter("hiSelect5")).getBytes("8859_1"), "euc-kr");			// 장애처리 루틴			
+			String 	routeId 		= new String(Str.CheckNullString(req.getParameter("hiRouteid")).getBytes("8859_1"), "euc-kr");			// 			 
+			String 	userGroupId 	= new String(Str.CheckNullString(req.getParameter("hiGroupId")).getBytes("8859_1"), "euc-kr");			// 가입자그룹 지정
+			String 	emergency 		= new String(Str.CheckNullString(req.getParameter("hiEmergency")).getBytes("8859_1"), "euc-kr");		// 긴급전화 체크 
+			String 	userGroup 		= new String(Str.CheckNullString(req.getParameter("hiUserGroup")).getBytes("8859_1"), "euc-kr");		// 가입자그룹 지정 체크
+			int		prefixType;
+			int		prefix			= Integer.parseInt(select5);			// 장애처리 루틴
+			int		prefixEp		= Integer.parseInt(prefixSelect);		// prefix 종류
+			int		rutineCondition	= Integer.parseInt(errorSelect);		// 장애조건
+			
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "countryNumList.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				// Prefix 타입 설정
+				prefixType = getPrefixType(prefixEp, prefix, rutineCondition, emergency);	// prefix 종류, 장애처리 루틴, 장애조건, 긴급전화 체크 
+				
+				LocalprefixDTO dto = new LocalprefixDTO();
+				dto.setStartprefix(startPrefix);
+				dto.setEndPrefix(endPrefix);				
+				dto.setPrefixtype(prefixType);
+				
+				if("1".equals(select5)){								// 루트로 호중계
+					dto.setEndpointid(routeId);
+					dto.setProtocol(2);									// SIP 프로토콜(루트로 호중계 인 경우)
+				}else if("2".equals(select5)||"3".equals(select5)){		// 루트그룹, 전화번호로 호중계
+					dto.setEndpointid(routeId);
+					dto.setProtocol(0);					
+				}
+				
+				if("1".equals(userGroup)){
+					if(!"".equals(userGroupId.trim())){
+						dto.setGroupid(userGroupId);
+					}
+				}else{
+					dto.setGroupid("");
+				}
+				
+				stmt = ConnectionManager.allocStatement("SSW");
+								
+				LocalprefixDAO dao = new LocalprefixDAO();
+				int insertResult = dao.insert(stmt,dto);
+				
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|86|자국번호 정책 (시작 Prefix:"+startPrefix+")|1|"+strIp);
+				// ##############################################
+
+				res.sendRedirect("/bizportal/system/"+resStr);
+			} 
+			else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}		
+		return forwardingPage;
+	}
+	
+    public int getPrefixType(int prefixEp, int prefix, int rutineCondition, String emergency){
+        byte 	nTemp1		=(byte)0x00;
+        byte 	nTemp2		=(byte)0x00;
+        int 	nTemp3		= 0;
+        int 	hPrefixType = 1;
+        int 	iType 		= prefix;
+        int 	epType 		= prefixEp;
+        int 	alarmType 	= rutineCondition;
+        
+        // 긴급전화인 경우
+        if("1".equals(emergency)){
+        	nEmergency = 4096;
+        }else{
+        	nEmergency = 0;
+        }
+        
+        if (epType == 1) { // 단말
+            nTemp1 = (byte) (nTemp1 | WebUtil.conCheckLocalPrefix) ;
+        } else { // 기업가입자 장치
+            nTemp1 = (byte) (nTemp1 | WebUtil.conCheckLocalPrefixIPPBX) ;
+         }
+        if (iType == 0) { // 호종료
+            nTemp2 =  (byte) (nTemp2 | WebUtil.conCheckCallTermination) ;
+            hPrefixType = nTemp1 + nTemp2 + nEmergency ;
+        }
+        else if (iType == 1 ) { // 정해진 루트로 호중계
+            nTemp2 =  (byte) (nTemp2 | WebUtil.conCheckCallTrnasRoute) ;
+            hPrefixType = nTemp1 + nTemp2 + nEmergency ;
+        }
+        else if (iType == 2) { // 정해진 루트그룹으로 호중계
+            nTemp2 =  (byte) (nTemp2 | WebUtil.conCheckCallTrnasRouteGroup) ;
+            hPrefixType = nTemp1 + nTemp2 + nEmergency;
+        }
+        else if (iType == 3) { // 전화번호로 호중계
+            nTemp2 =  (byte) (nTemp2 | WebUtil.conCheckCallTrnasE164) ;
+            hPrefixType = nTemp1 + nTemp2 + nEmergency;
+        }
+        else if (iType == 4) { // 번호정책으로 호중계
+            nTemp2 =  (byte) (nTemp2 | WebUtil.conCheckCallTransNum) ;
+            hPrefixType = nTemp1 + nTemp2 + nEmergency;
+        }
+
+        if (epType == 1) { // 단말(자국 Prefix 인경우)
+	        if (alarmType == 0) { // 가입자가 존재하지 않거나 단말 장애시
+	            nTemp3 =  0 ;
+	            hPrefixType = nTemp1 + nTemp2 + nTemp3 + nEmergency;
+	        }
+	        else if (alarmType == 1) { // 단말 장애시
+	            nTemp3 =  256 ;
+	            hPrefixType = nTemp1 + nTemp2 + nTemp3 + nEmergency;
+	        }
+	        else if (alarmType == 2) { // 가입자가 존재하지 않을 경우
+	            nTemp3 =  512 ;
+	            hPrefixType = nTemp1 + nTemp2 + nTemp3 + nEmergency;
+	        }
+        }
+        
+        System.out.println("PrefixType ====> " + hPrefixType);
+        return hPrefixType ;
+    }
+	
+}

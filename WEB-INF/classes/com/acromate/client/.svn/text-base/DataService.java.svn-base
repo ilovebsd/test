@@ -1,0 +1,102 @@
+package com.acromate.client;
+
+import java.sql.*;
+import java.util.Properties;
+
+public class DataService {
+
+	private Connection conn;
+
+	/*******************************************************************
+	 *
+	 *
+	 */
+	public void ExecuteStatementSelect()
+	{
+		try
+		{
+
+			Class.forName("com.acromate.client.DataDriver");
+
+			//-------------------------------------------------------------------
+			//2006.03.13 유저 구분 코드 추가
+			Properties props = new Properties();
+			props.setProperty("userid", "01");
+			conn = DriverManager.getConnection("jdbc:DataDriver://localhost", props);
+			System.out.println("--- #" + String.valueOf(conn.hashCode()) + " DB instance is connected");
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT * FROM table_sipendpoint");
+
+			while(rs.next())
+	        {
+                    System.out.println("--- select 1:" + rs.getString(1));
+                    System.out.println("--- select 2:" + rs.getString(2));
+			}
+
+			rs.close();
+			stmt.close();
+			System.out.println("--- Data select completed");
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex.getMessage());
+		}
+	}
+
+	/*******************************************************************
+	 *
+	 *
+	 */
+	public void ExecuteStatementInsert()
+	{
+		try
+		{
+			conn.setAutoCommit(true);
+			Statement stmt = conn.createStatement();
+			int row = stmt.executeUpdate("INSERT student(sex, name) values('M', 'test05')");
+			if(row > 0) {
+				System.out.println("--- Data insert completed");
+			}
+
+			stmt.close();
+
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex.getMessage());
+		}
+
+	}
+
+	/*******************************************************************
+	 *
+	 *
+	 */
+	public void ExecutePreparedInsert()
+	{
+		try {
+			PreparedStatement pstmt = conn.prepareStatement("insert into student(sex, name) values(?, ?)");
+			pstmt.setString(1, "F");
+			pstmt.setString(2, "test11");
+			pstmt.executeUpdate();
+
+			pstmt.close();
+			conn.close();
+		}
+		catch(Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+	}
+
+	/*******************************************************************
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		DataService service = new DataService();
+
+		service.ExecuteStatementSelect();
+		service.ExecuteStatementInsert();
+		service.ExecutePreparedInsert();
+	}
+}

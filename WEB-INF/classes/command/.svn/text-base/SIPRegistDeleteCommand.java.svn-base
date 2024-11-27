@@ -1,0 +1,90 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.SubscriberInfoDTO;
+import dao.system.SIPRegServerDAO;
+import acromate.common.util.StringUtil;
+import business.LogHistory;
+
+public class SIPRegistDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+		DataStatement stmt = null;
+		String resStr = "";
+
+        try {
+			String 	deleteStr = new String(Str.CheckNullString(req.getParameter("deleteStr")).getBytes("8859_1"), "euc-kr");
+			
+			String 	userID	  = new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "sipRegistList.jsp";
+			
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				SubscriberInfoDTO scDTO = entity.getScDtoAttribute("scDTO");
+				
+				stmt = ConnectionManager.allocStatement("SSW");
+
+				// 트랜잭션 시작
+//				stmt.stxTransaction();
+				
+				String[] dataStr = StringUtil.getParser(deleteStr, "");
+				
+				if(dataStr != null){
+					// ############### LogHistory 처리  ###############
+					String		strIp		= req.getRemoteAddr();
+					LogHistory	logHistory 	= new LogHistory();
+					// ##############################################
+
+					for(int i=0; i < dataStr.length; i++){
+						SIPRegServerDAO dao = new SIPRegServerDAO();
+						int updateResult = dao.delete(stmt, dataStr[i]);
+						
+						// CallBox 이원화 ============================
+						if("Pri_CSCF".equals(dataStr[i])){
+							int updateResult2 = dao.delete(stmt, "Sec_CSCF");
+						}else if("Sec_CSCF".equals(dataStr[i])){
+							int updateResult3 = dao.delete(stmt, "Pri_CSCF");
+						}
+						// =========================================
+						
+						// ############### LogHistory 처리  ###############
+						int int_result = logHistory.LogHistorySave(userID+"|86|SIP레지스트라 ("+dataStr[i]+")|2|"+strIp);
+						// ##############################################
+					}
+				}
+								
+//				if (stmt != null)
+//					stmt.endTransaction(true);
+				res.sendRedirect("/bizportal/system/"+resStr);
+			} 
+			else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+		} catch (Exception e) {
+			System.out.println("에러발생 .......");
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}			
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}		
+		return forwardingPage;
+	}
+}

@@ -1,0 +1,572 @@
+package bizportal.nasacti.record;
+
+public class TCallLogBean{
+
+	private int idxIncrease = 0;
+	private int channel;
+	private String groupId = "";
+	private String deviceId = "";
+	private String recDate = "";
+	private String recGStart = "";
+	private String recGEnd = "";
+	private float recGUse;
+	private String recDStart = "";
+	private String recDEnd = "";
+	private float recDUse;
+	private String inOut = "";
+	private String fileName = "";
+	private String fileWav = "";
+	private String userName = "";
+	private String telNum = "";
+	private String backupYn = "";
+	private String backupPath = "";
+	private String callerId = "";
+	private int pressLaw;
+	private String yuMuLine = "";
+	private String removed = "";
+	private int gHour;
+	private int dHour;
+	private String fileMemo = "";
+	private String juminNum = "";
+	private String memberId = "";
+	private String memberLevel = "";
+	private String trunkTel = "";
+	private String waveConvert = "";
+	private String fileMemoCheck = "";
+
+	private String fileUpload = "";
+
+	private String searchSDay = "";
+	private String searchEDay = "";
+	private String searchSTime = "";
+	private String searchETime = "";
+	private String searchCheckCh = "";
+	private String searchStrCh = "";
+	private String searchCheckEx = "";
+	private String searchStrEx = "";
+	private String searchCheckLen = "";
+	private String searchStrLen = "";
+	private String searchCheckPhone = "";
+	private String searchStrPhone = "";
+	private String searchStrIo = "";
+	private String searchStrAllCh = "";
+	private String searchMemoCheck = "";
+	private String searchCheckJumin = "";
+	private String searchStrJumin = "";
+
+	private String searchRecDate = "";
+
+	private String data1 = "";
+	private String data2 = "";
+	private String data3 = "";
+	private String data4 = "";
+	private String data5 = "";
+
+
+	private String recFileName = "";
+	private int srcPayLoad;
+	private int dstPayLoad;
+
+	private int intAgc;
+	private int intRecvVol;
+	private int intSendVol;
+
+
+	public void setIdxIncrease(int idxIncrease){
+		this.idxIncrease = idxIncrease;
+	}
+
+	public void setChannel(int channel){
+		this.channel = channel;
+	}
+
+	public void setGroupId(String groupId){
+		this.groupId = groupId;
+	}
+
+	public void setDeviceId(String deviceId){
+		this.deviceId = deviceId;
+	}
+
+	public void setRecDate(String recDate){
+		this.recDate = recDate;
+	}
+
+	public void setRecGStart(String recGStart){
+		this.recGStart = recGStart;
+	}
+
+	public void setRecGEnd(String recGEnd){
+		this.recGEnd = recGEnd;
+	}
+
+	public void setRecGUse(float recGUse){
+		this.recGUse = recGUse;
+	}
+
+	public void setRecDStart(String recDStart){
+		this.recDStart = recDStart;
+	}
+
+	public void setRecDEnd(String recDEnd){
+		this.recDEnd = recDEnd;
+	}
+
+	public void setRecDUse(float recDUse){
+		this.recDUse = recDUse;
+	}
+
+	public void setInOut(String inOut){
+		this.inOut = inOut;
+	}
+
+	public void setFileName(String fileName){
+		this.fileName = fileName;
+	}
+
+	public void setFileWav(String fileWav){
+		this.fileWav = fileWav;
+	}
+
+	public void setUserName(String userName){
+		this.userName = userName;
+	}
+
+	public void setTelNum(String telNum){
+		this.telNum = telNum;
+	}
+
+	public void setBackupYn(String backupYn){
+		this.backupYn = backupYn;
+	}
+
+	public void setBackupPath(String backupPath){
+		this.backupPath = backupPath;
+	}
+
+	public void setCallerId(String callerId){
+		this.callerId = callerId;
+	}
+
+	public void setPressLaw(int pressLaw){
+		this.pressLaw = pressLaw;
+	}
+
+	public void setYuMuLine(String yuMuLine){
+		this.yuMuLine = yuMuLine;
+	}
+
+	public void setRemoved(String removed){
+		this.removed = removed;
+	}
+
+	public void setGHour(int gHour){
+		this.gHour = gHour;
+	}
+
+	public void setDHour(int dHour){
+		this.dHour = dHour;
+	}
+
+	public void setFileMemo(String fileMemo){
+		this.fileMemo = fileMemo;
+	}
+
+	public void setJuminNum(String juminNum){
+		this.juminNum = juminNum;
+	}
+
+	public void setMemberId(String memberId){
+		this.memberId = memberId;
+	}
+
+	public void setMemberLevel(String memberLevel){
+		this.memberLevel = memberLevel;
+	}
+
+	public void setTrunkTel(String trunkTel){
+		this.trunkTel = trunkTel;
+	}
+
+	public void setWaveConvert(String waveConvert){
+		this.waveConvert = waveConvert;
+	}
+
+	public void setFileMemoCheck(String fileMemoCheck){
+		this.fileMemoCheck = fileMemoCheck;
+	}
+
+
+	public void setFileUpload(String fileUpload){
+		this.fileUpload = fileUpload;
+	}
+
+
+	public void setSearchSDay(String searchSDay){
+		this.searchSDay = searchSDay;
+	}
+
+	public void setSearchEDay(String searchEDay){
+		this.searchEDay = searchEDay;
+	}
+
+	public void setSearchSTime(String searchSTime){
+		this.searchSTime = searchSTime;
+	}
+
+	public void setSearchETime(String searchETime){
+		this.searchETime = searchETime;
+	}
+	
+	public void setSearchCheckCh(String searchCheckCh){
+		this.searchCheckCh = searchCheckCh;
+	}
+
+	public void setSearchStrCh(String searchStrCh){
+		this.searchStrCh = searchStrCh;
+	}
+
+	public void setSearchCheckEx(String searchCheckEx){
+		this.searchCheckEx = searchCheckEx;
+	}
+
+	public void setSearchStrEx(String searchStrEx){
+		this.searchStrEx = searchStrEx;
+	}
+	
+	public void setSearchCheckLen(String searchCheckLen){
+		this.searchCheckLen = searchCheckLen;
+	}
+
+	public void setSearchStrLen(String searchStrLen){
+		this.searchStrLen = searchStrLen;
+	}
+
+	public void setSearchCheckPhone(String searchCheckPhone){
+		this.searchCheckPhone = searchCheckPhone;
+	}
+
+	public void setSearchStrPhone(String searchStrPhone){
+		this.searchStrPhone = searchStrPhone;
+	}
+
+	public void setSearchStrIo(String searchStrIo){
+		this.searchStrIo = searchStrIo;
+	}
+
+	public void setSearchStrAllCh(String searchStrAllCh){
+		this.searchStrAllCh = searchStrAllCh;
+	}
+
+	public void setSearchMemoCheck(String searchMemoCheck){
+		this.searchMemoCheck = searchMemoCheck;
+	}
+	
+	public void setSearchCheckJumin(String searchCheckJumin){
+		this.searchCheckJumin = searchCheckJumin;
+	}
+
+	public void setSearchStrJumin(String searchStrJumin){
+		this.searchStrJumin = searchStrJumin;
+	}
+
+	public void setSearchRecDate(String searchRecDate){
+		this.searchRecDate = searchRecDate;
+	}
+
+
+	public void setData1(String data1){
+		this.data1 = data1;
+	}
+
+	public void setData2(String data2){
+		this.data2 = data2;
+	}
+
+	public void setData3(String data3){
+		this.data3 = data3;
+	}
+
+	public void setData4(String data4){
+		this.data4 = data4;
+	}
+
+	public void setData5(String data5){
+		this.data5 = data5;
+	}
+
+	public void setRecFileName(String recFileName){
+		this.recFileName = recFileName;
+	}
+
+	public void setSrcPayLoad(int srcPayLoad){
+		this.srcPayLoad = srcPayLoad;
+	}
+
+	public void setDstPayLoad(int dstPayLoad){
+		this.dstPayLoad = dstPayLoad;
+	}
+
+	public void setIntAgc(int intAgc){
+		this.intAgc = intAgc;
+	}
+
+	public void setIntRecvVol(int intRecvVol){
+		this.intRecvVol = intRecvVol;
+	}
+
+	public void setIntSendVol(int intSendVol){
+		this.intSendVol = intSendVol;
+	}
+
+
+
+	public int getIdxIncrease(){
+		return idxIncrease;
+	}
+
+	public int getChannel(){
+		return channel;
+	}
+
+	public String getGroupId(){
+		return groupId;
+	}
+
+	public String getDeviceId(){
+		return deviceId;
+	}
+
+	public String getRecDate(){
+		return recDate;
+	}
+
+	public String getRecGStart(){
+		return recGStart;
+	}
+
+	public String getRecGEnd(){
+		return recGEnd;
+	}
+
+	public float getRecGUse(){
+		return recGUse;
+	}
+
+	public String getRecDStart(){
+		return recDStart;
+	}
+
+	public String getRecDEnd(){
+		return recDEnd;
+	}
+
+	public float getRecDUse(){
+		return recDUse;
+	}
+
+	public String getInOut(){
+		return inOut;
+	}
+
+	public String getFileName(){
+		return fileName;
+	}
+
+
+	public String getFileWav(){
+		return fileWav;
+	}
+
+	public String getUserName(){
+		return userName;
+	}
+
+	public String getTelNum(){
+		return telNum;
+	}
+
+	public String getBackupYn(){
+		return backupYn;
+	}
+
+	public String getBackupPath(){
+		return backupPath;
+	}
+
+	public String getCallerId(){
+		return callerId;
+	}
+
+	public int getPressLaw(){
+		return pressLaw;
+	}
+
+	public String getYuMuLine(){
+		return yuMuLine;
+	}
+
+	public String getRemoved(){
+		return removed;
+	}
+
+	public int getGHour(){
+		return gHour;
+	}
+
+	public int getDHour(){
+		return dHour;
+	}
+
+	public String getFileMemo(){
+		return fileMemo;
+	}
+
+	public String getJuminNum(){
+		return juminNum;
+	}
+
+	public String getMemberId(){
+		return memberId;
+	}
+
+	public String getMemberLevel(){
+		return memberLevel;
+	}
+
+	public String getTrunkTel(){
+		return trunkTel;
+	}
+
+	public String getWaveConvert(){
+		return waveConvert;
+	}
+
+	public String getFileMemoCheck(){
+		return fileMemoCheck;
+	}
+
+
+	public String getFileUpload(){
+		return fileUpload;
+	}
+
+
+	public String getSearchSDay(){
+		return searchSDay;
+	}
+
+	public String getSearchEDay(){
+		return searchEDay;
+	}
+
+	public String getSearchSTime(){
+		return searchSTime;
+	}
+
+	public String getSearchETime(){
+		return searchETime;
+	}
+
+	public String getSearchCheckCh(){
+		return searchCheckCh;
+	}
+
+	public String getSearchStrCh(){
+		return searchStrCh;
+	}
+
+	public String getSearchCheckEx(){
+		return searchCheckEx;
+	}
+
+	public String getSearchStrEx(){
+		return searchStrEx;
+	}
+
+	public String getSearchCheckLen(){
+		return searchCheckLen;
+	}
+
+	public String getSearchStrLen(){
+		return searchStrLen;
+	}
+
+	public String getSearchCheckPhone(){
+		return searchCheckPhone;
+	}
+
+	public String getSearchStrPhone(){
+		return searchStrPhone;
+	}
+
+	public String getSearchStrIo(){
+		return searchStrIo;
+	}
+
+	public String getSearchStrAllCh(){
+		return searchStrAllCh;
+	}
+	
+	public String getSearchMemoCheck(){
+		return searchMemoCheck;
+	}
+	
+	public String getSearchCheckJumin(){
+		return searchCheckJumin;
+	}
+
+	public String getSearchStrJumin(){
+		return searchStrJumin;
+	}
+
+	public String getSearchRecDate(){
+		return searchRecDate;
+	}
+
+	public String getData1(){
+		return data1;
+	}
+
+	public String getData2(){
+		return data2;
+	}
+
+	public String getData3(){
+		return data3;
+	}
+
+	public String getData4(){
+		return data4;
+	}
+
+	public String getData5(){
+		return data5;
+	}
+
+	public String getRecFileName(){
+		return recFileName;
+	}
+
+	public int getSrcPayLoad(){
+		return srcPayLoad;
+	}
+
+	public int getDstPayLoad(){
+		return dstPayLoad;
+	}
+
+	public int getIntAgc(){
+		return intAgc;
+	}
+
+	public int getIntRecvVol(){
+		return intRecvVol;
+	}
+
+	public int getIntSendVol(){
+		return intSendVol;
+	}
+
+}
+

@@ -1,0 +1,48 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class TimingRouteIDDTO
+{
+
+    private String timingRouteID;
+    private String defaultRouteID;
+    private int    defaultProtocol;
+    private int    endpointClass;
+
+    public String getTimingRouteID() { return this.timingRouteID; }
+    public void   setTimingRouteID(String vTimingRouteID ) { this.timingRouteID = vTimingRouteID; }
+
+    public String getDefaultRouteID() { return this.defaultRouteID; }
+    public void   setDefaultRouteID(String vDefaultRouteID ) { this.defaultRouteID = vDefaultRouteID; }
+
+    public int    getDefaultProtocol() { return this.defaultProtocol; }
+    public void   setDefaultProtocol(int vDefaultProtocol ) { this.defaultProtocol = vDefaultProtocol; }
+
+    public int    getEndpointClass() { return this.endpointClass; }
+    public void   setEndpointClass(int endpointClass ) { this.endpointClass = endpointClass; }
+
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(timingRouteID:"                 + getTimingRouteID() + ") ") ;
+        sb.append("[defaultRouteID:"                + getDefaultRouteID() + "] ") ;
+        sb.append("[defaultProtocol:"               + getDefaultProtocol() + "] ") ;
+
+        return sb.toString();
+    }
+}

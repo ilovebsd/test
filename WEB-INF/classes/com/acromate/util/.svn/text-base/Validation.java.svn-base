@@ -1,0 +1,139 @@
+/*
+ * Validation.java
+ *
+ * Created on 2006년 8월 17일 (목), 오후 7:32
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.util;
+
+import java.util.StringTokenizer;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class Validation {
+
+    /**
+     * Checking value to valid number
+     *
+     * @param value String
+     * @return boolean
+     */
+    public static boolean isValidNumber(String value) {
+
+        try {
+            int length  = value.length();            
+            for(int i = 0; i < length; i++) {                
+                String strChar = value.substring(i, i + 1);
+                Integer.valueOf(strChar);
+            }
+        }catch(NumberFormatException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checking value to valid length
+     *
+     * @param value String
+     * @param length int
+     * @return boolean
+     */
+    public static boolean isValidDigit(String value, int length) {
+        if(!isValidNumber(value)) return false;
+        int tarlength = value.length();
+        if(tarlength != length)  return false;
+        return true;
+    }
+
+    /**
+     * Checking value to valid range number
+     *
+     * @param value String
+     * @param start int
+     * @param end int
+     * @return boolean
+     */
+    public static boolean isValidRange(String value, int start, int end) {
+        if(!isValidNumber(value)) return false;
+        int tarvalue = Integer.valueOf(value);
+        if(tarvalue < start && tarvalue > end) return false;
+        return true;
+    }
+
+    /**
+     * Checking value to valid network address
+     *
+     * @param value String
+     * @return boolean
+     */
+    public static boolean isValidAddr(String value) {
+        StringTokenizer t = new StringTokenizer(value);
+        while(t.hasMoreElements()) {
+            String temp = t.nextToken(".");
+            if(!isValidRange(temp, 0, 255)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checking value to blank-value
+     *
+     * @param value String
+     * @return boolean
+     */
+    public static boolean isValidBlank(String value) {
+        if(value.equals("")) return false;
+        else return true;
+    }
+
+    /**
+     * Checking value to valid date
+     *
+     * @param value String
+     * @return boolean
+     */
+    public static boolean isValidDate(String value) {
+        //Date format: YYYYMMDD
+        try {
+            if (value.length() < 0 &&
+                value.length() > 8)               return false;
+            String year = value.substring(0, 4);
+            if (!isValidRange(year, 1700, 3000))  return false;
+            String month = value.substring(4, 6);
+            if (!isValidRange(month, 1, 12))      return false;
+            String day = value.substring(6, 8);
+            if (!isValidRange(day, 1, 31))        return false;
+        }catch(Exception ex) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checking value to valid time
+     *
+     * @param value String
+     * @return boolean
+     */
+    public static boolean isValidTime(String value) {
+        //Time format: HHMMSS
+        try {
+            if (value.length() < 0 && value.length() > 6)
+                return false;
+            String hour = value.substring(0, 2);
+            if (!isValidRange(hour, 1, 24))      return false;
+            String minute = value.substring(2, 4);
+            if (!isValidRange(minute, 0, 60))    return false;
+            String second = value.substring(4, 6);
+            if (!isValidRange(second, 0, 60))    return false;
+        }catch(Exception ex) {
+            return false;
+        }
+        return true;
+    }
+}

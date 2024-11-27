@@ -1,0 +1,396 @@
+/*
+ * System.java
+ *
+ * Created on 2006년 9월 28일 (목), 오후 7:11
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Logger;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 2.0.0
+ */
+public abstract class CustomSystem extends DataIO implements SystemControl {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    public final static int ACTIVE             = 1;
+    public final static int STANDBY           = 0;
+    private int               errorcode;    /** Field object return value  */
+    protected int             procStatus;    /** Procss active/standy flag */
+    protected boolean        configUpdate;  /** System config update flag  */
+    protected boolean        backupUpdate;  /** System config backup flag  */
+    protected boolean        sentActive;    /** System active send flag    */
+    protected boolean        redirect;      /** Network redirect use flag  */
+    private boolean              receivingConfig = false ;   // Config File 을 수신 중 인지 여부
+
+    protected String          configVersion;       /** System Config version             */
+
+    protected StringBuilder   groupId;       /** System group Id            */
+    protected StringBuilder   groupName;     /** System group name          */
+    protected StringBuilder   clusterId;     /** Cluster system Id          */
+    protected StringBuilder   clusterName;   /** Cluster system name        */
+    protected StringBuilder   hwId;          /** System hardware Id         */
+    protected StringBuilder   hwName;        /** System hardware name       */
+    protected StringBuilder   hwClusterId;   /** System hardware cluster id */
+    protected StringBuilder   processId;     /** System process Id          */
+    protected StringBuilder   processName;   /** System process Id          */
+    protected StringBuilder   dbConnString;  /** DB connection string       */
+    protected StringBuilder   dbUserName;    /** DB user name               */
+    protected StringBuilder   dbPassword;    /** DB user password           */
+    protected StringBuilder   dbDriverClass; /** DB driver name             */
+    protected int   dbMaxConnection; /** DB MaxConnection             */
+    protected StringBuilder   defaultSystem; /** EMS default system         */
+
+    public DataIO         config;        /** config object              */
+    protected DataIO         configbk;      /** config backup object       */
+    protected DataIO         network;       /** Network object             */
+    protected DataIO        database;      /** database object            */
+
+    public ClusterSystem clusterSystem = null ;
+    public CustomSystem hwSystem = null ;
+
+    public DataIO systemNetworkChannel = null;
+
+    /**
+     * Constructor BaseSystem with systemId
+     */
+    public CustomSystem() {
+        this.configVersion       = "1.0" ;
+        this.groupId       = new StringBuilder();
+        this.groupName     = new StringBuilder();
+        this.hwClusterId   = new StringBuilder();
+        this.hwId          = new StringBuilder();
+        this.hwName        = new StringBuilder();
+        this.clusterId     = new StringBuilder();
+        this.clusterName   = new StringBuilder();
+        this.processId     = new StringBuilder();
+        this.processName   = new StringBuilder();
+        this.dbConnString  = new StringBuilder();
+        this.dbUserName    = new StringBuilder();
+        this.dbPassword    = new StringBuilder();
+        this.dbDriverClass = new StringBuilder();
+        this.defaultSystem = new StringBuilder();
+        this.receivingConfig = false;
+    }
+
+    public void setHwClusterId(String hwId) {
+        if(this.hwClusterId.length() > 0) {
+            this.hwClusterId.delete(0, this.hwId.length());
+        }   this.hwClusterId.append(hwId);
+    }
+
+    public String getHwClusterId() {
+        return this.hwClusterId.toString();
+    }
+
+    public DataIO getChannelList () {
+        return systemNetworkChannel ;
+    }
+
+    public void setChannelList (DataIO systemNetworkChannel) {
+        this.systemNetworkChannel = systemNetworkChannel ;
+    }
+
+    public void setHwId(String hwId) {
+        if(this.hwId.length() > 0) {
+            this.hwId.delete(0, this.hwId.length());
+        }   this.hwId.append(hwId);
+    }
+
+    public String getHwId() {
+        return this.hwId.toString();
+    }
+
+
+    public void setHwSystem(CustomSystem hwSystem) {
+            this.hwSystem = hwSystem ;
+    }
+
+    public CustomSystem getHwSystem() {
+        return this.hwSystem;
+    }
+
+
+    public void setNetwork(DataIO network) {
+        this.network = network;
+    }
+
+    public void setDatabase(DataIO database) {
+        this.database = database;
+    }
+
+    public void setGroupId(String value) {
+        this.groupId.delete(0, groupId.length());
+        this.groupId.append(value);
+    }
+
+    public void setGroupName(String name) {
+        this.groupName.delete(0, groupName.length());
+        this.groupName.append(name);
+    }
+
+    public void setCluserId(String name) {
+        this.clusterId.delete(0, clusterId.length());
+        this.clusterId.append(name);
+    }
+
+    public void setCluser(ClusterSystem clusterSystem) {
+        this.clusterSystem = clusterSystem ;
+    }
+
+    public void setCluserName(String name) {
+        this.clusterName.delete(0, clusterName.length());
+        this.clusterName.append(name);
+    }
+
+    public void setProcessId(String value) {
+        this.processId.delete(0, processId.length());
+        this.processId.append(value);
+    }
+
+    public void setProcessName(String name) {
+        this.processName.delete(0, this.processName.length());
+        this.processName.append(name);
+    }
+
+    public void setSystemStatus(int status) {
+        this.procStatus = status;
+    }
+
+    public void setDbMaxConnection(int dbmaxConnectcion) {
+        this.dbMaxConnection = dbmaxConnectcion;
+    }
+
+    public void setRedirect(boolean redirect) {
+        this.redirect = redirect;
+    }
+
+    public void setReceivingConfig(boolean receivingConfig) { this.receivingConfig = receivingConfig; }
+
+    public boolean getReceivingConfig() { return this.receivingConfig; }
+
+
+    public void setConfig(DataIO config) {
+        this.config = config;
+    }
+
+    public void setConfigBak(DataIO configbk) {
+        this.configbk = configbk;
+    }
+
+    public String getGroupId() {
+        return groupId.toString();
+    }
+
+    public String getGroupName() {
+        return groupName.toString();
+    }
+
+    public String getClusterId() {
+        return clusterId.toString();
+    }
+
+
+    public ClusterSystem getClusterSystem() {
+        return clusterSystem;
+    }
+
+    public String getSystemId() {
+        if (processId.length() == 0) return hwId.toString();
+        return processId.toString();
+    }
+
+    public String getSystemName() {
+        return processName.toString();
+    }
+
+    public int getSystemStatus() {
+        return procStatus;
+    }
+
+    public boolean getDefaultSystem() {
+        if(defaultSystem.toString().equals("true"))
+              return true;
+        else return false;
+    }
+
+    public String getDBDriverClass() {
+        return dbDriverClass.toString();
+    }
+
+    public String getDBConnUserName() {
+        return dbUserName.toString();
+    }
+
+    public String getDBConnPassword() {
+        return dbPassword.toString();
+    }
+
+    public String getDBConnString() {
+        return dbConnString.toString();
+    }
+
+    public int getDbMaxConnection() {
+        return dbMaxConnection;
+    }
+
+
+    /**
+     *
+     * @return
+     */
+    public boolean getRedirect() {
+        return redirect;
+    }
+
+    /**
+     *
+     * @param update
+     */
+    public synchronized void setConfigUpdate(boolean update) {
+        this.configUpdate = update;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public synchronized boolean getConfigUpdate() {
+        return this.configUpdate;
+    }
+
+    /**
+     *
+     * @param update
+     */
+    public synchronized void setBackupUpdate(boolean update) {
+        this.backupUpdate = update;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public synchronized boolean getBackupUpdate() {
+        return this.backupUpdate;
+    }
+
+    /**
+     *
+     * @param active
+     */
+    public void setSentActive(boolean active) {
+        this.sentActive = active;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean getSentActive() {
+        return this.sentActive;
+    }
+
+    public void setConfigVersion(String configVersion) {
+        this.configVersion = configVersion;
+    }
+
+    public String getConfigVersion() {
+        return this.configVersion;
+    }
+
+    public DataIO getDatabase() {
+        return database;
+    }
+
+    public DataIO getConfig() {
+        return this.config;
+    }
+
+    public DataIO getConfigBak() {
+        return this.configbk;
+    }
+
+    public DataIO getNetwork() {
+        return this.network;
+    }
+
+    public boolean resetDatabase() {
+        closeDatabase() ;
+        return initDatabase() ;
+    }
+
+    public boolean initDatabase() {
+        boolean result = true;
+        if(database != null) {
+            result = (Boolean)database.callMethod("", "initConnection");
+            if(result) log.info("System is started");
+        }   return result;
+    }
+
+    public void closeDatabase() {
+        if(database != null) {
+            database.callMethod("", "closeConnection");
+        }
+    }
+
+    public DataIO getFieldObject(String field) {
+        DataIO result = null;
+        if(field != null && field.trim().length() > 0) {
+            StringBuilder temp = new StringBuilder(field.toLowerCase());
+
+            if(compareFieldID(temp, "network") == true) {
+                return network.getFieldObject(temp.toString());
+            }
+            if(compareFieldID(temp, "hw") == true) {
+                return hwSystem.getFieldObject(temp.toString());
+            }
+        }   return super.getFieldObject(field);
+    }
+
+    public Object callMethod(String method, Object... argument) {
+        Object result = null;
+        String realMethod = method.toLowerCase();
+        if(realMethod.equals("getdatabase") == true) {
+           result = getDatabase();
+        }
+        if(realMethod.equals("getgroupid") == true) {
+            result = getGroupId();
+        }
+        if(realMethod.equals("getclusterid") == true) {
+            result = getClusterId();
+        }
+        if(realMethod.equals("getsystemid") == true) {
+            result = getSystemId();
+        }
+        if(realMethod.equals("gethwid") == true) {
+            result = getHwId();
+        }
+        if(realMethod.equals("getredirect") == true) {
+            result = getRedirect();
+        }
+        if(realMethod.equals("getactivesystem") == true) {
+            result = getActiveSystem();
+        }
+        return result;
+    }
+
+    public abstract DataIO getActiveSystem();
+    public String getSystemPath() {
+        StringBuilder message = new StringBuilder();
+        message.append("(").append(groupId).append(")(").append(clusterId).append(")(").append(getSystemId()).append(")");
+        return message.toString();
+    }
+    public String getDesc() {
+        StringBuilder message = new StringBuilder();
+        message.append("[").append(groupId).append(" ").append(clusterId).append(" ").append(getSystemId()).append("]");
+        return message.toString();
+    }
+
+
+}

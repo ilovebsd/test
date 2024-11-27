@@ -1,0 +1,221 @@
+package dao.gateway;
+
+import acromate.*;
+
+import java.sql.ResultSet;
+import java.util.Vector;
+
+import acromate.common.util.Str;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import acromate.ConnectionManager;
+import acromate.common.util.StringUtil;
+
+public class GatewayDAO {
+
+    public GatewayDAO() {}   
+    
+    public boolean channelInsert(String deviceId, String deviceType, String channelNo, String serviceFlag, String e164){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	try {
+	    	int 		nResult 	= 0;
+	    	String		sql 		= "";
+	    	String		strDomain	= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+        	sql  = " select domainid from table_domain " ;    		
+            rs = statement.executeQuery(sql);
+            if (rs.next()){
+            	strDomain = Str.CheckNullString(rs.getString("domainid")); 
+            }
+            rs.close();
+            
+            if(deviceType.equals("FXS")){
+                sql  = "\n Insert into Table_DeviceChannel(deviceid, channelid, serviceflag, stateflag, trace, domain) ";
+				sql += "\n Values('" + deviceId + "', " + Integer.parseInt(channelNo) + ", " + Integer.parseInt(serviceFlag) + ", 4, 0, '" + strDomain + "')";
+				System.out.println("1: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+e164+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+	            sql  = "\n Insert into Table_ChannelNumber(startprefix, endprefix, deviceid, channelid) ";
+				sql += "\n Values('" + e164 + "', '" + e164 + "', '" + deviceId + "', " + Integer.parseInt(channelNo) + " )";
+				System.out.println("2: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+e164+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+            }else{
+            	sql  = "\n Insert into Table_DeviceChannel(deviceid, channelid, serviceflag, stateflag, trace, domain, forwardnumber) ";
+				sql += "\n Values('" + deviceId + "', " + Integer.parseInt(channelNo) + ", " + Integer.parseInt(serviceFlag) + ", 4, 0, '" + strDomain + "', '" + e164 + "')";
+				System.out.println("1: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+e164+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+            }
+            
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+    
+    public boolean channelUpdate(String deviceId, String deviceType, String channelNo, String serviceFlag, String e164){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	try {
+	    	int 		nResult 	= 0;
+	    	String		sql 		= "";
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+            if(deviceType.equals("0")){
+                sql  = "\n Update Table_DeviceChannel Set serviceflag = " + Integer.parseInt(serviceFlag) + " ";
+                sql += "\n Where deviceid = '" + deviceId + "' And channelid = " + Integer.parseInt(channelNo) + " ";
+				System.out.println("1: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+e164+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+	            sql  = "\n Update Table_ChannelNumber Set startprefix = '" + e164 + "' , endprefix = '" + e164 + "' ";
+				sql += "\n Where deviceid = '" + deviceId + "' And channelid = " + Integer.parseInt(channelNo) + " ";
+				System.out.println("2: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+e164+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+            }else if(deviceType.equals("1")){
+            	sql  = "\n Update Table_DeviceChannel Set serviceflag = " + Integer.parseInt(serviceFlag) + " , forwardnumber = '" + e164 + "' ";
+				sql += "\n Where deviceid = '" + deviceId + "' And channelid = " + Integer.parseInt(channelNo) + " ";
+				System.out.println("1: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+e164+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+            }
+            
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public boolean channelDelete(String deviceId, String deviceType, String channelNo){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	try {
+	    	int 		nResult 	= 0;
+	    	String		sql 		= "";
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+            if(deviceType.equals("0")){
+                sql  = " Delete From Table_DeviceChannel Where deviceid = '" + deviceId + "' And channelid = " + Integer.parseInt(channelNo) + " ";
+				System.out.println("1: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 0){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+deviceId+l.x("'는Gateway Channel 삭제를 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+	            sql  = " Delete From Table_ChannelNumber Where deviceid = '" + deviceId + "' And channelid = " + Integer.parseInt(channelNo) + " ";
+				System.out.println("2: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 0){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+deviceId+l.x("'는Gateway Channel 삭제를 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+            }else if(deviceType.equals("1")){
+            	sql  = " Delete From Table_DeviceChannel Where deviceid = '" + deviceId + "' And channelid = " + Integer.parseInt(channelNo) + " ";
+				System.out.println("1: "+sql);
+
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 0){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+deviceId+l.x("'는Gateway Channel 삭제를 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+            }
+            
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public boolean slotUpdate(String beforeSlot, String afterSlot){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	try {
+	    	int 		nResult 	= 0;
+	    	String		sql 		= "";
+	    	String		strDomain	= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+            sql  = "\n Update Table_DeviceChannel Set deviceid = '" + afterSlot + "' ";
+            sql += "\n Where deviceid = '" + beforeSlot + "' ";
+			System.out.println("1: "+sql);
+
+            nResult = statement.executeUpdate(sql);
+            if (nResult < 0){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+afterSlot+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+            sql  = "\n Update Table_ChannelNumber Set deviceid = '" + afterSlot + "' ";
+			sql += "\n Where deviceid = '" + beforeSlot + "' ";
+			System.out.println("2: "+sql);
+
+            nResult = statement.executeUpdate(sql);
+            if (nResult < 0){	throw new Exception(l.x("[Gateway Channel 등록] '","[Auth Properties Error] '")+afterSlot+l.x("'는Gateway Channel 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+            
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+}

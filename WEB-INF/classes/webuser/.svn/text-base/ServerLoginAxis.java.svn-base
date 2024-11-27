@@ -1,0 +1,241 @@
+package webuser;
+
+import java.io.FileInputStream;
+import java.util.Properties;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+
+import org.apache.axis.MessageContext;
+import org.apache.axis.transport.http.HTTPConstants;
+
+import com.acromate.driver.db.DataStatement;
+
+import acromate.security.login.LoginBean;
+import acromate.security.user.userlog.UserLogFunc;
+import acromate.DirectDB ;
+import acromate.ConnectionManager;
+
+public class ServerLoginAxis {
+
+    //  condor-20070122
+    public static final int LOGIN_COMPLETE = 1;
+    public static final int LOGIN_ERROR = 0;
+    public static final int LOGIN_INVALID_USERID = -1;
+    public static final int LOGIN_INVALID_PASSWORD = -2;
+    public static final int LOGIN_DUPLICATE_USERID = -3;
+
+    //condor-20070131
+    public static final int LOGIN_DB_ERROR = -4;
+    public static final int LOGIN_FAIL_EXCEPTION = -5;
+    public static final int LOGIN_APICALL_EXCEPTION = -6;
+    
+	ConnectionManager connectionManager;
+	DirectDB directDB ;
+	ServletContext servletContext = null;
+	public static ServerLoginAxis serverLogin = null;
+
+	public static Properties properties = null;
+
+	public LoginBean lbean = new LoginBean();
+	// 운영로그 함수 정의
+	public UserLogFunc userlogFunc = null;
+
+	public ServletContext context;
+
+    public ServerLoginAxis(){
+        login();
+    }
+
+	public static ServerLoginAxis getServerLogin() {
+
+    	if (serverLogin != null) return serverLogin ;
+    	serverLogin = new ServerLoginAxis();
+
+		return serverLogin;
+	}
+
+	public static void checkLogin() {
+
+    	if (serverLogin != null) return ;
+    	serverLogin = new ServerLoginAxis();
+
+		return ;
+	}
+
+	public static Properties getProperties() {
+		return properties;
+	}
+
+	public void login() {
+
+        MessageContext messageContext = MessageContext.getCurrentContext();
+        Servlet servlet = (Servlet) messageContext.getProperty(HTTPConstants.MC_HTTP_SERVLET);
+        ServletContext servletContext = servlet.getServletConfig().getServletContext();
+        System.out.println(servletContext);
+
+        this.servletContext = servletContext ;
+        System.out.println("login1:"+ servletContext);
+		String realFolder = servletContext.getRealPath("/");
+
+            try {
+            	properties = getPropertiesFromFile(realFolder + "properties/dbconnection.properties");
+
+                if (properties == null) {
+                    System.out.println("properties == null");
+                }
+
+                System.out.println("properties --> " + properties);
+            	directDB = new DirectDB(properties);
+
+                System.out.println("directDB --> " + directDB);
+
+                String strUserName = (String)properties.get("ems.client.user");
+                String strPwd = (String)properties.get("ems.client.pwd");
+//                ServerConnection.HOST = (String)properties.get("ems.server.ip");
+                System.out.println("strUserName --> " + strUserName);
+                connectionManager = new ConnectionManager(properties);
+                System.out.println("connectionManager --> " + connectionManager);
+                int checkLogin = connectToServer(strUserName, strPwd);
+
+                System.out.println("checkLogin --> " + checkLogin);
+                if(checkLogin == LOGIN_INVALID_USERID) {
+                    System.out.println("EMS 서버 연결 아이디와 비밀번호가 일치하지 않습니다."); //아이디 인증실패
+                    return;
+                } else if(checkLogin == LOGIN_INVALID_PASSWORD) {
+                    System.out.println("EMS 서버 연결 아이디와 비밀번호가 일치하지 않습니다."); //PWD인증실패
+                    return;
+                } else if(checkLogin == LOGIN_DB_ERROR) {
+                    System.out.println("EMS 서버 DB 연결이 되지 않습니다. 확인 후 다시 접속하세요."); //DB연결실패
+                    return;
+                }else if(checkLogin == LOGIN_APICALL_EXCEPTION) {
+                    System.out.println("EMS 서버API 호출 실패");
+                    return;
+                } else if(checkLogin == LOGIN_DUPLICATE_USERID) {
+                    System.out.println("이미 해당 아이디로 로그인한 클라이언트가 있습니다. ");
+                    ConnectionManager.forcibleLogoutManager(strUserName);
+                    System.out.println("해당 클라이언트를 강제 종료하였습니다.  다시 로그인 합니다..");
+                    checkLogin = connectToServer(strUserName, strPwd);
+                } else if(checkLogin == LOGIN_ERROR) {
+                    System.out.println("로그인 실패 ");
+                    return;
+                }
+
+                lbean.setUserName(strUserName);
+                //login_save(strUserName);
+                System.out.println("lbean.setUserName : " + lbean.getUserName());
+                System.out.println("lbean.getUserIP() : " + lbean.getUserIP());
+
+                lbean.setActive_host((String)properties.get("ems.server.ip"));
+                lbean.setStandby_host((String)properties.get("ems.server.second.ip"));
+
+
+                System.out.println("user --> " + (String)properties.getProperty("ems.client.user"));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+	}
+
+	private int connectToServer(String strUser, String strPassword) {
+            if(ConnectionManager.getSessionClient() == null) {
+                connectionManager.makeDataStub(null);
+            }
+
+            String strIP = ConnectionManager.getInstance().registerDataSub(strUser, strPassword);
+
+            if(("-1".equals(strIP)) == true) {
+                return LOGIN_INVALID_USERID;
+            } else if(("-2".equals(strIP)) == true) {
+                return LOGIN_INVALID_PASSWORD;
+            } else if(("-3".equals(strIP)) == true) {
+                return LOGIN_DUPLICATE_USERID;
+            } else if(("-4".equals(strIP)) == true) {
+                return LOGIN_DB_ERROR;
+            } else if(("0".equals(strIP)) == true) {
+                return LOGIN_ERROR;
+            } else if(("-5".equals(strIP)) == true) {
+                return LOGIN_FAIL_EXCEPTION;
+            } else if(("-6".equals(strIP)) == true) {
+                return LOGIN_APICALL_EXCEPTION;
+            }
+
+            lbean.setUserIP(strIP);
+            return LOGIN_COMPLETE;
+	}
+
+	public Properties getPropertiesFromFile(String downFile) throws Exception {
+
+		FileInputStream sIn = null;
+		Properties properties = new Properties();
+		try {
+            if (downFile.indexOf("metadata") >= 0)
+			   downFile = "E:/EMSproject/wwwuser/WebContent/dbconnection.properties";
+			   //downFile = "/home/ems/web/tomcat/webapps/wwwuser/dbconnection.properties";
+			System.out.println("Properties file name:" + downFile);
+			sIn = new FileInputStream(downFile);
+			properties.load(sIn);
+		} catch (Exception e) {
+			throw new Exception("Properties File Read Error");
+		} finally {
+			if (sIn != null)
+				sIn.close();
+		}
+		return properties;
+	}
+
+	public Properties getProperties(String conFile) {
+		Properties properties = new Properties();
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(conFile);
+			properties.load(fis);
+			fis.close();
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (Exception ee) {
+					System.out.println(ee.toString());
+				}
+			}
+			return null;
+		}
+		return properties;
+	}
+
+
+	/** EMS TABLE_STATUSACCOUT의 ONLOGIN을 1로 업데이트 하여 로그인하였음을 남김*/
+	  public void login_save(String strUserName) {
+	    // 로그인
+	    DataStatement statement = null;
+	    try {
+	      statement = ConnectionManager.allocStatement("EMS");
+	      statement.stxTransaction();
+	      String queryString = "";
+	      queryString = "Update TABLE_STATUSACCOUNT ";
+	      queryString += "set  ONLOGIN = 1 ";
+	      queryString += " where USERNAME='" + strUserName + "'";
+	      int nResult = 0;
+	      nResult = statement.executeUpdate(queryString);
+	      statement.endTransaction(true);
+	      if (nResult < 1) {
+	        throw new Exception("로그인에 실패하였습니다.");
+	      }
+	    }
+	    catch (Exception e) {
+	    	System.out.println(e.getMessage());
+//	      JOptionPane.showMessageDialog(null, e.getMessage(), "경고", JOptionPane.ERROR_MESSAGE);
+	    }
+	    finally {
+	    	if (statement != null)
+	    		ConnectionManager.freeStatement(statement);
+	    }
+	  }
+	  public void logout() {
+	    	userlogFunc.logout();
+	  }
+
+}
+

@@ -1,0 +1,11 @@
+package com.acromate.dto.client;
+
+public class WorkPanelDTO {
+    String menuPath = "";
+    String sysGroupID = "";
+    String cluster = "";
+
+    public WorkPanelDTO() {}
+    public String getMenuPath() { return menuPath ;  }
+    public void setMenuPath(String menuPath) { this.menuPath = menuPath ; }
+}

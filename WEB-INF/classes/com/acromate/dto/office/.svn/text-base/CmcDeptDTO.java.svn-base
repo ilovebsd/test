@@ -1,0 +1,39 @@
+package com.acromate.dto.office;
+
+
+public class CmcDeptDTO {
+
+    private String deptID = "" ;
+    private String subOrgID = "" ;
+    private String subOrgName = "" ;
+    private String deptName = "" ;
+    private int pbxDeptID = 0 ;
+
+    public String getDeptID() {return this.deptID; }
+    public void   setDeptID(String deptID ) { this.deptID = deptID; }
+
+    public String getSubOrgID() {return this.subOrgID; }
+    public void   setSubOrgID(String subOrgID) {this.subOrgID = subOrgID; }
+
+    public String getSubOrgName() {return this.subOrgName; }
+    public void   setSubOrgName(String deptName ) { this.subOrgName = deptName; }
+
+    public String getDeptName() {return this.deptName; }
+    public void   setDeptName(String deptName ) { this.deptName = deptName; }
+
+    public int getPbxDeptID() {return this.pbxDeptID; }
+    public void   setPbxDeptID(int pbxDeptID ) { this.pbxDeptID = pbxDeptID; }
+
+    public String toString(){
+
+    StringBuffer sb = new StringBuffer("");
+    sb.append("(deptID:" 	+ getDeptID() + ") ") ;
+    sb.append("[subOrgID:"  	+ getSubOrgID() + "] ") ;
+    sb.append("[subOrgName:"      + getSubOrgName() + "] ") ;
+    sb.append("[deptName:"      + getDeptName() + "] ") ;
+    sb.append("[pbxDeptID:"      + getPbxDeptID() + "] ") ;
+
+    return sb.toString();
+    }
+
+}

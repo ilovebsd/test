@@ -1,0 +1,230 @@
+package dao;
+
+import java.sql.ResultSet;
+import java.util.List;
+
+import acromate.common.util.StringUtil;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+
+import dto.AddrBookGroupDTO;
+
+public class AddrBookGroupDAO {
+
+    public AddrBookGroupDAO() {}
+
+    
+	public int getMaxID(DataStatement stmt, String OwnerID ) {
+		int max = 0 ;
+		String sql = "\n SELECT coalesce(max(GroupID),0) " ;
+		sql = sql +  "\n   FROM table_AddrBookGroup ";
+		sql = sql +  "\n  WHERE OwnerID = '" + OwnerID + "'"  ;
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) max = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return max;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return max;
+    }
+    
+    public int insert(DataStatement stmt, AddrBookGroupDTO addrBookGroup) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+        int max = getMaxID(stmt, addrBookGroup.getOwnerID());
+        try {            
+            if (stmt != null) {
+                String sql = "INSERT INTO table_AddrBookGroup (ownerid, groupid, name, idx, idtype, memo, common) ";
+                	sql = sql + " values ( " ;
+                	sql = sql + "'" + addrBookGroup.getOwnerID() + "', " ;
+                	sql = sql + " " + (max + 1) + " , " ;            
+                	sql = sql + "'" + addrBookGroup.getName() + "', " ;
+                	sql = sql + " " + (max + 1) + " , " ;
+                	sql = sql + " " + (max + 1) + " , " ;
+                	sql = sql + "'" + addrBookGroup.getMemo() + "', " ;
+                	sql = sql + " " + addrBookGroup.getCommon();
+                	sql = sql + ") ";
+System.out.println("sql======="+sql);                	
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+    
+    public int delete(DataStatement stmt, AddrBookGroupDTO addrBookGroup) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+                String sql = "\n Delete From table_AddrBookGroup ";
+                sql = sql +  "\n       Where OwnerID = '" + addrBookGroup.getOwnerID() + "'";
+                sql = sql +  "\n         AND GroupID = "  + addrBookGroup.getGroupID() ;
+                
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1) {
+                    String sql2 = "\n Delete From table_AddrBook ";
+                    sql2 = sql2 + "\n       Where OwnerID = '" + addrBookGroup.getOwnerID() + "'";
+                    sql2 = sql2 + "\n         AND GroupID = " + addrBookGroup.getGroupID() ;
+                
+                    nResult = stmt.executeUpdate(sql2);
+                    if (nResult >= 0 ) System.out.println("삭제 성공"); 
+                    else System.out.println("삭제 실패");
+                }
+                else
+                    System.out.println("삭제 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+    
+    public int update(DataStatement stmt, AddrBookGroupDTO addrBookGroup) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+                String sql = "\n UPDATE table_AddrBookGroup  " ;
+                sql = sql +  "\n    Set name   = '" + addrBookGroup.getName() + "', " ;
+                sql = sql +  "\n        memo   = '"+addrBookGroup.getMemo()+"' " ;
+                sql = sql +  "\n Where OwnerID = '" + addrBookGroup.getOwnerID() + "'";
+                sql = sql +  "\n   AND GroupID = " + addrBookGroup.getGroupID() ;
+          
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("수정  성공");
+                else
+                    System.out.println("수정  실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+    
+    /*
+	 * 공유전화번호를 개인전화번호로 복사
+	 */
+	public String getDelete(DataStatement stmt, String deleteStr) {
+		String resultStr = "";
+		String sql       = "";
+		int    nResult   = 0;
+		
+    	ResultSet rs = null;
+        
+        try {            
+        	deleteStr = new String(Str.CheckNullString(deleteStr).getBytes("8859_1"), "euc-kr");	// 작성자ID
+
+        	String[] group = StringUtil.getParser(deleteStr, "");
+
+    		if (stmt != null) {
+				if(group != null){
+					// 트랜잭션 시작
+					stmt.stxTransaction();
+					
+					for(int i=0; i < group.length; i++){
+						String[] dataStr = StringUtil.getParser(group[i], "|");
+						if(dataStr != null){
+							sql  = "\n SELECT count(*) ";
+							sql += "\n   FROM table_addrbook ";
+							sql += "\n  WHERE ownerid   = '" + dataStr[0] + "'";
+							sql += "\n    AND groupid   = "  + dataStr[1];
+							
+			                rs = stmt.executeQuery(sql);
+			                if (rs.next()) {
+			                	if(rs.getInt(1) > 0){
+				                	if (stmt != null)
+										stmt.endTransaction(false);
+				                	resultStr = "1|"+dataStr[2];
+				                	break;
+			                	}			                	
+			                }
+			                
+			                sql  = "\n Delete From table_AddrBookGroup ";
+			                sql += "\n       Where OwnerID = '" + dataStr[0] + "'";
+			                sql += "\n         AND GroupID = "  + dataStr[1];
+			                
+			                nResult = stmt.executeUpdate(sql);
+			                if (nResult >= 1)
+			                    System.out.println("삭제 성공");
+			                else
+			                    System.out.println("삭제 실패");
+
+						}
+					}
+					if("".equals(resultStr)){
+						resultStr = "0|";
+					}
+					if (stmt != null)
+						stmt.endTransaction(true);
+				}                                        
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+        	try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+		
+		return resultStr;
+	}
+
+    public int insertGroup(DataStatement stmt, AddrBookGroupDTO addrBookGroup) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+        int max = getMaxID(stmt, addrBookGroup.getOwnerID());
+        try {            
+            if (stmt != null) {
+                String sql = "INSERT INTO table_AddrBookGroup (ownerid, groupid, name, idx, idtype, memo, common) ";
+                	sql = sql + " values ( " ;
+                	sql = sql + "'" + addrBookGroup.getOwnerID() + "', " ;
+                	sql = sql + " " + (max + 1) + " , " ;            
+                	sql = sql + "'" + addrBookGroup.getName() + "', " ;
+                	sql = sql + " " + (max + 1) + " , " ;
+                	sql = sql + " " + (max + 1) + " , " ;
+                	sql = sql + "'" + addrBookGroup.getMemo() + "', " ;
+                	sql = sql + " " + addrBookGroup.getCommon();
+                	sql = sql + ") ";
+System.out.println("sql======="+sql);                	
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1){
+                	nResult = max + 1;
+                    System.out.println("입력 성공");
+                }else{
+                    System.out.println("입력 실패");
+                }
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+    
+}

@@ -1,0 +1,206 @@
+package com.acromate.session;
+
+import com.acromate.system.SystemFactory;
+import com.acromate.system.ManSystem;
+import com.acromate.system.GroupSystem;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import com.acromate.system.ClusterSystem;
+import com.acromate.data.DataIO;
+import com.acromate.driver.core.IClassObject;
+import com.acromate.framework.BaseObject;
+import com.acromate.framework.frame.SystemData;
+import com.acromate.system.CustomSystem;
+import com.acromate.util.Logger;
+
+public class EmsServerAgent extends BaseObject {
+    public SystemFactory sysFactory = new SystemFactory() ;
+    private UserSessionClient userSessionClient;
+    private Logger log = Logger.getLogger(this.getClass()) ;
+
+    public EmsServerAgent(UserSessionClient sessionClientEMS) {
+    	this.userSessionClient = sessionClientEMS;
+    }
+    public boolean init() {
+        try {
+            String script = userSessionClient.getRootScript("") ;
+            sysFactory.setParam("",script);
+        }finally {
+            System.out.println("");
+        }
+        return true ;
+    }
+
+    public SystemFactory getGroups() { return sysFactory; }
+
+    public synchronized CustomSystem getSswSystem(String SysGroupID) {
+        GroupSystem grpSystem = sysFactory.getGroup(SysGroupID) ;
+
+        ArrayList clusterList = grpSystem.getClusters() ;
+        ClusterSystem clusterSystem = null ;
+        CustomSystem customSystem = null ;
+        for (int cluster = 0 ; cluster < clusterList.size() ; cluster ++) {
+            clusterSystem = (ClusterSystem) clusterList.get(cluster) ;
+            if (    clusterSystem.getServiceType().indexOf("ssw") >= 0
+	          ||clusterSystem.getServiceType().indexOf("hss") >= 0
+	          ||clusterSystem.getServiceType().indexOf("pcscf") >= 0
+	          ||clusterSystem.getServiceType().indexOf("scscf") >= 0
+	          ||clusterSystem.getServiceType().indexOf("icscf") >= 0
+            ) {
+                customSystem = clusterSystem.getActiveSystem() ;
+                if (customSystem == null) customSystem = clusterSystem.getStandbySystem() ;
+                if (customSystem == null) return null ;
+            }
+        }
+        return customSystem ;
+    }
+
+    public synchronized String getSystemPath(String SysGroupID) {
+    	CustomSystem customSystem = getSswSystem(SysGroupID);
+    	if (customSystem == null) return null;
+        return customSystem.getSystemPath() ;
+    }
+
+    public synchronized ArrayList getSystems(String type) {
+    	ArrayList proxySystems = new ArrayList();
+    	ArrayList groups = sysFactory.getGroups() ;
+        GroupSystem grpSystem = null;
+        Iterator iterator = groups.iterator();
+        while(iterator.hasNext()) {
+        	grpSystem = (GroupSystem)iterator.next();
+	        ArrayList clusterList = grpSystem.getClusters() ;
+	        ClusterSystem clusterSystem = null ;
+	        CustomSystem customSystem = null ;
+	        for (int cluster = 0 ; cluster < clusterList.size() ; cluster ++) {
+	            clusterSystem = (ClusterSystem) clusterList.get(cluster) ;
+	            if (clusterSystem.getServiceType().indexOf(type) >= 0) {
+	                customSystem = clusterSystem.getActiveSystem() ;
+	                if (customSystem == null) customSystem = clusterSystem.getStandbySystem() ;
+	                if (customSystem == null) return null ;
+	                proxySystems.add(customSystem);
+	            }
+	        }
+        }
+        return proxySystems ;
+    }
+
+    public synchronized String getSystemServiceType(String SysGroupID) {
+        GroupSystem grpSystem = sysFactory.getGroup(SysGroupID) ;
+
+        ArrayList clusterList = grpSystem.getClusters() ;
+        ClusterSystem clusterSystem = null ;
+
+        for (int cluster = 0 ; cluster < clusterList.size() ; cluster ++) {
+            clusterSystem = (ClusterSystem) clusterList.get(cluster) ;
+            if (    clusterSystem.getServiceType().indexOf("ssw") >= 0
+                  ||clusterSystem.getServiceType().indexOf("hss") >= 0
+                  ||clusterSystem.getServiceType().indexOf("pcscf") >= 0
+                  ||clusterSystem.getServiceType().indexOf("scscf") >= 0
+                  ||clusterSystem.getServiceType().indexOf("icscf") >= 0
+            ) return clusterSystem.getServiceType();
+        }
+        return "" ;
+    }
+
+    public synchronized SessionClient getSessionClient(String sysGroupID) {
+
+        SessionClient sessionClient = (SessionClient)userSessionClient.getHead();
+        while (sessionClient != null) {
+        	if (sysGroupID.equals(sessionClient.getSysGroupID())){
+        		return sessionClient;
+        	}
+        	sessionClient = (SessionClient)sessionClient.m_pNext;
+        }
+        return null ;
+    }
+
+    public synchronized SystemData getSystemData(String sysGroupID) {
+
+    	SystemData systemData = (SystemData)userSessionClient.getHead();
+        while (systemData != null) {
+        	if (sysGroupID.equals(systemData.getSystemID())){
+        		return systemData;
+        	}
+        	systemData = (SystemData)systemData.m_pNext;
+        }
+        return null ;
+    }
+
+    public synchronized ManSystem getHwActiveSystem(String SysGroupID) {
+        GroupSystem grpSystem = sysFactory.getGroup(SysGroupID) ;
+
+        ArrayList clusterList = grpSystem.getClusters() ;
+        ClusterSystem clusterSystem = null ;
+        ManSystem manSystem = null ;
+        for (int cluster = 0 ; cluster < clusterList.size() ; cluster ++) {
+            clusterSystem = (ClusterSystem) clusterList.get(cluster) ;
+
+            if ( clusterSystem.getClusterId().toLowerCase().indexOf("ems") >= 0 ) continue ;
+            if ( clusterSystem.getServiceType().toLowerCase().indexOf("hw") >= 0
+            ) {
+                manSystem = (ManSystem) clusterSystem.getActiveSystem() ;
+                if (manSystem != null) return manSystem;
+                manSystem = (ManSystem) clusterSystem.getStandbySystem() ;
+                return manSystem ;
+            }
+        }
+        return null ;
+    }
+
+    public synchronized String getGroupName(String SysGroupID) {
+        GroupSystem grpSystem = sysFactory.getGroup(SysGroupID) ;
+        if (grpSystem==null) return null;
+        return grpSystem.getGroupName();
+    }
+
+    public String callScriptCallMethod(String method, Object... argument) {
+        String result = null;
+        try {
+            IClassObject classObject = userSessionClient.getDataObject().getGroups(userSessionClient.getSessionID());
+            result = (String)classObject.callMethod(method, argument);
+        } catch (Exception ex) {
+            log.error("exception occurred > callScriptCallMethod ");
+            return result;
+        }   return result;
+    }
+    public int setParam(String field,String value) {
+        Integer result = null;
+        try {
+            result = (Integer)userSessionClient.getDataObject().setParam(userSessionClient.getSessionID(), field, value);
+        } catch (Exception ex) {
+            log.error("exception occurred > ", ex);
+            return result;
+        }   return result;
+    }
+    public String getParam(String field) {
+        String result = null;
+        try {
+            result = (String)userSessionClient.getDataObject().getParam(userSessionClient.getSessionID(), field);
+        } catch (Exception ex) {
+            log.error("exception occurred > ", ex);
+            return result;
+        }   return result;
+    }
+    public Object callMethod(String field, String method, Object... argument) {
+    	Object result = null;
+        try {
+            result = userSessionClient.getDataObject().callMethod(userSessionClient.getSessionID(), field, method, argument);
+        } catch (Exception ex) {
+            log.error("exception occurred > ", ex);
+            return result;
+        }   return result;
+    }
+    public IClassObject getFieldObject(String field) {
+    	IClassObject result = null;
+        try {
+            result = userSessionClient.getDataObject().getFieldObject(userSessionClient.getSessionID(), field);
+        } catch (Exception ex) {
+            log.error("exception occurred > ", ex);
+            return result;
+        }   return result;
+    }
+
+}
+

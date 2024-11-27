@@ -1,0 +1,38 @@
+package dto.system;
+
+public class NatNFreeZoneDTO {
+	/**
+	 * member variables
+	 */
+	private String	trid;
+	private String	zonecode;
+	private String	zoneip;
+
+	public NatNFreeZoneDTO() {      		
+		
+	}
+	
+	public NatNFreeZoneDTO(String trid, String zonecode, String zoneip) {      		
+		
+		super();
+		
+		this.trid 			= trid;
+		this.zonecode 		= zonecode;
+		this.zoneip 		= zoneip;
+	}
+
+	/**
+	 * member functions
+	 */
+
+	public String	getTrid() { return this.trid; }
+	public void	setTrid(String trid ) { this.trid = trid; }
+
+	public String	getZonecode() { return this.zonecode; }
+	public void	setZonecode(String zonecode ) { this.zonecode = zonecode; }
+	
+	public String	getZoneip() { return this.zoneip; }
+	public void	setZoneip(String zoneip ) { this.zoneip = zoneip; }
+
+
+}

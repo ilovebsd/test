@@ -1,0 +1,36 @@
+package com.acromate.dataio.agent;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.code.AppCode;
+
+public class EmsAgentDIO extends DataIO{
+	private String host = null;
+	private String port = null;
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		boolean stop = (field != null) ;
+		int errcode= AppCode.ERR_NOERROR;
+		StringBuilder sbField =new StringBuilder(field);
+		if   ( compareFieldID( sbField, "host", idx, value ) )
+		{	errcode = getString( host, value ,  ! stop);
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "port", idx, value ) )
+		{	errcode = getString( port, value ,  ! stop);
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		return AppCode.ERR_NOERROR;
+	}
+
+	protected int setFieldData(String field, String value) {
+		StringBuilder sbfield = new StringBuilder(field);
+		if	( compareFieldID( sbfield, "host") )
+		{	host = value;
+			return (AppCode.ERR_NOERROR) ;
+		}
+		if	( compareFieldID( sbfield, "port") )
+		{	port = value;
+			return (AppCode.ERR_NOERROR) ;
+		}
+		return AppCode.ERR_NOERROR;
+	}
+}

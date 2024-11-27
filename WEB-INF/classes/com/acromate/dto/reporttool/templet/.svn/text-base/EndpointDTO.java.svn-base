@@ -1,0 +1,50 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.DataIO;
+
+public class EndpointDTO  extends DataIO {
+	boolean regi;
+	boolean e164;
+
+	public void setRegi(boolean regi) { this.regi = regi; }
+	public boolean getRegi() { return regi; }
+
+	public void setE164(boolean e164) { this.e164 = e164; }
+	public boolean getE164() { return e164; }
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "regi", idx, value) == true) {
+            errorcode = getBoolean(regi, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "e164", idx, value) == true) {
+            errorcode = getBoolean(e164, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		return (0);
+	}
+	@Override
+	protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "regi") == true) {
+            if(!value.equals("")) regi = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "e164") == true) {
+            if(!value.equals("")) e164 = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+		return (-1);
+	}
+}

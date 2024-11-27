@@ -1,0 +1,246 @@
+package com.acromate.util;
+
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+public class Logger extends Thread
+{
+    static Logger logger ;
+    public static Logger getLogger(Class clazz) {
+        if (logger == null) logger = new Logger();
+        return logger;
+    }
+    public void msg(String msg){
+        System.out.print(msg);
+    }
+    public void info(String info){
+        //System.out.println(info);
+    }
+    public void debug(String info){
+        //System.out.println(info);
+    }
+    public void error(Object obj){
+        if (obj instanceof Exception ) ((Exception)obj).printStackTrace();
+        else System.out.println(obj);
+    }
+    public void error(String str,Object obj){
+        System.out.println(str);
+        ((Exception)obj).printStackTrace();
+    }
+/*
+        private static String strPath = "";
+        private static String strWarningLogPath = "";
+        private static String strDebugLogPath = "";
+        private static String strExceptionLogPath = "";
+
+        public static final int wt_status = 0;
+        public static final int wt_fault = 1;
+        public static final int wt_alarm = 2;
+
+        public static File warningLogFile ;
+        public static File debugLogFile ;
+        public static File exceptionLogFile ;
+
+        public static PrintWriter warningLogPW ;
+        public static PrintWriter debugLogPW ;
+        public static PrintWriter exceptionLogPW ;
+
+        public static boolean	enableWarningLog = false;	// default : false
+        public static boolean	enableDebugLog = false ;	// default : false
+        public static boolean	enableExceptionLog = false ;	// default : false
+
+        public static boolean	enableWarningLogScreenPrint = false ;	// default : false
+        public static boolean	enableDebugLogScreenPrint = false ;	// default : false
+        public static boolean	enableExceptionLogScreenPrint = false ;	// default : false
+        public static Hashtable	hDebugFileList ;	// Debug File List 저장
+
+        private boolean bDebug = false ;
+        private Properties properties;
+        private int count = 0;
+        public Logger()
+        {
+            if ( properties == null )
+            {	  properties = new Properties();
+                properties.setProperty("logger.dir", "../log" + File.separator + "ems" + File.separator);
+            }
+            try{
+                StringBuilder result = new StringBuilder();
+                SystemObject.getInstance().getEmsConfig().getParam("logger.emsHomeDirectory", result);
+                String strEmsLogHomeDirectory = result.toString();
+
+                strPath = System.getProperty("user.dir") + File.separator +strEmsLogHomeDirectory+ File.separator;
+                if(bDebug) log.info("SystemLogPath = " + strPath);
+            }catch(Exception e){log.error("exception occurred > ", e);}
+
+            File f = new File(strPath);
+            f.mkdir();
+
+            enableWarningLog		= Convert.getBooleanProperty( properties, "logger.enableWarningLog" , "true") ;
+            enableWarningLogScreenPrint	= Convert.getBooleanProperty( properties, "logger.enableWarningLogScreenPrint" , "false") ;
+            enableDebugLog			= Convert.getBooleanProperty( properties, "logger.enableDebugLog" , "true") ;
+            enableDebugLogScreenPrint	= Convert.getBooleanProperty( properties, "logger.enableDebugLogScreenPrint" , "false") ;
+            enableExceptionLog		= Convert.getBooleanProperty( properties, "logger.enableExceptionLog" , "true") ;
+            enableExceptionLogScreenPrint	= Convert.getBooleanProperty( properties, "logger.enableExceptionLogScreenPrint" , "false") ;
+
+            String enableDebugLogFile	= (String)properties.getProperty("logger.enableDebugLogFile" , "") ;
+            StringTokenizer token = new StringTokenizer(enableDebugLogFile,"|");
+            hDebugFileList = new Hashtable();
+            String strFileName;
+            while(token.hasMoreTokens())
+            {
+                strFileName = token.nextToken().toLowerCase();
+                hDebugFileList.put(strFileName,strFileName);
+            }
+        }
+
+
+        public void run() {
+            while (!Thread.currentThread().interrupted()) {
+                count ++;
+                try {Thread.sleep(1000);} catch (Exception ex){}
+                //if (count % 3 == 0) channelStatus();
+            }
+        }
+        public void channelStatus() {
+            Hashtable networkList = SystemObject.getInstance().getNetworkList();
+            Enumeration em = networkList.elements();
+            Enumeration em2 ;
+            Network  network  = null;
+            NetworkChannel  channels  = NetworkChannel.getInstance();
+            NetworkConnection connection  = null;
+            Logger.writeDebug( "Logger", "channelStatus", "NetworkChannel Total Count:"+ channels.getCount());
+
+            while (em.hasMoreElements()) {
+                network = (Network)em.nextElement();
+                em2 = channels.elements();
+                while (em2.hasMoreElements()) {
+                    connection = (NetworkConnection) em2.nextElement();
+                    if (connection.getNetwork() == network)
+                        Logger.writeDebug( "Logger", "channelStatus", "Network Type:"+ network.getServiceType() +
+					   ", connection "+ connection.getClusterID() + " " +  connection.getSystemID() +
+                                           " status : Block[" + connection.getBlockChannel() + "] isLock["+connection.isLocked()+"]");
+                }
+            }
+
+        }
+
+        public static void writeWarning(int type, int code, String subject, String detail)
+        {	if (enableWarningLog == false ) return ;
+
+		String message = "WRN("+getTime() +")| "+type+" | "+code+" | "+subject+" | "+detail ;
+
+		if (enableWarningLogScreenPrint == true )
+		{	log.info(message);
+		}
+
+		String strFileName = "wrn_"+TimeUtil.ConvertMillisecondtoDateString_YYYYMMDD(System.currentTimeMillis()) + ".log";
+		String tempPath = strPath +  File.separator +strFileName ;
+		// 현재 날짜 파일이 있는지 확인하고 없으면 새로운 파일을 생성한다.
+		if ( strWarningLogPath.equals(tempPath) == false )
+		{
+			try
+			{	strWarningLogPath = tempPath ;
+				warningLogFile = new File(strWarningLogPath);
+				if (warningLogPW != null)
+				{	warningLogPW.close();
+				}
+				warningLogPW = new PrintWriter(new FileWriter(warningLogFile, true));
+			} catch (Exception e)
+			{	log.info( e.toString() );
+			}
+		}
+		try
+		{	warningLogPW.println(message);
+			warningLogPW.flush();
+ 		}
+		catch (Exception e)
+		{	log.info( e.toString() );
+		}
+        }
+
+        public static void writeDebug( String file, String method, String detail)
+        {	if (enableDebugLog == false )
+		{
+			if ( hDebugFileList == null ) return ;
+			Object obj = hDebugFileList.get(file.toLowerCase());
+			if ( obj == null ) return ;
+		}
+
+		String message = "DBG("+getTime() +")| " + file + " | "+ method + " | " + detail ;
+
+		if (enableDebugLogScreenPrint == true )
+		{	log.info(message);
+		}
+
+		String strFileName = "dbg_"+TimeUtil.ConvertMillisecondtoDateString_YYYYMMDD(System.currentTimeMillis()) + ".log";
+		String tempPath = strPath +  File.separator +strFileName ;
+		// 현재 날짜 파일이 있는지 확인하고 없으면 새로운 파일을 생성한다.
+		if ( strDebugLogPath.equals(tempPath) == false )
+		{
+			try
+			{	strDebugLogPath = tempPath ;
+				debugLogFile = new File(strDebugLogPath);
+				if (debugLogPW != null)
+				{	debugLogPW.close();
+				}
+				debugLogPW = new PrintWriter(new FileWriter(debugLogFile, true));
+			} catch (Exception e)
+			{	log.info( e.toString() );
+			}
+		}
+		try
+		{	debugLogPW.println(message);
+			debugLogPW.flush();
+ 		}
+		catch (Exception e)
+		{	log.info( e.toString() );
+		}
+        }
+
+        public static void writeException( String file, String method, String detail)
+        {	if (enableWarningLog == false ) return ;
+
+		String message = "DBG("+getTime() +")| " + file + " | "+ method + " | " + detail ;
+
+		if (enableExceptionLogScreenPrint == true )
+		{	log.info(message);
+		}
+
+		String strFileName = "dbg_"+TimeUtil.ConvertMillisecondtoDateString_YYYYMMDD(System.currentTimeMillis()) + ".log";
+		String tempPath = strPath +  File.separator +strFileName ;
+		// 현재 날짜 파일이 있는지 확인하고 없으면 새로운 파일을 생성한다.
+		if ( strDebugLogPath.equals(tempPath) == false )
+		{
+			try
+			{	strExceptionLogPath = tempPath ;
+				exceptionLogFile = new File(strExceptionLogPath);
+				if (exceptionLogPW != null)
+				{	exceptionLogPW.close();
+				}
+				exceptionLogPW = new PrintWriter(new FileWriter(exceptionLogFile, true));
+			} catch (Exception e)
+			{	log.info( e.toString() );
+			}
+		}
+		try
+		{	exceptionLogPW.println(message);
+			exceptionLogPW.flush();
+ 		}
+		catch (Exception e)
+		{	log.info( e.toString() );
+		}
+        }
+
+
+        // 현재시각 불러오는 메쏘드
+        public static String getTime(){
+		String currentTime = TimeUtil.ConvertMillisecondtoDateString1(System.currentTimeMillis());
+		String nowTime = currentTime.substring(0, 4) + "/" + currentTime.substring(4, 6);
+		nowTime += "/" + currentTime.substring(6, 8) + " " + currentTime.substring(9, 11);
+		nowTime += ":" + currentTime.substring(11, 13) + ":" + currentTime.substring(13, 15);
+		return nowTime;
+        }
+*/
+}
+

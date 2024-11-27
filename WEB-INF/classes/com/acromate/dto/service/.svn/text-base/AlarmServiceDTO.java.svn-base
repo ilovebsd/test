@@ -1,0 +1,53 @@
+package com.acromate.dto.service;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class AlarmServiceDTO {
+
+    private String e164;
+    private int	sequenceNo;
+    private int alarmType;
+    private String alarmTime;
+    private String alarmDate;
+
+
+    public String getE164() { return this.e164; }
+    public void   setE164(String e164 ) { this.e164 = e164; }
+
+    public int    getSequenceNo() { return this.sequenceNo; }
+    public void   setSequenceNo(int vSequenceNo ) { this.sequenceNo = vSequenceNo; }
+
+    public int    getAlarmType() { return this.alarmType; }
+    public void   setAlarmType(int vAlarmType ) { this.alarmType = vAlarmType; }
+
+    public String getAlarmTime() { return this.alarmTime; }
+    public void   setAlarmTime(String vAlarmTime ) { this.alarmTime = vAlarmTime; }
+
+    public String getAlarmDate() { return this.alarmDate; }
+    public void   setAlarmDate(String vAlarmDate ) { this.alarmDate = vAlarmDate; }
+
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(e164:"         + getE164() + ") ") ;
+        sb.append("[sequenceNo:"   + getSequenceNo() + "] ") ;
+        sb.append("[alarmType:"    + getAlarmType() + "] ") ;
+        sb.append("[alarmTime:"    + getAlarmTime() + "] ") ;
+        sb.append("[alarmDate:"    + getAlarmDate() + "] ") ;
+
+        return sb.toString();
+}
+
+
+    }

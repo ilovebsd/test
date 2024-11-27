@@ -1,0 +1,77 @@
+package com.acromate.dataio.server.database ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class EmsDatabaseDIO extends DataIO {
+    private Logger logger = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private JdbcDIO database = new JdbcDIO();
+    private JdbcDIO stats = new JdbcDIO();
+    private JdbcDIO trace = new JdbcDIO();
+    private JdbcDIO log = new JdbcDIO();
+
+    public EmsDatabaseDIO(){}
+
+    public JdbcDIO    getDatabaseDIO() { return database ; }
+    public void   setDatabaseDIO( JdbcDIO database ) { this.database = database ; }
+
+    public JdbcDIO    getStatsDIO() { return stats ; }
+    public void   setStatsDIO( JdbcDIO stats ) { this.stats = stats ; }
+
+    public JdbcDIO    getTraceDIO() { return trace ; }
+    public void   setTraceDIO( JdbcDIO trace ) { this.trace = trace ; }
+
+    public JdbcDIO    getLogDIO() { return log ; }
+    public void   setLogDIO( JdbcDIO log ) { this.log = log ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "database".toLowerCase()) == true) {
+            return database.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "stats".toLowerCase()) == true) {
+            return stats.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "trace".toLowerCase()) == true) {
+            return trace.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "log".toLowerCase()) == true) {
+            return log.setParam(temp.toString(), value);
+        }
+        logger.error("EmsDatabaseDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "database", idx, value) == true) {
+            errorcode = database.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "stats", idx, value) == true) {
+            errorcode = stats.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "trace", idx, value) == true) {
+            errorcode = trace.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "log", idx, value) == true) {
+            errorcode = log.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}
+

@@ -1,0 +1,108 @@
+package dto.system;
+
+public class ProxyDTO {
+	/**
+	 * member variables
+	 */
+	private String	endpointid;
+	private String	indomainname;
+	private String	inviaaddress;
+	private int     chkInviavport;
+	private int     inviaport;
+	private int     authmode;
+	private int     endpointclass;
+	private String	signaladdress;
+	private int		signalport;
+	private String  password;
+	private String  username;
+	private String  outFromDomainname;
+	private String  outToDomainname;
+	private String  fromnumber;
+	private String  tonumber;
+	private int     interval;
+	private int     messagetype;
+	private int     channelmonitor;
+
+	private int     handlerid;
+	private int     uriType;
+	private String  uriParam;
+	private int     dtmfType;
+	private int     options;
+
+	/**
+	 * member functions
+	 */
+	public int	getOptions() { return this.options; }
+	public void	setOptions(int options ) { this.options = options; }
+	public int	getDtmfType() { return this.dtmfType; }
+	public void	setDtmfType(int dtmfType ) { this.dtmfType = dtmfType; }
+
+	public String	getEndpointid() { return this.endpointid; }
+	public void	setEndpointid(String endpointid ) { this.endpointid = endpointid; }
+
+	public String	getInDomainname() { return this.indomainname; }
+	public void	setInDomainname(String indomainname ) { this.indomainname = indomainname; }
+
+	public String	getInviaaddress() { return this.inviaaddress; }
+	public void	setInviaaddress(String inviaaddress ) { this.inviaaddress = inviaaddress; }
+
+	public int	getInviaport() { return this.inviaport; }
+	public void	setInviaport(int inviaport ) { this.inviaport = inviaport; }
+
+	public int	getChkInviavport() { return this.chkInviavport; }
+	public void	setChkInviavport(int chkInviavport ) { this.chkInviavport = chkInviavport; }
+
+	public int	getAuthMode() { return this.authmode; }
+	public void	setAuthMode(int authmode ) { this.authmode = authmode; }
+
+	public int	getEndpointclass() { return this.endpointclass; }
+	public void	setEndpointclass(int endpointclass ) { this.endpointclass = endpointclass; }
+
+	public String	getSignalAddress() { return this.signaladdress; }
+	public void	setSignalAddress(String signaladdress ) { this.signaladdress = signaladdress; }
+
+	public int	getSignalPort() { return this.signalport; }
+	public void	setSignalPort(int vSignalPort ) {
+	                    if(signalport == 0)
+	                    	signalport = 5060;
+	                       this.signalport = signalport;
+	}
+
+	public String	getPassword() { return this.password; }
+	public void	setPassword(String password ) { this.password = password; }
+
+	public String	getUsername() { return this.username; }
+	public void	setUsername(String username ) { this.username = username; }
+
+	public String	getOutFromDomainname() { return this.outFromDomainname; }
+	public void	setOutFromDomainname(String outFromDomainname ) { this.outFromDomainname = outFromDomainname; }
+
+	public String	getOutToDomainname() { return this.outToDomainname; }
+	public void	setOutToDomainname(String outToDomainname ) { this.outToDomainname = outToDomainname; }
+
+	public String	getFromnumber() { return this.fromnumber; }
+	public void	setFromnumber(String fromnumber ) { this.fromnumber = fromnumber; }
+
+	public String	getTonumber() { return this.tonumber; }
+	public void	setTonumber(String tonumber ) { this.tonumber = tonumber; }
+
+	public int	getInterval() { return this.interval; }
+	public void	setInterval(int interval ) { this.interval = interval; }
+
+	public int	getMessagetype() { return this.messagetype; }
+	public void	setMessagetype(int messagetype ) { this.messagetype = messagetype; }
+
+
+	public int	getChannelmonitor() { return this.channelmonitor; }
+	public void	setChannelmonitor(int channelmonitor ) { this.channelmonitor = channelmonitor; }
+
+	public int	getHandlerID() { return this.handlerid; }
+	public void	setHandlerID(int handlerid ) { this.handlerid = handlerid; }
+
+	public String	getUriParam() { return this.uriParam; }
+	public void	setUriParam(String uriParam ) { this.uriParam = uriParam; }
+
+	public int	getUriType() { return this.uriType; }
+	public void	setUriType(int uriType ) { this.uriType = uriType; }
+		
+}

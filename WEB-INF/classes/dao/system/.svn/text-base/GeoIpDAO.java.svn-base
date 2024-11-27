@@ -1,0 +1,166 @@
+package dao.system;
+
+import acromate.*;
+
+import java.io.File;
+import java.sql.ResultSet;
+import java.util.Vector;
+import acromate.common.util.Str;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import acromate.ConnectionManager;
+import acromate.common.util.StringUtil;
+import acromate.common.StaticString;
+
+public class GeoIpDAO {
+
+    public GeoIpDAO() {} 
+    
+    public boolean geoIpPrefixDelete(String prefix){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 		= "";
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    		    			
+        	sql = " Delete From table_geoip_prefix Where startprefix = '" + prefix + "' ";
+        	statement.executeUpdate(sql);
+			
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public boolean geoIpPrefixInsert(String startPrefix, String endPrefix, String note){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 		= "";
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    		    			
+        	sql = " Insert Into table_geoip_prefix(startprefix, endprefix, note) Values('" + startPrefix + "', '" + endPrefix + "', '" + note + "') ";
+        	statement.executeUpdate(sql);
+			
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public int geoIpInsert(String startIp, String endIp, String note){
+    	int 			returnVal 	= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 		= "";
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    		    			
+        	sql = " Insert Into table_geoip(geoip_start, geoip_end, note) Values('" + startIp + "', '" + endIp + "', '" + note + "') ";
+        	statement.executeUpdate(sql);
+        	System.out.println("SQL문 : "+sql); 
+        	
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = 0;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public int geoIpUpdate(String startIp, String endIp, String note){
+    	int 			returnVal 	= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 		= "";
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    		    			
+        	sql = " Update table_geoip Set note = '" + note + "' Where geoip_start = '" + startIp + "' And geoip_end = '" + endIp + "' ";
+        	statement.executeUpdate(sql);
+        	System.out.println("SQL문 : "+sql); 
+        	
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = 0;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public int geoIpDelete(String startIp, String endIp){
+    	int 			returnVal 	= 0;
+    	DataStatement 	statement 	= null;
+    	
+    	try {
+    		String		sql 		= "";
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    		    			
+        	sql = " Delete From table_geoip Where geoip_start = '" + startIp + "' And geoip_end = '" + endIp + "' ";
+        	statement.executeUpdate(sql);
+        	System.out.println("SQL문 : "+sql); 
+        	
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = 1;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = 0;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+}

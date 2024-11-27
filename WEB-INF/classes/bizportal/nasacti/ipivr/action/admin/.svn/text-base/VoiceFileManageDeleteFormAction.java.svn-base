@@ -1,0 +1,32 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+
+public class VoiceFileManageDeleteFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+		String strWIndex = request.getParameter("wIndex");
+		String strWFile = request.getParameter("wFile");
+
+		request.setAttribute("wIndex", strWIndex);
+		request.setAttribute("wFile", strWFile);
+	    return "/ivr/voiceFileManageDelete.jsp";
+	}
+}

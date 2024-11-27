@@ -1,0 +1,74 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import business.LogHistory;
+
+import com.acromate.util.Str;
+
+import acromate.common.StaticString;
+import org.apache.commons.fileupload.*;
+import java.io.*;
+import java.util.*;
+import java.security.*;
+import sun.misc.*;
+import java.io.File;
+import acromate.common.util.StringUtil;
+import system.SystemConfigSet;
+
+public class  FormWayDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 	forwardingPage 	= "";
+		boolean returnVal 		= false;
+		File    tempFile        = null;  // 임시 파일 객체
+//		String 	deleteStr  		= "";
+		
+		try {			
+			String 	deleteStr = new String(Str.CheckNullString(req.getParameter("deleteStr")).getBytes("8859_1"), "euc-kr");		// 
+			String 	userID	  = new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			//System.out.println("########## deleteStr : "+deleteStr);
+		    String 	osType 	= "";
+			String 	path	= "";
+		    int 	nTemp 	= 0;
+		    
+		    SystemConfigSet 	systemConfig 	= new SystemConfigSet();
+		    
+			osType = systemConfig.osChk();
+		    if("win".equals(osType)){
+		    	path = "D:/etc/tftpboot";		// 테스트
+		    }else{
+		    	//path = "/tftpboot";
+		    	path = "/usr/local/tomcat5.5/webapps/bizportal/phone_firmware";
+		    	path = "/usr/local/apache-tomcat-7.0/webapps/bizportal/phone_firmware";
+		    }
+			
+			String[] 	fileNameStr 	= StringUtil.getParser(deleteStr, "");
+			
+			for(int k=0; k < fileNameStr.length; k++){
+    			tempFile = new File(path+"/"+fileNameStr[k]);
+    			tempFile.delete();
+			
+    			// ############### LogHistory 처리  ###############
+    			LogHistory	logHistory 	= new LogHistory();
+    			int int_result = logHistory.LogHistorySave(userID+"|86|단말 펨웨어("+fileNameStr[k]+")|2|"+req.getRemoteAddr());
+    			// ##############################################
+			}
+						
+			res.sendRedirect("/bizportal/system/formWayList.jsp");
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			
+			
+		}
+		return forwardingPage;
+	}
+}

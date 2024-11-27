@@ -1,0 +1,25 @@
+/*
+ * GeneralFile.java
+ *
+ * Created on 2006년 9월 30일 (토), 오후 12:01
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.framework.data.file;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ */
+public abstract class GeneralFile {
+    
+    /** General file name */
+    protected String fileName;
+    /** file path */
+    protected String filePath;    
+    public GeneralFile() {
+    }
+        
+    public abstract boolean load(String fileName);
+    public abstract boolean save(String fileName);
+}

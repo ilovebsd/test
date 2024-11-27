@@ -1,0 +1,534 @@
+package com.acromate.framework.frame;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.List;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.code.AppCode;
+class ExLoadingModule extends  DataIO{
+	// construction
+	public ExLoadingModule() {
+		this.nVersionNo = 0;
+		this.nLoadingType =0;
+	}
+	public ExLoadingModule(int nVersionNo ) {
+		this.nVersionNo = nVersionNo;
+		this.nLoadingType =0;
+	}
+
+	public ExLoadingModule( int nVersionNo , int nLoadingType ) {
+		this.nVersionNo = nVersionNo;
+		this.nLoadingType =nLoadingType;
+	}
+	/* up linker */
+	protected ExServiceModule pServiceModule = null;
+	// module identifier
+	public int nVersionNo = 0;
+	// loading parameters
+	public int nLoadingType = 0;
+	public StringBuilder fileName = new StringBuilder();
+	public StringBuilder className = new StringBuilder();
+	public StringBuilder loader =  new StringBuilder();
+	public StringBuilder unLoader = new StringBuilder();
+	public boolean bAutoLoading = true;
+
+	// module identifier
+	public int getVersionNo(){ return nVersionNo ; }
+	public String getClassID() {return String.valueOf(nVersionNo);}
+	// loading parameters
+	public int getLoadingType()	{ return nLoadingType ; }
+
+	// loading api
+	public void	getLoadingAPI()		{ return  ; } //수정 필요
+	public void	getUnloadingAPI()	{ return  ; } //수정 필요
+	// loading state
+	public int nLodingState ;
+	public int getLoadingState()	{ return nLodingState ; }
+
+	// class data i/o
+	@Override
+	protected int getFieldData(String field, Index indx, StringBuilder value) {
+		boolean stop = false;
+		if(field != null) stop = true;
+		StringBuilder sbField =new StringBuilder(field);
+		StringBuilder sbValue =new StringBuilder(value);
+		int  errcode ;
+
+		if   ( compareFieldID( sbField, "versionNo", indx, sbValue ) )
+		{    errcode = getInteger( nVersionNo, sbValue) ;
+		     if   ( stop || errcode!=0 )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "loadingType", indx, sbValue) )
+		{    errcode = getInteger( nLoadingType, sbValue ) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "filename", indx, sbValue) )
+		{    errcode = getString( fileName.toString(), sbValue,  ! stop ) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "className", indx, sbValue) )
+		{    errcode = getString( className.toString(), sbValue,  ! stop ) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "loader", indx, sbValue) )
+		{    errcode = getString( loader.toString(), sbValue,  ! stop ) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "unloader", indx, sbValue) )
+		{    errcode = getString( unLoader.toString(), sbValue,  ! stop ) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "autoLoading", indx, sbValue) )
+		{    errcode = getBoolean( bAutoLoading, sbValue ) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "state", indx, sbValue ) )
+		{    errcode = getInteger( nLodingState, sbValue) ;
+		     if   ( stop ||  errcode!=0  )	return errcode ;
+		}
+		return AppCode.ERR_NOERROR ;
+	}
+
+	@Override
+	protected int setFieldData(String field, String value) {
+		StringBuilder sbField =new StringBuilder(field);
+
+		if   ( compareFieldID( sbField, "versionNo" ) )
+		{    if   ( value != null )
+		          nVersionNo = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbField, "loadingType" ) )
+		{    if   ( value != null )
+		          nLoadingType = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbField, "filename" ) )
+		{    return setString( fileName, value ) ;
+		}
+		if   ( compareFieldID( sbField, "className" ) )
+		{    return setString( className, value ) ;
+		}
+		if   ( compareFieldID( sbField, "loader" ) )
+		{    return setString( loader, value ) ;
+		}
+		if   ( compareFieldID( sbField, "unloader" ) )
+		{    return setString( unLoader, value ) ;
+		}
+		if   ( compareFieldID( sbField, "autoLoading" ) )
+		{    if   ( value != null )
+		          bAutoLoading = a2b( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;	}
+	// operations
+	// module loader
+	public int load( String home_directory ){
+		int errCode = 0;
+		if(home_directory == null) return AppCode.ERR_MEMBER_IO;
+		home_directory = home_directory.trim();
+		File homeDir = new File(home_directory);
+		if(homeDir.isDirectory()){
+			loadDynamicClass("file:"+home_directory.toString(),fileName.toString(),className.toString(),loader.toString());
+		}else{
+			loadDynamicClass(home_directory.toString(),fileName.toString(),className.toString(),loader.toString());
+		}
+		//작업;
+		return errCode;
+	}
+	public void unload( int delay_time  ) {
+		//작업;
+	}
+	public void Unload() {
+		Unload();
+	}
+	public String textClassID = null;
+
+	private Object loadDynamicClass(String home_dir ,String file,String className, String loader){
+
+		Object result = null;
+		try {
+			//URL url = new URL("file:"+home_dir+file);
+			URL url = new URL(home_dir+file);
+			URLClassLoader urlloader = new URLClassLoader (new URL[] {url},ExLoadingModule.class.getClassLoader());
+			Class cl = Class.forName (className, true, urlloader);
+			Object instance = cl.newInstance();
+			Method method = cl.getMethod(loader);
+			result = method.invoke(instance);
+
+			/*
+			ClassLoader tset = this.getClass().getClassLoader();
+
+			while (tset != null) {
+				if(tset instanceof org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader){
+					System.out.println("사용되고 있는 클래스 로더"+tset);
+					URL url2 = new URL(home_dir+file);
+					URLClassLoader urlloader2 = new URLClassLoader (new URL[] {url},ExLoadingModule.class.getClassLoader());
+					Class c2 = Class.forName ("ExtMoudle.SipTerminal", true, urlloader2);
+					Object instance2 = c2.newInstance();
+
+					JarFile jar = new JarFile("c:\\test.jar");
+					Manifest mf = jar.getManifest();
+
+				}
+				tset = tset.getParent();
+			}
+			*/
+
+			/*
+			Class c2;
+				c2 = Class.forName ("ExtMoudle.SipTerminal", true, urlloader);
+			Object instance2 = c2.newInstance();
+
+			*/
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
+		return result;
+	}
+
+
+}
+
+class LoadingModuleList extends  ListIO {
+	protected ExServiceModule pServiceModule ;	/* up linker */
+	@Override
+	protected DataIO newListNode() {
+		// TODO Auto-generated method stub
+		return new ExLoadingModule() ;
+	}
+	public DataIO getNode(String pNodeID){
+		DataIO pNode = null;
+		if   ( (pNode = super.getNode( pNodeID ) )!= null)
+		     return pNode ;
+		if   ( (pNode = new ExLoadingModule( a2i(pNodeID) )) !=null  )
+		     appendTail( pNode ) ;
+		return pNode ;
+	}
+}
+
+class ExServiceModule extends  DataIO{
+	// construction
+	public ExServiceModule( ) {
+
+	}
+	public ExServiceModule( String pServiceID  ) {
+		serviceID = pServiceID;
+		//lstVersion.pServiceModule = this ;
+	}
+	// attribute
+	protected String serviceID;
+	// versions
+	protected LoadingModuleList	lstVersion = new LoadingModuleList();
+	// class identifier
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		boolean stop = false;
+		StringBuilder sbField =new StringBuilder(field);
+		if(field != null) stop = true;
+		int  errcode ;
+		if( compareFieldID( sbField, "service", idx, value ) )
+		{    errcode = getString( serviceID, value, ! stop ) ;
+		     if   ( stop || errcode != 0 )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "version", idx, value ) )
+		{    errcode = lstVersion.getParam( field, value ) ;
+		     if   ( stop || errcode!=0 )	return errcode ;
+		}
+		return AppCode.ERR_NOERROR ;
+	}
+
+	@Override
+	protected int setFieldData(String field, String value) {
+		//System.out.println("ExServiceModule.setFieldData ["+field+"]"+"["+value+"]");
+		StringBuilder sbField =new StringBuilder(field);
+		StringBuilder sbServiceID =new StringBuilder(serviceID);
+		if( compareFieldID( sbField, "service" ) ){
+			return setString( sbServiceID, value ) ;
+		}
+		if( compareFieldID( sbField, "version" ) )
+		{
+			return lstVersion.setParam( field, value ) ;
+		}
+
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	// class identifier
+	public String getServiceID() { return serviceID ; }
+	public String getClassID() { return getServiceID();} //확인 후 수정
+	// control api
+	public ExLoadingModule getVersionHead() { return ( ExLoadingModule )lstVersion.getHead(); }
+	public ExLoadingModule getVersionTail() { return ( ExLoadingModule ) lstVersion.getTail();}
+	/* last version checker ( versionNo < 0 ) */
+	public ExLoadingModule searchLoadingModule( int  versionNo ) {
+		ExLoadingModule exLoadingModule = null;
+		// check last version
+		if( versionNo < 0 ){
+			exLoadingModule = (ExLoadingModule)lstVersion.getTail() ;
+			return exLoadingModule ;
+		}
+		// search same version number
+		for( int i=0; i < lstVersion.getCount() ; i++){
+			exLoadingModule = (ExLoadingModule)lstVersion.getNode(i);
+			if(exLoadingModule != null){
+				if(exLoadingModule.getVersionNo() == versionNo)
+					return exLoadingModule;
+			}
+		}
+		return null;
+	}
+	public ExLoadingModule searchLoadingModule(String fileName ) {
+		if(fileName == null ) return null;
+		ExLoadingModule exLoadingModule = null;
+		for( int i=0; i < lstVersion.getCount() ; i++){
+			exLoadingModule = (ExLoadingModule)lstVersion.getNode(i);
+			if(exLoadingModule != null){
+				if(fileName.equals(exLoadingModule.fileName))
+					return exLoadingModule;
+			}
+		}
+		return null;
+	}
+	public void appendLoadingModule( ExLoadingModule pModule ) {
+		if(pModule == null)return;
+		ExLoadingModule pVersionPos ;
+		for(int i =0 ; i<lstVersion.getCount(); i++){
+			pVersionPos = (ExLoadingModule) lstVersion.getNode(i);
+			if(pVersionPos.getVersionNo() <= pModule.getVersionNo()){
+				lstVersion.insertNode(pVersionPos, pModule);
+				return ;
+			}
+		}
+		lstVersion.appendHead( pModule ) ;
+	}
+	public void removeLoadingModule( ExLoadingModule pModule ) { lstVersion.removeNode( pModule ) ; }
+
+	// operations
+	public void	loadByVersionSequence( String home_directory, boolean bAutoLoadingOnly ) {
+		ExLoadingModule pModule = null, pLoadingVersion = null ;
+		int  nLastLoaded ;
+		do
+		{
+			if( pLoadingVersion != null )
+			{
+				pLoadingVersion.load( home_directory ) ;
+				nLastLoaded = pLoadingVersion.getVersionNo() ;
+				System.out.println("실행된 버전:"+pLoadingVersion.getVersionNo() );
+				pLoadingVersion = null ;
+			}
+			else nLastLoaded = -1 ;
+			// search loading module
+			for( int i =0; i<lstVersion.getCount();i++){
+				pModule = (ExLoadingModule)lstVersion.getNode(i);
+				if( pModule.getVersionNo() <= nLastLoaded )
+					continue ;
+				if( (pModule.getLoadingState() & AppCode.xdm_executing ) != 0)
+					continue ;
+				if( bAutoLoadingOnly && ! pModule.bAutoLoading )
+					continue ;
+				if( pLoadingVersion != null && (pLoadingVersion.getVersionNo() > pModule.getVersionNo()) )
+					continue ;
+		        pLoadingVersion = pModule ;
+			}
+		}  while( pLoadingVersion != null) ;
+
+	}
+	public void	loadByVersionSequence( String home_directory ) {
+		loadByVersionSequence(home_directory,true);
+	}
+
+
+}
+
+public class EmsModuleLoader extends DataIO {
+	// construction
+	public EmsModuleLoader(EmsConfig pEmsConfig){
+		emsConfig = pEmsConfig;
+		instance = this;
+	}
+	// current channel monitor
+	private static EmsModuleLoader instance = null;
+	// linked ems agent
+	protected EmsConfig emsConfig = null;
+	// loading modules
+	protected ServiceModuleList lstModule = new ServiceModuleList();
+	// file home path
+	StringBuilder homeDirectory = new StringBuilder();
+	// object finder
+	public static EmsModuleLoader getActiveModuleLoader() { return instance ; }
+	public String getClassID() { return "External Modules" ; }
+
+	@Override
+	protected int getFieldData(String field, Index indx, StringBuilder value) {
+		boolean stop = false;
+		if(field != null) stop = true;
+		StringBuilder sbField =new StringBuilder(field);
+		int  errcode = AppCode.ERR_NOERROR;
+		// local value
+		if   ( compareFieldID( sbField, "homeDirectory", indx, value ) )
+		{    errcode = getString( homeDirectory.toString(), value,  ! stop ) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbField, "module", indx, value ) )
+		{    errcode = lstModule.getParam( field, value) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		return AppCode.ERR_NOERROR ;
+	}
+
+	@Override
+	protected int setFieldData(String field, String value) {
+		//System.out.println("EmsModuleLoader.setFieldData ["+field+"]"+"["+value+"]");
+		StringBuilder sbField =new StringBuilder(field);
+		if   ( compareFieldID( sbField, "homeDirectory" ) )
+		     return setString( homeDirectory, value ) ;
+		if   ( compareFieldID( sbField, "module" ) )
+		     return lstModule.setParam( field, value ) ;
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+	}
+	// service module control
+	public void appendServiceModule( ExServiceModule pServiceModule ) {
+		lstModule.appendTail( pServiceModule ) ;
+	}
+	public void removeServiceModule( ExServiceModule pServiceModule ) {
+		lstModule.removeNode( pServiceModule ) ;
+	}
+
+	public ExServiceModule searchServiceModule( String service_id ) {
+		return (ExServiceModule)lstModule.getNode( service_id ) ;
+
+	}
+
+	// loading module control
+	public int appendLoadingModule( String service_id, ExLoadingModule pLoadingModule ) {
+		ExServiceModule pServiceModule ;
+		pServiceModule = searchServiceModule( service_id );
+		if(pServiceModule != null)
+		{
+			pServiceModule.appendLoadingModule( pLoadingModule ) ;
+			return AppCode.ERR_NOERROR ;
+		}
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+
+	}
+	public void removeLoadingModule( String service_id, ExLoadingModule pLoadingModule ) {
+		ExServiceModule pServiceModule = searchServiceModule( service_id );
+		if(pServiceModule == null) return;
+		pServiceModule.removeLoadingModule( pLoadingModule ) ;
+	}
+
+	public ExLoadingModule searchLoadingModuleFileName(String fileName) {
+		ExServiceModule pServiceModule = null;
+		ExLoadingModule pLoadingModule = null;
+
+
+		for(int i=0 ; i<lstModule.getCount();i++){
+			pServiceModule = (ExServiceModule)lstModule.getNode(i) ;
+			if(pServiceModule == null) continue;
+			if((pLoadingModule = pServiceModule.searchLoadingModule(fileName)) != null){
+				return pLoadingModule;
+			}
+		}
+		return null ;
+	}
+	/* last version checker ( versionNo < 0 ) */
+	public ExLoadingModule searchLoadingModule( String service_id, int versionNo /*= -1*/ ) {
+		ExServiceModule pServiceModule = searchServiceModule( service_id );
+		if   (pServiceModule == null)
+		     return null ;
+		return pServiceModule.searchLoadingModule( versionNo ) ;
+	}
+	public ExLoadingModule searchLoadingModule( String service_id) {
+		return searchLoadingModule(service_id,-1);
+	}
+
+	// operations
+	public void applyToComponent( String section, boolean bWarningReport ){
+		EmsSection pSection = null;
+		EmsField pField = null;
+		int  errcode = 0;
+		if   ( section == null )
+		     section = getClassID() ;
+
+		if   ( ( emsConfig == null)  || ( (pSection = emsConfig.searchSection( section ))== null)) {
+			return ;
+		}
+
+		for(int i = 0; i < pSection.getCount();i++){
+			pField = (EmsField)pSection.getNode(i);
+			if(pField == null)continue;
+			if((pField.member != null || pField.value != null)  && (0 ==(errcode = setParam( pField.member, pField.value))) && bWarningReport )
+		     {
+		     	String head = "EMS Section ( "+section+" ) Configuration Error" ;
+		     	String data ="errcode = "+errcode+", field = "+pField.member+" , value ="+pField.value;
+		     	writeWarningLog( 1, AppCode.ERR_UPDATE_CONFIGURATION, head, data ) ;
+		     }
+		}
+	}
+	public void applyToComponent( String section){
+		applyToComponent(section,true);
+	}
+
+	// warning report
+	public void	writeWarningLog( int type,int code, String subject, String detail ) {
+		System.out.printf( "WRN: type = "+type+", code = "+code+", subject = "+subject+", detail = "+detail+"\n") ;
+	}
+	// operations
+	public int Start(){
+		int  errcode ;
+		ExServiceModule pServiceModule  = null;
+		// load external modules
+		for( int i =0; i< lstModule.getCount(); i++){
+			pServiceModule = (ExServiceModule )lstModule.getNode(i) ;
+			System.out.println(pServiceModule.serviceID);
+			pServiceModule.loadByVersionSequence(homeDirectory.toString() ) ;
+		}
+		return AppCode.ERR_NOERROR ;
+	}
+	public static void main(String args[]){
+		EmsModuleLoader pModuleLoader = null;
+		int errcode = 0;
+		EmsConfig	emsConfig = new EmsConfig( "c:\\webstart.ini" ) ;
+		if((pModuleLoader = new EmsModuleLoader( emsConfig )) == null){
+			System.out.println("에러!!!");
+		}
+		pModuleLoader.applyToComponent( null, true ) ;
+		// execute module loading
+		errcode = pModuleLoader.Start() ;
+	}
+}
+
+

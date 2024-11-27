@@ -1,0 +1,26 @@
+package dto.system;
+
+public class SpecialprefixDTO {
+	/**
+	 * member variables
+	 */
+	private String 	startprefix;
+	private String 	endpointid;
+	private String 	description;
+	
+	public SpecialprefixDTO() {}
+
+	
+	/**
+	 * member functions
+	 */
+	public String	getStartprefix() { return this.startprefix; }
+	public void	setStartprefix(String startprefix ) { this.startprefix = startprefix; }
+	
+	public String	getEndpointid() { return this.endpointid; }
+	public void	setEndpointid(String endpointid ) { this.endpointid = endpointid; }
+
+	public String	getDescription() { return this.description; }
+	public void	setDescription(String description ) { this.description = description; }	
+	
+}

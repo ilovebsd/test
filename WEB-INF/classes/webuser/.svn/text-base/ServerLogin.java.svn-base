@@ -1,0 +1,266 @@
+package webuser;
+
+import java.io.FileInputStream;
+import java.sql.Statement;
+import java.util.Properties;
+import javax.servlet.ServletContext;
+
+import com.acromate.data.code.LoginConst;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.framework.util.Str;
+import com.acromate.session.UserSessionClient;
+
+import acromate.security.login.LoginBean;
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import acromate.common.util.Constant;
+
+
+public class ServerLogin {
+    ConnectionManager connectionManager;
+    ServletContext servletContext = null;
+    public static ServerLogin serverLogin ;
+    private boolean doingLogin = false;
+
+    public static Properties properties = null;
+
+    public LoginBean lbean = new LoginBean();
+    // 운영로그 함수 정의
+//    public UserLogFunc userlogFunc = null;
+
+    public ServletContext context;
+
+    public ServerLogin(){}
+
+    public static ServerLogin getServerLogin() {
+
+        if (serverLogin != null) return serverLogin ;
+        serverLogin = new ServerLogin();
+        return serverLogin;
+    }
+
+    public static void checkLogin() {
+        if (serverLogin != null) return ;
+        serverLogin = new ServerLogin();
+        return ;
+    }
+    
+    public static boolean isLogin() {
+    	boolean login = false;
+        if (serverLogin != null) {
+        	UserSessionClient userSessionClient = ConnectionManager.getInstance().getSessionClient();
+        	if (userSessionClient == null) return false;
+        	login = userSessionClient.isServerConnected();
+        	return login;
+        }
+        return login;
+    }
+
+    public static Properties getProperties() {
+        return properties;
+    }
+
+	public void login() {
+		login(servletContext);
+	}
+	
+    public void login(ServletContext servletContext) {
+    	if (doingLogin) return;
+    	doingLogin = true;
+        this.servletContext = servletContext ;
+        System.out.println("login1:"+ servletContext);
+        String realFolder = servletContext.getRealPath("/");
+        setupConstantPath(realFolder);
+        try {
+        	
+            //if (properties == null) properties = getPropertiesFromFile(realFolder + "properties/dbconnection.properties");
+            if (properties == null) properties = getPropertiesFromFile(realFolder + "dbconnection.properties");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        login(properties);
+        doingLogin = false;
+    }
+
+    public void login(Properties properties) {
+                String strUserName = (String)properties.get("ems.client.user");
+                String strPwd = (String)properties.get("ems.client.pwd");
+//                ServerConnection.HOST = (String)properties.get("ems.server.ip");
+                System.out.println("strUserName --> " + strUserName);
+                connectionManager = new ConnectionManager(properties);
+                System.out.println("ConnectionManager --> " + connectionManager);
+                int checkLogin = connectToServer(strUserName, strPwd);
+
+                System.out.println("checkLogin --> " + checkLogin);
+                if(checkLogin == LoginConst.LOGIN_INVALID_USERID) {
+                    System.out.println("EMS 서버 연결 아이디와 비밀번호가 일치하지 않습니다."); //아이디 인증실패
+                    return;
+                } else if(checkLogin == LoginConst.LOGIN_INVALID_PASSWORD) {
+                    System.out.println("EMS 서버 연결 아이디와 비밀번호가 일치하지 않습니다."); //PWD인증실패
+                    return;
+                } else if(checkLogin == LoginConst.LOGIN_DB_ERROR) {
+                    System.out.println("EMS 서버 DB 연결이 되지 않습니다. 확인 후 다시 접속하세요."); //DB연결실패
+                    return;
+                }else if(checkLogin == LoginConst.LOGIN_APICALL_EXCEPTION) {
+                    System.out.println("EMS 서버API 호출 실패");
+                    return;
+                } else if(checkLogin == LoginConst.LOGIN_DUPLICATE_USERID) {
+                    System.out.println("이미 해당 아이디로 로그인한 클라이언트가 있습니다. ");
+                    ConnectionManager.forcibleLogoutManager(strUserName);
+                    System.out.println("해당 클라이언트를 강제 종료하였습니다.  다시 로그인 합니다..");
+                    checkLogin = connectToServer(strUserName, strPwd);
+                } else if(checkLogin == LoginConst.LOGIN_ERROR) {
+                    System.out.println("로그인 실패 ");
+                    return;
+                }
+
+                lbean.setUserName(strUserName);
+                lbean.setActive_host((String)properties.get("ems.server.ip"));
+                lbean.setStandby_host((String)properties.get("ems.server.second.ip"));
+                lbean.setIsBlockAddr(Str.CheckNullBoolean((String)properties.get("ems.server.isblockaddr")));//hc-add : 171130
+                
+                login_save(strUserName);
+                System.out.println("lbean.setUserName : " + lbean.getUserName());
+                System.out.println("lbean.getUserIP() : " + lbean.getUserIP());
+
+                System.out.println("user --> " + (String)properties.getProperty("ems.client.user"));
+    }
+
+    private int connectToServer(String strUser, String strPassword) {
+            if(ConnectionManager.getSessionClient() == null) {
+                connectionManager.makeDataStub(null);
+            }
+
+            String strIP = ConnectionManager.getInstance().registerDataSub(strUser, strPassword);
+
+            if(("-1".equals(strIP)) == true) {
+                return LoginConst.LOGIN_INVALID_USERID;
+            } else if(("-2".equals(strIP)) == true) {
+                return LoginConst.LOGIN_INVALID_PASSWORD;
+            } else if(("-3".equals(strIP)) == true) {
+                return LoginConst.LOGIN_DUPLICATE_USERID;
+            } else if(("-4".equals(strIP)) == true) {
+                return LoginConst.LOGIN_DB_ERROR;
+            } else if(("0".equals(strIP)) == true) {
+                return LoginConst.LOGIN_ERROR;
+            } else if(("-5".equals(strIP)) == true) {
+                return LoginConst.LOGIN_FAIL_EXCEPTION;
+            } else if(("-6".equals(strIP)) == true) {
+                return LoginConst.LOGIN_APICALL_EXCEPTION;
+            }
+
+            lbean.setUserIP(strIP);
+            return LoginConst.LOGIN_COMPLETE;
+    }
+
+    public Properties getPropertiesFromFile(String downFile) throws Exception {
+
+                FileInputStream sIn = null;
+                Properties properties = new Properties();
+                try {
+                	int localidx = downFile.indexOf(".metadata");
+                	
+                	if (1!=1 && downFile.indexOf("metadata") >= 0)
+                		//downFile = "/usr/local/tomcat5.5/webapps/bizportal/dbconnection.properties";		// 운영장비
+                		downFile = "D:/work/wwwuser/WebContent/dbconnection.properties";					// 로컬테스트 장비
+                		//downFile = "E:/EMSproject/wwwuser/WebContent/dbconnection.properties";
+                        //downFile = "/home/ems/web/tomcat/webapps/wwwuser/dbconnection.properties";
+                	else if (localidx >= 0){
+                		String startprefix = downFile.substring(0, localidx ) ;
+                		String endprefix = downFile.substring(downFile.lastIndexOf("webapps\\")+8, downFile.lastIndexOf("\\")) ;
+                		
+                		downFile = startprefix + endprefix + "\\WebContent\\dbconnection_debug.properties" ;//로컬테스트 장비
+                		//downFile = "/usr/local/tomcat5.5/webapps/bizportal/dbconnection.properties";		// 운영장비
+                		//downFile = "D:/work/wwwuser/WebContent/dbconnection.properties";					// 로컬테스트 장비
+                		//downFile = "E:/EMSproject/wwwuser/WebContent/dbconnection.properties";
+                        //downFile = "/home/ems/web/tomcat/webapps/wwwuser/dbconnection.properties";
+                	}
+                	System.out.println("Properties file name:" + downFile);
+                	sIn = new FileInputStream(downFile);
+                	properties.load(sIn);
+                } catch (Exception e) {
+                        throw new Exception("Properties File Read Error");
+                } finally {
+                        if (sIn != null)
+                                sIn.close();
+                }
+                return properties;
+    }
+
+    public Properties getProperties(String conFile) {
+                Properties properties = new Properties();
+                FileInputStream fis = null;
+                try {
+                        fis = new FileInputStream(conFile);
+                        properties.load(fis);
+                        fis.close();
+                } catch (Exception e) {
+                        System.out.println(e.toString());
+                        if (fis != null) {
+                                try {
+                                        fis.close();
+                                } catch (Exception ee) {
+                                        System.out.println(ee.toString());
+                                }
+                        }
+                        return null;
+                }
+                return properties;
+    }
+    
+    /**
+     * Setup Constant path
+     * realPath = ..\\webapps\\bizportal\\
+     * project_path = ../bizportal/WebContent/
+     */
+    protected void setupConstantPath(String realpath){
+    	StaticString.propertiesPath 	= realpath; 
+    	StaticString.audioCodeIniUp		= realpath + StaticString.audioCodeIniUp;
+    	StaticString.audioCodeIniDown	= realpath + StaticString.audioCodeIniDown;
+    	
+    	Constant.CM_FILEUPLOAD_TEMP	= realpath + Constant.CM_FILEUPLOAD_TEMP;
+    	Constant.CM_FILEUPLOAD 		= realpath + Constant.CM_FILEUPLOAD;
+    	Constant.CM_SAMPLE 			= realpath + Constant.CM_SAMPLE;
+    	Constant.CM_SAMPLE_CSV 		= realpath + Constant.CM_SAMPLE_CSV;
+    	Constant.CM_SAMPLE_XLS 		= realpath + Constant.CM_SAMPLE_XLS;
+    	Constant.CM_SAMPLE_BULK_XLS	= realpath + Constant.CM_SAMPLE_BULK_XLS;
+//    	System.out.println("realpath : " + Constant.CM_SAMPLE_BULK_XLS);
+    }
+
+
+    /** EMS TABLE_STATUSACCOUT의 ONLOGIN을 1로 업데이트 하여 로그인하였음을 남김*/
+    public void login_save(String strUserName) {
+            // 로그인
+    		int nResult = 0;
+            Statement statement = null;
+            try {
+              statement = ConnectionManager.allocStatementDirect("EMS");
+              //statement.stxTransaction();
+              String queryString = "";
+              queryString = "Update TABLE_STATUSACCOUNT ";
+              queryString += "set  ONLOGIN = 1 ";
+              queryString += " where USERNAME='" + strUserName + "'";
+              
+              nResult = statement.executeUpdate(queryString);
+              //statement.endTransaction(true);
+              //if (nResult < 1) { throw new Exception("로그인에 실패하였습니다."); }
+            }
+            catch (Exception e) {
+            	System.out.println("로그인에 실패하였습니다.");
+            	if (statement != null)
+                    ConnectionManager.closeStatementDirect(statement);
+                System.out.println(e.getMessage());
+//	      JOptionPane.showMessageDialog(null, e.getMessage(), "경고", JOptionPane.ERROR_MESSAGE);
+            }
+            finally {
+                if (statement != null)
+                	ConnectionManager.closeStatementDirect(statement);
+                try{
+                	if (nResult < 1) { throw new Exception("로그인에 실패하였습니다."); }
+                }catch(Exception e){}
+            }
+    }
+    public void logout() {
+//        userlogFunc.logout();
+    }
+}

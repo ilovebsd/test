@@ -1,0 +1,46 @@
+package dto.ipcs;
+
+public class IpPhoneDTO {
+	
+	private String 	makename;
+	private String 	physicaladdress;
+	private String 	e164;
+	private int 	use;
+	
+	public IpPhoneDTO() {}
+	public IpPhoneDTO(String physicaladdress) {      
+			
+		super();
+		
+		this.physicaladdress 	= physicaladdress;
+	}
+
+	public String getMakeName() {
+		return makename;
+	}
+	public void setMakeName(String makename) {
+		this.makename = makename;
+	}
+	
+	public String getPhysicalAddress() {
+		return physicaladdress;
+	}
+	public void setPhysicalAddress(String physicaladdress) {
+		this.physicaladdress = physicaladdress;
+	}
+
+	public String getE164() {
+		return e164;
+	}
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public int getUse() {
+		return use;
+	}
+	public void setUse(int use) {
+		this.use = use;
+	}
+	
+}

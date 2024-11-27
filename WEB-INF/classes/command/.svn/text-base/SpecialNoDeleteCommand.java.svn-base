@@ -1,0 +1,65 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dao.system.PrefixTableIdDAO;
+
+public class SpecialNoDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		boolean 		returnVal 		= false;
+		try {
+			String 	deleteStr 	= new String(Str.CheckNullString(req.getParameter("deleteStr")).getBytes("8859_1"), "euc-kr"); 
+			
+			String 	userID		= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "specialNumberList.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				stmt = ConnectionManager.allocStatement("SSW");
+								
+				PrefixTableIdDAO dao = new PrefixTableIdDAO();
+				
+				// ############### LogHistory 처리  ###############
+				//returnVal = dao.specialNoDelete(stmt, deleteStr);
+				returnVal = dao.specialNoDelete(stmt, deleteStr, req.getRemoteAddr(), userID);
+				// ##############################################
+				
+				if (returnVal) {
+					res.sendRedirect("/bizportal/system/"+resStr);
+				}else{
+					res.sendRedirect("/bizportal/errorMessage.jsp");
+				}
+			} 
+			else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}		
+		return forwardingPage;
+	}
+}

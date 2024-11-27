@@ -1,0 +1,345 @@
+package business;
+
+import java.io.*;
+import java.net.*;
+import java.util.List;
+//import java.io.BufferedInputStream;
+
+import org.jdom.Document;
+import org.jdom.JDOMException;
+//import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
+//import org.jdom.xpath.XPath;
+import org.jdom.output.XMLOutputter;
+import org.jdom.Element;
+import org.xml.sax.InputSource;
+
+import business.Base64Coder;
+import business.SmsAuthTicket;
+
+import acromate.common.util.*;
+import java.util.List;
+import java.util.ArrayList;
+
+public class Tcp_Ip {
+	public String sendSMS(String ipStr, int portStr, String smsMessage, String smsStr, String smsSendNo, String smsDate, String smsSendNoCount) {
+        OutputStream 		os 			= null;
+        OutputStream 		os2			= null;
+        OutputStream 		os3			= null;
+        OutputStream 		os4			= null;
+        OutputStream 		os5			= null;
+        OutputStreamWriter 	toServer 	= null;
+        OutputStreamWriter 	toServer2 	= null;
+        OutputStreamWriter 	toServer3 	= null;
+        OutputStreamWriter 	toServer4 	= null;
+        OutputStreamWriter 	toServer5 	= null;
+        BufferedReader 		fromServer 	= null;
+
+        String resultStr 	= "";
+        String resultTmp 	= "";
+        String resultTime 	= "";
+        String resultLogin 	= "";
+        String resultLogOut	= "";
+        String resultSend 	= "";
+        String resultSend2 	= "";
+        String sndBuff;
+        String rcvBuff;
+        
+		try {
+			SmsAuthTicket smsAuth 	= new SmsAuthTicket();
+			
+			StringBuilder xml		= new StringBuilder();
+			StringBuilder xml2		= new StringBuilder();
+			StringBuilder xml3		= new StringBuilder();
+			StringBuilder xml4		= new StringBuilder();
+			StringBuilder xml5		= new StringBuilder();
+			
+			String buf;
+			char ch = 0x00;
+			
+			// MCS Time ***************************************************************************
+			sndBuff = "<?xml version=^1.0^ encoding=^UTF-8^?><MAS method=^req_auth^><ServiceProviderID>acromate</ServiceProviderID></MAS>"+ch;
+			//sndBuff = "<?xml version=^1.0^ encoding=^UTF-8^?><MAS method=^req_auth^><ServiceProviderID>acromatetest</ServiceProviderID></MAS>"+ch;
+			sndBuff = sndBuff.replace('^', '"');
+			System.out.println("############# TCP-IP SendData 1 : "+sndBuff);
+			
+			// 소켓 클래스 객체를 생성, 생성시 해당 서버와 접속을 시도함.
+			Socket 		socket 	= new Socket(ipStr, portStr);
+			InputStream is		= socket.getInputStream();
+						
+			// 소켓에 스트림을 연결하고, 스트림을 보낼 Writer를 만듬.
+			os = socket.getOutputStream();
+			toServer = new OutputStreamWriter(os);
+			
+			//데이터 송신(MCS Time)
+ 			toServer.write(sndBuff,0,sndBuff.length());
+			toServer.flush();
+			
+			
+			//데이터 수신(MCS Time)
+            int c = 0;
+            while((c = is.read()) != 0) {             			// InputStream으로 읽기
+            	char ch2 = (char)c;
+            	Character cr = new Character(ch2);
+            	String str = cr.toString();
+            	
+            	xml.append(str);
+            }
+            resultTime = xml.toString();
+
+            System.out.println("############# XML : "+xml.toString());
+            
+			// XML 파싱(MCS Time)
+			SAXBuilder 	parser 		= new SAXBuilder();
+			Document 	docTime 	= parser.build(new InputSource(new StringReader(resultTime)));
+			Element 	rootTime 	= docTime.getRootElement();			
+			String 		timeValue 	= rootTime.getChildText("Result");
+			String 		timeMCS 	= rootTime.getChildText("Time");
+			// ***************************************************************************************
+			
+			
+			// Login 요청 ***************************************************************************
+			FileReader 		fr 		= new FileReader("D:/testapi/acromate.cert");
+			//FileReader 		fr 		= new FileReader("D:/testapi/acromatetest.cert");
+			//FileReader 		fr 		= new FileReader("/usr/local/tomcat5.5/webapps/bizportal/address/acromatetest.cert");
+			BufferedReader 	inFile 	= new BufferedReader(fr);
+			String 			line 	= inFile.readLine();
+			//System.out.println("####### line : "+line);
+			
+			java.util.Random rand = new java.util.Random();
+			//int r1 = rand.nextInt(3971);
+			//int r1 = rand.nextInt(3874);
+			int r1 = rand.nextInt(3500);
+			String startNo = Integer.toString(r1);
+			System.out.println("####### Rand : "+r1);
+			
+			String strAuth = line.substring(r1, 128+r1);
+			System.out.println("####### strAuth[128] : "+strAuth);
+			
+			String strTemp = "acromate|acromate!|acromate|"+timeMCS+"|"+r1;
+			//String strTemp = "acromatetest|acromate_test|acromatetest|"+timeMCS+"|"+r1;
+			System.out.println("####### strTemp : "+strTemp);
+			
+			String strAuthTicket = smsAuth.encrypto2(strTemp.getBytes(), strAuth.getBytes());
+			System.out.println("####### strAuthTicket : "+strAuthTicket);
+			
+			sndBuff = "<?xml version=^1.0^ encoding=^UTF-8^?><MAS method=^req_regist^><ServiceProviderID>acromate</ServiceProviderID><EndUserID>acromate</EndUserID><AuthTicket>"+strAuthTicket+"</AuthTicket><AuthKey>"+r1+"</AuthKey><Version>1.0.15</Version></MAS>"+ch;
+			//sndBuff = "<?xml version=^1.0^ encoding=^UTF-8^?><MAS method=^req_regist^><ServiceProviderID>acromatetest</ServiceProviderID><EndUserID>acromatetest</EndUserID><AuthTicket>"+strAuthTicket+"</AuthTicket><AuthKey>"+r1+"</AuthKey><Version>1.0.15</Version></MAS>"+ch;
+			sndBuff = sndBuff.replace('^', '"');
+			System.out.println("############# TCP-IP SendData 2 : "+sndBuff);
+			
+			// 소켓에 스트림을 연결하고, 스트림을 보낼 Writer를 만듬.
+			os2 = socket.getOutputStream();
+			toServer2 = new OutputStreamWriter(os2);
+			//데이터 송신(Login 요청)
+ 			toServer2.write(sndBuff,0,sndBuff.length());
+			toServer2.flush();
+			
+			
+			//데이터 수신(Login 요청)
+            int c2 = 0;
+            while((c2 = is.read()) != 0) {             			// InputStream으로 읽기
+            	char ch2 = (char)c2;
+            	Character cr = new Character(ch2);
+            	String str = cr.toString();
+            	
+            	xml2.append(str);
+            }
+            resultLogin = xml2.toString();
+
+            System.out.println("############# XML2 : "+xml2.toString());
+            
+			// XML 파싱(Login 요청)
+			SAXBuilder 	parser2		= new SAXBuilder();
+			Document 	docLogin 	= parser2.build(new InputSource(new StringReader(resultLogin)));
+			Element 	rootLogin 	= docLogin.getRootElement();			
+			String 		loginValue 	= rootLogin.getChildText("Result");
+			//String 		sessionID 	= rootLogin.getChildText("SessionID");
+			// ***************************************************************************************
+			
+			
+			if("1".equals(smsSendNoCount)){
+				// SMS Send 단건 전송 *********************************************************************
+				String callback = smsSendNo;
+				String strCallback = smsAuth.encrypto2(callback.getBytes(), startNo.getBytes());		// 회신번호
+				System.out.println("####### strCallback : "+strCallback);
+				
+				String[] dataStr = smsStr.split("[|]");
+				String receiveNo = dataStr[3];
+				String strReceiveNo = smsAuth.encrypto2(receiveNo.getBytes(), startNo.getBytes());		// 수신번호
+				System.out.println("####### strReceiveNo : "+strReceiveNo);
+	
+				String title = "SMS 전송입니다.";
+				String strTitle = smsAuth.encrypto2(title.getBytes(), startNo.getBytes());				// 제목
+				System.out.println("####### strTitle : "+strTitle);
+				
+				String content = smsMessage;
+				String strContent = smsAuth.encrypto2(content.getBytes(), startNo.getBytes());			// 메세지
+				System.out.println("####### strContent : "+strContent);
+				
+				if("".equals(smsDate)){
+					sndBuff = "<?xml version=|1.0| encoding=|UTF-8|?><MAS method=|req_send_message_2|><MessageType>1</MessageType><MessageSubType>1</MessageSubType><CallbackNumber>"+strCallback+"</CallbackNumber><ReserveType>1</ReserveType><ReserveTime></ReserveTime><CustomMessageID>1000</CustomMessageID><Message><ReceiveNumber seqNo=|1|>"+strReceiveNo+"</ReceiveNumber><Subject></Subject><Content>"+strContent+"</Content></Message></MAS>"+ch;
+				}else{
+					sndBuff = "<?xml version=|1.0| encoding=|UTF-8|?><MAS method=|req_send_message_2|><MessageType>1</MessageType><MessageSubType>1</MessageSubType><CallbackNumber>"+strCallback+"</CallbackNumber><ReserveType>2</ReserveType><ReserveTime>"+smsDate+"</ReserveTime><CustomMessageID>1000</CustomMessageID><Message><ReceiveNumber seqNo=|1|>"+strReceiveNo+"</ReceiveNumber><Subject></Subject><Content>"+strContent+"</Content></Message></MAS>"+ch;
+				}
+				
+				//sndBuff = sndBuff.replace('^', '"');
+				sndBuff = sndBuff.replace('|', '"');
+				System.out.println("############# TCP-IP SendData 3 : "+sndBuff);
+			}else{
+				// SMS Send 동보 전송 *********************************************************************
+				String callback = smsSendNo;
+				String strCallback = smsAuth.encrypto2(callback.getBytes(), startNo.getBytes());		// 회신번호
+				System.out.println("####### strCallback : "+strCallback);
+				
+				String title = "SMS 전송입니다.";
+				String strTitle = smsAuth.encrypto2(title.getBytes(), startNo.getBytes());				// 제목
+				System.out.println("####### strTitle : "+strTitle);
+				
+				String content = smsMessage;
+				String strContent = smsAuth.encrypto2(content.getBytes(), startNo.getBytes());			// 메세지
+				System.out.println("####### strContent : "+strContent);
+				System.out.println("############### SMS Message3 : "+smsMessage);
+				
+				String[] 	addrStr 	= StringUtil.getParser(smsStr, "");
+				String 		keyNumber 	= "";
+				List 		smsList 	= new ArrayList();
+
+				if(addrStr != null){
+					for(int i=0; i < addrStr.length; i++){
+						String[] dataStr = StringUtil.getParser(addrStr[i], "|");
+						if(dataStr != null){
+							if(dataStr.length >= 4){
+								for(int k=0; k < addrStr.length; k++){
+									keyNumber = dataStr[3];
+								}
+								smsList.add(keyNumber);
+							}
+						}
+					}
+				}
+				int	smsCount = smsList.size();
+				
+				if("".equals(smsDate)){
+					sndBuff = "<?xml version=|1.0| encoding=|UTF-8|?><MAS method=|req_send_message_2|><MessageType>1</MessageType><MessageSubType>1</MessageSubType><CallbackNumber>"+strCallback+"</CallbackNumber><ReserveType>1</ReserveType><ReserveTime></ReserveTime><CustomMessageID>1000</CustomMessageID><Message>";					
+				}else{
+					sndBuff = "<?xml version=|1.0| encoding=|UTF-8|?><MAS method=|req_send_message_2|><MessageType>1</MessageType><MessageSubType>1</MessageSubType><CallbackNumber>"+strCallback+"</CallbackNumber><ReserveType>2</ReserveType><ReserveTime>"+smsDate+"</ReserveTime><CustomMessageID>1000</CustomMessageID><Message>";
+				}
+				
+				for(int i=0 ; i<smsCount ; i++){
+					String receiveNoTmp 	= (String)smsList.get(i);
+					String strReceiveNoTmp 	= smsAuth.encrypto2(receiveNoTmp.getBytes(), startNo.getBytes());		// 수신번호
+					System.out.println("####### strReceiveNo "+i+"번째 : "+strReceiveNoTmp);
+					
+					int sendCount = i+1;
+					sndBuff = sndBuff+"<ReceiveNumber seqNo=|"+sendCount+"|>"+strReceiveNoTmp+"</ReceiveNumber>";
+				}
+				sndBuff = sndBuff+"<Subject></Subject><Content>"+strContent+"</Content></Message></MAS>"+ch;
+								
+				//sndBuff = sndBuff.replace('^', '"');
+				sndBuff = sndBuff.replace('|', '"');
+				System.out.println("############# TCP-IP SendData 3 : "+sndBuff);
+			}
+			
+			// 소켓에 스트림을 연결하고, 스트림을 보낼 Writer를 만듬.
+			os3 = socket.getOutputStream();
+			toServer3 = new OutputStreamWriter(os3);
+
+			//데이터 송신(SMS Send 단건 전송)
+ 			toServer3.write(sndBuff,0,sndBuff.length());
+			toServer3.flush();
+			
+			//데이터 수신(SMS Send 단건 전송)
+            int c3 = 0;
+            while((c3 = is.read()) != 0) {             			// InputStream으로 읽기
+            	char ch3 = (char)c3;
+            	Character cr = new Character(ch3);
+            	String str = cr.toString();
+            	
+            	xml3.append(str);
+            }
+            resultSend = xml3.toString();
+
+            System.out.println("############# XML3 : "+xml3.toString());
+            
+			// XML 파싱(SMS Send 단건 전송)
+			SAXBuilder 	parser3		= new SAXBuilder();
+			Document 	docSend 	= parser3.build(new InputSource(new StringReader(resultSend)));
+			Element 	rootSend 	= docSend.getRootElement();			
+			String 		sendValue 	= rootSend.getChildText("Result");
+			//String 		sessionID 	= rootLogin.getChildText("SessionID");
+			
+			System.out.println("############# sendValue : "+sendValue);
+			// ***************************************************************************************
+
+			
+			// Logout 요청 ***************************************************************************
+			sndBuff = "<?xml version=^1.0^ encoding=^UTF-8^?><MAS method=^req_unregist^><Reason>0</Reason></MAS>"+ch;
+			sndBuff = sndBuff.replace('^', '"');
+			System.out.println("############# TCP-IP SendData 5 : "+sndBuff);
+			
+			// 소켓에 스트림을 연결하고, 스트림을 보낼 Writer를 만듬.
+			os5 = socket.getOutputStream();
+			toServer5 = new OutputStreamWriter(os5);
+			//데이터 송신(Logout 요청)
+ 			toServer5.write(sndBuff,0,sndBuff.length());
+			toServer5.flush();
+			
+			
+			//데이터 수신(Logout 요청)
+            int c5 = 0;
+            while((c5 = is.read()) != 0) {             			// InputStream으로 읽기
+            	char ch5 = (char)c5;
+            	Character cr = new Character(ch5);
+            	String str = cr.toString();
+            	
+            	xml5.append(str);
+            }
+            resultLogOut = xml5.toString();
+
+            System.out.println("############# XML5 : "+xml5.toString());
+            
+			// XML 파싱(Logout 요청)
+			SAXBuilder 	parser5		= new SAXBuilder();
+			Document 	docLogOut 	= parser5.build(new InputSource(new StringReader(resultLogOut)));
+			Element 	rootLogOut 	= docLogOut.getRootElement();			
+			String 		logOutValue = rootLogOut.getChildText("Result");
+			
+			System.out.println("############# logOutValue : "+logOutValue);
+			// ***************************************************************************************
+			
+			
+			is.close();
+			
+			//fromServer.close();
+			toServer.close();
+			toServer2.close();
+			toServer3.close();
+			//toServer4.close();
+			toServer5.close();
+			os.close();
+			os2.close();
+			os3.close();
+			//os4.close();
+			os5.close();
+			socket.close();
+			
+			
+			System.out.println("############### SMS 처리결과3 : "+timeMCS);
+			resultStr = timeMCS;
+			
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return resultStr;
+        } finally {
+
+        }
+        return resultStr;
+    }
+	
+    private static String getValueByXpath(Document doc, String path) throws JDOMException {
+        XPath xPath = XPath.newInstance(path);
+        return xPath.valueOf(doc);
+    }    
+}

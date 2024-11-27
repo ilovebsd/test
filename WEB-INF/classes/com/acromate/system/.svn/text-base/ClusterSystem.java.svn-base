@@ -1,0 +1,290 @@
+/*
+ * ClusterSystem.java
+ *
+ * Created on 2007년 8월 2일 (목), 오후 3:34
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package com.acromate.system;
+
+import java.util.ArrayList;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import java.util.Iterator;
+import com.acromate.util.Str;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @verion 2.0.0
+ */
+public class ClusterSystem extends ListIO {
+
+    public final static int CLUSTER_TYPE_STAND_ALONE          = 0 ;
+    public final static int CLUSTER_TYPE_ACTIVE_STANDBY       = 1 ;
+    public final static int CLUSTER_TYPE_ACTIVE_ACTIVE        = 2 ;
+    public final static int CLUSTER_TYPE_PRIMARY_SECONDARY    = 3 ;
+
+    private int            clusterType;
+    private boolean       defaultCluster;
+    private String         clusterId = "";
+    private String         clusterName = "";
+    private String         serviceType = "";
+
+    /** Creates a new instance of ClusterSystem */
+    public ClusterSystem() {
+
+    }
+
+    /** Creates a new instance of ClusterSystem */
+    public ClusterSystem(String clusterId, String clusterName,
+                            String serviceType, int clusterType) {
+        this.clusterId   = clusterId;
+        this.clusterName = clusterName;
+        this.serviceType = serviceType;
+        this.clusterType = clusterType;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList getSystems() {
+        return this.list;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getClusterId() {
+        return this.clusterId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getClusterName() {
+        return this.clusterName;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getServiceType() {
+        return this.serviceType;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getClusterType() {
+        return this.clusterType;
+    }
+
+    /**
+     *
+     * @param clusterId
+     */
+    public void setClusterId(String clusterId) {
+        if (clusterId == null) return ;
+        this.clusterId = clusterId;
+    }
+
+    /**
+     *
+     * @param clusterName
+     */
+    public void setClusterName(String clusterName) {
+        if (clusterName == null) return ;
+        this.clusterName = clusterName;
+    }
+
+    /**
+     *
+     * @param serviceType
+     */
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    /**
+     *
+     * @param clusterType
+     */
+    public void setClusterType(int clusterType) {
+        this.clusterType = clusterType;
+    }
+
+    /**
+     *
+     * @param value
+     */
+    public void setDefaultCluster(boolean value) {
+        this.defaultCluster = value;
+    }
+
+     /**
+     *
+     * @return
+     */
+    public String getClassID() {
+        return clusterId.toString();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean getDefaultCluster() {
+        return this.defaultCluster;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public CustomSystem getActiveSystem() {
+        // HSS 일 경우 Hardware 의 Active 상태에 따른다.
+
+        if (serviceType.toLowerCase().equals("hss")) {
+            Iterator iter = list.iterator();
+            while(iter.hasNext()) {
+                CustomSystem tempSystem = (CustomSystem)iter.next() ;
+                CustomSystem manSystem = tempSystem.getHwSystem();
+                if( manSystem.getSystemStatus() > 0 ) return tempSystem ;
+            }   return null;
+        }
+
+        Iterator iter = list.iterator();
+        while(iter.hasNext()) {
+            CustomSystem tempSystem = (CustomSystem)iter.next();
+            if( tempSystem == null ) continue;
+            if( tempSystem.getSystemStatus() > 0 ) return tempSystem;
+        }   return null;
+    }
+
+    public CustomSystem getStandbySystem() {
+        Iterator iter = list.iterator();
+        while(iter.hasNext()) {
+            CustomSystem tempSystem = (CustomSystem)iter.next();
+            if( tempSystem == null ) continue;
+            if( tempSystem.getSystemStatus() == 0 ) return tempSystem;
+        }   return null;
+    }
+     /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getFieldObject(String field) {
+        DataIO result = null;
+        if(field != null && field.trim().length() > 0) {
+            StringBuilder temp = new StringBuilder(field.toLowerCase());
+            if(compareFieldID(temp, clusterId.toString())  == true) {
+                return this;
+            }
+            if(compareFieldID(temp, "(active)") ||  compareFieldID(temp, "active")) {
+                DataIO customSystem = getActiveSystem();
+                field = field.replaceAll("active",customSystem.getClassID());
+            }
+            if(compareFieldID(temp, "(standby)") || compareFieldID(temp, "standby")){
+                DataIO customSystem = getStandbySystem();
+                field = field.replaceAll("standby",customSystem.getClassID());
+            }
+        }
+        return super.getFieldObject(field);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+/* operations //////////////////////////// */
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "serviceType") == true) {
+            if(!value.equals("")) serviceType = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "clusterType") == true) {
+            clusterType = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "clusterId") == true) {
+            if(!value.equals("")) clusterId = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "clusterName") == true) {
+            if(!value.equals("")) clusterName = value;
+            return 0;
+        }
+        return super.setFieldData( field,  value);
+    }
+
+    protected int getFieldData(String field, Index idx , StringBuilder value) {
+        int     errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder len  = new StringBuilder();
+        StringBuilder fldAlias;
+
+
+        if(field != null && !field.equals("")) resultVal = true;
+
+        if( field != null && field.toLowerCase().equals("nodelist") == true ) {
+            idx.v = -1;
+            return super.getFieldData(null, idx, value);
+        }
+        fldAlias = new StringBuilder(Str.CheckNullString(field));
+
+        if(compareFieldID(fldAlias, "serviceType", idx, value) == true) {
+            errorcode = getString(serviceType.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "clusterType", idx, value) == true) {
+            errorcode = getInteger(clusterType, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "clusterId", idx, value) == true) {
+            errorcode = getString(clusterId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "clusterName", idx, value) == true) {
+            errorcode = getString(clusterName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return super.getFieldData(field, idx, value);
+    }
+    /**
+     *
+     * @return
+     */
+    protected DataIO newListNode() {
+        String tempType = serviceType.toLowerCase().replace("'", "");
+        if( tempType.equals("hw")) {
+             return new ManSystem();
+        } else if(tempType.equals("ems")) {
+            return new EmsSystem();
+        } else if(tempType.equals("ssw")) {
+            return new SswSystem();
+        } else if(tempType.equals("nf"))  {
+            return new NFreeSystem();
+        } else if(tempType.equals("other")) {
+            return new OtherSystem();
+        } else {
+            return new SswSystem();
+        }
+    }
+}

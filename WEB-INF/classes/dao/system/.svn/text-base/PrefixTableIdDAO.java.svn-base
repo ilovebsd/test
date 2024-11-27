@@ -1,0 +1,693 @@
+package dao.system;
+
+import java.sql.ResultSet;
+import java.util.List;
+import java.util.Vector;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.system.PrefixTableIdDTO;
+import acromate.common.util.StringUtil;
+import acromate.*;
+import business.LogHistory;
+
+public class PrefixTableIdDAO {
+
+    public PrefixTableIdDAO() {}
+    
+    public int insert(DataStatement stmt, PrefixTableIdDTO prefixTableIdDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n INSERT INTO table_PrefixTableID(PrefixTableID, TableType, DESCRIPTION) ";
+            	sql = sql +  "\n                 	values (" ;
+            	sql = sql + "'" + prefixTableIdDTO.getPrefixTableId()            + "' , " ;            
+            	sql = sql + " " + prefixTableIdDTO.getTableType()  		+ " , " ;
+            	sql = sql + "'" + prefixTableIdDTO.getDescription()       + "'" ;
+            	sql = sql + ") ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int update(DataStatement stmt, PrefixTableIdDTO prefixTableIdDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n UPDATE table_PrefixTableID Set ";
+            	sql = sql + "\n TableType 		= " + prefixTableIdDTO.getTableType()  		   + " , " ;
+            	sql = sql + "\n DESCRIPTION 	= '" + prefixTableIdDTO.getDescription()       + "'" ;
+            	sql = sql + "\n WHERE PrefixTableID = '" + prefixTableIdDTO.getPrefixTableId() + "' ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+  
+    public int delete(DataStatement stmt, String prefixId) {
+    	ResultSet 	rs 		= null;
+        String 		sql 	= "";
+        int 		nResult = 0;
+        int 		cnt 	= 0;
+        
+        try {            
+            if (stmt != null) {
+            	sql  = " SELECT tabletype FROM table_PrefixTableID WHERE PrefixTableID = '" + prefixId +"' ";    		
+                rs = stmt.executeQuery(sql);
+    			if (rs.next()){ 
+    				cnt = Integer.parseInt(rs.getString(1));
+    			}
+    			rs.close();
+                if (rs != null) rs.close();
+            	
+            	sql = "\n Delete From table_PrefixTableID Where PrefixTableID = '" + prefixId + "' ";                
+                nResult = stmt.executeUpdate(sql);
+                
+                if (cnt == 2){
+	                sql = "\n Delete From table_prefixTable Where PrefixTableID = '" + prefixId + "' ";                
+	                nResult = stmt.executeUpdate(sql);
+	
+	                sql = "\n Delete From table_localprefix Where endpointid = '" + prefixId + "' And prefixtype = 2 ";                
+	                nResult = stmt.executeUpdate(sql);
+                }
+                
+//                if (nResult >= 1) {
+//                    System.out.println("삭제 성공"); 
+//                }
+//                else
+//                    System.out.println("삭제 실패");
+
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult;
+    }    
+    
+    public int newInsert(DataStatement stmt, PrefixTableIdDTO prefixTableIdDTO, String hiRootID, String hiPrefixType, String hiSpecialChk) {
+    	return newInsert(stmt, prefixTableIdDTO, hiRootID, hiPrefixType, 1, hiSpecialChk) ;
+    }
+    public int newInsert(DataStatement stmt, PrefixTableIdDTO prefixTableIdDTO, String hiRootID, String hiPrefixType, int hiRouteSelectRule, String hiSpecialChk) {
+
+        ResultSet 	rs 		= null;
+        ResultSet 	rs2 	= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        
+        try {            
+        	Vector 	  	vecTmp 	= new Vector();
+        	if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	if("1".equals(hiPrefixType)){
+	                sql = " INSERT INTO table_PrefixTableID(PrefixTableID, TableType, DESCRIPTION) ";
+	            	sql = sql +  "\n                 	values (" ;
+	            	sql = sql + "'" + prefixTableIdDTO.getPrefixTableId()            + "' , " ;            
+	            	sql = sql + " " + prefixTableIdDTO.getTableType()  		+ " , " ;
+	            	sql = sql + "'" + prefixTableIdDTO.getDescription()       + "'" ;
+	            	sql = sql + ") ";
+	                System.out.println("insert--->"+sql);
+	                                        
+	                nResult = stmt.executeUpdate(sql);
+	                if (nResult >= 1)
+	                    System.out.println("입력 성공");
+	                else
+	                    System.out.println("입력 실패");
+            	}else{
+	                sql = " INSERT INTO table_PrefixTableID(PrefixTableID, TableType, DESCRIPTION) ";
+	            	sql = sql +  "\n                 	values (" ;
+	            	sql = sql + "'" + prefixTableIdDTO.getPrefixTableId()       + "' , " ;            
+	            	sql = sql + " " + prefixTableIdDTO.getTableType()  			+ " , " ;
+	            	sql = sql + "'" + prefixTableIdDTO.getDescription()       	+ "'" ;
+	            	sql = sql + ") ";
+	            	System.out.println("insert 01--->"+sql);
+	                stmt.executeUpdate(sql);
+	                
+            		sql = " Insert into table_prefixTable(prefixtableid, startprefix, endprefix, routeselectrule, routeid, ";
+		            sql = sql + "\n  protocol, calltype, chargetype, description, mindigitcount, maxdigitcount, routingendpointtype) "; 
+		            sql = sql + "\n  Values('"+ prefixTableIdDTO.getPrefixTableId() + "', '0', '9_______________________________', "+ hiRouteSelectRule +",";
+		            sql = sql + "\n         '"+ hiRootID + "', 2, 2, 0, '특수번호 정책', 1, 24, 1) ";
+		            System.out.println("insert 02--->"+sql);
+		            stmt.executeUpdate(sql);
+		            
+            		if("A".equals(hiSpecialChk)){
+                    	sql  = " SELECT specialno FROM table_specialNumber ORDER BY specialno ";
+                    	System.out.println("sql :"+sql);
+                        rs = stmt.executeQuery(sql);
+                        vecTmp.clear();
+                        while(rs.next()){
+	    	            	vecTmp.add(WebUtil.CheckNullString(rs.getString(1)));            	
+	    	            }	                        
+                        rs.close();
+
+                        int 		nTmp	= vecTmp.size();
+                        int 		cnt 	= 0;
+                        int 		cnt2 	= 0;
+                        String		strTmp	= "";
+                        String		strTmp2	= "";
+                        
+                        for(int j=0; j < nTmp; j++){
+                        	strTmp 	= "99"+(String)vecTmp.get(j);
+                        	strTmp2 = (String)vecTmp.get(j);
+                        	
+                        	sql  = " SELECT count(*) FROM table_localprefix WHERE startprefix = '" + strTmp +"' And prefixtype = 2 ";
+                        	System.out.println("sql :"+sql);
+                            rs = stmt.executeQuery(sql);
+                			if (rs.next()){ 
+                				cnt = Integer.parseInt(rs.getString(1));
+                			}
+                			rs.close();
+                            if (rs != null) rs.close();
+                        	
+                            if (cnt == 0){
+                            	sql  = " SELECT count(*) FROM table_e164 WHERE extensionnumber = '" + strTmp2 +"' ";
+                            	System.out.println("sql :"+sql);
+                                rs2 = stmt.executeQuery(sql);
+                    			if (rs2.next()){ 
+                    				cnt2 = Integer.parseInt(rs2.getString(1));
+                    			}
+                    			rs2.close();
+                                if (rs2 != null) rs2.close();
+                            	
+                                if (cnt2 == 0){
+	                            	sql = " Insert into table_localprefix(startprefix, endprefix, prefixtype, protocol, endpointid, groupid, options, maxdigit) ";
+		            		        sql = sql + "\n  Values ('" + strTmp + "', '" + strTmp + "', 2, null, '" + prefixTableIdDTO.getPrefixTableId() + "', '', 0, 24)";
+		            		        System.out.println("sql :"+sql);
+		            		        stmt.executeUpdate(sql);
+                                }
+                            }
+                        }
+            		}
+            	}
+            	
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int newUpdate(DataStatement stmt, PrefixTableIdDTO prefixTableIdDTO, String hiRootID, String hiPrefixType, String hiSpecialChk) {
+    	return newUpdate(stmt, prefixTableIdDTO, hiRootID, hiPrefixType, 1, hiSpecialChk);
+    }
+    public int newUpdate(DataStatement stmt, PrefixTableIdDTO prefixTableIdDTO, String hiRootID, String hiPrefixType, int hiRouteSelectRule, String hiSpecialChk) {
+
+        ResultSet 	rs 		= null;
+        ResultSet 	rs2 	= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        
+        try {            
+        	Vector 	  vecTmp = new Vector();
+        	if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	if("1".equals(hiPrefixType)){
+	                sql = "\n UPDATE table_PrefixTableID Set ";
+	            	sql = sql + "\n TableType 		= " + prefixTableIdDTO.getTableType()  		   + " , " ;
+	            	sql = sql + "\n DESCRIPTION 	= '" + prefixTableIdDTO.getDescription()       + "'" ;
+	            	sql = sql + "\n WHERE PrefixTableID = '" + prefixTableIdDTO.getPrefixTableId() + "' ";
+	                System.out.println("update--->"+sql);
+	                                        
+	                nResult = stmt.executeUpdate(sql);
+	                if (nResult >= 1)
+	                    System.out.println("입력 성공");
+	                else
+	                    System.out.println("입력 실패");
+            	}else{
+	                sql = "\n UPDATE table_PrefixTableID Set ";
+	            	sql = sql + "\n TableType 		= " + prefixTableIdDTO.getTableType()  		   + " , " ;
+	            	sql = sql + "\n DESCRIPTION 	= '" + prefixTableIdDTO.getDescription()       + "'" ;
+	            	sql = sql + "\n WHERE PrefixTableID = '" + prefixTableIdDTO.getPrefixTableId() + "' ";
+	                System.out.println("update--->"+sql);
+	                nResult = stmt.executeUpdate(sql);
+            		
+	                sql = "\n UPDATE table_prefixtable Set routeid = '" + hiRootID + "'  " ;
+	                sql = sql + "\n , RouteSelectRule 	= " + hiRouteSelectRule + " " ;
+	            	sql = sql + "\n WHERE PrefixTableID = '" + prefixTableIdDTO.getPrefixTableId() + "' ";
+	                System.out.println("update02--->"+sql);	                                        
+	                nResult = stmt.executeUpdate(sql);
+	                
+            		if("A".equals(hiSpecialChk)){
+                    	sql  = " SELECT specialno FROM table_specialNumber ORDER BY specialno ";
+                        rs = stmt.executeQuery(sql);
+                        vecTmp.clear();
+                        while(rs.next()){
+	    	            	vecTmp.add(WebUtil.CheckNullString(rs.getString(1)));            	
+	    	            }	                        
+                        rs.close();
+
+                        int 		nTmp	= vecTmp.size();
+                        int 		cnt 	= 0;
+                        int 		cnt2 	= 0;
+                        String		strTmp	= "";
+                        String		strTmp2	= "";
+                        
+                        for(int j=0; j < nTmp; j++){
+                        	strTmp 	= "99"+(String)vecTmp.get(j);
+                        	strTmp2 = (String)vecTmp.get(j);
+                        	
+                        	sql  = " SELECT count(*) FROM table_localprefix WHERE startprefix = '" + strTmp +"' And prefixtype = 2 ";    		
+                            rs = stmt.executeQuery(sql);
+                			if (rs.next()){ 
+                				cnt = Integer.parseInt(rs.getString(1));
+                			}
+                			rs.close();
+                            if (rs != null) rs.close();
+                        	
+                            if (cnt == 0){
+                            	sql  = " SELECT count(*) FROM table_e164 WHERE extensionnumber = '" + strTmp2 +"' ";    		
+                                rs2 = stmt.executeQuery(sql);
+                    			if (rs2.next()){ 
+                    				cnt2 = Integer.parseInt(rs2.getString(1));
+                    			}
+                    			rs2.close();
+                                if (rs2 != null) rs2.close();
+                            	
+                                if (cnt2 == 0){
+	                            	sql = " Insert into table_localprefix(startprefix, endprefix, prefixtype, protocol, endpointid, groupid, options, maxdigit) ";
+		            		        sql = sql + "\n  Values ('" + strTmp + "', '" + strTmp + "', 2, null, '" + prefixTableIdDTO.getPrefixTableId() + "', '', 0, 24)";
+		            		        stmt.executeUpdate(sql);
+                                }
+                            }
+                        }
+            		}else{
+            			// 
+    	                sql = " delete from table_localprefix where startprefix in ";                
+    	                sql = sql + "\n (select a.startprefix from table_localprefix a, table_specialNumber b ";
+    	                sql = sql + "\n where a.startprefix = '99'||b.specialno and a.prefixtype = 2) ";
+        		        stmt.executeUpdate(sql);
+            		}
+            	}
+            	
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+	public String getPrefixtableid(DataStatement stmt) {
+        String touteid = "";
+        
+        String sql = " Select prefixtableid From table_prefixtableid Where tabletype = 2 ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) touteid = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return touteid;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return touteid;
+    }
+
+    public int specialNoInsert(DataStatement stmt, String specialNo, String description) {
+
+        ResultSet 	rs 		= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	String prefixtableid = getPrefixtableid(stmt);
+            	
+            	sql = " Insert into table_localprefix(startprefix, endprefix, prefixtype, protocol, endpointid, groupid, options, maxdigit) ";
+		        sql = sql + "\n  Values ('99" + specialNo + "', '99" + specialNo + "', 2, null, '" + prefixtableid + "', '', 0, 24)";
+                System.out.println("insert--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+                
+            	sql = " Insert into table_specialNumber(specialno, description) Values ('" + specialNo + "', '" + description + "')";
+                System.out.println("insert--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int specialNoUpdate(DataStatement stmt, String specialNo, String description) {
+
+        ResultSet 	rs 		= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	String prefixtableid = getPrefixtableid(stmt);
+            	
+            	sql = " Update table_specialNumber Set description = '" + description + "' Where specialno = '" + specialNo + "' ";
+                System.out.println("update--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public boolean specialNoDelete(DataStatement stmt, String insertStr, String strIp, String userID) {
+    	ResultSet 	rs 			= null;
+        String 		sql 		= "";
+        boolean 	returnVal 	= false;
+        int 		cnt 		= 0;
+        
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();
+
+            	String[] 	blockStr 	= StringUtil.getParser(insertStr, "");
+    			String		startPrefix = "";
+    			String		specialNo 	= "";
+            	
+    			if(blockStr != null){
+    				// ############### LogHistory 처리  ###############
+    				LogHistory	logHistory 	= new LogHistory();
+    				// ##############################################
+
+    				for(int k=0; k < blockStr.length; k++){
+    					startPrefix   	= blockStr[k];
+    					specialNo		= startPrefix.substring(2,startPrefix.length());
+			            
+    					sql = "\n Delete From table_localprefix Where startprefix = '" + startPrefix + "' And prefixtype = 2 ";                
+			            stmt.executeUpdate(sql);
+			            
+//    					sql = "\n Delete From table_specialNumber Where specialno = '" + specialNo + "' ";                
+//			            stmt.executeUpdate(sql);
+			            
+						// ############### LogHistory 처리  ###############
+						int int_result = logHistory.LogHistorySave(userID+"|86|특수번호 ("+specialNo+")|2|"+strIp);
+						// ##############################################
+    				}
+    			}
+    			
+    			returnVal = true;
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        }        
+        return returnVal;
+    }    
+
+    public int replacePrefixInsert(DataStatement stmt, String inNo, String changNo) {
+
+        ResultSet 	rs 		= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	String prefixtableid = getPrefixtableid(stmt);
+            	
+            	int nextIndex = getMaxIndex(stmt, "1") + 1;
+            	
+            	sql = " Insert into table_replaceprefix(seqindex, condition, conditiondigit, updatedigit) ";
+		        sql = sql + "\n  Values (" + nextIndex + ", 0, '" + inNo + "', '" + changNo + "')";
+                System.out.println("insert--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+	public int getMaxIndex(DataStatement stmt , String type) {
+		int max = 0 ;
+		String sql = "";
+		
+		if("1".equals(type)){
+			sql = " SELECT coalesce(max(seqindex),0) FROM table_replaceprefix " ;
+		}else{
+			sql = " SELECT coalesce(max(ordernumber),0) FROM table_conditionalreplace " ;
+		}
+        ResultSet rs1 = null;
+        try {
+            if (stmt != null) {
+            	rs1 = stmt.executeQuery(sql);
+                if (rs1.next()) max = rs1.getInt(1); 
+                rs1.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return max;
+        } finally {
+            try {
+                if (rs1 != null)
+                	rs1.close();
+            } catch (Exception e) {}
+        }
+        return max;
+    }
+
+    public boolean replacePrefixDelete(DataStatement stmt, String insertStr, String strIp, String userID) {
+    	ResultSet 	rs 			= null;
+        String 		sql 		= "";
+        boolean 	returnVal 	= false;
+        int 		cnt 		= 0;
+        
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();
+
+            	String[] 	blockStr 	= StringUtil.getParser(insertStr, "");
+    			String		inNo 		= "";
+            	
+    			if(blockStr != null){
+    				// ############### LogHistory 처리  ###############
+    				LogHistory	logHistory 	= new LogHistory();
+    				// ##############################################
+
+    				for(int k=0; k < blockStr.length; k++){
+    					inNo   	= blockStr[k];
+			            
+    					sql = "\n Delete From table_replaceprefix Where conditiondigit = '" + inNo + "' ";                
+			            stmt.executeUpdate(sql);
+			            
+			            sql = "\n Delete From table_conditionalreplace Where conditiondigit = '" + inNo + "' ";                
+			            stmt.executeUpdate(sql);
+			            
+						// ############### LogHistory 처리  ###############
+						int int_result = logHistory.LogHistorySave(userID+"|86|라우팅 착신번호 변경 입력번호 ("+inNo+")|2|"+strIp);
+						// ##############################################
+    				}
+    			}
+    			
+    			returnVal = true;
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        }        
+        return returnVal;
+    }    
+
+    public int replacePrefixUse(DataStatement stmt, String inNo, String changNo) {
+
+        ResultSet 	rs 		= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	String prefixtableid = getPrefixtableid(stmt);
+            	
+            	int nextIndex = getMaxIndex(stmt, "2") + 1;
+
+            	sql = " Insert into table_conditionalreplace (endpointid, protocol, direction, ordernumber, startposition, conditiondigit, updatedigit) ";
+		        sql = sql + "\n  Values ('IPCS', 512, 1, "+nextIndex+", 0, '" + inNo + "', '" + changNo + "')";
+                System.out.println("insert--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+
+                
+            	sql = " Update table_replaceprefix Set condition = 1 Where conditiondigit = '" + inNo + "' ";
+                System.out.println("Update--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int replacePrefixNotUse(DataStatement stmt, String inNo) {
+
+        ResultSet 	rs 		= null;
+        int 		nResult = 0;
+        String 		sql 	= "";
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+            	String prefixtableid = getPrefixtableid(stmt);
+            	
+            	int nextIndex = getMaxIndex(stmt, "2") + 1;
+
+            	sql = " DELETE FROM table_conditionalreplace WHERE conditiondigit = '" + inNo + "' ";
+                System.out.println("DELETE--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+
+                
+            	sql = " Update table_replaceprefix Set condition = 0 Where conditiondigit = '" + inNo + "' ";
+                System.out.println("Update--->"+sql);              
+                nResult = stmt.executeUpdate(sql);
+
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+}

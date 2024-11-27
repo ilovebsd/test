@@ -1,0 +1,81 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+//import javax.servlet.http.HttpSession;
+
+//import acromate.ConnectionManager;
+//import acromate.common.StaticString;
+//import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+//import waf.BaseEntity;
+//import waf.SessionManager;
+//import webuser.ServerLogin;
+import dao.ipcs.IpcsDeptDAO;
+
+public class IpcsDeptEditCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+
+        boolean returnVal 	= false;
+        try {
+			String 	keynumberid		= new String(req.getParameter("hiKeynumberid").getBytes("8859_1"), "euc-kr");				//
+			String 	hunt			= new String(req.getParameter("hiHunt").getBytes("8859_1"), "euc-kr");						//
+			String	desc			= new String(Str.CheckNullString(req.getParameter("hiDesc")).getBytes("8859_1"), "euc-kr");	// 
+			
+			String 	errorType		= new String(req.getParameter("hiErrorType").getBytes("8859_1"), "euc-kr");
+			String 	strTime			= new String(req.getParameter("hiStandTime").getBytes("8859_1"), "euc-kr");
+			String 	strEndpointid	= new String(req.getParameter("hiEndpointid").getBytes("8859_1"), "euc-kr");
+			int 	huntconstraint	= 0;
+			String 	endpointid		= "";
+			int 	protocol		= 0;
+			int 	standTime		= Integer.parseInt(strTime);
+
+			if("A".equals(errorType)){
+				huntconstraint += 16*0;		// 호종료
+				huntconstraint += standTime*16*16;
+				
+			}else if("B".equals(errorType)){
+				huntconstraint += 16*1;	// 정해진 루트 호전환
+				huntconstraint += standTime*16*16;
+				
+				String[]	strTemp 	= strEndpointid.split("[,]");
+				endpointid 	= strTemp[0];
+				protocol 	= Integer.parseInt(strTemp[1]);
+				
+			}else if("C".equals(errorType)){
+				huntconstraint += 16*3;	// 정해진 전화번호 호전환
+				huntconstraint += standTime*16*16;
+				
+				endpointid = strEndpointid;
+			}else{
+				endpointid 	= "";
+			}
+			
+//			System.out.println("################ keynumberid : "+keynumberid);
+//			System.out.println("################ hunt : "+hunt);
+//			System.out.println("################ desc : "+desc);
+			
+			IpcsDeptDAO dao = new IpcsDeptDAO();
+			
+			// 부서대표번호 수정
+			//returnVal = dao.ipcsDeptEdit(keynumberid, hunt, desc);
+			returnVal = dao.ipcsDeptEdit(keynumberid, hunt, desc, endpointid, huntconstraint, protocol);
+			
+			if (returnVal) {
+				System.out.println("부서대표번호 삭제 성공 .......");
+				//forwardingPage = "/bizportal/publicAddrList.jsp?group=" + nGroupId + "&result=" + Integer.toString(updateResult);
+				res.sendRedirect("/bizportal/ipcs/ipcsDeptNumberList.jsp");
+			}else{
+				System.out.println("부서대표번호 삭제 실패 .......");
+				forwardingPage = "/bizportal/errorMessage.jsp";
+			}
+		} catch (Exception e) {
+			System.out.println("부서대표번호 에러발생 .......");
+			forwardingPage = "/bizportal/errorMessage.jsp";
+			
+			e.printStackTrace();
+		}		
+		return forwardingPage;
+	}
+}

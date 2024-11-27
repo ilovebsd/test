@@ -1,0 +1,211 @@
+package buddy;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.DeptDTO;
+import dto.KeyNumberDTO;
+
+public class DeptList {
+	/*
+	 * 조직도 부서 리스트 조회
+	 */
+	public List getDeptList(DataStatement stmt) {
+		DeptDTO deptDTO;
+        List<DeptDTO> deptList = new ArrayList<DeptDTO>();
+        
+        String sql = "\n SELECT a.deptid, a.deptname, a.orgchartid, a.parentid, a.description, ";
+        sql = sql +  "\n        a.type, a.usepickup, a.keynumber, a.officebox, a.operation, " ;
+        sql = sql +  "\n        a.sortnumber1, a.sortnumber2, ";
+        sql = sql +  "\n        (SELECT count(*) " ;
+        sql = sql +  "\n           FROM table_subscriber b ";
+        sql = sql +  "\n          WHERE a.deptid = b.department) as sumCnt " ;
+        sql = sql +  "\n   FROM table_dept a " ;
+        sql = sql +  "\n  WHERE a.deptid != a.parentid " ;
+        sql = sql +  "\n  Order By a.sortnumber1, a.sortnumber2, a.deptname ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	deptDTO = new DeptDTO();
+                	
+                	deptDTO.setDeptID(rs.getInt("deptid"));								//부서코드
+                	deptDTO.setDeptName(Str.CheckNullString(rs.getString("deptname"))); //부서명
+                	deptDTO.setOrgchartID(rs.getInt("orgchartid"));
+                	deptDTO.setParentID(rs.getInt("parentid"));
+                	deptDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	deptDTO.setType(rs.getInt("type"));
+                	deptDTO.setUsePickup(rs.getInt("usepickup"));
+                	deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	deptDTO.setOfficeBox(Str.CheckNullString(rs.getString("officebox")));            	
+                	deptDTO.setOperation(rs.getInt("operation"));
+                	deptDTO.setSortNumber1(rs.getInt("sortnumber1"));
+                	deptDTO.setSortNumber2(rs.getInt("sortnumber2"));
+                	deptDTO.setSumCnt(rs.getInt("sumCnt"));
+
+                	deptList.add(deptDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return deptList;
+    }	
+
+	/*
+	 * 조직도 상위부서 리스트 조회
+	 */
+	public List getParentDeptList(DataStatement stmt) {
+		DeptDTO deptDTO;
+        List<DeptDTO> deptList = new ArrayList<DeptDTO>();
+        
+        String sql = "\n SELECT a.deptid, a.deptname, a.orgchartid, a.parentid, a.description, ";
+        sql = sql +  "\n        a.type, a.usepickup, a.keynumber, a.officebox, a.operation, " ;
+        sql = sql +  "\n        a.sortnumber1, a.sortnumber2 ";
+        sql = sql +  "\n   FROM table_dept a " ;
+        sql = sql +  "\n  WHERE a.deptid != a.parentid " ;
+        sql = sql +  "\n    AND a.parentid = 1 " ;
+        sql = sql +  "\n  Order By a.deptid ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	deptDTO = new DeptDTO();
+                	
+                	deptDTO.setDeptID(rs.getInt("deptid"));								//부서코드
+                	deptDTO.setDeptName(Str.CheckNullString(rs.getString("deptname"))); //부서명
+                	deptDTO.setOrgchartID(rs.getInt("orgchartid"));
+                	deptDTO.setParentID(rs.getInt("parentid"));
+                	deptDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	deptDTO.setType(rs.getInt("type"));
+                	deptDTO.setUsePickup(rs.getInt("usepickup"));
+                	deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	deptDTO.setOfficeBox(Str.CheckNullString(rs.getString("officebox")));            	
+                	deptDTO.setOperation(rs.getInt("operation"));
+                	deptDTO.setSortNumber1(rs.getInt("sortnumber1"));
+                	deptDTO.setSortNumber2(rs.getInt("sortnumber2"));
+
+                	deptList.add(deptDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return deptList;
+    }	
+	
+	/*
+	 * 조직도 부서 정보 조회
+	 */	
+	public List getDetail(DataStatement stmt, String deptid) {
+		DeptDTO deptDTO;
+        List<DeptDTO> deptList = new ArrayList<DeptDTO>();
+        
+        String sql = "\n SELECT a.deptid, a.deptname, a.orgchartid, a.parentid, a.description, ";
+        sql = sql +  "\n        a.type, a.usepickup, a.keynumber, a.officebox, a.operation, " ;
+        sql = sql +  "\n        a.sortnumber1, a.sortnumber2 ";
+        sql = sql +  "\n   FROM table_dept a " ;
+        sql = sql +  "\n  WHERE deptid = " + deptid;
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	deptDTO = new DeptDTO();
+                	
+                	deptDTO.setDeptID(rs.getInt("deptid"));								//부서코드
+                	deptDTO.setDeptName(Str.CheckNullString(rs.getString("deptname"))); //부서명
+                	deptDTO.setOrgchartID(rs.getInt("orgchartid"));
+                	deptDTO.setParentID(rs.getInt("parentid"));
+                	deptDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	deptDTO.setType(rs.getInt("type"));
+                	deptDTO.setUsePickup(rs.getInt("usepickup"));
+                	deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	deptDTO.setOfficeBox(Str.CheckNullString(rs.getString("officebox")));            	
+                	deptDTO.setOperation(rs.getInt("operation"));
+                	deptDTO.setSortNumber1(rs.getInt("sortnumber1"));
+                	deptDTO.setSortNumber2(rs.getInt("sortnumber2"));
+
+                	deptList.add(deptDTO);
+                }
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return deptList;
+    }
+
+	/*
+	 * 부서착신번호 조회
+	 */	
+	public List getDeptNumberList(DataStatement stmt, String deptNumber) {
+		KeyNumberDTO keyNumberDTO;
+        List<KeyNumberDTO> deptList = new ArrayList<KeyNumberDTO>();
+        
+        String sql = "\n SELECT A.indexno, ";
+        sql = sql + "\n (Select name from table_subscriber where phonenum = A.e164) as name, ";
+        sql = sql + "\n A.e164 ";
+        sql = sql + "\n , (SELECT count(*) FROM table_keynumber_sms WHERE keynumberid = '" + deptNumber +"' AND e164 = A.e164) as smsCount ";
+        sql = sql + "\n FROM TABLE_Keynumber A ";
+        sql = sql +  "\n  WHERE A.keynumberid = '" + deptNumber +"' Order by A.indexno ";
+        
+        System.out.print("$$$$$$$$$$$$$ : "+sql);
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	keyNumberDTO = new KeyNumberDTO();
+                	
+                	keyNumberDTO.setIndexno(rs.getInt("indexno"));								//
+                	keyNumberDTO.setE164(Str.CheckNullString(rs.getString("e164"))); 			//
+                	keyNumberDTO.setName(Str.CheckNullString(rs.getString("name"))); 			//
+                	keyNumberDTO.setSmsCount(rs.getInt("smsCount"));
+                	deptList.add(keyNumberDTO);
+                }
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return deptList;
+    }
+	
+}

@@ -1,0 +1,48 @@
+package com.acromate.framework.db;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.rmi.RemoteException;
+import com.acromate.util.Logger;
+import com.acromate.driver.db.IDataStatement;
+import com.acromate.framework.frame.SystemData;
+
+public class DataStatementList {
+    List list = Collections.synchronizedList(new LinkedList());
+    private Logger log = Logger.getLogger(this.getClass());
+    private SystemData systemData = null ;
+    private int max = 2 ;
+
+    public DataStatementList(SystemData systemData, int max) {
+        this.systemData = systemData;
+        this.max = max;
+    }
+
+    public synchronized IDataStatement allocStatement() {
+        int size = list.size();
+        if (size==0) {
+        	IDataStatement dataStatement = null;
+            try {
+            	dataStatement = systemData.getDataObject().allocStatement(systemData.getSessionID());
+            } catch(RemoteException ex){ 
+                log.error("exception occurred > ", ex);
+            }
+            return dataStatement;
+        }
+        IDataStatement dataConnection = (IDataStatement)list.get(0);
+        list.remove(0);
+        return dataConnection; 
+    }
+
+    public synchronized void freeStatement(IDataStatement dataStatement) {
+        if (list.size() >= max) { 
+            try {
+                systemData.getDataObject().freeStatement(systemData.getSessionID(), dataStatement);
+            } catch(RemoteException ex){ 
+                log.error("exception occurred > ", ex);
+            }
+        }
+        else list.add(dataStatement);
+    }
+}

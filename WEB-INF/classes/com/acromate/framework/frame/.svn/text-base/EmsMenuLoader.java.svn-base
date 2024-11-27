@@ -1,0 +1,189 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.DataIO.Index;
+import com.acromate.data.code.AppCode;
+
+
+public class EmsMenuLoader extends  DataIO{
+	/* construction*/
+	public EmsMenuLoader( EmsConfig pEmsConfig )
+	{
+		this.pEmsConfig = pEmsConfig ;
+		pActiveMenuLoader = this ;
+		m_pActiveSet = null ;
+
+	}
+/* attribute*/
+	/* current channel monitor */
+	static EmsMenuLoader	pActiveMenuLoader ;
+
+	/* linked ems agent */
+	public EmsConfig pEmsConfig ;
+
+	/* loading system menu */
+	public SystemMenuList		lstSystemMenu = new SystemMenuList();
+
+	/* data i/o */
+	public int getFieldData( String field, Index indx, StringBuilder data)
+	{
+		boolean stop = (field != null) ;
+		int errcode ;
+		// local value
+		StringBuilder sbField =new StringBuilder(field);
+		if( compareFieldID( sbField, "system", indx, data ) )
+		{
+			errcode = lstSystemMenu.getParam( field, data ) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR ) return errcode ;
+		}
+		return AppCode.ERR_NOERROR ;
+	}
+	public int setFieldData( String field, String value ) {
+		System.out.println("EmsMenuLoader.setFieldData ["+field+"]"+"["+value+"]");
+		StringBuilder sbField =new StringBuilder(field);
+		if( compareFieldID( sbField, "system" ) )
+			return lstSystemMenu.setParam( field, value ) ;
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+	}
+
+	/* object finder */
+	static public EmsMenuLoader getActiveMenuLoader() { return pActiveMenuLoader ; }
+
+	/* object identifier */
+	public String getClassID() { return "EMS Menu" ; }
+
+	/* object member */
+	public DataIO getFieldObject( String field ) {
+		StringBuilder sbField =new StringBuilder(field);
+		if( compareFieldID( sbField, "system" )  )
+		     return lstSystemMenu.getFieldObject( sbField.toString() ) ;
+		return super.getFieldObject( field ) ;
+	}
+
+	/* system menu control */
+	public  void appendSystemMenu( SystemMenu pSystemMenu ) {
+		lstSystemMenu.appendTail( pSystemMenu ) ;
+	}
+	public  void removeSystemMenu( SystemMenu pSystemMenu ) {
+		// check active menu
+		if   ( (m_pActiveSet != null) && (m_pActiveSet.getSystemMenu() == pSystemMenu) )
+		     m_pActiveSet = null ;
+		lstSystemMenu.removeNode( pSystemMenu ) ;
+	}
+	public SystemMenu searchSystemMenu( String pSystemID ) {
+		SystemMenu pSystemMenu ;
+		if( pSystemID == null  )
+		     return null;
+		pSystemID = pSystemID.trim();
+		for(int i =0 ;i < lstSystemMenu.getCount();i++){
+			pSystemMenu = (SystemMenu)lstSystemMenu.getNode(i);
+			if(pSystemID.equals(pSystemMenu.getSystemID()))
+				return pSystemMenu;
+		}
+		return null;
+	}
+	//sun
+	public SystemMenu[] searchSystemMenu() {
+
+		if(lstSystemMenu == null) return null;
+		SystemMenu pSystemMenu[] = new SystemMenu[lstSystemMenu.getCount()];
+		for(int i =0 ;i < lstSystemMenu.getCount();i++){
+			pSystemMenu[i] = (SystemMenu)lstSystemMenu.getNode(i);
+		}
+		return pSystemMenu;
+	}
+
+	/* menu set control */
+	public int appendMenuSet( String pSystemID, MenuSet pMenuSet ) {
+		SystemMenu pSystemMenu ;
+		if(( pSystemMenu = (SystemMenu)lstSystemMenu.getNode( pSystemID ) ) != null)
+		{    pSystemMenu.appendMenuSet( pMenuSet ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+	}
+	public int appendMenuSet( String pSystemID,String pSystemName, MenuSet pMenuSet ) {
+		SystemMenu pSystemMenu ;
+		if(( pSystemMenu = (SystemMenu)lstSystemMenu.getNode( pSystemID ) ) != null)
+		{    pSystemMenu.appendMenuSet( pMenuSet ) ;
+			pSystemMenu.setParam("systemName", pSystemName);
+		     return AppCode.ERR_NOERROR ;
+		}
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+	}
+	public void removeMenuSet( String pSystemID, MenuSet pMenuSet ) {
+		// check active menu
+		if   ( m_pActiveSet == pMenuSet )	m_pActiveSet = null ;
+		SystemMenu pSystemMenu ;
+		if   ( (pSystemMenu = (SystemMenu)lstSystemMenu.getNode( pSystemID )) == null)
+		     return ;
+		pSystemMenu.removeMenuSet( pMenuSet ) ;
+	}
+	public MenuSet searchMenuSet( String pSystemID) {
+		return searchMenuSet(pSystemID,null);
+	}
+	public MenuSet searchMenuSet( String pSystemID, String pMenuID) {
+		SystemMenu pSystemMenu ;
+		if((pSystemMenu = searchSystemMenu( pSystemID )) == null)
+		     return null ;
+		return pSystemMenu.searchMenuSet( pMenuID ) ;
+	}
+	// active menu set
+	public MenuSet getActiveMenuSet() { return m_pActiveSet ; }
+	public void setActiveMenuSet( MenuSet pMenuSet ) { m_pActiveSet = pMenuSet ; }
+	protected MenuSet m_pActiveSet ;
+
+
+	public void applyToComponent( String section ) {
+		applyToComponent(section,true);
+	}
+	public void applyToComponent( String section, boolean bWarningReport ) {
+		EmsSection pSection;
+		EmsField pField ;
+		int errcode ;
+		if( section == null ) section = getClassID() ;
+		if(pEmsConfig == null ||  ((pSection = pEmsConfig.searchSection( section )) == null))
+			return ;
+
+		for(int i=0;i<pSection.getCount();i++){
+			pField = (EmsField)pSection.getNode(i) ;
+			if(pField == null) continue;
+			boolean temp;
+			if( (pField.member != null || pField.value != null) && ((errcode = setParam( pField.member, pField.value)) !=  AppCode.ERR_NOERROR) && bWarningReport){
+				String head,data;
+				head = "EMS Section ( "+section+ ") Configuration Error";
+				data = "errcode = "+errcode+", field = "+pField.member+", value = "+pField.value;
+		       WriteWarningLog( 1, AppCode.ERR_UPDATE_CONFIGURATION, head, data ) ;
+			}
+		}
+
+	}
+	// warning report
+	public void WriteWarningLog( int type, int code,String subject, String detail ) {
+		if(subject == null) subject="";
+		if(detail == null) detail="";
+		System.out.printf( "WRN: type = %d, code = %d, subject = %s, detail = %s\n", type, code,subject, detail ) ;
+	}
+
+
+	/*
+	public static void main(String args[]){
+		EmsMenuLoader pMenuLoader = null;
+		EmsModuleLoader pModuleLoader = null;
+		int errcode = 0;
+		EmsConfig	emsConfig = new EmsConfig( "c:\\webstart.ini" ) ;
+		if((pMenuLoader = new EmsMenuLoader( emsConfig )) == null){
+			System.out.println("에러!!!");
+		}
+		if((pModuleLoader = new EmsModuleLoader( emsConfig )) == null){
+			System.out.println("에러!!!");
+		}
+		pModuleLoader.applyToComponent( null, true ) ;
+		errcode = pModuleLoader.Start() ;
+		pMenuLoader.applyToComponent( null ) ;
+		System.out.println("끝나기전");
+
+	}
+	*/
+}

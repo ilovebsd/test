@@ -1,0 +1,27 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+
+public class EmsField extends DataIO {
+	public String member = null;
+	public String value = null;
+	public String comment = null;
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected int setFieldData(String field, String value) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getClassID() {
+		return member;
+	}
+}

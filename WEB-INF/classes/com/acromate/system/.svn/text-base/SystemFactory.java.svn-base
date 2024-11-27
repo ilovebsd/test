@@ -1,0 +1,105 @@
+/*
+ * GroupCollection.java
+ *
+ * Created on 2006년 10월 17일 (화), 오후 2:17
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.util.Str;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @verion 1.0.0
+ */
+public class SystemFactory extends ListIO {
+    public Logger log = Logger.getLogger(this.getClass()) ;
+
+    /**
+     *
+     * @param defaultId
+     * @param defaultName
+     */
+    public SystemFactory() {
+
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getGroupCount() {
+        return list.size();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList getGroups() {
+        return this.list;
+    }
+
+    /**
+     *
+     * @param index
+     * @return
+     */
+    public GroupSystem getGroup(String groupId) {
+        groupId = Str.uncover(groupId);
+        GroupSystem group = null;
+        Iterator iterator = list.iterator();
+        while(iterator.hasNext()) {
+            group = (GroupSystem)iterator.next();
+            if(group.getGroupId().replace("'","").equals(groupId)) break;
+        }   return group;
+    }
+
+    /**
+     *
+     * @param groupId
+     * @return
+     */
+    public String getGroupName(String groupId) {
+        GroupSystem group = null;
+        group = (GroupSystem)this.getFieldObject(groupId);
+        if(group != null) return group.getGroupName();
+        else return null;
+    }
+
+    public String setServerIP(String ipType, String ipAddr, String subnetMask, String gateway,
+        String hostName, String domainName, String firstDnsServer, String secondDnsServer ) {
+        return "true" ;
+    }
+
+    public GroupSystem getGroup(int index) {
+        int count = 0;
+        GroupSystem group = null;
+        Iterator iterator = list.iterator();
+        while(iterator.hasNext()) {
+            group = (GroupSystem)iterator.next();
+            if(count++ == index) break;
+        }   return group;
+    }
+
+    public int getParam( String field, StringBuilder value ) {
+        return super.getParam(field,value);
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected DataIO newListNode() {
+        log.info("GroupSystem is created");
+        return new GroupSystem();
+    }
+}

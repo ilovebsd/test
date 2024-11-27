@@ -1,0 +1,44 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class PrefixCallLimitIDDTO
+{
+
+    private String callLimitID;
+    private int    maxCall;
+    private String description;
+
+
+    public String getCallLimitID() { return this.callLimitID; }
+    public void   setCallLimitID(String vCallLimitID ) { this.callLimitID = vCallLimitID; }
+
+    public int    getMaxCall() { return this.maxCall; }
+    public void   setMaxCall(int vMaxCall ) { this.maxCall = vMaxCall; }
+
+    public String getDescription() { return this.description; }
+    public void   setDescription(String vDescription ) { this.description = vDescription; }
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(callLimitID:"              + getCallLimitID() + ") ") ;
+        sb.append("[description:"              + getDescription() + "] ") ;
+        sb.append("[maxCall:"                  + getMaxCall() + "] ") ;
+
+        return sb.toString();
+    }
+}

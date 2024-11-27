@@ -1,0 +1,53 @@
+package bizportal.nasacti.record;
+
+import java.util.*;
+
+import java.sql.*;
+
+import bizportal.nasacti.record.AdminBean;
+
+import bizportal.nasacti.ipivr.DBPoolConnector;
+
+public class AdminLogin extends DBPoolConnector {
+
+	public AdminLogin(){
+	}
+
+
+	public Vector adminInfo(String loginId){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		String query = "";
+		try{
+			con = this.getConnection();
+
+			query = "Select GroupID, usr_password, user_name From ncr_user Where Adminlevel = 3 And GroupID = ? ";
+
+
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setString(1, loginId);
+
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				AdminBean infoBean = new AdminBean();
+
+				infoBean.setLoginId(rs.getString("GroupID"));
+				infoBean.setLoginPass(rs.getString("usr_password"));
+				infoBean.setLoginName(rs.getString("user_name"));
+
+				vList.add(infoBean);
+			}
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+	}
+}

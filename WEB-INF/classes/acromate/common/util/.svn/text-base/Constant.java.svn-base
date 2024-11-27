@@ -1,0 +1,67 @@
+package	acromate.common.util;
+
+/**
+ * 상수 정의 Class
+ */
+public class Constant {
+    // 로컬장비
+//	public static String CM_FILEUPLOAD_TEMP       = "D:/work/bizportal/bizportal/WebContent/FTP_SERVER";  	// 파일다운로로드 템프 폴더 루트 (WAS)
+//    public static String CM_FILEUPLOAD            = "D:/work/bizportal/bizportal/WebContent/uploadfile";	// 파일업로드 템프 폴더 루트 (WAS)
+//    public static String CM_SAMPLE                = StaticString.ContextRoot+"/sample/addressbook.xls";  	// 파일가져오기샘플
+//    public static String CM_SAMPLE_CSV            = "D:/work/bizportal/bizportal/WebContent/sample/test_csv.csv";  	// 파일가져오기샘플
+//    public static String CM_SAMPLE_XLS            = "D:/work/bizportal/bizportal/WebContent/sample/addressbook.xls";  	// 파일가져오기샘플
+    
+	// 단말기 일괄등록 관련
+//	public static String CM_SAMPLE_BULK_XLS            = "D:/work/Callbox_Source/bizportal/bizportal/WebContent/sample/multi_register.xls";  	// 파일가져오기샘플
+//	public static String CM_FILEUPLOAD            = "D:/work/Callbox_Source/bizportal/bizportal/WebContent/sample/";	// 파일업로드 템프 폴더 루트 (WAS)
+	
+	
+    // 운영장비
+    public static String CM_FILEUPLOAD_TEMP       = "FTP_SERVER";//"/usr/local/tomcat5.5/webapps/ipcs_files/ftp_server";  	// 파일다운로로드 템프 폴더 루트 (WAS)
+    public static String CM_FILEUPLOAD            = "uploadfile";//"/usr/local/tomcat5.5/webapps/ipcs_files/uploadfile";	// 파일업로드 템프 폴더 루트 (WAS)
+    public static String CM_SAMPLE                = "sample/addressbook.xls";//"/usr/local/tomcat5.5/webapps/bizportal/sample/addressbook.xls";  		// 파일가져오기샘플
+    public static String CM_SAMPLE_CSV            = "sample/addressbook.csv";//"/usr/local/tomcat5.5/webapps/bizportal/sample/addressbook.csv";  		// 파일가져오기샘플
+    public static String CM_SAMPLE_XLS            = "sample/addressbook.xls";//"/usr/local/tomcat5.5/webapps/bizportal/sample/addressbook.xls";  		// 파일가져오기샘플
+
+    // 단말기 일괄등록 관련
+    public static String CM_SAMPLE_BULK_XLS       = "sample/multi_register.xls";//"/usr/local/tomcat5.5/webapps/bizportal/sample/multi_register.xls";  // 단말 일괄등록 파일가져오기샘플
+   
+    // -- Excel Create 시 Column Type 정의
+    public static int CM_EXL_COLTYPE_STRING_CENTER  = 0;                //String_CENTER
+    public static int CM_EXL_COLTYPE_STRING_LEFT    = 1;                //String_LEFT
+    public static int CM_EXL_COLTYPE_STRING_RIGHT   = 2;                //String_RIGHT
+    public static int CM_EXL_COLTYPE_STRING_LEFTTOP = 3;                //String_LEFTTOP
+
+    public static int CM_EXL_COLTYPE_INT_CENTER   = 10;                //int_CNTER
+    public static int CM_EXL_COLTYPE_INT_LEFT     = 11;                //int_LEFT
+    public static int CM_EXL_COLTYPE_INT_RIGHT    = 12;                //int_RIGHT
+
+    public static int CM_EXL_COLTYPE_FLOAT_CENTER = 20;                //float_CENTER
+    public static int CM_EXL_COLTYPE_FLOAT_LEFT   = 21;                //float_LEFT
+    public static int CM_EXL_COLTYPE_FLOAT_RIGHT  = 22;                //float_RIGHT
+
+    public static int CM_EXL_COLTYPE_MONEY_CENTER = 30;                //money_CENTER
+    public static int CM_EXL_COLTYPE_MONEY_LEFT   = 31;                //money_LEFT
+    public static int CM_EXL_COLTYPE_MONEY_RIGHT  = 32;                //money_RIGHT
+
+    public static int CM_EXL_COLTYPE_MONEY_CENTER1= 35;                //money 소숫자리 1자리_CENTER
+    public static int CM_EXL_COLTYPE_MONEY_LEFT1  = 36;                //money 소숫자리 1자리_LEFT
+    public static int CM_EXL_COLTYPE_MONEY_RIGHT1 = 37;                //money 소숫자리 1자리_RIGHT
+
+    public static int CM_EXL_COLTYPE_MONEY_CENTER2= 40;                //money 소숫자리 2자리_CENTER
+    public static int CM_EXL_COLTYPE_MONEY_LEFT2  = 41;                //money 소숫자리 2자리_LEFT
+    public static int CM_EXL_COLTYPE_MONEY_RIGHT2 = 42;                //money 소숫자리 2자리_RIGHT
+
+    public static int CM_EXL_COLTYPE_MONEY_CENTER3= 50;                //money 소숫자리 3자리_CENTER
+    public static int CM_EXL_COLTYPE_MONEY_LEFT3  = 51;                //money 소숫자리 3자리_LEFT
+    public static int CM_EXL_COLTYPE_MONEY_RIGHT3 = 52;                //money 소숫자리 3자리_RIGHT
+
+    public static int CM_EXL_COLTYPE_MONEY_CENTER4= 60;                //money 소숫자리 4자리_CENTER
+    public static int CM_EXL_COLTYPE_MONEY_LEFT4  = 61;                //money 소숫자리 4자리_LEFT
+    public static int CM_EXL_COLTYPE_MONEY_RIGHT4 = 62;                //money 소숫자리 4자리_RIGHT
+
+    public static int CM_EXL_COLTYPE_TITLE        = 90;                //title(center)
+    public static int CM_EXL_COLTYPE_SEARCHAREA   = 91;                //조회조건(left)
+    public static int CM_EXL_COLTYPE_HEADER       = 92;                //column header
+
+}

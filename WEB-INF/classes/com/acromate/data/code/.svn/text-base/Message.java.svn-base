@@ -1,0 +1,36 @@
+/*
+ * Error.java
+ *
+ * Created on 2006년 8월 8일 (화), 오후 5:23
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package com.acromate.data.code;
+
+/**
+ *
+ * @author pljoin1024
+ */
+public class Message {
+
+    //General status code
+    public final static int CLIENT_NORMALLY_DISCONNECT = 9000;
+    public final static int PACKET_HEADER_INSUFFIENT   = 9001;
+    public final static int PACKET_CONTENT_INSUFFIENT  = 9002;
+
+    public final static int PACKET_REGISTER            =    1;
+    public final static int PACKET_RELEASE             =    2;
+    public final static int PACKET_SUBSCRIBER          =    3;
+
+    //PBX and Subscriber code
+    public final static int PACKET_PBX_REGISTER        = 1103;
+    public final static int PACKET_PBX_RELEASE         = 1203;
+    public final static int PACKET_PBX_CHANAGE         = 1303;
+    public final static int PACKET_PBX_ADDSERVICE      = 1403;
+    public final static int PACKET_SBC_REGISTER        = 2103;
+    public final static int PACKET_SBC_RELEASE         = 2203;
+    public final static int PACKET_SBC_CHANAGE         = 2303;
+    public final static int PACKET_SBC_ADDSERVICE      = 2403;
+}

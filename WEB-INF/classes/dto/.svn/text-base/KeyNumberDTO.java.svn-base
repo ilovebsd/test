@@ -1,0 +1,40 @@
+package dto;
+
+public class KeyNumberDTO {
+	
+	private String e164 		= "";
+	private int    indexno 		= 0;
+	private String name 		= "";
+	private int    smsCount		= 0;
+	
+	public KeyNumberDTO () {}
+	
+	public String getE164() {
+		return e164;
+	}
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public int getIndexno() {
+		return indexno;
+	}
+	public void setIndexno(int indexno) {
+		this.indexno = indexno;
+	}
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public int getSmsCount() {
+		return smsCount;
+	}
+	public void setSmsCount(int smsCount) {
+		this.smsCount = smsCount;
+	}
+
+}

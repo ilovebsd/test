@@ -1,0 +1,111 @@
+/*
+ * SystemState.java
+ *
+ * Created on 2007년 7월 27일 (금), 오후 6:20
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package com.acromate.system.hardware;
+
+import java.util.Date;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Logger;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.5
+ */
+public class HardwareState extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int            errorcode;
+    private int            ttl;
+    private StringBuilder   version;
+    private StringBuilder   active;
+    private StringBuilder   expire;
+    private Date            date;
+
+    /** Creates a new instance of SystemState */
+    public HardwareState() {
+        this.version  = new StringBuilder();
+        this.active   = new StringBuilder();
+        this.expire   = new StringBuilder();
+        this.date     = new Date();
+        this.ttl      = 0;
+    }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "expire") == true) {
+            if(!value.equals("")) {
+                int nextexpire = ttl + Integer.valueOf(value);
+                expire.delete(0, expire.toString().length());
+                expire.append(nextexpire);
+            }   return 0;
+        }
+
+        if(compareFieldID(temp, "ttl") == true) {
+            if(!value.equals("")) ttl = Integer.valueOf(value);
+            return 0;
+        }
+
+        if(compareFieldID(temp, "version") == true) {
+            return setString(version, value) ;
+        }
+
+        if(compareFieldID(temp, "active") == true) {
+            return setString(active, value) ;
+        }
+
+        log.error("SystemState - Not founded field :" + field);
+        return(-1);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {  fldAlias = new StringBuilder(); fldAlias.append(""); }
+        else {  fldAlias = new StringBuilder(); fldAlias.append(field); }
+
+        if(compareFieldID(fldAlias, "version", idx, value) == true) {
+            errorcode = getString(version.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "expire", idx, value) == true) {
+            errorcode = getString(expire.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "currtime", idx, value) == true) {
+            String currtime  = String.valueOf(date.getTime());
+            errorcode = getString(currtime, value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "active", idx, value) == true) {
+            errorcode = getString(active.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }   return 0;
+    }
+}

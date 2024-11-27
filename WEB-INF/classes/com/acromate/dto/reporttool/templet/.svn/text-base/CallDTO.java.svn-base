@@ -1,0 +1,86 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.DataIO;
+
+public class CallDTO extends DataIO {
+	boolean concurrentCall;
+	boolean fiveMinComplRate;
+	boolean yestComplRate;
+	boolean yestPeekCall;
+	boolean totalCallStat;
+
+	public void setConcurrentCall(boolean concurrentCall) { this.concurrentCall = concurrentCall; }
+	public boolean getConcurrentCall() { return concurrentCall; }
+
+	public void setFiveMinComplRate(boolean fiveMinComplRate) { this.fiveMinComplRate = fiveMinComplRate; }
+	public boolean getFiveMinComplRate() { return fiveMinComplRate; }
+
+	public void setYestComplRate(boolean yestComplRate) { this.yestComplRate = yestComplRate; }
+	public boolean getYestComplRate() { return yestComplRate; }
+
+	public void setYestPeekCall(boolean yestPeekCall) { this.yestPeekCall = yestPeekCall; }
+	public boolean getYestPeekCall() { return yestPeekCall; }
+
+	public void setTotalCallStat(boolean totalCallStat) { this.totalCallStat = totalCallStat; }
+	public boolean getTotalCallStat() { return totalCallStat; }
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "concurrentCall", idx, value) == true) {
+            errorcode = getBoolean(concurrentCall, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "fiveMinComplRate", idx, value) == true) {
+            errorcode = getBoolean(fiveMinComplRate, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "yestComplRate", idx, value) == true) {
+            errorcode = getBoolean(yestComplRate, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "yestPeekCall", idx, value) == true) {
+            errorcode = getBoolean(yestPeekCall, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "totalCallStat", idx, value) == true) {
+            errorcode = getBoolean(totalCallStat, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		return (0);
+	}
+	@Override
+	protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "concurrentCall") == true) {
+            if(!value.equals("")) concurrentCall = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "fiveMinComplRate") == true) {
+            if(!value.equals("")) fiveMinComplRate = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "yestComplRate") == true) {
+            if(!value.equals("")) yestComplRate = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "yestPeekCall") == true) {
+            if(!value.equals("")) yestPeekCall = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "totalCallStat") == true) {
+            if(!value.equals("")) totalCallStat = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+		return (-1);
+	}
+}

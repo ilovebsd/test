@@ -1,0 +1,429 @@
+package com.acromate.system;
+
+import com.acromate.data.DataIO;
+import com.acromate.system.hardware.CenteralUnit;
+import com.acromate.system.hardware.HardDisk;
+import com.acromate.system.hardware.HardwareState;
+import com.acromate.system.hardware.LanCard;
+import com.acromate.system.hardware.Memory;
+import com.acromate.system.hardware.ProcList;
+import com.acromate.system.ddos.DDosWhiteList;
+import com.acromate.system.ddos.DDosDenyList;
+import com.acromate.util.Logger;
+
+public class ManSystem extends CustomSystem implements Comparable {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int             errorcode;
+    private HardwareState   state;
+    private CenteralUnit    cpu;
+    private HardDisk        disk;
+    private Memory          memory;
+    private LanCard         lancard;
+    private ProcList         procList;
+    private DDosWhiteList         dDosWhiteList;
+    private DDosDenyList         dDosDenyList;
+    private StringBuilder   monitorAddress;          /** System hardware Id         */
+    private int order;
+
+    public DataIO connectionTimer ;
+
+    /** Creates a new instance of ManSystem */
+    public ManSystem() {
+        this.state     = new HardwareState();
+        this.cpu       = new CenteralUnit();
+        this.memory    = new Memory();
+        this.lancard   = new LanCard(this);
+        this.procList   = new ProcList(this);
+        this.dDosWhiteList   = new DDosWhiteList(this);
+        this.dDosDenyList   = new DDosDenyList(this);
+        this.disk      = new HardDisk(this);
+        this.monitorAddress   = new StringBuilder();
+    }
+
+    public ManSystem( Object obj ) { }
+
+    public void setSysGroupID(String groupID) {
+        this.groupId = new StringBuilder(groupID);
+    }
+
+    public void setClusterID(String clusterId) {
+        this.clusterId = new StringBuilder(clusterId);
+    }
+
+    public void setHwClusterID(String hwClusterId) {
+        this.hwClusterId = new StringBuilder(hwClusterId);
+    }
+
+    public void setHwID(String hwId) {
+        this.hwId= new StringBuilder(hwId);
+    }
+
+    public void setSystemInit(){
+        /*  시스템자원 초기 정보 요청 start */
+        // 메모리와 DB 에서 LanPort / Process 의 정보 삭제(초기화)
+        getProcList().removeAll();
+        getDisk().removeAll();
+    }
+
+    public void setSystemStart(){
+        /*  시스템자원 초기 정보 요청 start */
+        // 메모리와 DB 에서 LanPort / Process 의 정보 삭제(초기화)
+        getLanCard().removeAll();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public DataIO getTimer() {
+        return connectionTimer;
+    }
+    public void setTimer(DataIO connectionTimer) {
+        this.connectionTimer = connectionTimer;
+    }
+
+    public void setOrder(int order) {
+        this.order = order ;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public int compareTo(Object o) {
+        return order - ((ManSystem)o).getOrder() ;
+    }
+
+    public String getMonitorAddress() {
+        return monitorAddress.toString();
+    }
+
+
+    public void setMonitorAddress( String ipAddress ) {
+        this.monitorAddress.delete(0, ipAddress.length());
+        this.monitorAddress.append(ipAddress);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public LanCard getLanCard() {
+        return lancard;
+    }
+
+    public CenteralUnit getCpu() {
+        return cpu;
+    }
+
+    public Memory getMemory() {
+        return memory;
+    }
+
+    public ProcList getProcList() {
+        return procList;
+    }
+
+    public DDosWhiteList getDDosWhiteList() {
+        return dDosWhiteList;
+    }
+
+    public void setDDosWhiteList( DDosWhiteList dDosWhiteList) {
+        this.dDosWhiteList = dDosWhiteList ;
+    }
+
+    public DDosDenyList getDDosDenyList() {
+        return dDosDenyList;
+    }
+
+    public void setDDosDenyList( DDosDenyList dDosDenyList) {
+        this.dDosDenyList = dDosDenyList ;
+    }
+
+    public HardDisk getDisk() {
+        return disk;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public DataIO getActiveSystem() {
+        if( procStatus > 0)
+              return this;
+        else return null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean initSystem() {
+        return true;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean startSystem() {
+        return true;
+    }
+
+    /**
+     *
+     */
+    public void finalSystem() {
+        if(network != null) {
+            network.callMethod("", "finalService");
+        }
+    }
+
+    /**
+     *
+     * @param method
+     * @param argument
+     * @return
+     */
+    public Object callMethod(String method, Object... argument) {
+        return super.callMethod(method, argument);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getClassID() {
+        return hwId.toString();
+    }
+
+    public void setSystemStatus(int status) {
+        if ( clusterSystem != null && clusterSystem.getCount() <= 1 ) return ;
+        this.procStatus = status;
+    }
+
+    public void setSystemStatusOnly(int status) {
+        this.procStatus = status;
+    }
+
+    public void setPriSecSystemStatus(int status) {
+//        if ( clusterSystem.getClusterType() != ClusterSystem.CLUSTER_TYPE_PRIMARY_SECONDARY ) return ;
+        if ( clusterSystem.getClusterType() > 0) return ;
+        this.procStatus = status;
+    }
+
+     /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getFieldObject(String field) {
+        DataIO result = null;
+        if(field != null && field.trim().length() > 0) {
+            StringBuilder temp = new StringBuilder(field);
+
+            if(compareFieldID(temp, "config") == true) {
+                log.info("config field object");
+                return config.getFieldObject(temp.toString());
+            }
+            if(compareFieldID(temp, "network") == true) {
+                log.info("network field object");
+                return network.getFieldObject(temp.toString());
+            }
+            if(compareFieldID(temp, "database") == true) {
+                log.info("database field object");
+                return database.getFieldObject(temp.toString());
+            }
+            if(compareFieldID(temp, "cpu") == true) {
+                log.info("cpu field object");
+                return cpu.getFieldObject(temp.toString());
+            }
+            if(compareFieldID(temp, "memory") == true) {
+                log.info("memory field object");
+                return memory.getFieldObject(temp.toString());
+            }
+            if(compareFieldID(temp, "lancard") == true) {
+                log.info("lancard field object");
+                return lancard.getFieldObject(temp.toString()) ;
+            }
+            if(compareFieldID(temp, "lan") == true) {
+                log.info("lancard field object");
+                return lancard.getFieldObject(temp.toString()) ;
+            }
+            if(compareFieldID(temp, "proclist") == true) {
+                log.info("proclist field object");
+                return procList.getFieldObject(temp.toString());
+            }
+            if (compareFieldID(temp, "disk") == true) {
+                log.info("disk field object");
+                return disk.getFieldObject(temp.toString());
+            }
+            if (compareFieldID(temp, "ddoswhitelist") == true) {
+                log.info("disk field object");
+                return dDosWhiteList.getFieldObject(temp.toString());
+            }
+            if (compareFieldID(temp, "ddosdenylist") == true) {
+                log.info("disk field object");
+                return dDosDenyList.getFieldObject(temp.toString());
+            }
+
+        }   return super.getFieldObject(field);
+    }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "config") == true) {
+            if (config == null) return 0;
+            return config.setParam(field, value);
+        }
+        if(compareFieldID(temp, "groupId") == true) {
+            return setString(groupId, value);
+        }
+        if(compareFieldID(temp, "groupName") == true) {
+            return setString(groupName, value);
+        }
+        if(compareFieldID(temp, "hwClusterId") == true) {
+            return setString(hwClusterId, value);
+        }
+        if(compareFieldID(temp, "hwId") == true) {
+            return setString(hwId, value);
+        }
+        if(compareFieldID(temp, "hwName") == true) {
+            return setString(hwName, value);
+        }
+        if(compareFieldID(temp, "status") == true) {
+            if(!value.equals("")) procStatus = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "clusterId") == true) {
+            return setString(clusterId, value);
+        }
+        if(compareFieldID(temp, "clusterName") == true) {
+            return setString(clusterName, value);
+        }
+        if(compareFieldID(temp, "cpu") == true) {
+            return cpu.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "mem") == true) {
+            return memory.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "lanCard") == true) {
+            return lancard.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "lan") == true) {
+            return lancard.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "disk") == true) {
+            return disk.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "process") == true) {
+            return procList.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "defaultSystem") == true) {
+            return setString(defaultSystem, value);
+        }
+        if(compareFieldID(temp, "monitorAddress") == true) {
+            return setString(monitorAddress, value);
+        }
+        if(compareFieldID(temp, "ddoswhitelist") == true) {
+            dDosWhiteList.removeAll() ;
+            return dDosWhiteList.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "ddosdenylist") == true) {
+            dDosDenyList.removeAll() ;
+            return dDosDenyList.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "order") == true) {
+            if(!value.equals("")) order = Integer.valueOf(value);
+            return 0;
+        }
+
+        log.error("ManSystem - Not founded field :" + field);
+        return(-1);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "config", idx, value) == true) {
+            errorcode = config.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "groupId", idx, value) == true) {
+            errorcode = getString(groupId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hwClusterId", idx, value) == true) {
+            errorcode = getString(hwClusterId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hwId", idx, value) == true) {
+            errorcode = getString(hwId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "status", idx, value) == true) {
+            errorcode = getInteger(procStatus, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "clusterId", idx, value) == true) {
+            errorcode = getString(clusterId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "cpu", idx, value) == true) {
+            errorcode = cpu.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "mem", idx, value) == true) {
+            errorcode = memory.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "disk", idx, value) == true) {
+            errorcode = disk.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "lan", idx, value) == true) {
+            errorcode = lancard.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "process", idx, value) == true) {
+            errorcode = procList.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ddoswhitelist", idx, value) == true) {
+            errorcode = dDosWhiteList.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ddosdenylist", idx, value) == true) {
+            errorcode = dDosDenyList.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "order", idx, value) == true) {
+            errorcode = getInteger(order, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return 0;
+    }
+}
+
+

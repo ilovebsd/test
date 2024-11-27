@@ -1,0 +1,247 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import gateway.AuthenticationSNMP;
+import gateway.RoutingSNMP;
+
+public class SnmpAuthenticationCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		try {
+			String 	snmp_Ip 		= new String(Str.CheckNullString(req.getParameter("hiSnmp_Ip")).getBytes("8859_1"), "euc-kr");	// 
+
+			String 	name_0	= new String(Str.CheckNullString(req.getParameter("hiName_0")).getBytes("8859_1"), "euc-kr");	// 
+			String 	name_1	= new String(Str.CheckNullString(req.getParameter("hiName_1")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_2	= new String(Str.CheckNullString(req.getParameter("hiName_2")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_3	= new String(Str.CheckNullString(req.getParameter("hiName_3")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_4	= new String(Str.CheckNullString(req.getParameter("hiName_4")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_5	= new String(Str.CheckNullString(req.getParameter("hiName_5")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_6	= new String(Str.CheckNullString(req.getParameter("hiName_6")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_7	= new String(Str.CheckNullString(req.getParameter("hiName_7")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_8	= new String(Str.CheckNullString(req.getParameter("hiName_8")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_9	= new String(Str.CheckNullString(req.getParameter("hiName_9")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_10	= new String(Str.CheckNullString(req.getParameter("hiName_10")).getBytes("8859_1"), "euc-kr");	//
+			String 	name_11	= new String(Str.CheckNullString(req.getParameter("hiName_11")).getBytes("8859_1"), "euc-kr");	//
+			
+			String 	pass_0	= new String(Str.CheckNullString(req.getParameter("hiPass_0")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_1	= new String(Str.CheckNullString(req.getParameter("hiPass_1")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_2	= new String(Str.CheckNullString(req.getParameter("hiPass_2")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_3	= new String(Str.CheckNullString(req.getParameter("hiPass_3")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_4	= new String(Str.CheckNullString(req.getParameter("hiPass_4")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_5	= new String(Str.CheckNullString(req.getParameter("hiPass_5")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_6	= new String(Str.CheckNullString(req.getParameter("hiPass_6")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_7	= new String(Str.CheckNullString(req.getParameter("hiPass_7")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_8	= new String(Str.CheckNullString(req.getParameter("hiPass_8")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_9	= new String(Str.CheckNullString(req.getParameter("hiPass_9")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_10	= new String(Str.CheckNullString(req.getParameter("hiPass_10")).getBytes("8859_1"), "euc-kr");	//
+			String 	pass_11	= new String(Str.CheckNullString(req.getParameter("hiPass_11")).getBytes("8859_1"), "euc-kr");	//
+			
+			String 	use_0	= new String(Str.CheckNullString(req.getParameter("hiUse_0")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_1	= new String(Str.CheckNullString(req.getParameter("hiUse_1")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_2	= new String(Str.CheckNullString(req.getParameter("hiUse_2")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_3	= new String(Str.CheckNullString(req.getParameter("hiUse_3")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_4	= new String(Str.CheckNullString(req.getParameter("hiUse_4")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_5	= new String(Str.CheckNullString(req.getParameter("hiUse_5")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_6	= new String(Str.CheckNullString(req.getParameter("hiUse_6")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_7	= new String(Str.CheckNullString(req.getParameter("hiUse_7")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_8	= new String(Str.CheckNullString(req.getParameter("hiUse_8")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_9	= new String(Str.CheckNullString(req.getParameter("hiUse_9")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_10	= new String(Str.CheckNullString(req.getParameter("hiUse_10")).getBytes("8859_1"), "euc-kr");	//
+			String 	use_11	= new String(Str.CheckNullString(req.getParameter("hiUse_11")).getBytes("8859_1"), "euc-kr");	//
+			
+			String 	userID	= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "authentication.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			HttpSession hs = req.getSession();
+			String id = hs.getId();
+			BaseEntity entity = manager.getBaseEntity(id);	
+			
+			AuthenticationSNMP authenticationSNMP = new AuthenticationSNMP();
+			
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.0", use_0, 1);		// Integer
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.1", use_1, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.2", use_2, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.3", use_3, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.4", use_4, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.5", use_5, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.6", use_6, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.7", use_7, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.8", use_8, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.9", use_9, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.10", use_10, 1);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.2.11", use_11, 1);
+			
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.0", name_0, 3);	// OctetString
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.1", name_1, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.2", name_2, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.3", name_3, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.4", name_4, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.5", name_5, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.6", name_6, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.7", name_7, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.8", name_8, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.9", name_9, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.10", name_10, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.5.11", name_11, 3);
+			
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.0", pass_0, 3);	// OctetString
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.1", pass_1, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.2", pass_2, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.3", pass_3, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.4", pass_4, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.5", pass_5, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.6", pass_6, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.7", pass_7, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.8", pass_8, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.9", pass_9, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.10", pass_10, 3);
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.4.21.1.6.11", pass_11, 3);
+
+/*			
+			// Routing Table OID 추가 ==============================================================================
+			RoutingSNMP routingSNMP = new RoutingSNMP();
+			
+			// 1번째 FXS
+			String routingChk_01 = routingSNMP.getSNMP(snmp_Ip, "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.2");
+			if("".equals(name_8)){
+				if(!"".equals(routingChk_01)){
+					// 번호를 입력받지 않았으나 기존의 OID 값이 있어 삭제
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.2", "6", 1);		// Integer
+				}
+			}else{
+				if("".equals(routingChk_01)){
+					// 번호가 입력 되고 OID 값이 없으므로 신규등록
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.2", "4", 1);		// Integer
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.2", name_8, 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.2", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.2", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.2", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.2", "0", 2);		// UnsignedInteger
+				}else{
+					// 번호가 입력 되고 OID 값이 있으므로 수정
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.2", name_8, 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.2", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.2", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.2", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.2", "0", 2);		// UnsignedInteger
+				}
+			}
+			
+			// 2번째 FXS
+			String routingChk_02 = routingSNMP.getSNMP(snmp_Ip, "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.3");
+			if("".equals(name_9)){
+				if(!"".equals(routingChk_02)){
+					// 번호를 입력받지 않았으나 기존의 OID 값이 있어 삭제
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.3", "6", 1);		// Integer
+				}
+			}else{
+				if("".equals(routingChk_02)){
+					// 번호가 입력 되고 OID 값이 없으므로 신규등록
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.3", "4", 1);		// Integer
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.3", name_9, 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.3", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.3", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.3", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.3", "0", 2);		// UnsignedInteger
+				}else{
+					// 번호가 입력 되고 OID 값이 있으므로 수정
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.3", name_9, 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.3", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.3", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.3", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.3", "0", 2);		// UnsignedInteger
+				}
+			}
+			
+			// 3번째 FXS
+			String routingChk_03 = routingSNMP.getSNMP(snmp_Ip, "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.4");
+			if("".equals(name_10)){
+				if(!"".equals(routingChk_03)){
+					// 번호를 입력받지 않았으나 기존의 OID 값이 있어 삭제
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.4", "6", 1);		// Integer
+				}
+			}else{
+				if("".equals(routingChk_03)){
+					// 번호가 입력 되고 OID 값이 없으므로 신규등록
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.4", "4", 1);		// Integer
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.4", name_10, 3);	// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.4", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.4", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.4", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.4", "0", 2);		// UnsignedInteger
+				}else{
+					// 번호가 입력 되고 OID 값이 있으므로 수정
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.4", name_10, 3);	// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.4", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.4", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.4", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.4", "0", 2);		// UnsignedInteger
+				}
+			}
+			
+			// 4번째 FXS
+			String routingChk_04 = routingSNMP.getSNMP(snmp_Ip, "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.5");
+			if("".equals(name_11)){
+				if(!"".equals(routingChk_04)){
+					// 번호를 입력받지 않았으나 기존의 OID 값이 있어 삭제
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.5", "6", 1);		// Integer
+				}
+			}else{
+				if("".equals(routingChk_04)){
+					// 번호가 입력 되고 OID 값이 없으므로 신규등록
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.2.5", "4", 1);		// Integer
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.5", name_11, 3);	// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.5", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.5", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.5", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.5", "0", 2);		// UnsignedInteger
+				}else{
+					// 번호가 입력 되고 OID 값이 있으므로 수정
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.5.5", name_11, 3);	// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.7.5", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.8.5", "*", 3);		// OctetString
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.6.5", "2", 2);		// UnsignedInteger
+					routingSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.20.2.1.9.5", "0", 2);		// UnsignedInteger
+				}
+			}
+			// ====================================================================================================
+*/
+			
+			authenticationSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.10.3.1.1.4.0", "1", 2);		// Burn OID
+			
+			// ############### LogHistory 처리  ###############
+			String		strIp		= req.getRemoteAddr();
+			LogHistory	logHistory 	= new LogHistory();
+			int int_result = logHistory.LogHistorySave(userID+"|87|인증 등록|1|"+strIp);
+			// ##############################################
+
+			res.sendRedirect("/bizportal/gateway/"+resStr);
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+}

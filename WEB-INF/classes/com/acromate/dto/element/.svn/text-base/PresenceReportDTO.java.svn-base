@@ -1,0 +1,50 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class PresenceReportDTO
+{
+    private String userE164;
+    private String offerID;
+    private int    protocol;
+    private int    offerType;
+    private int    reportType;
+
+    public String getUserE164() { return this.userE164; }
+    public void   setUserE164(String vUserE164 ) { this.userE164 = vUserE164; }
+
+    public String getOfferID() { return this.offerID; }
+    public void   setOfferID(String vOfferID ) { this.offerID = vOfferID; }
+
+    public int    getProtocol() { return this.protocol; }
+    public void   setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public int    getOfferType() { return this.offerType; }
+    public void   setOfferType(int vOfferType ) { this.offerType = vOfferType; }
+
+    public int    getReportType() { return this.reportType; }
+    public void   setReportType(int vReportType ) { this.reportType = vReportType; }
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(userE164:"                  + getUserE164() + ") ") ;
+        sb.append("[offerID:"                   + getOfferID() + "] ") ;
+        sb.append("[protocol:"                  + getProtocol() + "] ") ;
+        sb.append("[offerType:"                 + getOfferType() + "] ") ;
+        sb.append("[reportType:"                + getReportType() + "] ") ;
+
+        return sb.toString();
+    }
+}

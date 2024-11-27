@@ -1,0 +1,69 @@
+package com.acromate.dto.system ;
+
+public class TransactionLogDTO {
+    private int LogSeq ;
+    private String SysGroupID ;
+    private String LogDATE, LogDATE_Ex ;
+    private String EndpointID ;
+    private int    EndpointType ;
+    private int    SEQNUMBER ;
+    private int    LOWSEQNUMBER ;
+    private String MessageType ;
+    private String PeerAddress ;
+    private int    Direction ;
+    private String SUBJECT ;
+    private String CallID ;
+    private String Detail ;
+    private String FileName ;
+    
+    private String SysGroupName ;
+
+    public int getLogSeq() { return LogSeq ; }
+    public void   setLogSeq( int LogSeq ) { this.LogSeq = LogSeq ; }
+
+    public String getSysGroupID() { return SysGroupID ; }
+    public void   setSysGroupID( String SysGroupID ) { this.SysGroupID = SysGroupID ; }
+
+    public String getLogDATE() { return LogDATE ; }
+    public void   setLogDATE( String LogDATE ) { this.LogDATE = LogDATE ; }
+    
+    public String getLogDATE_Ex() { return LogDATE_Ex ; }
+    public void   setLogDATE_Ex( String LogDATE_Ex ) { this.LogDATE_Ex = LogDATE_Ex ; }
+
+    public String getEndpointID() { return EndpointID ; }
+    public void   setEndpointID( String EndpointID ) { this.EndpointID = EndpointID ; }
+
+    public int    getEndpointType() { return EndpointType ; }
+    public void   setEndpointType( int EndpointType ) { this.EndpointType = EndpointType ; }
+
+    public int    getSEQNUMBER() { return SEQNUMBER ; }
+    public void   setSEQNUMBER( int SEQNUMBER ) { this.SEQNUMBER = SEQNUMBER ; }
+
+    public int    getLOWSEQNUMBER() { return LOWSEQNUMBER ; }
+    public void   setLOWSEQNUMBER( int LOWSEQNUMBER ) { this.LOWSEQNUMBER = LOWSEQNUMBER ; }
+
+    public String    getMessageType() { return MessageType ; }
+    public void   setMessageType( String MessageType ) { this.MessageType = MessageType ; }
+
+    public String getPeerAddress() { return PeerAddress ; }
+    public void   setPeerAddress( String PeerAddress ) { this.PeerAddress = PeerAddress ; }
+
+    public int    getDirection() { return Direction ; }
+    public void   setDirection( int Direction ) { this.Direction = Direction ; }
+
+    public String getSUBJECT() { return SUBJECT ; }
+    public void   setSUBJECT( String SUBJECT ) { this.SUBJECT = SUBJECT ; }
+
+    public String getCallID() { return CallID ; }
+    public void   setCallID( String CallID ) { this.CallID = CallID ; }
+
+    public String getDetail() {		return Detail;	}
+	public void setDetail(String detail) {		Detail = detail;	}
+	
+	public String getFileName() { return FileName ; }
+    public void   setFileName( String FileName ) { this.FileName = FileName ; }
+    
+    public String getSysGroupName() { return SysGroupName ; }
+    public void   setSysGroupName( String SysGroupName ) { this.SysGroupName = SysGroupName ; }
+
+}

@@ -1,0 +1,125 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.system.RouteMonitorDTO;
+import framework.Shell.LinuxShell;
+import dao.system.RouteMonitorDAO;
+
+public class RouteMonitorSaveCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		try {
+			String 	endpointID 		= new String(Str.CheckNullString(req.getParameter("hiEndpointID")).getBytes("8859_1"), "euc-kr");	// 루트 ID
+			String 	subID 			= new String(Str.CheckNullString(req.getParameter("hiSubID")).getBytes("8859_1"), "euc-kr");		// 레지스트라 ID 
+			String 	checkMode 		= new String(Str.CheckNullString(req.getParameter("hiCheckMode")).getBytes("8859_1"), "euc-kr");	// 상태체크유형
+			String 	fromNumber 		= new String(Str.CheckNullString(req.getParameter("hiFromNumber")).getBytes("8859_1"), "euc-kr");	// 시작번호
+			String 	toNumber 		= new String(Str.CheckNullString(req.getParameter("hiToNumber")).getBytes("8859_1"), "euc-kr");		// 끝번호 
+			String 	messageType 	= new String(Str.CheckNullString(req.getParameter("hiMessageType")).getBytes("8859_1"), "euc-kr");	// 메세지유형
+			
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			String 	goodsName_Type	= new String(req.getParameter("hiGoodsName").getBytes("8859_1"), "euc-kr");		// 제품명(모델명)
+			
+			//System.out.println("################## checkMode : "+checkMode);
+			
+			resStr = "rootMonitorList.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				RouteMonitorDTO dto = new RouteMonitorDTO();
+				dto.setEndpointid(endpointID);
+				dto.setSubid(subID);
+				if("3".equals(checkMode)){
+					dto.setProtocol(0);
+				}else{
+					dto.setProtocol(2);
+				}
+				dto.setCheckmode(Integer.parseInt(checkMode));
+				dto.setFromnumber(fromNumber);
+				dto.setTonumber(toNumber);
+				dto.setMessagetype(Integer.parseInt(messageType));
+				
+				// ####### IMS 용 #######
+				if("ACRO-CBS-IMS".equals(goodsName_Type)||"ACRO-HCBS-IMS".equals(goodsName_Type)){
+					dto.setSubtype(274);
+				}else{
+					// CallBox 이원화 ============================
+					if("Pri_CSCF".equals(endpointID)){
+						dto.setSubtype(258);
+					}else{
+						dto.setSubtype(2);
+					}
+					// =========================================
+				}
+				// ######################
+				
+				stmt = ConnectionManager.allocStatement("SSW");
+				
+				RouteMonitorDAO dao = new RouteMonitorDAO();
+				int insertResult = dao.insert(stmt,dto);
+				
+				// CallBox 이원화 ============================
+				if("Pri_CSCF".equals(endpointID)){
+					dto.setEndpointid("Sec_CSCF");
+					dto.setSubid("Sec_CSCF");
+					int insertResult2 = dao.insert(stmt,dto);
+				}
+				// =========================================
+
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|86|루트 모니터 ("+endpointID+")|1|"+strIp);
+				// ##############################################
+				new Thread(new Runnable() {
+					public void run() {
+						try{ Thread.sleep(1000); }catch(Exception ex){};
+						LinuxShell linuxShell = new LinuxShell();
+						String cmd, result;
+						try{
+							cmd = "/usr/local/etc/rc.d/acrossw restart";
+							System.out.println("vpbxweb-> cmd : "+cmd);
+							linuxShell.runShell(cmd);
+							result = linuxShell.getStrResult();
+							System.out.println("vpbxweb-> result : "+result);
+						}catch(Exception ex){
+							System.out.println("vpbxweb-> err : ");
+							ex.printStackTrace();
+						};
+					}
+				}).start();
+				res.sendRedirect("/bizportal/system/"+resStr);
+			} 
+			else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}		
+		return forwardingPage;
+	}
+}

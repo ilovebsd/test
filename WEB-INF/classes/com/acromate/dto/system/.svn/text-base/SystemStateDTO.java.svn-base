@@ -1,0 +1,67 @@
+package com.acromate.dto.system ;
+
+public class SystemStateDTO {
+
+    // 0 : 정상
+    // 1 : 모니터 안함
+    // 2 : 시스템 연결 안됨.
+    // 3 : 장애
+
+    public static final int STATUS_NORMAL = 0 ;
+    public static final int STATUS_NO_MONITOR = 1 ;
+    public static final int STATUS_CONNECTION_ERROR = 2 ;
+    public static final int STATUS_ALARM = 3 ;
+
+    private int    ID ;
+    private String Name ;
+    private String IPAddress ;
+    private int    IPPort ;
+    private String LoginID ;
+    private String Password ;
+    private int    X ;
+    private int    Y ;
+    private int    Status ;
+    private String SysInfo ;
+    private String Attempt ;
+    private String Answer ;
+
+    public int    getID() { return ID ; }
+    public void   setID( int ID ) { this.ID = ID ; }
+
+    public String getName() { return Name ; }
+    public void   setName( String Name ) { this.Name = Name ; }
+
+    public String getIPAddress() { return IPAddress ; }
+    public void   setIPAddress( String IPAddress ) { this.IPAddress = IPAddress ; }
+
+    public int    getIPPort() { return IPPort ; }
+    public void   setIPPort( int IPPort ) { this.IPPort = IPPort ; }
+
+    public String getLoginID() { return LoginID ; }
+    public void   setLoginID( String LoginID ) { this.LoginID = LoginID ; }
+
+    public String getPassword() { return Password ; }
+    public void   setPassword( String Password ) { this.Password = Password ; }
+
+    public int    getX() { return X ; }
+    public void   setX( int X ) { this.X = X ; }
+
+    public int    getY() { return Y ; }
+    public void   setY( int Y ) { this.Y = Y ; }
+
+    public int    getStatus() { return Status ; }
+    public void   setStatus( int Status ) { this.Status = Status ; }
+
+    public String getSysInfo() { return SysInfo ; }
+    public void   setSysInfo( String SysInfo ) { this.SysInfo = SysInfo ; }
+
+    public String getAttempt() { return Attempt ; }
+    public void   setAttempt( String Attempt ) { this.Attempt = Attempt ; }
+
+    public String getAnswer() { return Answer ; }
+    public void   setAnswer( String Answer ) { this.Answer = Answer ; }
+
+}
+
+
+

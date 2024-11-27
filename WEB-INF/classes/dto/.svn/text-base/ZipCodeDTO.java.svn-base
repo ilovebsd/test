@@ -1,0 +1,31 @@
+package dto;
+
+public class ZipCodeDTO {
+	
+	private String 	codeitemcd;
+	private String 	codeitemdesc;
+	
+	public ZipCodeDTO() {}
+	public ZipCodeDTO(String codeitemcd, String codeitemdesc) {      
+			
+		super();
+		
+		this.codeitemcd 	= codeitemcd;
+		this.codeitemdesc	= codeitemdesc;
+	}
+
+	public String getCodeitemcd() {
+		return codeitemcd;
+	}
+	public void setCodeitemcd(String codeitemcd) {
+		this.codeitemcd = codeitemcd;
+	}
+	
+	public String getCodeitemdesc() {
+		return codeitemdesc;
+	}
+	public void setCodeitemdesc(String codeitemdesc) {
+		this.codeitemdesc = codeitemdesc;
+	}
+	
+}

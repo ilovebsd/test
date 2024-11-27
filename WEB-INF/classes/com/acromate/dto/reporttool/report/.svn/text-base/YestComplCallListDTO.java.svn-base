@@ -1,0 +1,13 @@
+package com.acromate.dto.reporttool.report;
+
+import com.acromate.data.ListIO;
+import com.acromate.data.DataIO;
+
+public class YestComplCallListDTO extends ListIO {
+
+	@Override
+	protected DataIO newListNode() {
+		return new YestComplCallDTO();
+	}
+
+}

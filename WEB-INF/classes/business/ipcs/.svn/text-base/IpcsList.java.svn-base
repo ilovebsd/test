@@ -1,0 +1,413 @@
+package business.ipcs;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+
+import dto.ipcs.IpcsDetailDTO;
+import dto.ipcs.IpcsListDTO;
+
+public class IpcsList {
+	public List getList(DataStatement stmt, int pageNo, int pageSize, String endpointid, String e164, String name, String gubun, String str) {		
+		IpcsListDTO 		ipcsListDTO;
+        List<IpcsListDTO> 	ipcsList 	= new ArrayList<IpcsListDTO>();
+		//if (GroupID == 0) return addrBookList;
+        //System.out.println("받은 endpointid : "+endpointid);
+        
+        String sql = "SELECT sub.name as name, sub.position as position, contact.SIGNALADDRESS as signalAddress, ";
+        sql = sql + "\n  e164.startFlag as startFlag, ep.ENDPOINTID as endPointId, ep.ZONECODE as zoneCode, e164.extensionnumber as extensio, ";
+        sql = sql + "\n  route.e164 as e164, contact.registerid as registerid, ";
+        sql = sql + "\n  (SELECT deptname FROM TABLE_DEPT WHERE deptid = sub.department) as deptName, ";
+        sql = sql + "\n  (SELECT physical_address FROM Table_provision WHERE e164 = route.e164 And use = 1) as physicalAddress ";
+        //sql = sql + "\n  ,(SELECT count(*) FROM table_connectedcall WHERE calleeendpointid = ep.ENDPOINTID or callerendpointid = ep.ENDPOINTID) as callState, ";
+        sql = sql + "\n  ,(SELECT count(*) FROM table_connectedcall WHERE calleee164 = route.e164 or callere164 = route.e164) as callState, ";
+        sql = sql + "\n  e164.answerservice, ";
+        //sql = sql + "\n  (SELECT starttime FROM table_connectedcall WHERE calleeendpointid = ep.ENDPOINTID or callerendpointid = ep.ENDPOINTID) as starttime ";
+        //sql = sql + "\n  (SELECT starttime FROM table_connectedcall WHERE calleee164 = route.e164 or callere164 = route.e164) as starttime ";
+        sql = sql + "\n  (SELECT starttime FROM table_connectedcall WHERE calleee164 = route.e164 or callere164 = route.e164 limit 1 ) as starttime ";
+        sql = sql + "\n  From Table_SipEndpoint ep ";
+        sql = sql + "\n  LEFT JOIN  table_e164Route route ON ep.ENDPOINTID = route.ENDPOINTID  and route.routingNumbertype in (1, 2, 5) ";
+        sql = sql + "\n  LEFT OUTER JOIN TABLE_SIPCONTACT contact ON ep.ENDPOINTID = contact.ENDPOINTID ";
+        sql = sql + "\n  JOIN  table_e164 e164 ON e164.e164 = route.e164 "; 
+        sql = sql + "\n  LEFT OUTER JOIN  table_SUBSCRIBER sub ON ep.ENDPOINTID = sub.id ";
+        sql = sql + "\n  WHERE ep.ENDPOINTID not like 'ACRO_MS_%' ";
+        sql = sql + "\n    And ep.ENDPOINTID not in (select coalesce(auth_id,'') from NASA_TRUNK_SET) ";
+		
+        sql = sql + "\n    And ep.endpointclass = 33 ";		// 신규장비 때문에 추가된 부분 (2012.04.03)
+        
+        if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    and ep.ENDPOINTID like '%" + str + "%'";
+        	}else if("2".equals(gubun)){
+        		sql += "\n    and route.e164 like '%" + str + "%'";
+        	}else if("3".equals(gubun)){
+        		sql += "\n    and sub.name like '%" + str + "%'";
+        	}
+        }
+		
+        sql = sql + "\n  group by sub.name, sub.position, contact.SIGNALADDRESS, e164.startFlag, ep.endPointId, ep.ZONECODE, e164.extensionnumber, route.e164, contact.registerid, sub.department, e164.answerservice ";
+        //sql = sql + "\n  group by sub.name, sub.position, contact.SIGNALADDRESS, e164.startFlag, ep.endPointId, ep.ZONECODE, e164.extensionnumber, route.e164, contact.registerid, sub.department ";
+        //sql = sql + "\n  Order by ep.ZONECODE offset "+pageNo+" limit "+pageSize ;
+        //sql = sql + "\n  Order by route.e164, sub.name offset "+pageNo+" limit "+pageSize ;
+        sql = sql + "\n  Order by route.e164, sub.name ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                String[]    strOpt  = null;
+                String 		loginID	= "";
+                while (rs.next()) {
+                    strOpt = Str.CheckNullString(rs.getString("endPointId")).split("[@]");
+                    loginID = strOpt[0];
+                    
+                	ipcsListDTO = new IpcsListDTO(
+                        //OwnerID,                        
+                    	Str.CheckNullString(rs.getString("name")),
+                        Str.CheckNullString(rs.getString("position")),
+                        Str.CheckNullString(rs.getString("signalAddress")),
+                        rs.getInt("startFlag"),                            
+                        Str.CheckNullString(rs.getString("endPointId")),
+                        Str.CheckNullString(rs.getString("zoneCode")),
+                        Str.CheckNullString(rs.getString("e164")),
+                        Str.CheckNullString(loginID),
+                        Str.CheckNullString(rs.getString("extensio")),
+                        Str.CheckNullString(rs.getString("registerid")),
+                        Str.CheckNullString(rs.getString("deptName")),
+                        Str.CheckNullString(rs.getString("physicalAddress")),
+                        rs.getInt("callState"),
+                        Str.CheckNullString(rs.getString("answerservice")),
+                        Str.CheckNullString(rs.getString("starttime"))
+                    );
+
+                	ipcsList.add(ipcsListDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsList;
+    }
+
+	public List getCount(DataStatement stmt, String endpointid, String e164, String name, String gubun, String str) {
+		IpcsListDTO 		ipcsListDTO;
+        List<IpcsListDTO> 	ipcsCountList 	= new ArrayList<IpcsListDTO>();
+		
+        String sql = "SELECT ep.ENDPOINTID as endPointId From Table_SipEndpoint ep ";
+        sql = sql + "\n  LEFT JOIN  table_e164Route route ON ep.ENDPOINTID = route.ENDPOINTID  and route.routingNumbertype in (1, 2, 5) ";
+        sql = sql + "\n  LEFT OUTER JOIN TABLE_SIPCONTACT contact ON ep.ENDPOINTID = contact.ENDPOINTID ";
+        sql = sql + "\n  JOIN  table_e164 e164 ON e164.e164 = route.e164 "; 
+        sql = sql + "\n  LEFT OUTER JOIN  table_SUBSCRIBER sub ON ep.ENDPOINTID = sub.id ";
+        sql = sql + "\n  WHERE ep.ENDPOINTID not like 'ACRO_MS_%' ";
+        sql = sql + "\n    And ep.ENDPOINTID not in (select coalesce(auth_id,'') from NASA_TRUNK_SET) ";
+        
+        sql = sql + "\n    And ep.endpointclass = 33 ";		// 신규장비 때문에 추가된 부분 (2012.04.03)
+        
+		if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    and ep.ENDPOINTID like '%" + str + "%'";
+        	}else if("2".equals(gubun)){
+        		sql += "\n    and route.e164 like '%" + str + "%'";
+        	}else if("3".equals(gubun)){
+        		sql += "\n    and sub.name like '%" + str + "%'";
+        	}
+        }
+
+        //sql = sql + " group by ep.endPointId ";
+		sql = sql + "\n  group by sub.name, sub.position, contact.SIGNALADDRESS, e164.startFlag, ep.endPointId, ep.ZONECODE, e164.extensionnumber, route.e164, contact.registerid, sub.department ";
+		
+        System.out.println("SQL문2 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsListDTO = new IpcsListDTO(
+                        Str.CheckNullString(rs.getString("endPointId"))
+                    );
+
+                	ipcsCountList.add(ipcsListDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsCountList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsCountList;
+    }
+	
+	public List getDetail(DataStatement stmt, String endPointID) {
+		IpcsDetailDTO ipcsDetailDTO;
+        List<IpcsDetailDTO> ipcsList = new ArrayList<IpcsDetailDTO>();
+        
+        String sql = " Select a.pwd, a.name, a.position, a.department, a.mobile, a.homenumber, a.MailAddress, ";
+        sql = sql +  "\n		(Select extensionnumber From table_e164 Where e164 = a.phonenum) as Extension, "; 
+        //sql = sql +  "\n        b.authmode, b.username, b.password, b.ipaddress, b.ipport, c.zonecode ";
+        sql = sql +  "\n        b.authmode, b.username, b.password, b.ipaddress, b.ipport, c.zonecode, b.descriptor ";
+        sql = sql +  "\n From table_subscriber a, table_auth b, table_sipendpoint c ";
+        sql = sql +  "\n Where a.id = '" + endPointID + "'";
+        sql = sql +  "\n   and a.id = b.endpointid ";
+        sql = sql +  "\n   and a.id = c.endpointid ";
+        
+        System.out.println("수정 SQL : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsDetailDTO = new IpcsDetailDTO(
+                		Str.CheckNullString(rs.getString("pwd")),
+                		Str.CheckNullString(rs.getString("name")),
+                		Str.CheckNullString(rs.getString("position")),
+                		rs.getInt("department"),
+                        Str.CheckNullString(rs.getString("mobile")),
+                        Str.CheckNullString(rs.getString("homenumber")),
+                        Str.CheckNullString(rs.getString("MailAddress")),
+                        rs.getInt("authmode"),
+                        Str.CheckNullString(rs.getString("username")),
+                        Str.CheckNullString(rs.getString("password")),
+                        Str.CheckNullString(rs.getString("ipaddress")),
+                        rs.getInt("ipport"),
+                        Str.CheckNullString(rs.getString("zonecode")),
+                        Str.CheckNullString(rs.getString("Extension")),
+                        Str.CheckNullString(rs.getString("descriptor"))
+                    );
+                	ipcsList.add(ipcsDetailDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsList;
+    }	
+
+	// 사용자 등록이 안된 E164 조회
+	public List getE164(DataStatement stmt) {
+		IpcsListDTO 		ipcsListDTO;
+        List<IpcsListDTO> 	ipcsBuddyList 	= new ArrayList<IpcsListDTO>();
+		
+        String sql = "SELECT ep.ENDPOINTID as endPointId, e164.e164 as e164, e164.extensionnumber as extensionnumber From Table_SipEndpoint ep ";
+        sql = sql + " LEFT JOIN  table_e164Route route ON ep.ENDPOINTID = route.ENDPOINTID  and route.routingNumbertype in (1, 2, 5) ";
+        sql = sql + " LEFT OUTER JOIN TABLE_SIPCONTACT contact ON ep.ENDPOINTID = contact.ENDPOINTID ";
+        sql = sql + " JOIN  table_e164 e164 ON e164.e164 = route.e164 ";
+        sql = sql + " LEFT OUTER JOIN  table_SUBSCRIBER sub ON ep.ENDPOINTID = sub.id ";
+        sql = sql + " WHERE ep.ENDPOINTID not like 'ACRO_MS_%' ";
+        sql = sql + "   And ep.ENDPOINTID not in (select id from table_subscriber) ";
+        sql = sql + "   And ep.ENDPOINTID not in (select coalesce(auth_id,'') from NASA_TRUNK_SET) ";
+        sql = sql + " Group By ep.endPointId, e164.e164, e164.extensionnumber ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsListDTO = new IpcsListDTO(
+                        Str.CheckNullString(rs.getString("endPointId")),
+                        Str.CheckNullString(rs.getString("e164")),
+                        Str.CheckNullString(rs.getString("extensionnumber"))
+                    );
+
+                	ipcsBuddyList.add(ipcsListDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsBuddyList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsBuddyList;
+    }
+
+	public int getCount(DataStatement stmt, String extension) {
+		int count 	= 0 ;
+		int count2 	= 0 ;
+		ResultSet rs 	= null;
+		ResultSet rs2 	= null;
+		
+        String sql = "SELECT count(*) FROM table_e164 "; 
+        sql = sql + "\n where extensionnumber = '"+extension+"' ";
+		
+		try {
+            if (stmt != null) {
+//            	System.out.println("################ 내선번호 체크 SQL 1 : "+sql);
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+                
+                if(count==0){
+	                String sql2 = "SELECT count(*) FROM table_localprefix where prefixtype = 2 and startprefix = '99"+extension+"' ";
+	                rs2 = stmt.executeQuery(sql2);
+//	                System.out.println("################ 내선번호 체크 SQL 2 : "+sql2);
+	                if (rs2.next()) count2 = rs2.getInt(1); 
+	                rs2.close();
+	                count = count2;
+                }
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+
+	public String getExtension(DataStatement stmt, String extension) {
+		String sTemp = "";
+		ResultSet rs = null;
+		
+        String sql = "SELECT extensionnumber FROM table_e164 "; 
+        sql = sql + "\n where e164 = '"+extension+"' ";
+		
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) sTemp = rs.getString(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return sTemp;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return sTemp;
+    }
+
+	public int getRouteCount(DataStatement stmt, String ei64) {
+		int count 	= 0 ;
+		ResultSet rs 	= null;
+		ResultSet rs2 	= null;
+		
+        String sql = "SELECT count(*) FROM table_e164route "; 
+        sql = sql + "\n where e164 = '"+ei64+"' And routingnumbertype = 2 ";
+		
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+	
+    public static String makeMD5(String password) {
+        StringBuffer md5 = new StringBuffer();
+        StringBuilder strSum = new StringBuilder();
+        strSum.append(password);
+
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("MD5").digest(strSum.toString().getBytes());
+
+            for (int i = 0; i < digest.length; i++) {
+                md5.append(Integer.toString((digest[i] & 0xf0) >> 4, 16));
+                md5.append(Integer.toString(digest[i] & 0x0f, 16));
+            }
+        } catch(java.security.NoSuchAlgorithmException ne) {
+            ne.printStackTrace();
+        }
+
+        return md5.toString().toUpperCase();
+    }
+
+	public String getAdminPassword(DataStatement stmt) {
+		String sTemp = "";
+		ResultSet rs = null;
+		
+        String sql = " SELECT pwd FROM table_subscriber WHERE id = 'admin' AND loginlevel = 2 "; 
+		
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) sTemp = rs.getString(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return sTemp;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return sTemp;
+    }
+
+	public String getRegServerNumber(DataStatement stmt) {
+		String sTemp = "";
+		ResultSet rs 	= null;
+        String sql = "SELECT usernumber FROM table_sipregserver where subid = 'Pri_CSCF' "; 
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) sTemp = rs.getString(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return sTemp;
+    }
+}

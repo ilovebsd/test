@@ -1,0 +1,169 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.DataIO.Index;
+import com.acromate.data.code.AppCode;
+
+
+public class WorkingTask extends DataIO{
+// construction
+	public WorkingTask( ) {
+		//taskName = null;
+	}
+	
+	public WorkingTask( String pTaskName) {
+		if( pTaskName == null ) pTaskName = "";
+		taskName = new StringBuilder(pTaskName.toString());
+		pTaskModule = null ;
+		nTaskID = 0 ;
+		nModuleType = nVersionNo = 0 ;
+		mode = 0;
+	}
+// attribute
+	// object identity
+	protected StringBuilder			taskName = new  StringBuilder();;
+	protected int					nTaskID ;
+	// run time task actor
+	protected TaskModule 			pTaskModule ;
+	// linked task parameter
+	protected int						nModuleType,	nVersionNo ;
+
+	protected int mode;
+	
+	protected String				dbConInfo = "";
+	protected String				systemPath = "";
+	protected String				dbmsType = "1";
+	
+		// class data i/o
+	public int getFieldData( String field, Index indx, StringBuilder value ) {
+		boolean stop = (field != null) ;
+		int  errcode ;
+		StringBuilder sbfield = new StringBuilder(field);
+		
+		if   ( compareFieldID( sbfield, "task", indx, value ) )
+		{    errcode = getString( taskName.toString(), value, ! stop ) ;
+		if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "module", indx, value ) )
+		{    errcode = getInteger( nModuleType, value) ;
+		if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "version", indx, value) )
+		{    errcode = getInteger( nVersionNo, value ) ;
+		if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "dbConInfo", indx, value) )
+		{    errcode = getString( dbConInfo, value ,! stop) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "systemPath", indx, value) )
+		{    errcode = getString( systemPath, value ,! stop) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "dbmsType", indx, value) )
+		{    errcode = getString( dbmsType, value ,! stop) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( pTaskModule == null )	return AppCode.ERR_NOERROR ;
+		return pTaskModule.getFieldData( field, indx, value ) ;
+	}
+	public int setFieldData( String field, String value ) {
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "task" ) )
+		{    return setString( taskName, value ) ;
+		}
+		if   ( compareFieldID( sbfield, "module" ) )
+		{    if   ( value != null )
+		          nModuleType = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "version" ) )
+		{    if   ( value != null )
+		          nVersionNo = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "dbConInfo" ) )
+		{    if   ( value != null )
+				  dbConInfo = value ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "systemPath" ) )
+		{    if   ( value != null )
+		         systemPath = value ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "dbmsType" ) )
+		{    if   ( value != null )
+		        dbmsType = value ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( pTaskModule == null )	return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+		return pTaskModule.setFieldData( field, value ) ;
+	}
+	
+		// object identity
+	public String			getTaskName()	{ return taskName.toString()  ; }
+	public int	getTaskID()		{ return nTaskID ; }
+	public String			getClassID()	{ return getTaskName(); }
+
+		// task actor
+	public TaskModule 	getTaskModule()	{ return pTaskModule ; }
+	public void			SetTaskModule( TaskModule pTaskModule ) {
+		if   ( (this.pTaskModule = pTaskModule ) == null)
+		     return ;
+		this.pTaskModule.setActionTask( this ) ;
+	}
+
+	// task descriptor
+	public int				getModuleType()	{ return nModuleType ; }
+	public int				getVersionNo()	{ return nVersionNo ; }
+
+	public void			setModuleVersion( int moduleType, int versionNo ) {
+		nModuleType = moduleType ;	nVersionNo = versionNo ;
+	}
+	// operations
+	public void			makeCardinalModules(){
+		if   ( pTaskModule == null )
+		     return ;
+		pTaskModule.makeCardinalModules() ;
+		
+	};	
+	public void setMode(int mode){
+		this.mode = mode;
+	}
+	public int getMode(){
+		return mode;
+	}
+
+}
+
+class CommonTask extends WorkingTask
+{
+// construction
+	public CommonTask( ) {
+	}
+	public CommonTask( String pTaskName) {
+		lstCommonTasks.appendHead( this ) ;
+	}
+	protected void finalize() throws Throwable {
+		lstCommonTasks.removeNode( this ) ;
+    } 
+// attribute
+	// static task container
+	protected static WorkingTaskList	lstCommonTasks ;
+	// static task finder
+	public static CommonTask 	getCommonTask() {
+		return getCommonTask(-1);
+	}
+	public static CommonTask 	getCommonTask( int nTaskID ) {
+		return (CommonTask )lstCommonTasks.getTask( nTaskID ) ;
+	}
+	public static CommonTask 	getCommonTask( int moduleType, int versionNo ) {
+		return (CommonTask )lstCommonTasks.getTask( moduleType, versionNo ) ;
+	}
+	public static CommonTask 	getCommonTask( String pTaskName ) {
+		return (CommonTask )lstCommonTasks.getTask( pTaskName ) ;
+	}
+
+} ;

@@ -1,0 +1,40 @@
+package com.acromate.dto.element;
+
+
+public class RelatedServiceDTO {
+/**
+0 : Exclusive
+1 : Dependent
+*/
+    public final static int DEPENDENCY_EXCLUSIVE = 0 ;
+    public final static int DEPENDENCY_DEPENDENT = 1 ;
+
+    private int	serviceNo;
+    private int	relatedService;
+    private int	dependency;
+
+    public RelatedServiceDTO() {
+        super() ;
+    }
+
+    public int    getServiceNo() { return this.serviceNo; }
+    public void   setServiceNo(int serviceNo ) { this.serviceNo = serviceNo; }
+
+    public int    getRelatedService() { return this.relatedService; }
+    public void   setRelatedService(int relatedService ) { this.relatedService = relatedService; }
+
+    public int    getDependency() { return this.dependency; }
+    public void   setDependency(int dependency ) { this.dependency = dependency; }
+
+    public String toString() {
+
+    StringBuffer sb = new StringBuffer("");
+
+    sb.append("(serviceNo:"           + getServiceNo() + ") ") ;
+    sb.append("[relatedService:"      + getRelatedService() + "] ") ;
+    sb.append("[dependency:"          + getDependency() + "] ") ;
+
+    return sb.toString();
+    }
+
+}

@@ -1,0 +1,23 @@
+package dto;
+
+public class UserE164DTO {
+
+	private String e164 ;
+    private String name ;
+
+	public UserE164DTO() {}
+	public UserE164DTO(String  e164,String name) {      
+			
+		super();
+		
+		this.e164 		= e164;
+		this.name 		= name;
+	}
+
+	public String getE164() {   return e164 ;   }
+	public void setE164(String e164) {   this.e164 = e164 ;  }
+
+    public String getName() { return name ; }
+    public void setName(String name) {   this.name = name ; }
+}
+

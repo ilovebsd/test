@@ -1,0 +1,27 @@
+package com.acromate.dao.element;
+
+import com.acromate.db.QueryStatement ;
+
+public class SubscriberDAO {
+
+    QueryStatement statement ;
+
+    public SubscriberDAO() {}
+
+    public boolean delete( QueryStatement statement,  String e164) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = "DELETE FROM Table_Subscriber WHERE PhoneNum='"+e164+"'" ;
+            count = statement.executeUpdate(queryString);
+            System.out.println(count + " deleted. " + queryString) ;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true ;
+    }
+}

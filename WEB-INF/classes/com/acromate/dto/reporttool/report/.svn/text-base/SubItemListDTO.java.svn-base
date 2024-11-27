@@ -1,0 +1,18 @@
+package com.acromate.dto.reporttool.report;
+
+import java.util.ArrayList;
+import com.acromate.data.ListIO;
+import com.acromate.data.DataIO;
+
+public class SubItemListDTO extends ListIO {
+
+	@Override
+	protected DataIO newListNode() {
+		return new SubItemDTO();
+	}
+
+	public ArrayList getSubItems() {
+		return this.list;
+	}
+
+}

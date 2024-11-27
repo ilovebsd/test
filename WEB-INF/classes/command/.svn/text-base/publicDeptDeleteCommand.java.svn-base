@@ -1,0 +1,79 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.DeptDTO;
+import dto.SubscriberInfoDTO;
+import dao.buddy.DeptDAO;
+
+public class publicDeptDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+		DeptDTO dto = new DeptDTO();
+		DataStatement stmt = null;
+		try {
+			String 	deptId = new String(Str.CheckNullString(req.getParameter("hiDeptid")).getBytes("8859_1"), "euc-kr");
+//			String 	keynumber = new String(Str.CheckNullString(req.getParameter("hiKeynumber")).getBytes("8859_1"), "euc-kr");
+			
+			SessionManager manager = SessionManager.getInstance();
+			if (manager.isLogin(req)) {
+				HttpSession hs = req.getSession();
+				String id = hs.getId();
+				BaseEntity entity = manager.getBaseEntity(id);	
+				
+				SubscriberInfoDTO scDTO = entity.getScDtoAttribute("scDTO");
+				stmt = ConnectionManager.allocStatement("SSW");
+
+				dto.setDeptID(Integer.parseInt(deptId));
+				
+				DeptDAO dao = new DeptDAO();
+				// 트랜잭션 시작
+				stmt.stxTransaction();
+				
+				int updateResult = dao.delete(stmt,dto);
+				
+				// Table_Localprefix 삭제
+//				int updateResult2 = dao.localprefixDelete(stmt, keynumber);
+
+				// Table_Keynumberid 삭제
+//				int updateResult3 = dao.keynumberidDelete(stmt, keynumber);
+
+				// Table_Subgroup 삭제 (PickUp 관련)
+				//int updateResult4 = dao.subgroupDelete(stmt, deptId);
+
+				// Table_dept 삭제 (PickUp 관련)
+//				int updateResult5 = dao.subgroupDelete(stmt, deptId);
+				
+				if (stmt != null)
+					stmt.endTransaction(true);
+				
+				res.sendRedirect("/bizportal/buddy/deptList.jsp");
+			} 
+			else
+				res.sendRedirect("/bizportal/buddy/deptList.jsp?session=0");
+		
+		} catch (Exception e) {
+			if (stmt != null)
+				stmt.endTransaction(false);
+			try{
+				res.sendRedirect("/bizportal/buddy/deptList.jsp?result=-1");
+			} catch (Exception ee) {
+			}
+
+			e.printStackTrace();
+		} finally {
+			//할당받은 DataStatement 객체는 반납
+			if (stmt != null ) ConnectionManager.freeStatement(stmt);
+		}
+		return forwardingPage;
+	}
+}

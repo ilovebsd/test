@@ -1,0 +1,108 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class SubscriberGroupDTO {
+     /**
+     * member variables
+     */
+
+    private String	groupid;
+    private String	groupname;
+    private int	        callertype;
+    private String	extensiongroupnum;
+    private int         maxextensiondigitcount;
+    private String	prefixtableid;
+    private int         isgroupcharge;
+    private String	groupchargee164;
+    private String	specialNoGID;
+    private int         isBlock;
+    private int         inCallerBlock;
+    private int         inCalleeBlock;
+    private int         outCallerBlock;
+    private int         outCalleeBlock;
+    private int         inAddibleFlag;
+    private int         outAddibleFlag;
+    private int         callCountFlag;
+
+    /**
+     * member functions
+     */
+    public String	getGroupID() { return this.groupid; }
+    public void	setGroupID(String vGroupID ) { this.groupid = vGroupID; }
+
+    public String	getGroupName() { return this.groupname; }
+    public void	setGroupName(String vGroupName ) { this.groupname = vGroupName; }
+
+    public int	getCallerType() { return this.callertype; }
+    public void	setCallerType(int vCallerType ) { this.callertype = vCallerType; }
+
+    public String	getExtensionGroupNum() { return this.extensiongroupnum; }
+    public void	setExtensionGroupNum(String vExtensionGroupNum ) { this.extensiongroupnum = vExtensionGroupNum; }
+
+    public int	getMaxextensiondigitcount() { return this.maxextensiondigitcount; }
+    public void	setMaxextensiondigitcount(int vMaxextensiondigitcount ) { this.maxextensiondigitcount = vMaxextensiondigitcount; }
+
+    public String	getPrefixTableID() { return this.prefixtableid; }
+    public void	setPrefixTableID(String vPrefixTableID ) { this.prefixtableid = vPrefixTableID; }
+
+    public int	getIsGroupCharge() { return this.isgroupcharge; }
+    public void	setIsGroupCharge(int vIsGroupCharge ) { this.isgroupcharge = vIsGroupCharge; }
+
+    public String	getGroupChargeE164() { return this.groupchargee164; }
+    public void	setGroupChargeE164(String vGroupChargeE164 ) { this.groupchargee164 = vGroupChargeE164; }
+
+    public String	getSpecialNoGID() { return this.specialNoGID; }
+    public void	 setSpecialNoGID(String vSpecialNoGID ) { this.specialNoGID = vSpecialNoGID; }
+
+    public int	getIsBlock() { return this.isBlock; }
+    public void	setIsBlock(int vIsBlock ) { this.isBlock = vIsBlock; }
+
+    public int	getInCallerBlock() { return this.inCallerBlock; }
+    public void	setInCallerBlock(int vInCallerBlock ) { this.inCallerBlock = vInCallerBlock; }
+
+    public int	getInCalleeBlock() { return this.inCalleeBlock; }
+    public void	setInCalleeBlock(int vInCalleeBlock ) { this.inCalleeBlock = vInCalleeBlock; }
+
+    public int	getOutCallerBlock() { return this.outCallerBlock; }
+    public void	setOutCallerBlock(int vOutCallerBlock ) { this.outCallerBlock = vOutCallerBlock; }
+
+    public int	getOutCalleeBlock() { return this.outCalleeBlock; }
+    public void	setOutCalleeBlock(int vOutCalleeBlock ) { this.outCalleeBlock = vOutCalleeBlock; }
+
+    public int	getInAddibleFlag() { return this.inAddibleFlag; }
+    public void	setInAddibleFlag(int vInAddibleFlag ) { this.inAddibleFlag = vInAddibleFlag; }
+
+    public int	getOutAddibleFlag() { return this.outAddibleFlag; }
+    public void	setOutAddibleFlag(int vOutAddibleFlag ) { this.outAddibleFlag = vOutAddibleFlag; }
+
+    public int	getCallCountFlag() { return this.callCountFlag; }
+    public void	setCallCountFlag(int vCallCountFlag ) { this.callCountFlag = vCallCountFlag; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+        sb.append("(groupid:" 	                + getGroupID() + ") ") ;
+        sb.append("[groupname:" 	        + getGroupName() + "] ") ;
+        sb.append("[callertype:" 	        + getCallerType() + "] ") ;
+        sb.append("[extensiongroupnum:" 	+ getExtensionGroupNum() + "] ") ;
+        sb.append("[maxextensiondigitcount:"   + getMaxextensiondigitcount() + "] " ) ;
+        sb.append("[prefixtableid:"    	        + getPrefixTableID() + "] ") ;
+        sb.append("[isgroupcharge:"    	        + getIsGroupCharge() + "] ") ;
+        sb.append("[groupchargee164:" 	        + getGroupChargeE164() + "] ") ;
+        sb.append("[specialNoGID:" 	        + getSpecialNoGID() + "] ") ;
+
+        return sb.toString();
+    }
+}

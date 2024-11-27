@@ -1,0 +1,38 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.DataIO;
+
+public class BackUpDTO  extends DataIO {
+	boolean recentBackup;
+
+	public void setRecentBackup(boolean recentBackup) { this.recentBackup = recentBackup; }
+	public boolean getRecentBackup() { return recentBackup; }
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "recentBackup", idx, value) == true) {
+            errorcode = getBoolean(recentBackup, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		return (0);
+	}
+	@Override
+	protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "recentBackup") == true) {
+            if(!value.equals("")) recentBackup = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+		return (-1);
+	}
+}

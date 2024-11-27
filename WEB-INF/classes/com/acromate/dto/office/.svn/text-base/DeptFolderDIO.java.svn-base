@@ -1,0 +1,170 @@
+package com.acromate.dto.office;
+
+import com.acromate.util.Logger;
+import com.acromate.data.code.AppCode;
+import com.acromate.framework.db.BaseDTOModule;
+
+public class DeptFolderDIO extends BaseDTOModule{
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+
+    private String id = "";
+    private String parentDocId = "";
+    private String extenDocId = "" ;
+    private String keyNumber = "" ;
+    private String description = "" ;
+
+	private String selfDocid = "";
+
+	
+    public String getSelfDocid() {		return selfDocid;	}
+	public void setSelfDocid(String selfDocid) {		this.selfDocid = selfDocid;	}
+	
+	public String getId() { return id;}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getKeyNumber() { return keyNumber.toString() ; }
+    public void   setKeyNumber( String keyNumber ) {
+        this.keyNumber = keyNumber ;
+    }
+
+    public String getDescription() { return description.toString() ; }
+    public void   setDescription( String description ) {
+        this.description = description ;
+    }
+    
+    public String getParentDocId() { return parentDocId.toString() ; }
+    public void   setParentDocId( String parentDocId ) {
+        this.parentDocId = parentDocId ;
+    }
+
+    public String getExtenDocId() { return extenDocId.toString() ; }
+    public void   setExtenDocId( String extenDocId ) {
+        this.extenDocId = extenDocId ;
+    }
+
+    @Override
+    public String toDeleteQuery() {
+        return null;
+    }
+    @Override
+    public String toInsertQuery() {
+        return null;
+    }
+    @Override
+    public String toUpdateQuery() {
+        return null;
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder sbfield = new StringBuilder(field);
+        int errcode = 0;
+        if   ( compareFieldID( sbfield, "selfDocid") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+            	selfDocid = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        if   ( compareFieldID( sbfield, "deptName") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+                description = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        if   ( compareFieldID( sbfield, "id") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+                id = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        if   ( compareFieldID( sbfield, "keyNumber") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+                keyNumber = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        if   ( compareFieldID( sbfield, "description") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+                description = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        if   ( compareFieldID( sbfield, "parentDocId") || compareFieldID( sbfield, "parentID") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+                parentDocId = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        if   ( compareFieldID( sbfield, "extenDocId") ){
+            StringBuilder sbText = new StringBuilder();
+            if   (  (errcode = setString( sbText, value)) == 0){
+            	extenDocId = sbText.toString();
+            }
+            return (AppCode.ERR_NOERROR) ;
+        }
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index indx, StringBuilder data) {
+        boolean stop = (field != null && !field.equals("")) ;
+        int errcode = 0;
+        if (field == null) field = "";
+        StringBuilder sbField =new StringBuilder(field);
+        if   ( compareFieldID( sbField, "selfDocid", indx, data ) || compareFieldID( sbField, "selfDocId", indx, data ) )
+        {
+                errcode = getString(selfDocid, data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "deptName", indx, data ) )
+        {
+                errcode = getString(description,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "id", indx, data ) || compareFieldID( sbField, "deptID", indx, data ) )
+        {
+                errcode = getString(id,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "keyNumber", indx, data ) )
+        {
+                errcode = getString(keyNumber,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "description", indx, data ) )
+        {
+                errcode = getString(description,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "parentDocId", indx, data ) )
+        {
+                errcode = getString(parentDocId,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "extenDocId", indx, data ) )
+        {
+                errcode = getString(extenDocId,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        return(0);
+    }
+    public String toXmlString(String strParentDesc, String blank) {
+       String xml = blank+"<folder " ;
+       xml += " description=\""  +  description + "\" " ;
+       xml += " keynumber=\""  + getKeyNumber() + "\" " ;
+//       xml += " keynumber=\""  + strParentDesc + "\" " ;//KeyNumber
+//       xml += " id=\""  + getId() + "\" " ;
+       xml += " parentdocid=\""  + getParentDocId() + "\" " ;
+       xml += " extenddocid=\""  +  getExtenDocId() + "\" " ;
+       xml += "> \n" ;
+        return xml ;
+    }
+
+}

@@ -1,0 +1,93 @@
+/*
+ * DDosWhiteList.java
+ *
+ * Created on 2006년 10월 16일 (월), 오후 5:32
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system.ddos;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.system.ManSystem;
+import com.acromate.db.DatabaseResultSet;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+
+public class DDosWhiteList extends ListIO {
+
+    private ManSystem manSystem;
+    private int           errorcode;
+    private int           threshold ;
+    private boolean           mustSynk = true ;
+
+    public DDosWhiteList( ManSystem manSystem ) {
+        this.manSystem = manSystem ;
+    }
+
+
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
+    }
+
+    public int getThreshold() {
+        return this.threshold;
+    }
+
+    public void setMustSynk(boolean mustSynk) {
+        this.mustSynk = mustSynk;
+    }
+
+    public boolean getMustSynk() {
+        return this.mustSynk;
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "threshold") == true) {
+            if(!value.equals("")) threshold = Integer.valueOf(value);
+            return 0;
+        }
+        return super.setFieldData( field,  value);
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false ;
+        StringBuilder fldAlias ;
+
+        if(field != null && !field.equals("")) resultVal = true ;
+        if(field == null) {
+            fldAlias = new StringBuilder() ; fldAlias.append("") ;
+        } else {
+           fldAlias  = new StringBuilder() ; fldAlias.append(field) ;
+        }
+
+        if(compareFieldID(fldAlias, "threshold", idx, value) == true) {
+            errorcode = getInteger(threshold, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        return super.getFieldData(field, idx, value);
+    }
+
+    protected DataIO newListNode() {
+        return new IpAddress();
+    }
+
+    public DataIO getNode(String field) {
+        DataIO node = super.getNode(field);
+        if ( node != null) return node;
+        node = new IpAddress();
+        node.setParam("id", field);
+        appendTail(node);
+        return node;
+    }
+
+    public void removeAll() {
+        list.clear();
+    }
+}

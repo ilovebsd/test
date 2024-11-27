@@ -1,0 +1,213 @@
+package acromate ;
+
+import com.acromate.util.Str ;
+import java.sql.* ;
+import java.util.* ;
+
+public class DirectDB
+{
+    public static Properties mProperties ;
+
+    public DirectDB()
+    {
+        setDBInfo ( "Altibase.jdbc.driver.AltibaseDriver","jdbc:Altibase://203.242.63.20:20300/mydb" , "ems" , "ems123" ) ;
+    }
+
+    public DirectDB (String strDriver, String strDbConnStr , String strUserName, String strPwd)
+    {
+        setDBInfo(strDriver.trim(), strDbConnStr.trim() , strUserName.trim(), strPwd.trim()) ;
+    }
+
+    public DirectDB ( Properties properties )
+    {
+        mProperties = properties ;
+        setDBInfo ( ( String ) properties.get ( "ems.db.driver" ) ,
+                    ( String ) properties.get ( "ems.db.connString" ) ,
+                    ( String ) properties.get ( "ems.db.user" ) ,
+                    ( String ) properties.get ( "ems.db.passwd" ) ) ;
+    }
+
+    public static synchronized QueryStat getQueryStat( String groupID, String SystemID )
+    {
+        Connection connection = null , cn = null ;
+        Statement sm = null ;
+        ResultSet rs = null ;
+        boolean isSystemConnection = false;
+
+        String strDBConnectString = "";
+        String strDBUserName = "";
+        String strDBPassword = "";
+        String strDriverClassName = "";
+
+        try
+        {
+            cn = getEmsConnection () ;
+            String strQuery = "SELECT DBConnectionString, DBUserName,  DBPassword, DBDriverClass FROM Table_SystemProcess "
+                              + " WHERE SYSGROUPID='" + groupID + 
+                    "' AND CLUSTERID =  '"+SystemID.trim()+"' Order by Status desc limit 1 " ;
+            sm = cn.createStatement () ;
+            
+            rs = sm.executeQuery ( strQuery ) ;
+
+            System.out.println( "getQueryStat: " + strQuery ) ;
+
+            if ( rs.next () )
+            {
+                strDBConnectString = Str.CheckNullString ( rs.getString ( 1 ) ) ;
+                strDBUserName = Str.CheckNullString ( rs.getString ( 2 ) ) ;
+                strDBPassword = Str.CheckNullString ( rs.getString ( 3 ) ) ;
+                strDriverClassName = Str.CheckNullString ( rs.getString ( 4 ) ) ;
+
+            System.out.println( "getQueryStat ######################## " + strDBConnectString ) ;
+                if ( strDBConnectString.length () == 0 ||
+                		strDBUserName.length () == 0 )
+                {
+                    System.out.println("소프트스위치 연결정보가 없습니다."  ) ;
+                }
+                else isSystemConnection = true;
+            }
+            else
+            {
+            	System.out.println( "소프트스위치 연결정보가 없습니다."  ) ;
+            }
+        }
+        catch ( Exception e )
+        {
+        	e.printStackTrace(); return null ;
+        }
+        finally
+        {
+            try
+            {
+                if ( rs != null )  rs.close () ;
+                if ( sm != null )  sm.close () ;
+                if ( cn != null )  cn.close () ;
+            }
+            catch ( Exception ee ){ ee.printStackTrace(); return null ;}
+        }
+        if ( isSystemConnection == false ) return null;
+        QueryStat queryStat = null ;
+        try
+        {
+            Class.forName ( strDriverClassName ) ;
+            connection = DriverManager.getConnection ( strDBConnectString , strDBUserName , strDBPassword ) ;
+            Statement statement = connection.createStatement();
+            queryStat = new QueryStat(connection,statement);
+        }
+        catch ( Exception e )
+        {
+            System.out.println ( "getSystemConnection Error : " + e.toString () ) ;
+        }
+        return queryStat ;
+    }
+
+    public static synchronized QueryStat getQueryStatEMS()
+    {
+        QueryStat queryStat = null ;
+        Connection connection = null ;
+        try
+        {
+            Class.forName ( mDriver ) ;
+            connection = DriverManager.getConnection ( mDbConnStr , mUser , mPasswd ) ;
+            Statement statement = connection.createStatement();
+            queryStat = new QueryStat(connection,statement);
+        }
+        catch ( Exception e )
+        {
+            System.out.println ( "getEswConnection Error : " + e.toString () ) ;
+        }
+        return queryStat ;
+    }
+
+    public static synchronized Connection getEmsConnection ()
+    {
+        Connection connection = null ;
+        try
+        {
+            Class.forName ( mDriver ) ;
+            connection = DriverManager.getConnection ( mDbConnStr , mUser , mPasswd ) ;
+        }
+        catch ( Exception e )
+        {
+            System.out.println ( "getEswConnection Error : " + e.toString () ) ;
+        }
+        return connection ;
+    }
+
+    static String mDriver ;
+    static String mDbConnStr ;
+    static String mUser ;
+    static String mPasswd ;
+    boolean mConnected ;
+
+    public static void setDBInfo ( String driver, String dbConStr ,String user ,
+                                   String passwd )
+    {
+        mDriver = driver ;
+        mDbConnStr = dbConStr ;
+        mUser = user ;
+        mPasswd = passwd ;
+    }
+
+    public String getDriver ()
+    {
+        return mDriver ;
+    }
+
+    public String getDbConnStr ()
+    {
+        return mDbConnStr ;
+    }
+    public String getUser ()
+    {
+        return mUser ;
+    }
+
+    public String getPassword ()
+    {
+        return mPasswd ;
+    }
+    
+    public void setUserPassword ( String user , String passwd )
+    {
+        mUser = user ;
+        mPasswd = passwd ;
+    }
+}
+
+class CDbConnector extends Thread
+{
+    Connection connection = null ;
+    String m_dbConnectionString = "" , m_dbUserName = "" , m_dbPassword = "" ,
+            m_dbDriverClass = "" ;
+
+    public CDbConnector ( String dbConnectionString , String dbUserName ,
+                          String dbPassword , String dbDriverClass )
+    {
+        m_dbConnectionString = dbConnectionString ;
+        m_dbUserName = dbUserName ;
+        m_dbPassword = dbPassword ;
+        m_dbDriverClass = dbDriverClass ;
+
+    }
+
+    public void run ()
+    {
+        try
+        {
+            Class.forName ( m_dbDriverClass ) ;
+            connection = DriverManager.getConnection ( m_dbConnectionString ,
+                    m_dbUserName , m_dbPassword ) ;
+        }
+
+        catch ( Exception e )
+        {
+            System.out.println ( "chun:CDbConnector - Error 1 :" + e.toString () ) ;
+        }
+    }
+    public Connection getConnection ()
+    {
+        return connection ;
+    }
+
+}

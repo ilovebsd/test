@@ -1,0 +1,312 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.code.AppCode;
+
+/* module type list /////////////////// */
+class ModuleTypeList extends ListIO
+{
+// construction
+	public ModuleTypeList() {
+		
+	}
+// attribute
+	public DataIO getNode( String pNodeID ) {
+		DataIO pNode ;
+
+		if((pNode = super.getNode( pNodeID ) )!=null )
+		     return pNode ;
+		if((pNode = new ModuleType( a2i( pNodeID ) ) ) != null)
+		     appendTail( pNode ) ;
+		return pNode ;
+	}
+
+// operations
+	protected DataIO newListNode() { return new ModuleType( 0 ) ; }
+
+	// module control
+	public void	appendModule( WorkingModule pModule ) {
+		ModuleType pModuleType ;
+		String  type_id= pModule.getModuleType()+"";
+
+		// check module type
+		pModuleType = (ModuleType )getNode( type_id );
+		if   ( pModuleType == null  )
+			appendTail( pModuleType = new ModuleType( pModule.getVersionNo() ) ) ;
+		//  check module state
+		
+		if   ( pModule.pLinkedType !=null && (pModule.pLinkedType != pModuleType) )
+			removeModule( pModule ) ;
+		pModuleType.appendModule( pModule ) ;
+	}
+	public void	removeModule( WorkingModule pModule ) {
+		ModuleType pModuleType ;
+		if(pModule.pLinkedType !=null){
+			for(int i=0;i<this.getCount();i++){
+				pModuleType = (ModuleType)this.getNode(i);
+				if(pModuleType == pModule.pLinkedType){
+					pModuleType.removeModule( pModule ) ;
+					 if( pModuleType.getModuleType() != pModule.getModuleType()) 
+						 break;
+					 return;
+				}
+			}
+		}
+		for(int i=0;i<this.getCount();i++){
+			pModuleType = (ModuleType)this.getNode(i);
+			 if   ( pModuleType.getModuleType() == pModule.getModuleType() ){
+				 pModuleType.removeModule( pModule ) ;
+				 break ;
+			 }
+		}
+		if(pModule.pLinkedType != null) pModule.pLinkedType = null ;
+	}
+
+	// last version checker ( versionNo < 0 )
+	public WorkingModule searchModule( int moduleType) {
+		return searchModule(moduleType,-1);
+	}
+	public WorkingModule searchModule( int moduleType, int versionNo) {
+		ModuleType pModuleType = null;
+
+		for(int i=0;i<this.getCount();i++){
+			pModuleType  = (ModuleType )this.getNode(i);
+			if(pModuleType.getModuleType() == moduleType){
+				return pModuleType.searchModule( versionNo ) ;
+			}
+		}		
+		return null ;
+	}
+} 
+
+/* /////////////////////////////////////////////////////////////////////// */
+/* module container */
+/* module type ///////////////////////// */
+class ModuleType extends ListIO
+{
+// construction
+	public ModuleType( int moduleType ) {
+		nModuleType = moduleType ;
+	}
+
+// attribute
+	protected int nModuleType ;
+
+	// class data i/o
+	protected int  getFieldData( String field, Index indx, StringBuilder data){
+		boolean stop = (field != null) ;
+		int  errcode ;
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "module", indx, data) )
+		{    errcode = getInteger( nModuleType, data ) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR)	return errcode ;
+		}
+		return super.getFieldData( field, indx, data) ;
+		
+	}
+	protected int setFieldData( String field, String value ) {
+		System.out.println("ModuleType.setFieldData ["+field+"]"+"["+value+"]");
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "module" ) )
+		{    if   ( value != null )
+		          nModuleType = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+	}
+	// class identity
+	public int		getModuleType()	{ return nModuleType ; }
+	public String getClassID() {
+		textClassID = nModuleType+"";
+		return textClassID;
+	}
+	// index i/o
+	public DataIO getNode( String pNodeID ) {
+		DataIO pNode ;
+
+		if(( pNode = super.getNode( pNodeID ) ) != null)
+		     return pNode ;
+		if   ( pNode == null )
+		     return null ;
+		if   (( pNode = new WorkingModule( nModuleType, a2i( pNodeID ) ) ) != null)
+		     appendTail( pNode ) ;
+		return pNode ;
+	}
+	public DataIO search(  String pNodeID ) { return super.getNode( pNodeID ) ; }
+
+// operations
+	// override node maker
+	protected DataIO newListNode() { return new WorkingModule( nModuleType, 0 ) ; }
+	// module control
+	public void	appendModule( WorkingModule pModule ) {
+		
+		WorkingModule pModulePos ;
+		if(((pModule.pLinkedType != null) && (pModule.pLinkedType == this)))
+		{   
+			for(int i=0;i<this.getCount();i++){
+				pModulePos = (WorkingModule )this.getNode(i);
+				if( pModulePos == pModule){
+					removeNode( pModule ) ;
+					pModule.pLinkedType = null ;
+					 break ;
+				}
+			}			
+		}
+		pModulePos = (WorkingModule)getTail();
+		while( pModulePos != null)
+		{    if   ( pModulePos.getVersionNo() <= pModule.getVersionNo() )
+		     {    insertNode( pModulePos, pModule ) ;
+		          return ;
+		     }
+		     pModule = (WorkingModule )pModule.m_pNext ;
+		}
+		/*
+		for(int i=0;i<this.getCount();i++){
+			pModulePos = (WorkingModule)this.getNode(i);
+			if( pModulePos.getVersionNo() <= pModule.getVersionNo() ){ //약간 의심스러움
+				 insertNode( pModulePos, pModule ) ;
+				 return;
+			}
+		}
+		*/
+		appendHead( pModule ) ;
+		pModule.pLinkedType = this ;
+	}
+	public void	removeModule( WorkingModule pModule ) {
+		WorkingModule pModulePos ;
+		for(int i=0;i<this.getCount();i++){
+			pModulePos = (WorkingModule)this.getNode(i);
+			if(pModulePos == pModule){
+				removeNode( pModule ) ;
+				pModule.pLinkedType = null ;
+				return ;
+			}
+		}
+		if(pModule.pLinkedType != this)
+			return ;
+		pModule.pLinkedType = null ;
+	}
+
+	// last version checker ( versionNo < 0 )
+	public WorkingModule searchModule() {
+		return searchModule( -1);
+	}
+	public WorkingModule searchModule( int versionNo ) {
+		WorkingModule pModule;
+		// check last version
+		if   ( versionNo <= 0 )
+		{    WorkingModule pLastVersion = (WorkingModule )getHead() ;
+		     pModule = pLastVersion ;
+		     while( pModule != null)
+		     {    if   ( pLastVersion.getVersionNo() <= pModule.getVersionNo() )
+		               pLastVersion = pModule ;
+		          pModule = (WorkingModule )pModule.m_pNext ;
+		     }
+		     return pLastVersion ;
+		}
+		// search same version number
+		pModule = (WorkingModule )getHead() ;
+		while( pModule != null )
+		{    if   ( versionNo == pModule.getVersionNo() )
+		          return pModule ;
+		     pModule = (WorkingModule )pModule.m_pNext ;
+		}
+		
+		return null ;	
+	}
+	
+
+// implement
+	protected String textClassID ;	// returned class id
+} ;
+
+
+
+/* working module ////////////////////// */
+public class WorkingModule extends DataIO
+{
+// construction
+
+	public WorkingModule( int moduleType, int versionNo ) {
+		nModuleType = moduleType ;
+		nVersionNo  = versionNo ;
+
+		pLinkedType = null ; nActionID = 0 ;
+
+		lstModuleType.appendModule( this ) ;
+	}
+// attribute
+	// static module container
+	protected static ModuleTypeList	lstModuleType = new ModuleTypeList();
+	// up linker
+	protected ModuleType pLinkedType ;
+	// module descriptor
+	protected int nModuleType,	nVersionNo ;
+	// optional values
+	int				nActionID ;
+	
+	// class data i/o 
+	public int getFieldData( String field, Index indx, StringBuilder data) {
+		boolean stop = (field != null) ;
+		int  errcode ;
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "module", indx, data) )
+		{    errcode = getInteger( nModuleType, data) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "version", indx, data ) )
+		{    errcode = getInteger( nVersionNo, data ) ;
+		     if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "action", indx, data ) )
+		{    errcode = getInteger( nActionID, data) ;
+		if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		return AppCode.ERR_NOERROR ;
+	}
+	public int setFieldData( String field, String value ) {
+		System.out.println("WorkingModule.setFieldData ["+field+"]"+"["+value+"]");
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "module" ) )
+		{    if   ( value != null )
+		          nModuleType = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "version" ) )
+		{    if   ( value != null )
+		          nVersionNo = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		if   ( compareFieldID( sbfield, "action" ) )
+		{    if   ( value != null )
+		          nActionID = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+	}
+	// class identity
+	public int		getVersionNo()	{ return nVersionNo  ; }
+	public String	getClassID() {
+		return textClassID ;
+	}
+	// module descriptor
+	public int		getModuleType()	{ return nModuleType ; }
+
+	// static module searcher
+	public static WorkingModule  getWorkingModule( int moduleType) {
+		return lstModuleType.searchModule( moduleType, -1 ) ;
+	}
+	public static WorkingModule  getWorkingModule( int moduleType, int versionNo ) {
+		return lstModuleType.searchModule( moduleType, versionNo ) ;
+	}
+
+// operations
+	// initial constructor
+	public int load()	{ return AppCode.ERR_NOERROR ; }
+	public void unload(){}
+
+// implement
+	protected String textClassID="" ;	// returned class id
+	
+}

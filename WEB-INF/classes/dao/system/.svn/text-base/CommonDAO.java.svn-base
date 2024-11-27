@@ -1,0 +1,102 @@
+package dao.system;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.acromate.driver.db.DataStatement;
+
+
+public class CommonDAO {
+	public String errorMsg="";
+	public int insert(DataStatement stmt, String sql) {
+		int nResult	=	0;
+        try {            
+            if (stmt != null) {
+            	System.out.println("SQL : "+sql.toString());
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+                nResult = stmt.executeUpdate(sql);
+                stmt.endTransaction(true);			// commit 처리
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	stmt.endTransaction(false);		// rollback 처리
+        	e.printStackTrace();
+        	errorMsg = e.toString();
+        }
+		return nResult;
+	}
+    public int update(DataStatement stmt, String sql) {
+
+        ResultSet 	rs 		= null;
+        int 		nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	System.out.println("SQL : "+sql.toString());
+            	stmt.stxTransaction();                             
+                nResult = stmt.executeUpdate(sql);                
+                stmt.endTransaction(true);			// commit 처리
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	stmt.endTransaction(false);		// rollback 처리
+        	e.printStackTrace();
+        	errorMsg = e.toString();
+        }
+        
+        return nResult;
+    }
+    
+    public int delete(DataStatement stmt, String sql) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+            	System.out.println("SQL : "+sql.toString());
+                nResult = stmt.executeUpdate(sql);
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        	errorMsg = e.toString();
+        }        
+        return nResult ;
+    }
+    public ArrayList select(DataStatement stmt, String sql,String columNames[]){
+		ArrayList 	list 	= new ArrayList();
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	HashMap hm=new HashMap();
+                	for(int i=0;i<columNames.length;i++){
+                		hm.put(columNames[i], rs.getString(columNames[i]));
+                	}
+                    list.add(hm);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        	errorMsg = e.toString();
+            return null;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return list;
+    }
+    public String getErrorMsg(){
+    	return errorMsg;
+    }
+    public void setErrorMsg(String errorMsg){
+    	this.errorMsg = errorMsg;
+    }
+ }

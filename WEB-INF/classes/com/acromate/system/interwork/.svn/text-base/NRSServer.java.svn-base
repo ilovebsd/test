@@ -1,0 +1,93 @@
+package com.acromate.system.interwork;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Console;
+import com.acromate.util.Str;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 2.0.0
+ */
+public class NRSServer extends DataIO {
+
+    public static final int STATUS_NORMAL = 0 ;
+    public static final int STATUS_NO_MONITOR = 1 ;
+    public static final int STATUS_CONNECTION_ERROR = 2 ;
+    public static final int STATUS_ALARM = 3 ;
+
+    private int         errorcode;
+    private int         status;
+    private StringBuilder  id;
+    private StringBuilder  address;
+
+    public NRSServer() {
+        this.address = new StringBuilder();
+        this.id = new StringBuilder();
+    }
+
+    public String getClassID() {
+        return id.toString();
+    }
+
+    public String getAddress() {
+        return address.toString();
+    }
+
+    public void setAddress(String address) {
+        setString(this.address, address);
+    }
+
+    public String getID() {
+        return id.toString();
+    }
+
+    public void setID(String id) {
+        setString(this.id, id);
+    }
+
+    public void setStatus(int status) { this.status = status; }
+    public int getStatus() { return this.status; }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "id") == true) {
+            return setString(id, value);
+        }
+        if(compareFieldID(temp, "address") == true) {
+            return setString(address, value);
+        }
+        if(compareFieldID(temp, "status") == true) {
+            status = Str.CheckNullInt(value);
+            return 0;
+        }
+        Console.DisplayWarning("ChargeServer - Not founded field :" + field);
+        return(-1);
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder len  = new StringBuilder();
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "address", idx, value) == true) {
+            errorcode = getString(getAddress(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "id", idx, value) == true) {
+            errorcode = getString(id.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "status", idx, value) == true) {
+            errorcode = getInteger((status), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}

@@ -1,0 +1,467 @@
+package com.acromate.dto.office ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.code.AppCode;
+import com.acromate.framework.db.BaseDTOModule;
+
+public class SubscriberInfoDIO  extends BaseDTOModule {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+
+    private String id = "";
+    private int loginLevel;
+    private String pwd = "";
+    private String phoneNum = "";
+    private String name = "";
+    private String position = "";
+    private int department;
+    private String deptName = "";
+    private String mobile = "";
+    private String homeNumber = "";
+    private String extension = "";
+    private String mailAddress = "";
+    private String homePage = "";
+    private String address = "";
+    private String introduction = "";
+    private int chartOrder ;
+    private String pickup = "";
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getLoginLevel() {
+        return loginLevel;
+    }
+
+    public void setLoginLevel(int loginLevel) {
+        this.loginLevel = loginLevel;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
+
+    public String getPhoneNum() {
+        return phoneNum;
+    }
+
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public int getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(int department) {
+        this.department = department;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getHomeNumber() {
+        return homeNumber;
+    }
+
+    public void setHomeNumber(String homeNumber) {
+        this.homeNumber = homeNumber;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    public String getMailAddress() {
+        return mailAddress;
+    }
+
+    public void setMailAddress(String mailAddress) {
+        this.mailAddress = mailAddress;
+    }
+
+    public String getHomePage() {
+        return homePage;
+    }
+
+    public void setHomePage(String homePage) {
+        this.homePage = homePage;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+    public int    getChartOrder() { return chartOrder ; }
+    public void   setChartOrder( int chartOrder ) { this.chartOrder = chartOrder ; }
+
+    public String getPickup() {
+        return pickup;
+    }
+
+    public void setPickup(String pickup) {
+        this.pickup = pickup;
+    }
+
+    @Override
+    public String toDeleteQuery() {
+            // TODO Auto-generated method stub
+            return null;
+    }
+
+    @Override
+    public String toInsertQuery() {
+        String query = "INSERT INTO Table_Subscriber (";
+        query += " ID, ";
+        query += " LoginLevel, ";
+        query += " Pwd, ";
+        query += " PhoneNum, ";
+        query += " Name, ";
+        query += " Position, ";
+        query += " Department, ";
+        query += " Mobile, ";
+        query += " HomeNumber, ";
+        query += " Extension, ";
+        query += " MailAddress, ";
+        query += " HomePage, ";
+        query += " Address, ";
+        query += " Introduction, ";
+        query += " chartOrder ";
+
+        query += ") VALUES (";
+        query += " '"+ id.replace("'", "") +"' ";
+        query += ", "+ loginLevel +" ";
+        query += ", '"+ pwd.replace("'", "") +"' ";
+        query += ", '"+ phoneNum.replace("'", "") +"' ";
+        query += ", '"+ name.replace("'", "") +"' ";
+        query += ", '"+ position.replace("'", "") +"' ";
+        query += ", "+ department +" ";
+        query += ", '"+ mobile.replace("'", "") +"' ";
+        query += ", '"+ homeNumber.replace("'", "") +"' ";
+        query += ", '"+ extension.replace("'", "") +"' ";
+        query += ", '"+ mailAddress.replace("'", "") +"' ";
+        query += ", '"+ homePage.replace("'", "") +"' ";
+        query += ", '"+ address.replace("'", "") +"' ";
+        query += ", '"+ introduction.replace("'", "") +"' ";
+        query += ", "+ chartOrder +" ";
+        query += "); ";
+
+        return query;
+    }
+
+    @Override
+    public String toUpdateQuery() {
+        String query = "UPDATE Table_Subscriber SET";
+        query += " LoginLevel=" + loginLevel +", ";
+        query += " Pwd='" + pwd.replace("'", "") +"', ";
+        query += " PhoneNum='" + phoneNum.replace("'", "") +"', ";
+        query += " Name='" + name.replace("'", "") +"', ";
+        query += " Position='" + position.replace("'", "") +"', ";
+//        query += " Department='" + department +"', ";
+        query += " Mobile='" + mobile.replace("'", "") +"', ";
+        query += " HomeNumber='" + homeNumber.replace("'", "") +"', ";
+        query += " Extension='" + extension.replace("'", "") +"', ";
+        query += " MailAddress='" + mailAddress.replace("'", "") +"', ";
+        query += " HomePage='" + homePage.replace("'", "") +"', ";
+        query += " Address='" + address.replace("'", "") +"', ";
+        query += " Introduction='" + introduction.replace("'", "") +"' ";
+        query += " 	WHERE ID='" + id.replace("'", "") +"' ";
+
+        return query;
+    }
+
+
+
+
+    protected int setFieldData(String field, String value) {
+                StringBuilder sbfield = new StringBuilder(field);
+                int errcode = 0;
+                if   ( compareFieldID( sbfield, "id") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                id = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "loginLevel") ){
+                        StringBuilder sbText = new StringBuilder();
+                         if(value != null) loginLevel = a2i(value.toString());
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "pwd") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                pwd = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "phoneNum") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                phoneNum = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "name") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                name = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "position") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                position = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "department") ){
+                        StringBuilder sbText = new StringBuilder();
+                         if(value != null) department = a2i(value.toString());
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "deptName") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                deptName = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "mobile") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                mobile = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "homeNumber") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                homeNumber = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "extension") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                extension = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "mailAddress") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                mailAddress = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "homePage") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                homePage = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "address") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                address = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "introduction") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                                introduction = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+                if   ( compareFieldID( sbfield, "chartOrder") ){
+                    StringBuilder sbText = new StringBuilder();
+                    if (value != null) chartOrder = a2i(value.toString());
+                    return (AppCode.ERR_NOERROR);
+                }
+                if   ( compareFieldID( sbfield, "pickup") ){
+                        StringBuilder sbText = new StringBuilder();
+                        if   (  (errcode = setString( sbText, value)) == 0){
+                            pickup = sbText.toString();
+                        }
+                        return (AppCode.ERR_NOERROR) ;
+                }
+        log.error("SubscriberInfoDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index indx, StringBuilder data) {
+        boolean stop = (field != null && !field.equals("")) ;
+        int errcode = 0;
+        if (field == null) field = "";
+        StringBuilder sbField =new StringBuilder(field);
+        if   ( compareFieldID( sbField, "id", indx, data ) )
+        {
+                errcode = getString(id,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "loginLevel", indx, data ) )
+        {
+                errcode = getInteger( loginLevel, data );
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "pwd", indx, data ) )
+        {
+                errcode = getString(pwd,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "phoneNum", indx, data ) )
+        {
+                errcode = getString(phoneNum,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "name", indx, data ) )
+        {
+                errcode = getString(name,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "position", indx, data ) )
+        {
+                errcode = getString(position,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "department", indx, data ) )
+        {
+                errcode = getInteger( department, data );
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "deptName", indx, data ) )
+        {
+                errcode = getString(deptName,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "mobile", indx, data ) )
+        {
+                errcode = getString(mobile,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "homeNumber", indx, data ) )
+        {
+                errcode = getString(homeNumber,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "extension", indx, data ) )
+        {
+                errcode = getString(extension,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "mailAddress", indx, data ) )
+        {
+                errcode = getString(mailAddress,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "homePage", indx, data ) )
+        {
+                errcode = getString(homePage,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "address", indx, data ) )
+        {
+                errcode = getString(address,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "introduction", indx, data ) )
+        {
+                errcode = getString(introduction,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "chartOrder", indx, data ) )
+        {
+                errcode = getInteger( chartOrder, data );
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+        if   ( compareFieldID( sbField, "pickup", indx, data ) )
+        {
+                errcode = getString(pickup,data ,  ! stop);
+                if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+        }
+
+        if (field.length()>0) log.error("SubscriberInfoDIO - Not founded field :" + field);
+        return(0);
+    }
+
+    public String toXmlString(String strDepartment, String blank) {
+       String xml = blank+"            <Buddy " ;
+       xml += " parent=\""  +  strDepartment + "\" " ;
+       xml += " id=\""  + id + "\" " ;
+       if (position.length()>0)  xml += " description=\""  +  position + "  " + name + "\" " ;
+       else  xml += " description=\""  + name + "\" " ;
+       xml += " represent=\""  +  id + "\" " ;
+       xml += " officebox=\""  +  "" + "\" " ;
+       xml += " operation=\""  +  "0"+ "\" " ;
+//       if ( getUsePresence() == true ) xml += " presence=\"1\" " ;
+//       else xml += " presence=\"0\" " ;
+
+       xml += "> \n" ;
+
+       xml += blank+"                <NickName>" + name + "</NickName>\n" ;
+       xml += blank+"                <Position>" + position + "</Position>\n" ;
+       xml += blank+"                <Department>" + strDepartment + "</Department>\n" ;
+       xml += blank+"                <Mobile>" + mobile + "</Mobile>\n" ;
+       xml += blank+"                <Extension>" + extension + "</Extension>\n" ;
+       xml += blank+"                <MailAddress>" + mailAddress + "</MailAddress>\n" ;
+       xml += blank+"                <CompanyNumber>" + "00001" + "</CompanyNumber>\n" ;
+       xml += blank+"                <HomeNumber>"  +  phoneNum+ "</HomeNumber>\n" ;
+       xml += blank+"                <HomePage>"  +  homePage+ "</HomePage>\n" ;
+       xml += blank+"                <Introduction>"  +  introduction+ "</Introduction>\n" ;
+       xml += blank+"                <pickup>"  +  pickup+ "</pickup>\n" ;
+       xml += blank+"            </Buddy> \n" ;
+
+        return xml ;
+    }
+
+}

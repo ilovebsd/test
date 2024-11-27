@@ -1,0 +1,29 @@
+package com.acromate.framework.lang;
+public class LangSet extends LangItem{
+	// construction
+	private static LangSet instance = new LangSet("'ems'");
+	public LangSet(){
+	}
+	public LangSet( String pMenuID ){
+		nodeName = new StringBuilder(pMenuID);
+	}
+	public static LangSet getInstance(){
+		return instance;
+	} 
+	
+	//tree menu
+	// up linker
+	/*
+	 public static void main(String[] args) {
+		LangSet.getInstance().setParam( "('kor').('IP-PBX')", "txtdata = '한글'" ) ;
+		LangSet.getInstance().setParam( "('kor').('IP-PBX')", "txtdata = '한글'" ) ;
+		LangSet.getInstance().setParam( "('kor').('IP-PBX')", "txtdata = '한글'" ) ;
+		LangSet.getInstance().setParam( "('kor').('IP-PBX')", "txtdata = '한글'" ) ;
+		LangSet.getInstance().setParam( "('kor').('IP-PBX')", "txtdata = '한글'" ) ;
+		LangSet.getInstance().setParam( "('eng').('IP-PBX')", "txtdata = '영어'" ) ;
+		StringBuilder temp = new StringBuilder();
+		LangSet.getInstance().getParam("('kor').('IP-PBX').txtdata", temp);
+		System.out.println(temp);
+	}
+	*/
+}

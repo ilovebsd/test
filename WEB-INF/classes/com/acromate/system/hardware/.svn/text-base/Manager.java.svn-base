@@ -1,0 +1,66 @@
+/*
+ * Manager.java
+ *
+ * Created on 2007년 8월 2일 (목), 오후 10:39
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package com.acromate.system.hardware;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.system.ManSystem;
+import java.util.ArrayList;
+import com.acromate.driver.core.SystemSingleton;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 2.0.0
+ */
+public class Manager extends ListIO {
+
+    ManSystem manSystem ;
+    /** Creates a new instance of Manager */
+    public Manager( ManSystem manSystem ) {
+        this.manSystem = manSystem;
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+     protected int getFieldData(String field, Index idx, StringBuilder value) {
+         return super.getFieldData(field, idx, value);
+     }
+
+
+    /**
+     *
+     * @return
+     */
+    protected DataIO newListNode() {
+        return new Adapter(manSystem, 2);
+    }
+
+    public DataIO getNode(String field) {
+        DataIO node = (Adapter)super.getNode(field);
+        if ( node != null) return node;
+        Adapter adapter = new Adapter( manSystem, Adapter.LINE_MANAGER);
+        adapter.setParam("id", field);
+        appendTail(adapter);
+        DataIO systemHandler = SystemSingleton.getInstance().getHandler();
+        systemHandler.callMethod("", "insertNetworkLine", manSystem.getGroupId(), manSystem.getHwClusterId(), manSystem.getHwId(),"lan.manager(" + field + ")", "lan.manager." + getCount(), String.valueOf(Adapter.LINE_MANAGER), "", "1");
+        return adapter;
+    }
+
+    public ArrayList getNodes() {
+        return this.list;
+    }
+}

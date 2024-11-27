@@ -1,0 +1,15 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.ListIO;
+import com.acromate.data.DataIO;
+
+public class SystemListDTO extends ListIO {
+
+    protected DataIO newListNode() {
+        return new SystemDTO();
+    }
+
+    public void removeAll() {
+        list.clear();
+    }
+}

@@ -1,0 +1,139 @@
+package com.acromate.dto.acrossw ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.util.Str;
+
+public class SlfAgentDIO extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder localHost = new StringBuilder();
+    private StringBuilder localRealm = new StringBuilder();
+    private StringBuilder systemVendorID = new StringBuilder();
+    private boolean enableSLF ;
+    private ServerAddressDIO localAddress = new ServerAddressDIO();
+    private int    threadPriority ;
+    private int    channelMonitoringInterval ;
+    private StringBuilder hssServer = new StringBuilder();
+
+    public String getLocalHost() { return localHost.toString() ; }
+    public void   setLocalHost( String localHost ) {
+        this.localHost.delete(0,localHost.length());
+        this.localHost.append(localHost) ;
+    }
+
+    public String getLocalRealm() { return localRealm.toString() ; }
+    public void   setLocalRealm( String localRealm ) {
+        this.localRealm.delete(0,localRealm.length());
+        this.localRealm.append(localRealm) ;
+    }
+
+    public String getSystemVendorID() { return systemVendorID.toString() ; }
+    public void   setSystemVendorID( String systemVendorID ) {
+        this.systemVendorID.delete(0,systemVendorID.length());
+        this.systemVendorID.append(systemVendorID) ;
+    }
+
+    public boolean    getEnableSLF() { return enableSLF ; }
+    public void   setEnableSLF( boolean enableSLF ) { this.enableSLF = enableSLF ; }
+
+    public ServerAddressDIO    getLocalAddressDIO() { return localAddress ; }
+    public void   setLocalAddressDIO( ServerAddressDIO localAddress ) { this.localAddress = localAddress ; }
+
+    public int    getThreadPriority() { return threadPriority ; }
+    public void   setThreadPriority( int threadPriority ) { this.threadPriority = threadPriority ; }
+
+    public int    getChannelMonitoringInterval() { return channelMonitoringInterval ; }
+    public void   setChannelMonitoringInterval( int channelMonitoringInterval ) { this.channelMonitoringInterval = channelMonitoringInterval ; }
+
+    public String getHssServer() { return hssServer.toString() ; }
+    public void   setHssServer( String hssServer ) {
+        this.hssServer.delete(0,hssServer.length());
+        this.hssServer.append(hssServer) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "localHost".toLowerCase()) == true) {
+            return setString(localHost, value);
+        }
+        if(compareFieldID(temp, "localRealm".toLowerCase()) == true) {
+            return setString(localRealm, value);
+        }
+        if(compareFieldID(temp, "systemVendorID".toLowerCase()) == true) {
+            return setString(systemVendorID, value);
+        }
+        if(compareFieldID(temp, "enableSLF".toLowerCase()) == true) {
+            enableSLF = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "localAddress".toLowerCase()) == true) {
+            return localAddress.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "threadPriority".toLowerCase()) == true) {
+            if(!value.equals("")) threadPriority = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "channelMonitoringInterval".toLowerCase()) == true) {
+            if(!value.equals("")) channelMonitoringInterval = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "hssServer".toLowerCase()) == true) {
+            return setString(hssServer, value);
+        }
+        if(compareFieldID(temp, "slfServer".toLowerCase()) == true) {
+            return setString(hssServer, value);
+        }
+        return super.setFieldData( field,  value);
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "localHost", idx, value) == true) {
+            errorcode = getString(localHost.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "localRealm", idx, value) == true) {
+            errorcode = getString(localRealm.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "systemVendorID", idx, value) == true) {
+            errorcode = getString(systemVendorID.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "enableSLF", idx, value) == true) {
+            errorcode = getString(Boolean.toString(enableSLF), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "localAddress", idx, value) == true) {
+            errorcode = localAddress.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "threadPriority", idx, value) == true) {
+            errorcode = getInteger(threadPriority, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "channelMonitoringInterval", idx, value) == true) {
+            errorcode = getInteger(channelMonitoringInterval, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hssServer", idx, value) == true) {
+            errorcode = getString(hssServer.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return super.getFieldData(field, idx, value);
+    }
+    protected DataIO newListNode() {
+       return new HssServerDIO();
+    }
+}

@@ -1,0 +1,252 @@
+/*
+ * Validation.java
+ *
+ * Created on 2006년 8월 17일 (목), 오후 7:32
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.framework.util;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class Str {
+
+    /**
+    String Value Check
+    */
+    public static String CheckNullString(String str)
+    {
+        if (str == null || "null".equals(str) || ("".equals(str) == true)){
+        	str = "";
+        }
+        return str;
+    }
+    public static String CheckNullString(StringBuilder str)
+    {
+        String strReturn = "";
+        if ((str == null) || ("".equals(str.toString()) == true)|| ("null".equals(str.toString()) == true))
+            strReturn = "";
+        else
+            strReturn = str.toString();
+        return strReturn;
+    }
+
+    /**
+    int Value Check
+    */
+    public static int CheckNullInt(String str)
+    {
+        int nReturn = -1;
+        if ((str == null) || ("".equals(str) == true))
+            nReturn = 0;
+        else
+        {
+            try
+            {
+                nReturn = Integer.parseInt(str.trim());
+            }
+            catch(NumberFormatException e)
+            {
+                nReturn = -1;
+            }
+        }
+        return nReturn;
+    }
+    public static String CheckNullHex(String str)
+    {
+        String strReturn = "";
+        int nTemp = 0;
+        if ((str == null) || ("".equals(str) == true))
+        	strReturn = "0";
+        else
+        {
+            try
+            {
+            	nTemp = Integer.parseInt(str.trim());
+            	strReturn = Integer.toHexString(nTemp);
+                
+            }
+            catch(NumberFormatException e)
+            {
+            	nTemp = -1;
+            }
+        }
+        return strReturn;
+    }
+    public static String CheckNullHexToDec(String hex) {
+    	if(hex == null) return "0";
+    	long v = Long.parseLong(hex, 16);   
+    	return String.valueOf(v);
+    }
+    public static int CheckNullInt(StringBuilder str)
+    {
+        int nReturn = -1;
+        if ((str == null) || ("".equals(str.toString()) == true))
+            nReturn = 0;
+        else
+        {
+            try
+            {
+                nReturn = Integer.parseInt(str.toString().trim());
+            }
+            catch(NumberFormatException e)
+            {
+                nReturn = -1;
+            }
+        }
+        return nReturn;
+    }
+
+    public static double CheckNullDouble(String str)
+    {
+        double dReturn = -1.0;
+        if ((str == null) || ("".equals(str) == true))
+            dReturn = 0.0;
+        else
+        {
+            try
+            {
+                dReturn = Double.parseDouble(str.trim());
+            }
+            catch(NumberFormatException e)
+            {
+                dReturn = -1.0;
+            }
+        }
+        return dReturn;
+    }
+    public static double CheckNullDouble(StringBuilder str)
+    {
+        double dReturn = -1.0;
+        if ((str == null) || ("".equals(str.toString()) == true))
+            dReturn = 0.0;
+        else
+        {
+            try
+            {
+                dReturn = Double.parseDouble(str.toString().trim());
+            }
+            catch(NumberFormatException e)
+            {
+                dReturn = -1.0;
+            }
+        }
+        return dReturn;
+    }
+
+    //String->short
+    public static short CheckNullShort( String str ) {
+        short sReturn = 0;
+        if ((str == null) || ("".equals(str) == true))
+            sReturn = 0;
+        else
+        {
+            try
+            {
+                sReturn = Short.parseShort(str.trim());
+            }
+            catch(NumberFormatException e)
+            {
+                sReturn  = -1;
+            }
+        }
+        return sReturn ;
+    }
+    public static short CheckNullShort( StringBuilder str ) {
+        short sReturn = 0;
+        if ((str == null) || ("".equals(str.toString()) == true))
+            sReturn = 0;
+        else
+        {
+            try
+            {
+                sReturn = Short.parseShort(str.toString().trim());
+            }
+            catch(NumberFormatException e)
+            {
+                sReturn  = -1;
+            }
+        }
+        return sReturn ;
+    }
+
+    public static String CheckSetNull(String str)
+    {
+        if(str==null) return null;
+        if(str.length()==0) return null;
+        return str ;
+    }
+
+    public static boolean CheckNullBoolean(String str)
+    {
+        if(str==null) return false;
+        if(str.toLowerCase().indexOf("true") > -1 || str.indexOf("1") > -1 )  return true;
+        return false ;
+    }
+
+
+    public static String cover(String str)
+    {
+        if(str==null || str.length() == 0) return "";
+              if( str.trim().charAt(0) != '(' ) str = "(" + str + ")" ;
+        return str ;
+    }
+
+    public static String uncover(String str)
+    {
+        if(str==null) return null;
+        str = str.replace('(',' ') ;
+        str = str.replace(')',' ') ;
+        return str.trim() ;
+    }
+
+    public static String GetAreaCode(String str)
+    {
+
+        if(str==null) return "";
+        if (str.substring(0,2).equals("02")) return "02" ;
+        else return str.substring(0,3) ;
+
+    }
+
+    public static String GetLocalCode(String str)
+    {
+        if(str==null) return "";
+        if(str.length() < 5) return "";
+
+        int start = 0;
+        if (str.substring(0,2).equals("02")) start = 2 ;
+        else start = 3 ;
+
+        int end = str.length()-4 ;
+        return str.substring( start, end ) ;
+    }
+
+    public static String GetPersonalNumber(String str)
+    {
+        if(str==null) return "";
+        if(str.length() < 5) return "";
+        int start = str.length()-4 ;
+        int end = str.length() ;
+        return str.substring( start, end ) ;
+    }
+    public static String CheckInt(String str)
+    {
+        if ("0".equals(str) || "null".equals(str)){
+        	str = "";
+        }
+        return str;
+    }
+    public static String CheckInt(StringBuilder str)
+    {
+    	String returnValue = str.toString();
+        if ("0".equals(returnValue) || "null".equals(returnValue)){
+        	returnValue = "";
+        }
+        return returnValue;
+    }
+}
+

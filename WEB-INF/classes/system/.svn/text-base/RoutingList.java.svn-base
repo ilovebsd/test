@@ -1,0 +1,584 @@
+package system;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+
+import dto.FeatureServiceDTO;
+import dto.VirtualNumberDTO;
+import dto.system.PrefixTableIdDTO;
+import dto.system.PrefixTableDTO;
+import dto.system.LocalprefixDTO;
+import dto.system.SIPRegServerDTO;
+import dto.system.SpecialprefixDTO;
+
+import dto.system.RouteMonitorDTO;
+import dto.system.RouteStateDTO;
+
+import dto.system.ReplacePrefixDTO;
+
+public class RoutingList {
+	public List getRoutingList(DataStatement stmt) {		
+		PrefixTableIdDTO 			prefixTableIdDTO;
+        List<PrefixTableIdDTO> 		routingList 	= new ArrayList<PrefixTableIdDTO>();
+        
+        String sql = "SELECT PrefixTableID, TableType, DESCRIPTION FROM table_PrefixTableID ";
+        sql = sql + "\n Order By PrefixTableID ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	prefixTableIdDTO = new PrefixTableIdDTO(
+                    	Str.CheckNullString(rs.getString("PrefixTableID")),                        
+                    	rs.getInt("TableType"),
+                        Str.CheckNullString(rs.getString("DESCRIPTION"))
+                    );
+
+                	routingList.add(prefixTableIdDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return routingList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return routingList;
+    }
+
+	public List getRouting(DataStatement stmt) {		
+		PrefixTableIdDTO 			prefixTableIdDTO;
+        List<PrefixTableIdDTO> 		routingList 	= new ArrayList<PrefixTableIdDTO>();
+        
+        String sql = "SELECT PrefixTableID FROM table_PrefixTableID Order By PrefixTableID ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	prefixTableIdDTO = new PrefixTableIdDTO(
+                    	Str.CheckNullString(rs.getString("PrefixTableID"))                        
+                    );
+
+                	routingList.add(prefixTableIdDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return routingList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return routingList;
+    }
+	
+	public List getPrefixList(DataStatement stmt) {		
+		PrefixTableDTO 			prefixTableDTO;
+        List<PrefixTableDTO> 	prefixList 		= new ArrayList<PrefixTableDTO>();
+        
+        String 	strTemp = "";
+        int 	nTemp2 	= 1;
+        
+        String sql = "SELECT PrefixTableID, StartPrefix, EndPrefix, MinDigitCount, CallType, Description ";
+        sql = sql + "\n FROM table_PrefixTable ";
+        sql = sql + "\n where 1 = 1 AND RoutingEndpointType = 1 ";
+        sql = sql + "\n   AND StartPrefix not in(select ivr_tel from NASA_TRUNK_SET) ";		// 090514 음성안내번호 관련 추가
+        //sql = sql + "\n   AND ((PrefixTableID = 'Dial Plan' AND StartPrefix not in('0000000000', '1386701')) or (PrefixTableID <> 'Dial Plan')) "; 
+        sql = sql + "\n   AND ((PrefixTableID = 'Dial Plan' AND StartPrefix <> '0000000000') or (PrefixTableID <> 'Dial Plan')) ";
+        sql = sql + "\n Order By PrefixTableID, StartPrefix ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    nTemp2 = (rs.getString("EndPrefix")).indexOf('_');
+                    if (nTemp2 > -1)
+                        strTemp = rs.getString("EndPrefix").substring(0, nTemp2);
+                    else
+                        strTemp = rs.getString("EndPrefix");
+                	
+                	prefixTableDTO = new PrefixTableDTO(
+                    	Str.CheckNullString(rs.getString("PrefixTableID")),
+                    	Str.CheckNullString(rs.getString("StartPrefix")),
+                    	Str.CheckNullString(strTemp),
+                    	rs.getInt("MinDigitCount"),
+                    	rs.getInt("CallType"),
+                        Str.CheckNullString(rs.getString("Description"))
+                    );
+
+                	prefixList.add(prefixTableDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return prefixList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return prefixList;
+    }
+
+	public List getLocalPrefixList(DataStatement stmt) {		
+		LocalprefixDTO 			localprefixDTO;
+        List<LocalprefixDTO> 	localprefixList 		= new ArrayList<LocalprefixDTO>();
+        
+        String	prefixType 		= "";
+        String	errProcess 		= "";
+        String	errCondition 	= "";
+        String 	strTemp 		= "";
+        int 	nTemp2 			= 1;
+        
+        String sql = "SELECT localprefix.startprefix as startprefix, localprefix.endprefix as endprefix, ";
+        sql = sql + "\n localprefix.prefixtype as prefixtype, rs.endpointclass as endpointclass,localprefix.endpointid as endpointid ";
+        sql = sql + "\n FROM table_localprefix localprefix  LEFT OUTER JOIN  table_routestate rs ON localprefix.endpointid =  rs.endpointid ";
+        sql = sql + "\n where 1=1 AND prefixtype != 2 AND mod( localprefix.prefixtype, 16 ) in (1,3) ";
+        sql = sql + "\n Order By startprefix ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    nTemp2 = (rs.getString("EndPrefix")).indexOf('_');
+                    if (nTemp2 > -1)
+                        strTemp = rs.getString("EndPrefix").substring(0, nTemp2);
+                    else
+                        strTemp = rs.getString("EndPrefix");
+                	
+                    int localPrefixType = rs.getInt("prefixtype");
+                    int n4096num = localPrefixType / 4096;
+                    int ntnum = localPrefixType % 4096;
+                    int n256num = ntnum / 256;
+                    int nrnum = ntnum % 256;
+                    int n16num = nrnum / 16;
+                    int n1num = nrnum % 16;
+
+                    if (n16num == 0)
+                    	errProcess = "호종료";
+                    else if (n16num == 1)
+                    	errProcess = "정해진 루트로 호중계";
+                    else if (n16num == 2)
+                    	errProcess = "정해진 루트그룹으로 호중계";
+                    else if (n16num == 3)
+                    	errProcess = "전화번호로 호중계";
+                    else if (n16num == 4)
+                    	errProcess = "번호정책으로 호중계";
+                    else
+                    	errProcess = "";
+
+                    if (n1num == 1)
+                    	prefixType = "자국 Prefix";
+                    else if (n1num == 3)
+                    	prefixType = "타국 Prefix";
+                    else
+                    	prefixType = "";
+
+                    if (n256num == 0 && n1num == 1)
+                    	errCondition = "가입자가 존재하지 않거나 단말 장애시";
+                    else if (n256num == 1 && n1num == 1)
+                    	errCondition = "가입자가 존재하지 않을경우";
+                    else if (n256num == 2 && n1num == 1)
+                    	errCondition = "단말 장애시";
+                    else
+                    	errCondition = "";
+                    
+                    localprefixDTO = new LocalprefixDTO(
+                    	Str.CheckNullString(rs.getString("startprefix")),
+                    	Str.CheckNullString(strTemp),
+                    	Str.CheckNullString(prefixType),
+                    	Str.CheckNullString(errProcess),
+                        Str.CheckNullString(errCondition)
+                    );
+
+                	localprefixList.add(localprefixDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return localprefixList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return localprefixList;
+    }
+	
+	public List getDetailprefixID(DataStatement stmt, String routingid) {
+		PrefixTableIdDTO 		prefixTableIdDTO;
+        List<PrefixTableIdDTO> 	prefixTableIdList 	= new ArrayList<PrefixTableIdDTO>();
+        
+        String sql = " SELECT PrefixTableID, TableType, DESCRIPTION FROM table_PrefixTableID ";
+        sql = sql + "\n WHERE PrefixTableID = '" + routingid + "' ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	prefixTableIdDTO = new PrefixTableIdDTO(
+                    	Str.CheckNullString(rs.getString("PrefixTableID")),                        
+                        rs.getInt("TableType"),
+                        Str.CheckNullString(rs.getString("DESCRIPTION"))
+                    );
+
+                	prefixTableIdList.add(prefixTableIdDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return prefixTableIdList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return prefixTableIdList;
+    }
+
+	public List getDetailprefix(DataStatement stmt, String prefixId, String startNo) {
+		PrefixTableDTO 			prefixTableDTO;
+        List<PrefixTableDTO> 	prefixList 		= new ArrayList<PrefixTableDTO>();
+        
+        String 	strTemp = "";
+        int 	nTemp2 	= 1;
+        
+        String sql = "SELECT PrefixTableID, StartPrefix, EndPrefix, MinDigitCount, MaxDigitCount, ";
+        sql = sql + "\n CallType, Description, RouteId, RouteSelectRule ";
+        sql = sql + "\n FROM table_PrefixTable ";
+        sql = sql + "\n where 1 = 1 AND RoutingEndpointType = 1 ";
+        sql = sql + "\n   and PrefixTableID = '" +prefixId+ "' and StartPrefix = '" +startNo+ "' ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    nTemp2 = (rs.getString("EndPrefix")).indexOf('_');
+                    if (nTemp2 > -1)
+                        strTemp = rs.getString("EndPrefix").substring(0, nTemp2);
+                    else
+                        strTemp = rs.getString("EndPrefix");
+                	
+                	prefixTableDTO = new PrefixTableDTO(
+                    	Str.CheckNullString(rs.getString("PrefixTableID")),
+                    	Str.CheckNullString(rs.getString("StartPrefix")),
+                    	//Str.CheckNullString(rs.getString("EndPrefix")),
+                    	Str.CheckNullString(strTemp),
+                    	rs.getInt("MinDigitCount"),
+                    	rs.getInt("MaxDigitCount"),
+                    	rs.getInt("CallType"),
+                    	rs.getInt("RouteSelectRule"),
+                        Str.CheckNullString(rs.getString("Description")),
+                        Str.CheckNullString(rs.getString("RouteId"))
+                    );
+
+                	prefixList.add(prefixTableDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return prefixList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return prefixList;
+    }
+
+	public List getDetailLocalPrefix(DataStatement stmt, String startPrefix) {		
+		LocalprefixDTO 			localprefixDTO;
+        List<LocalprefixDTO> 	localprefixList 		= new ArrayList<LocalprefixDTO>();
+        
+        String	prefixType 		= "";
+        String	errProcess 		= "";
+        String	errCondition 	= "";
+        String 	strTemp 		= "";
+        int 	nTemp2 			= 1;
+        
+        String sql = "SELECT startprefix, endprefix, prefixtype, protocol, endpointid, groupid ";
+        sql = sql + "\n FROM table_localprefix ";
+        sql = sql + "\n where startprefix = '" +startPrefix+ "' ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    nTemp2 = (rs.getString("EndPrefix")).indexOf('_');
+                    if (nTemp2 > -1)
+                        strTemp = rs.getString("EndPrefix").substring(0, nTemp2);
+                    else
+                        strTemp = rs.getString("EndPrefix");
+                	
+                    int localPrefixType = rs.getInt("prefixtype");
+                    int n4096num = localPrefixType / 4096;
+                    int ntnum = localPrefixType % 4096;
+                    int n256num = ntnum / 256;
+                    int nrnum = ntnum % 256;
+                    int n16num = nrnum / 16;
+                    int n1num = nrnum % 16;
+
+                    if (n16num == 0)
+                    	errProcess = "호종료";
+                    else if (n16num == 1)
+                    	errProcess = "정해진 루트로 호중계";
+                    else if (n16num == 2)
+                    	errProcess = "정해진 루트그룹으로 호중계";
+                    else if (n16num == 3)
+                    	errProcess = "전화번호로 호중계";
+                    else if (n16num == 4)
+                    	errProcess = "번호정책으로 호중계";
+                    else
+                    	errProcess = "";
+
+                    if (n1num == 1)
+                    	prefixType = "자국 Prefix";
+                    else if (n1num == 3)
+                    	prefixType = "타국 Prefix";
+                    else
+                    	prefixType = "";
+
+                    if (n256num == 0 && n1num == 1)
+                    	errCondition = "가입자가 존재하지 않거나 단말 장애시";
+                    else if (n256num == 1 && n1num == 1)
+                    	errCondition = "가입자가 존재하지 않을경우";
+                    else if (n256num == 2 && n1num == 1)
+                    	errCondition = "단말 장애시";
+                    else
+                    	errCondition = "";
+                    
+                    localprefixDTO = new LocalprefixDTO(
+                    	Str.CheckNullString(rs.getString("startprefix")),
+                    	Str.CheckNullString(strTemp),
+                    	Str.CheckNullString(prefixType),
+                    	Str.CheckNullString(errProcess),
+                        Str.CheckNullString(errCondition),
+                        rs.getInt("protocol"),
+                        Str.CheckNullString(rs.getString("endpointid")),
+                        Str.CheckNullString(rs.getString("groupid")),
+                        rs.getInt("prefixtype")
+                    );
+
+                	localprefixList.add(localprefixDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return localprefixList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return localprefixList;
+    }
+
+	public List getSpecialNumberList(DataStatement stmt) {		
+		SpecialprefixDTO 			specialprefixDTO;
+        List<SpecialprefixDTO> 		specialList 	= new ArrayList<SpecialprefixDTO>();
+        
+        String sql = "SELECT a.startprefix, a.endpointid, " ;
+        sql = sql + "\n (Select description from table_specialNumber Where '99'||specialno = a.startprefix) as description ";
+        sql = sql + "\n FROM table_localprefix a ";
+        sql = sql + "\n Where a.prefixtype = 2 ";
+        sql = sql + "\n Order By a.startprefix ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	specialprefixDTO = new SpecialprefixDTO();
+                	specialprefixDTO.setStartprefix(Str.CheckNullString(rs.getString("startprefix")));
+                	specialprefixDTO.setEndpointid(Str.CheckNullString(rs.getString("endpointid")));
+                	specialprefixDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	specialList.add(specialprefixDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return specialList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return specialList;
+    }
+
+	public String getRootID(DataStatement stmt, String routingid) {
+        String touteid = "";
+        
+        //String sql = " Select routeid From table_prefixtable Where prefixtableid = '" + routingid + "' ";
+        String sql = " Select routeid From table_prefixtable Where prefixtableid = '" + routingid + "' And startprefix = '0' ";
+        
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) touteid = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return touteid;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return touteid;
+    }
+	
+	public PrefixTableDTO getRootIdNType(DataStatement stmt, String routingid) {
+        String touteid = "";
+        PrefixTableDTO prefixtableDTO = null;
+        //String sql = " Select routeid From table_prefixtable Where prefixtableid = '" + routingid + "' ";
+        String sql = " Select routeid, RouteSelectRule From table_prefixtable Where prefixtableid = '" + routingid + "' And startprefix = '0' ";
+        
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()){
+                	prefixtableDTO = new PrefixTableDTO();
+                	prefixtableDTO.setPrefixTableId(routingid);
+                	touteid = rs.getString(1);
+                	prefixtableDTO.setRouteId(touteid);
+                	prefixtableDTO.setRouteSelectRule( Str.CheckNullInt(rs.getString(2)) );
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return prefixtableDTO;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return prefixtableDTO;
+    }
+
+    public int getSpecialNumberCount(DataStatement stmt){
+    	int 		nResult 	= 0;
+    	ResultSet 	rs 			= null;
+    	try {
+	    	String sql = " select count(*) from table_localprefix a, table_specialNumber b "; 
+            sql = sql +  "\n where a.startprefix = '99'||b.specialno ";
+            
+            rs = stmt.executeQuery(sql);
+            if (rs.next()) nResult = rs.getInt(1);
+            rs.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        
+        return nResult;        
+    }
+
+	public List getReplacePrefixList(DataStatement stmt) {		
+		ReplacePrefixDTO 			replacePrefixDTO;
+        List<ReplacePrefixDTO> 		replacePrefixList 	= new ArrayList<ReplacePrefixDTO>();
+        
+        String sql = "SELECT seqindex, condition, conditiondigit, updatedigit FROM table_replaceprefix ";
+        sql = sql + "\n Order By seqindex ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	replacePrefixDTO = new ReplacePrefixDTO(
+                		rs.getInt("seqindex"),
+                		rs.getInt("condition"),
+                		Str.CheckNullString(rs.getString("conditiondigit")),
+                        Str.CheckNullString(rs.getString("updatedigit"))
+                    );
+
+                	replacePrefixList.add(replacePrefixDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return replacePrefixList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return replacePrefixList;
+    }
+
+}

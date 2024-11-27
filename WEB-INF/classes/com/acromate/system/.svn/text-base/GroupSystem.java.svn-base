@@ -1,0 +1,235 @@
+/*
+ * SystemGroup.java
+ *
+ * Created on 2006년 9월 29일 (금), 오후 7:33
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.util.Logger;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @verion 2.0.0
+ */
+public class GroupSystem extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private String      groupId;       /* System group group Id */
+    private String      groupName;     /* System group group name */
+    private boolean    defaultGroup;  /* Is default group falg */
+    private int currentCallCount = 0 ;
+    private int     termCallCount = 0 ;
+    private int e164Count = 0 ;
+    private int     regiEndpointCount = 0 ;
+
+    public GroupSystem() {}
+
+    /**
+     *
+     * @param groupId
+     * @param groupName
+     */
+    public GroupSystem(String groupId, String groupName) {
+        this.groupId   = groupId;
+        this.groupName = groupName;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList getClusters() {
+        return this.list;
+    }
+
+    /**
+     *
+     * @param groupId
+     */
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    /**
+     *
+     * @param groupName
+     */
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    /**
+     *
+     * @param value
+     */
+    public void setDefaultGroup(boolean value) {
+        this.defaultGroup = value;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getGroupId() {
+        return this.groupId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getGroupName() {
+        return this.groupName;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getClassID() {
+        return groupId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean getDefaultGroup() {
+        return this.defaultGroup;
+    }
+
+    public int getCurrentCallCount() {
+        return this.currentCallCount ;
+    }
+
+    public void setCurrentCallCount(int currentCallCount) {
+        this.currentCallCount = currentCallCount ;
+    }
+
+
+    public int getTermCallCount() {
+        return this.termCallCount ;
+    }
+
+    public void setTermCallCount(int termCallCount) {
+        this.termCallCount = termCallCount ;
+    }
+
+    public int getRegiEndpointCount() {
+        return this.regiEndpointCount;
+    }
+
+    public void setRegiEndpointCount(int regiEndpointCount) {
+        this.regiEndpointCount = regiEndpointCount ;
+    }
+
+    public int getE164Count() {
+        return this.e164Count;
+    }
+
+    public void setE164Count(int e164Count) {
+        this.e164Count = e164Count ;
+    }
+
+    /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getFieldObject(String field) {
+        DataIO result = null;
+        if(field != null && field.trim().length() > 0) {
+            //StringBuilder temp = new StringBuilder(field.toLowerCase());
+            StringBuilder temp = new StringBuilder(field);
+            if(compareFieldID(temp, groupId.toString())  == true) {
+                return this;
+            }
+        }   return super.getFieldObject(field);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+
+   /* operations //////////////////////////// */
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "groupName") == true) {
+            if(!value.equals("")) groupName = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "groupId") == true) {
+            if(!value.equals("")) groupId = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "currentCallCount") == true) {
+            currentCallCount = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "termCallCount") == true) {
+            termCallCount = Str.CheckNullInt(value);
+            return 0;
+        }
+        return super.setFieldData( field,  value);
+    }
+
+    protected int getFieldData(String field, Index idx , StringBuilder value) {
+        int     errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder len  = new StringBuilder();
+        StringBuilder fldAlias;
+
+        if(field != null && !field.equals("")) resultVal = true;
+
+        if( field != null && field.toLowerCase().equals("nodelist") == true ) {
+            idx.v = -1;
+            return super.getFieldData(null, idx, value);
+        }
+        fldAlias = new StringBuilder(Str.CheckNullString(field));
+
+        if(compareFieldID(fldAlias, "groupName", idx, value) == true) {
+            errorcode = getString(groupName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "groupId", idx, value) == true) {
+            errorcode = getString(groupId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "currentCallCount", idx, value) == true) {
+            errorcode = getInteger(currentCallCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+        if(compareFieldID(fldAlias, "termCallCount", idx, value) == true) {
+            errorcode = getInteger(termCallCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+
+
+        return super.getFieldData(field, idx, value);
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected DataIO newListNode() {
+        log.info("ClusterSystem is created");
+        return new ClusterSystem();
+    }
+
+}

@@ -1,0 +1,51 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+//import dto.AddrBookDTO;
+import dto.SubscriberInfoDTO;
+import dao.addition.BlockPrefixDAO;
+import acromate.common.util.StringUtil;
+
+public class BlockPrefixDeleteCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+        boolean returnVal 	= false;
+        
+		try {
+			String 	deleteStr = new String(Str.CheckNullString(req.getParameter("deleteStr")).getBytes("8859_1"), "euc-kr");		// 작성자ID
+			
+			// 착신거부 번호삭제
+			BlockPrefixDAO dao = new BlockPrefixDAO();
+			returnVal = dao.blockPrefixDelete(deleteStr);
+			
+			if (returnVal) {
+				System.out.println("착신거부 번호 삭제 성공 .......");
+				//forwardingPage = "/bizportal/publicAddrList.jsp?group=" + nGroupId + "&result=" + Integer.toString(updateResult);
+				res.sendRedirect("/bizportal/addition/blockPrefixList.jsp");
+			}else{
+				System.out.println("착신거부 번호 삭제 실패 .......");
+				//forwardingPage = "/address/publicGroupList.jsp?session=0";
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}
+			
+		} catch (Exception e) {
+			System.out.println("착신거부 번호 삭제  에러발생 .......");
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		}		
+		return forwardingPage;
+	}
+}

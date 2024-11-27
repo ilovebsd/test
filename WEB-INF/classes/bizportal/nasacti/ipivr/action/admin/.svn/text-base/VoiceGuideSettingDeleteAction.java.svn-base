@@ -1,0 +1,41 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.ModeSettingDAO;
+
+public class VoiceGuideSettingDeleteAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		int iRtn = -1;
+
+		String[] strDelIndex;
+		strDelIndex = request.getParameterValues("delIndex");
+
+		if(strDelIndex != null) {
+			ModeSettingDAO modeSettingDAO = ModeSettingDAO.getInstance();
+
+			for(int i=0; i <  strDelIndex.length; i++) {
+				iRtn = modeSettingDAO.deleteModeSetting(strDelIndex[i]);
+			}
+		}
+
+
+		return "./voiceGuideSettingListForm.do2";
+	}
+}

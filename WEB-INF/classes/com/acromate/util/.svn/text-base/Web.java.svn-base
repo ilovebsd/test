@@ -1,0 +1,31 @@
+package com.acromate.util;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class Web {
+
+	public static String GetShortString(String str,int byteSize, String tail){
+
+		int rSize =0;
+		int len = 0;
+		if(str.getBytes().length > byteSize){
+			for(; rSize < str.length(); rSize++){
+				if(str.charAt(rSize) > 0x007F)
+				    len +=2;
+				else
+					len++;
+				if(len > byteSize)
+					break;
+			}
+			str = str.substring(0,rSize)+ tail;
+		}
+		return str;
+	}
+}
+				
+				
+				
+		

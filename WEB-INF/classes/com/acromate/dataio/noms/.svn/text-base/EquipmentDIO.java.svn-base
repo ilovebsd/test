@@ -1,0 +1,191 @@
+package com.acromate.dataio.noms ;
+
+import org.apache.log4j.Logger;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+import com.acromate.util.TimeUtil;
+
+public class EquipmentDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder equipmentId = new StringBuilder();
+    private StringBuilder equipmentName = new StringBuilder();
+    private StringBuilder vendorName = new StringBuilder();
+    private StringBuilder managementIp = new StringBuilder();
+    private StringBuilder swVersion = new StringBuilder();
+    private StringBuilder hwVersion = new StringBuilder();
+    private StringBuilder description = new StringBuilder();
+    private StringBuilder sysTime = new StringBuilder();
+    private StringBuilder updateTime = new StringBuilder();
+    private int    usageState ;
+
+    public String getEquipmentId() { return equipmentId.toString() ; }
+    public void   setEquipmentId( String equipmentId ) {
+        this.equipmentId.delete(0,this.equipmentId.length());
+        this.equipmentId.append(equipmentId) ;
+    }
+
+    public String getEquipmentName() { return equipmentName.toString() ; }
+    public void   setEquipmentName( String equipmentName ) {
+        this.equipmentName.delete(0,this.equipmentName.length());
+        this.equipmentName.append(equipmentName) ;
+    }
+
+    public String getVendorName() { return vendorName.toString() ; }
+    public void   setVendorName( String vendorName ) {
+        this.vendorName.delete(0,this.vendorName.length());
+        this.vendorName.append(vendorName) ;
+    }
+
+    public String getManagementIp() { return managementIp.toString() ; }
+    public void   setManagementIp( String managementIp ) {
+        this.managementIp.delete(0,this.managementIp.length());
+        this.managementIp.append(managementIp) ;
+    }
+
+    public String getSwVersion() { return swVersion.toString() ; }
+    public void   setSwVersion( String swVersion ) {
+        this.swVersion.delete(0,this.swVersion.length());
+        this.swVersion.append(swVersion) ;
+    }
+
+    public String getHwVersion() { return hwVersion.toString() ; }
+    public void   setHwVersion( String hwVersion ) {
+        this.hwVersion.delete(0,this.hwVersion.length());
+        this.hwVersion.append(hwVersion) ;
+    }
+
+    public String getDescription() { return description.toString() ; }
+    public void   setDescription( String description ) {
+        this.description.delete(0,this.description.length());
+        this.description.append(description) ;
+    }
+
+    public String getSysTime() { return sysTime.toString() ; }
+    public void   setSysTime( String sysTime ) {
+        this.sysTime.delete(0,this.sysTime.length());
+        this.sysTime.append(sysTime) ;
+    }
+
+    public String getUpdateTime() { return updateTime.toString() ; }
+    public void   setUpdateTime( String updateTime ) {
+        this.updateTime.delete(0,this.updateTime.length());
+        this.updateTime.append(updateTime) ;
+    }
+
+    public int    getUsageState() { return usageState ; }
+    public void   setUsageState( int usageState ) { this.usageState = usageState ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "equipmentId".toLowerCase()) == true) {
+            return setString(equipmentId, value);
+        }
+        if(compareFieldID(temp, "equipmentName".toLowerCase()) == true) {
+            return setString(equipmentName, value);
+        }
+        if(compareFieldID(temp, "vendorName".toLowerCase()) == true) {
+            return setString(vendorName, value);
+        }
+        if(compareFieldID(temp, "managementIp".toLowerCase()) == true) {
+            return setString(managementIp, value);
+        }
+        if(compareFieldID(temp, "swVersion".toLowerCase()) == true) {
+            return setString(swVersion, value);
+        }
+        if(compareFieldID(temp, "hwVersion".toLowerCase()) == true) {
+            return setString(hwVersion, value);
+        }
+        if(compareFieldID(temp, "description".toLowerCase()) == true) {
+            return setString(description, value);
+        }
+        if(compareFieldID(temp, "sysTime".toLowerCase()) == true) {
+            return setString(sysTime, value);
+        }
+        if(compareFieldID(temp, "updateTime".toLowerCase()) == true) {
+            return setString(updateTime, value);
+        }
+        if(compareFieldID(temp, "usageState".toLowerCase()) == true) {
+            if(!value.equals("")) usageState = Str.CheckNullInt(value);
+            return 0;
+        }
+        log.error("EquipmentDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "equipmentId", idx, value) == true) {
+            errorcode = getString(equipmentId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "equipmentName", idx, value) == true) {
+            errorcode = getString(equipmentName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "vendorName", idx, value) == true) {
+            errorcode = getString(vendorName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "managementIp", idx, value) == true) {
+            errorcode = getString(managementIp.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "swVersion", idx, value) == true) {
+            errorcode = getString(swVersion.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hwVersion", idx, value) == true) {
+            errorcode = getString(hwVersion.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "description", idx, value) == true) {
+            errorcode = getString(description.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "sysTime", idx, value) == true) {
+            errorcode = getString(sysTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "updateTime", idx, value) == true) {
+            errorcode = getString(updateTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "usageState", idx, value) == true) {
+            errorcode = getInteger(usageState, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+
+	public String toXmlString( String blank ) {
+		StringBuilder xml = new StringBuilder();
+
+        System.out.println(getEquipmentId());
+		xml.append ( blank+"   <equipmentId>" + getEquipmentId() + "</equipmentId>\n") ;
+		xml.append ( blank+"   <equipmentName>" + getEquipmentName() + "</equipmentName>\n") ;
+		xml.append ( blank+"   <vendorName>" + getVendorName() + "</vendorName>\n") ;
+		xml.append ( blank+"   <managementIp>" + getManagementIp() + "</managementIp>\n") ;
+		xml.append ( blank+"   <swVersion>" + getSwVersion() + "</swVersion>\n") ;
+		xml.append ( blank+"   <hwVersion>" + getHwVersion() + "</hwVersion>\n") ;
+		xml.append ( blank+"   <description>" + getDescription() + "</description>\n") ;
+        String sysTime = TimeUtil.ConvertMillisecondtoDateString(System.currentTimeMillis());
+        sysTime = sysTime.substring(0,4)+"-"+sysTime.substring(4,6)+"-"+sysTime.substring(6,sysTime.length());
+        this.sysTime.append(sysTime);
+		xml.append ( blank+"   <sysTime>" + getSysTime() + "</sysTime>\n") ;
+		xml.append ( blank+"   <updateTime>" + getUpdateTime() + "</updateTime>\n") ;
+		xml.append ( blank+"   <usageState>" + getUsageState() + "</usageState>\n") ;
+
+		return xml.toString();
+    }
+}

@@ -1,0 +1,212 @@
+package com.acromate.dto.element;
+
+import com.acromate.dto.element.service.number.data.AnswerService;
+import com.acromate.dto.element.service.number.data.CallerService;
+import com.acromate.dto.element.service.number.data.CommonService;
+
+
+public class E164DTO
+{
+    public final static int TYPE_PERSONAL    = 1 ;
+    public final static int TYPE_GROUP    = 2 ;
+    public final static int TYPE_IPPBX_REPRESENT_NUMBER    = 3 ;
+    public final static int TYPE_IPPBX_NUMBER    = 4 ;
+
+    public final static int STARTFLAG_CLOSE  = 0 ;
+    public final static int STARTFLAG_OPEN   = 1 ;
+
+    public final static int CHARGE_TYPE_NO_CHARGE  = 0 ;         // 0:비과금
+    public final static int CHARGE_TYPE_CALLER     = 1 ;         // 1:발신자과금
+    public final static int CHARGE_TYPE_REPRESENT  = 2 ;         // 2:대표과금
+    public final static int CHARGE_TYPE_ANSWER     = 3 ;         // 3:착신자과금
+    public final static int CHARGE_TYPE_THIRD_PERSION  = 4 ;     // 4:3자과금
+    public final static int CHARGE_TYPE_INTELLIGENCE   = 5 ;     // 5:지능망과금
+    public final static int CHARGE_TYPE_FIXED_MONEY    = 6 ;     // 6:일정액과금
+    public final static int CHARGE_TYPE_INVERSE        = 7 ;     // 7:역과금
+
+    public final static int ENDPOINT_RELATION_NULL       = 1 ;     // 1: 미등록
+    public final static int ENDPOINT_RELATION_PHONE    = 2 ;     // 2: 등록
+    public final static int ENDPOINT_RELATION_PBX     = 3 ;     // 3: PBX 에 등록
+
+    private String e164 = "";
+    private String areacode = "";
+    private int    isgroup = 1 ;
+    private String groupid = "";
+    private String subid = "";
+    private String levelID = "";
+    private String extensionnumber = "";
+    private String prefixtableid = "";
+    private String customerid = "";
+    private CallerService callerservice = new CallerService();
+    private AnswerService answerservice = new AnswerService();
+    private CommonService commonservice = new CommonService();
+    private String virtualcid = "";
+    private String directforwardnumber = "";
+    private String hotlinenumber = "";
+    private int    hotlinedelaytime = 0 ;
+    private int    instartposition = 0 ;
+    private int    incutdigit = 0 ;
+    private String inadddigit = "";
+    private int    outstartposition = 0 ;
+    private int    outcutdigit = 0 ;
+    private String outadddigit = "";
+    private String lastreceivednumber = "";
+    private String lastdialednumber = "";
+    private String mailbox = "";
+    private int    chargetype = 0 ;
+    private String chargenumber = "";
+    private String chargeServer = "";
+    private int    endpointrelationtype;
+    private int    startflag = 1 ;
+    private String OpenDate = "" ;
+    private String OpenReservedDate = "" ;
+    private String CloseReservedDate  = "";
+    private String DeleteReservedDate = "" ;
+    private String ExtensionGroupNum  = "";
+    private String  alias;
+
+    public String getE164() { return this.e164; }
+    public void   setE164(String vE164 ) { this.e164 = vE164; }
+
+    public String getAreaCode() { return this.areacode; }
+    public void   setAreaCode(String vAreacode ) { this.areacode = vAreacode; }
+
+    public int    getIsGroup() { return this.isgroup; }
+    public void   setIsGroup(int vIsgroup ) { this.isgroup = vIsgroup; }
+
+    public String getGroupID() { return this.groupid; }
+    public void   setGroupID(String vGroupid ) { this.groupid = vGroupid; }
+
+    public String getSubID() { return this.subid; }
+    public void   setSubID(String vSubid ) { this.subid = vSubid; }
+
+    public String getLevelID() { return this.levelID; }
+    public void   setLevelID(String levelID ) { this.levelID = levelID; }
+
+    public String getExtensionNumber() { return this.extensionnumber; }
+    public void   setExtensionNumber(String vExtensionnumber ) { this.extensionnumber = vExtensionnumber; }
+
+    public String getExtensionGroupNum() { return this.ExtensionGroupNum; }
+    public void   setExtensionGroupNum(String ExtensionGroupNum ) { this.ExtensionGroupNum = ExtensionGroupNum; }
+
+    public String getPrefixTableID() { return this.prefixtableid; }
+    public void   setPrefixTableID(String vPrefixtableid ) { this.prefixtableid = vPrefixtableid; }
+
+    public String getCustomerID() { return this.customerid; }
+    public void   setCustomerID(String vCustomerid ) { this.customerid = vCustomerid; }
+
+    public String getCallerService() { return this.callerservice.get64ByteString(); }
+    public void   setCallerService(String vCallerservice ) { this.callerservice.set64ByteString(vCallerservice); }
+
+    public String getAnswerService() { return this.answerservice.get64ByteString(); }
+    public void   setAnswerService(String vAnswerservice ) { this.answerservice.set64ByteString(vAnswerservice); }
+
+    public String getCommonService() { return this.commonservice.get64ByteString(); }
+    public void   setCommonService(String vCommonservice ) { this.commonservice.set64ByteString(vCommonservice); }
+
+    public String getVirtualCID() { return this.virtualcid; }
+    public void   setVirtualCID(String vVirtualcid ) { this.virtualcid = vVirtualcid; }
+
+    public String getDirectForwardNumber() { return this.directforwardnumber; }
+    public void   setDirectForwardNumber(String vDirectforwardnumber ) { this.directforwardnumber = vDirectforwardnumber; }
+
+    public String getHotLineNumber() { return this.hotlinenumber; }
+    public void   setHotLineNumber(String vHotlinenumber ) { this.hotlinenumber = vHotlinenumber; }
+
+    public int    getHotLineDelayTime() { return this.hotlinedelaytime; }
+    public void   setHotLineDelayTime(int vHotlinedelaytime ) { this.hotlinedelaytime = vHotlinedelaytime; }
+
+    public int    getInStartPosition() { return this.instartposition; }
+    public void   setInStartPosition(int vInstartposition ) { this.instartposition = vInstartposition; }
+
+    public int    getInCutDigit() { return this.incutdigit; }
+    public void   setInCutDigit(int vIncutdigit ) { this.incutdigit = vIncutdigit; }
+
+    public String getInAddDigit() { return this.inadddigit; }
+    public void   setInAddDigit(String vInadddigit ) { this.inadddigit = vInadddigit; }
+
+    public int    getOutStartPosition() { return this.outstartposition; }
+    public void   setOutStartPosition(int vOutstartposition ) { this.outstartposition = vOutstartposition; }
+
+    public int    getOutCutDigit() { return this.outcutdigit; }
+    public void   setOutCutDigit(int vOutcutdigit ) { this.outcutdigit = vOutcutdigit; }
+
+    public String getOutAddDigit() { return this.outadddigit; }
+    public void   setOutAddDigit(String vOutadddigit ) { this.outadddigit = vOutadddigit; }
+
+    public String getLastReceivedNumber() { return this.lastreceivednumber; }
+    public void   setLastReceivedNumber(String vLastreceivednumber ) { this.lastreceivednumber = vLastreceivednumber; }
+
+    public String getLastDialedNumber() { return this.lastdialednumber; }
+    public void   setLastDialedNumber(String vLastdialednumber ) { this.lastdialednumber = vLastdialednumber; }
+
+    public String getMailBox() { return this.mailbox; }
+    public void   setMailBox(String vMailbox ) { this.mailbox = vMailbox; }
+
+    public int    getChargeType() { return this.chargetype; }
+    public void   setChargeType(int vChargetype ) { this.chargetype = vChargetype; }
+
+    public String getChargeNumber() { return this.chargenumber; }
+    public void   setChargeNumber(String vChargenumber ) { this.chargenumber = vChargenumber; }
+
+    public String getChargeServer() { return this.chargeServer; }
+    public void   setChargeServer(String chargeServer ) { this.chargeServer = chargeServer; }
+
+    public int    getEndpointRelationType() { return this.endpointrelationtype; }
+    public void   setEndpointRelationType(int vEndpointrelationtype ) { this.endpointrelationtype = vEndpointrelationtype; }
+
+    public int    getStartFlag() { return this.startflag; }
+    public void   setStartFlag(int vStartflag ) { this.startflag = vStartflag; }
+
+    public String getOpenDate() { return this.OpenDate; }
+    public void   setOpenDate(String OpenDate ) { this.OpenDate = OpenDate; }
+
+    public String getOpenReservedDate() { return this.OpenReservedDate; }
+    public void   setOpenReservedDate(String OpenReservedDate ) { this.OpenReservedDate = OpenReservedDate; }
+
+    public String getCloseReservedDate() { return this.CloseReservedDate; }
+    public void   setCloseReservedDate(String CloseReservedDate ) { this.CloseReservedDate = CloseReservedDate; }
+
+    public String getDeleteReservedDate() { return this.DeleteReservedDate; }
+    public void   setDeleteReservedDate(String DeleteReservedDate ) { this.DeleteReservedDate = DeleteReservedDate; }
+
+    public String getAlias() { return this.alias; }
+    public void	  setAlias(String alias ) { this.alias = alias; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(e164:"                  + getE164() + ") ") ;
+        sb.append("[areacode:"                  + getAreaCode() + "] ") ;
+        sb.append("[isgroup:"                  + getIsGroup() + "] ") ;
+        sb.append("[groupid:"                  + getGroupID() + "] ") ;
+        sb.append("[subid:"                  + getSubID() + "] ") ;
+        sb.append("[extensionnumber:"     + getExtensionNumber() + "] ") ;
+//        sb.append("[prefixtableid:"      + getPrefixtableid() + "] ") ;
+        sb.append("[startflag:"          + getStartFlag() + "] ") ;
+//        sb.append("[customerid:"          + getCustomerid() + "] ") ;
+//        sb.append("[callerservice:"       + getCallerservice() + "] ") ;
+//        sb.append("[answerservice:"      + getAnswerservice() + "] ") ;
+//        sb.append("[commonservice:"      + getCommonservice() + "] ") ;
+//        sb.append("[virtualcid:"          + getVirtualcid() + "] ") ;
+//        sb.append("[directforwardnumber:"  + getDirectforwardnumber() + "] ") ;
+//        sb.append("[hotlinenumber:"      + getHotlinenumber() + "] ") ;
+//        sb.append("[hotlinedelaytime:"   + getHotlinedelaytime() + "] ") ;
+//        sb.append("[instartposition:"    + getInstartposition() + "] ") ;
+//        sb.append("[incutdigit:"         + getIncutdigit() + "] ") ;
+//        sb.append("[inadddigit:"         + getInadddigit() + "] ") ;
+//        sb.append("[outstartposition:"    + getOutstartposition() + "] ") ;
+//        sb.append("[outcutdigit:"        + getOutcutdigit() + "] ") ;
+//        sb.append("[outadddigit:"        + getOutadddigit() + "] ") ;
+//        sb.append("[lastreceivednumber:"  + getLastreceivednumber() + "] ") ;
+//        sb.append("[lastdialednumber:"    + getLastdialednumber() + "] ") ;
+//        sb.append("[mailbox:"            + getMailbox() + "] ") ;
+        sb.append("[chargetype:"         + getChargeType() + "] ") ;
+        sb.append("[chargenumber:"       + getChargeNumber() + "] ") ;
+        sb.append("[endpointrelationtype:"  + getEndpointRelationType() + "] ") ;
+
+        return sb.toString();
+    }
+}

@@ -1,0 +1,216 @@
+package com.acromate.dataio.noms ;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+import com.acromate.util.Logger;
+
+public class ASDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder emsId = new StringBuilder();
+    private StringBuilder equipmentId = new StringBuilder();
+    private StringBuilder collectionTime = new StringBuilder();
+    private StringBuilder psi = new StringBuilder();
+    private StringBuilder dir = new StringBuilder();
+    private int    attempt ;
+    private int    connect ;
+    private int    org_rel ;
+    private int    ter_busy ;
+    private int    timeout ;
+    private int    etc_fail ;
+    private int    c_ratio ;
+    private int    ahdtime ;
+
+    public String getEmsId() { return emsId.toString() ; }
+    public void   setEmsId( String emsId ) {
+        this.emsId.delete(0,this.emsId.length());
+        this.emsId.append(emsId) ;
+    }
+
+    public String getEquipmentId() { return equipmentId.toString() ; }
+    public void   setEquipmentId( String equipmentId ) {
+        this.equipmentId.delete(0,this.equipmentId.length());
+        this.equipmentId.append(equipmentId) ;
+    }
+
+    public String getCollectionTime() { return collectionTime.toString() ; }
+    public void   setCollectionTime( String collectionTime ) {
+        this.collectionTime.delete(0,this.collectionTime.length());
+        this.collectionTime.append(collectionTime) ;
+    }
+
+    public String getPsi() { return psi.toString() ; }
+    public void   setPsi( String psi ) {
+        this.psi.delete(0,this.psi.length());
+        this.psi.append(psi) ;
+    }
+
+    public String getDir() { return dir.toString() ; }
+    public void   setDir( String dir ) {
+        this.dir.delete(0,this.dir.length());
+        this.dir.append(dir) ;
+    }
+
+    public int    getAttempt() { return attempt ; }
+    public void   setAttempt( int attempt ) { this.attempt = attempt ; }
+
+    public int    getConnect() { return connect ; }
+    public void   setConnect( int connect ) { this.connect = connect ; }
+
+    public int    getOrg_rel() { return org_rel ; }
+    public void   setOrg_rel( int org_rel ) { this.org_rel = org_rel ; }
+
+    public int    getTer_busy() { return ter_busy ; }
+    public void   setTer_busy( int ter_busy ) { this.ter_busy = ter_busy ; }
+
+    public int    getTimeout() { return timeout ; }
+    public void   setTimeout( int timeout ) { this.timeout = timeout ; }
+
+    public int    getEtc_fail() { return attempt-connect-org_rel-ter_busy-timeout ; }
+    public void   setEtc_fail( int etc_fail ) { this.etc_fail = etc_fail ; }
+
+    public int    getC_ratio() { return c_ratio ; }
+    public void   setC_ratio( int c_ratio ) { this.c_ratio = c_ratio ; }
+
+    public int    getAhdtime() { return ahdtime ; }
+    public void   setAhdtime( int ahdtime ) { this.ahdtime = ahdtime ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "emsId".toLowerCase()) == true) {
+            return setString(emsId, value);
+        }
+        if(compareFieldID(temp, "equipmentId".toLowerCase()) == true) {
+            return setString(equipmentId, value);
+        }
+        if(compareFieldID(temp, "collectionTime".toLowerCase()) == true) {
+            return setString(collectionTime, value);
+        }
+        if(compareFieldID(temp, "psi".toLowerCase()) == true) {
+            return setString(psi, value);
+        }
+        if(compareFieldID(temp, "dir".toLowerCase()) == true) {
+            return setString(psi, value);
+        }
+        if(compareFieldID(temp, "attempt".toLowerCase()) == true) {
+            if(!value.equals("")) attempt = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "connect".toLowerCase()) == true) {
+            if(!value.equals("")) connect = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "org_rel".toLowerCase()) == true) {
+            if(!value.equals("")) org_rel = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "ter_busy".toLowerCase()) == true) {
+            if(!value.equals("")) ter_busy = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "timeout".toLowerCase()) == true) {
+            if(!value.equals("")) timeout = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "etc_fail".toLowerCase()) == true) {
+            if(!value.equals("")) etc_fail = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "c_ratio".toLowerCase()) == true) {
+            if(!value.equals("")) c_ratio = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "ahdtime".toLowerCase()) == true) {
+            if(!value.equals("")) ahdtime = Str.CheckNullInt(value);
+            return 0;
+        }
+        log.error("ASDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "emsId", idx, value) == true) {
+            errorcode = getString(emsId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "equipmentId", idx, value) == true) {
+            errorcode = getString(equipmentId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "collectionTime", idx, value) == true) {
+            errorcode = getString(collectionTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "psi", idx, value) == true) {
+            errorcode = getString(psi.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "dir", idx, value) == true) {
+            errorcode = getString(dir.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "attempt", idx, value) == true) {
+            errorcode = getInteger(attempt, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "connect", idx, value) == true) {
+            errorcode = getInteger(connect, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "org_rel", idx, value) == true) {
+            errorcode = getInteger(org_rel, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ter_busy", idx, value) == true) {
+            errorcode = getInteger(ter_busy, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "timeout", idx, value) == true) {
+            errorcode = getInteger(timeout, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "etc_fail", idx, value) == true) {
+            errorcode = getInteger(etc_fail, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "c_ratio", idx, value) == true) {
+            errorcode = getInteger(c_ratio, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ahdtime", idx, value) == true) {
+            errorcode = getInteger(ahdtime, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+
+    public String toXmlString( String blank, String emsId, String eqId, String time ) {
+		StringBuilder xml = new StringBuilder();
+
+		xml.append ( blank+"   <emsId>" + emsId + "</emsId>\n") ;
+		xml.append ( blank+"   <equipmentId>" + eqId + "</equipmentId>\n") ;
+		xml.append ( blank+"   <collectionTime>" + time + "</collectionTime>\n") ;
+		xml.append ( blank+"   <psi>" + getPsi() + "</psi>\n") ;
+		xml.append ( blank+"   <dir>" + getDir() + "</dir>\n") ;
+		xml.append ( blank+"   <attempt>" + getAttempt() + "</attempt>\n") ;
+		xml.append ( blank+"   <connect>" + getConnect() + "</connect>\n") ;
+		xml.append ( blank+"   <org_rel>" + getOrg_rel() + "</org_rel>\n") ;
+		xml.append ( blank+"   <ter_busy>" + getTer_busy() + "</ter_busy>\n") ;
+		xml.append ( blank+"   <timeout>" + getTimeout() + "</timeout>\n") ;
+		xml.append ( blank+"   <etc_fail>" + getEtc_fail() + "</etc_fail>\n") ;
+		xml.append ( blank+"   <c_ratio>" + getC_ratio() + "</c_ratio>\n") ;
+		xml.append ( blank+"   <ahdtime>" + getAhdtime() + "</ahdtime>\n") ;
+
+		return xml.toString();
+    }
+}

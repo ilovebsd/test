@@ -1,0 +1,139 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.code.AppCode;
+
+
+public class WindowTask extends WorkingTask{
+	// construction
+	public	WindowTask() {
+		lstTaskWindows.appendHead( this ) ;
+	}
+	public	WindowTask( String pWinTitle ) {
+		lstTaskWindows.appendHead( this ) ;
+	}
+	
+	protected void finalize() throws Throwable {
+		super.finalize();
+		lstTaskWindows.removeNode( this ) ;
+	}
+	// attribute
+		// static task container
+	protected static WorkingTaskList	lstTaskWindows = new WorkingTaskList();
+		// windows action boundary
+	protected IDrawingTool 			pBoundary ;
+		// optional parameters
+	protected	StringBuilder		systemID = new StringBuilder();
+	protected	StringBuilder		title = new StringBuilder(); // sunwoo
+
+		// class data i/o 
+	public int getFieldData( String field, Index indx, StringBuilder value ) {
+		boolean stop = (field != null) ;
+		int  errcode ;
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "system", indx, value) )
+		{    errcode = getString( systemID.toString(), value, ! stop ) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "title", indx, value) )
+		{    errcode = getString( title.toString(), value, ! stop ) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		return super.getFieldData( field, indx, value ) ;
+	}
+	public int setFieldData( String field, String value ) {
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "system" ) )
+		     return setString( systemID, value ) ;
+		if   ( compareFieldID( sbfield, "title" ) )
+		     return setString( title, value ) ;
+		return super.setFieldData( field, value ) ;
+	}
+		// static task finder
+	public static WindowTask 	getWindowTask() {
+		return getWindowTask(-1);
+	}
+	public static WindowTask 	getWindowTask( int nTaskID ) {
+		return (WindowTask )lstTaskWindows.getTask( nTaskID ) ;
+	}
+	public static WindowTask 	getWindowTask( int moduleType, int versionNo) {
+		return getWindowTask(moduleType,versionNo,null);
+	}
+	public static WindowTask 	getWindowTask( int moduleType, int versionNo,String pSystemID ) { 
+		WindowTask pTask, pMostSimilar = null ;
+
+		if   ( pSystemID!= null )	pSystemID =  pSystemID.trim() ;
+
+		pTask = (WindowTask )lstTaskWindows.getHead() ;
+		while( pTask != null)
+		{    if   ( pTask.getModuleType() == moduleType && ( !(pSystemID != null) ||  !comp_string( pSystemID, pTask.getSystemID() )) )
+		     {    if   ( pTask.getVersionNo() == versionNo )
+		               return pTask ;
+		          if   ( versionNo <= 0 && ( ( pMostSimilar == null) || (pMostSimilar.getVersionNo() < pTask.getVersionNo())) )
+		               pMostSimilar = pTask ;
+		     }
+		     pTask = (WindowTask )pTask.m_pNext ;
+		}
+		return pMostSimilar ;
+	}
+	public static WindowTask 	getTaskBaseWindow( Object editorPart ) { 
+		WindowTask pTask, pMostSimilar = null ;
+		pTask = (WindowTask )lstTaskWindows.getHead() ;
+		while( pTask != null)
+		{   
+			if(pTask.getBoundary().getDrawPart() == editorPart){
+		       pMostSimilar = pTask ;
+			}
+		    pTask = (WindowTask )pTask.m_pNext ;
+		}
+		return pMostSimilar ;
+	}
+	public static void 	getTaskBaseDispose( Object editorPart ) { 
+		WindowTask pTask = getTaskBaseWindow(editorPart);
+		if(pTask != null) lstTaskWindows.removeNode( pTask ) ;
+	}
+	public static WindowTask 	getTaskWindow( String pWinTitle ) {
+		return (WindowTask )lstTaskWindows.getTask( pWinTitle ) ;	
+	}
+
+	public static void 	remove( WindowTask pTask ) {
+		if(pTask != null) lstTaskWindows.removeNode( pTask ) ;
+	}
+		// action boundary
+	public /*DrawingTool*/IDrawingTool 	getBoundary() { return pBoundary ; }
+	public void			setBoundary( IDrawingTool pBoundary ) { this.pBoundary = pBoundary ; }
+
+		// optional parameters
+	public String 		getSystemID() { return systemID.toString() ; }
+
+	// task drawer
+	public /*DrawingTool*/Object 	getDrawer()	{ return (pTaskModule != null) ? ((WinModule )pTaskModule).getDrawer() : null ; }
+	
+
+	// operations
+	public boolean		showWindow( int mode ) {
+		if   ( pTaskModule == null )
+		     return false ;
+		return ((WinModule )pTaskModule).showWindow( mode ) ;
+	}
+	public void			updateWindow() {
+		if   ( pTaskModule == null )
+		     return ;
+		((WinModule )pTaskModule).updateWindow() ;
+	}
+
+	public boolean		setFocusWindow() {
+		if   ( pTaskModule == null )
+		     return false ;
+		return ((WinModule )pTaskModule).setFocusWindow() ;
+	}
+
+	public boolean		makeDrawer( ) {return makeDrawer(0,0);}
+	public boolean		makeDrawer( int left ) {return makeDrawer(left,0);}
+	public boolean		makeDrawer( int left , int top ) {
+		if   ( pTaskModule == null )
+		     return false ;
+		return ((WinModule )pTaskModule).makeDrawer( left, top ) ;
+	}
+
+	public int			updateParam() {	return (pTaskModule == null) ? 0 : pTaskModule.updateParam() ; }
+}

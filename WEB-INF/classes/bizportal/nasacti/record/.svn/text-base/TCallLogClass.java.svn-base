@@ -1,0 +1,691 @@
+package bizportal.nasacti.record;
+
+import java.util.*;
+
+import java.sql.*;
+
+import bizportal.nasacti.record.TCallLogBean;
+
+import bizportal.nasacti.ipivr.DBPoolConnector;
+
+public class TCallLogClass extends DBPoolConnector{
+	public TCallLogClass(){
+	}
+
+
+
+	public Vector TCallLogSelectIdxIncrease(int idxIncrease){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+
+		try{
+			con = this.getConnection();
+
+			String query = "Select idx_increase, user_name, GroupID, rec_date, channel, ";
+			query = query + " rec_GStart, rec_GEnd, rec_DStart, rec_DEnd, rec_GUse, tel_num, ";
+			// query = query + " filename, CallerID, in_out, ";
+			query = query + " rec_filename, src_payload, dst_payload, CallerID, in_out, ";
+//			query = query + " Case When IsNull(Filememo) Then  '' Else Filememo End    As Filememo  ,";
+			query = query + " COALESCE(Filememo, '') As Filememo  ,";
+			query = query + " jumin_num, backup_yn, file_upload , ";
+			query = query + " agc, recv_vol, send_vol ";
+			query = query + " From ncr_call_log Where idx_increase=? ";
+			query = query + " Order By rec_date Desc , rec_GStart Desc ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setInt(1, idxIncrease);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				TCallLogBean tCallBean = new TCallLogBean();
+				tCallBean.setIdxIncrease(rs.getInt("idx_increase"));
+				tCallBean.setChannel(rs.getInt("channel"));
+				tCallBean.setGroupId(rs.getString("GroupID"));
+				tCallBean.setRecDate(rs.getString("rec_date"));
+				tCallBean.setRecGStart(rs.getString("rec_GStart"));
+				tCallBean.setRecGEnd(rs.getString("rec_GEnd"));
+				tCallBean.setRecGUse(rs.getFloat("rec_GUse"));
+				tCallBean.setRecDStart(rs.getString("rec_DStart"));
+				tCallBean.setRecDEnd(rs.getString("rec_DEnd"));
+				tCallBean.setRecDUse(rs.getFloat("rec_GUse"));
+				tCallBean.setInOut(rs.getString("in_out"));
+				//tCallBean.setFileName(rs.getString("filename"));
+
+				tCallBean.setRecFileName(rs.getString("rec_filename"));	//수정
+				tCallBean.setSrcPayLoad(rs.getInt("src_payload"));		//추가
+				tCallBean.setDstPayLoad(rs.getInt("dst_payload"));		//추가
+
+				tCallBean.setUserName(rs.getString("user_name"));
+				tCallBean.setTelNum(rs.getString("tel_num"));
+				tCallBean.setBackupYn(rs.getString("backup_yn"));
+				tCallBean.setCallerId(rs.getString("CallerID"));
+				tCallBean.setFileMemo(rs.getString("Filememo"));
+				tCallBean.setFileUpload(rs.getString("file_upload"));
+				tCallBean.setIntAgc(rs.getInt("agc"));
+				tCallBean.setIntRecvVol(rs.getInt("recv_vol"));
+				tCallBean.setIntSendVol(rs.getInt("send_vol"));
+				vList.add(tCallBean);
+
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+	public int TCallLogCount(TCallLogBean tSearch){
+		int iCnt = 0;
+
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String query = "";
+
+		try{
+			con=this.getConnection();
+
+	        String searchSDay = tSearch.getSearchSDay();
+			String searchEDay = tSearch.getSearchEDay();
+			String searchSTime = tSearch.getSearchSTime();
+			String searchETime = tSearch.getSearchETime();
+			String searchCheckCh = tSearch.getSearchCheckCh();
+			String searchStrCh = tSearch.getSearchStrCh();
+			String searchCheckEx = tSearch.getSearchCheckEx();
+			String searchStrEx = tSearch.getSearchStrEx();
+			String searchCheckLen = tSearch.getSearchCheckLen();
+			String searchStrLen = tSearch.getSearchStrLen();
+			String searchCheckPhone = tSearch.getSearchCheckPhone();
+			String searchStrPhone = tSearch.getSearchStrPhone();
+			String searchStrIo = tSearch.getSearchStrIo();
+			String searchStrAllCh = tSearch.getSearchStrAllCh();
+			String searchMemoCheck = tSearch.getSearchMemoCheck();
+			String searchCheckJumin = tSearch.getSearchCheckJumin();
+			String searchStrJumin = tSearch.getSearchStrJumin();
+			String searchRecDate = tSearch.getSearchRecDate();
+
+			query = "Select Count(*) From ncr_call_log ";
+			query = query + " Where (rec_date Between '" + searchSDay + "' And '" +
+					searchEDay + "')";
+
+			if (!searchSTime.equals("") && !searchETime.equals("")) {
+				query = query + " And (rec_DStart >= '" + searchSTime +
+						"' And rec_DEnd <= '" + searchETime + "')";
+			}
+
+			if (searchCheckCh.equals("1") && !searchStrCh.equals("")) {
+				query = query + " And (user_name Like '%" + searchStrCh + "%')";
+			}
+
+			if (searchCheckEx.equals("1") && !searchStrEx.equals("")) {
+				query = query + " And (GroupID Like '%" + searchStrEx + "%')";
+			}
+
+			if (searchCheckLen.equals("1") && !searchStrLen.equals("")) {
+				//query = query + " And (rec_GUse >= "+ searchStrLen +")";
+				query = query + " And (rec_DUse >= " + searchStrLen + ")";
+			}
+
+			if ((searchCheckPhone.equals("1")) && !searchStrPhone.equals("")) {
+				query = query + " And (( tel_num Like '%" + searchStrPhone +
+						"%') Or (CallerID Like '%" + searchStrPhone + "%'))";
+			}
+
+			if (!searchStrIo.equals("")) {
+				if (searchStrIo.equals("3")) {
+				} else {
+					query = query + " And (in_out = '" + searchStrIo + "')";
+				}
+			}
+
+			if (!searchStrAllCh.equals("")) {
+				query = query + " And (channel = " + searchStrAllCh + ")";
+			}
+
+			if ((searchMemoCheck.equals("Y"))) {
+				query = query + " And (FilememoCheck = '" + searchMemoCheck + "')";
+			}
+
+			if ((searchCheckJumin.equals("1"))) {
+				query = query + " And (jumin_num Like '%" + searchStrJumin + "%')";
+			}
+
+			if (!searchRecDate.equals("")) {
+				query = query + " And (rec_date = '" + searchRecDate + "')";
+			}
+			//query = query + " Order By rec_date Desc , rec_GStart Desc ";
+
+			pstmt = con.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			if(rs.next()) {
+				iCnt = rs.getInt(1);
+			}
+
+        } catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+		return iCnt;
+	}
+
+
+
+	public Vector TCallLogList(int start, int end, TCallLogBean tSearch){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+
+		try{
+			con=this.getConnection();
+
+			String searchSDay = tSearch.getSearchSDay();
+			String searchEDay = tSearch.getSearchEDay();
+			String searchSTime = tSearch.getSearchSTime();
+			String searchETime = tSearch.getSearchETime();
+			String searchCheckCh = tSearch.getSearchCheckCh();
+			String searchStrCh = tSearch.getSearchStrCh();
+			String searchCheckEx = tSearch.getSearchCheckEx();
+			String searchStrEx = tSearch.getSearchStrEx();
+			String searchCheckLen = tSearch.getSearchCheckLen();
+			String searchStrLen = tSearch.getSearchStrLen();
+			String searchCheckPhone = tSearch.getSearchCheckPhone();
+			String searchStrPhone = tSearch.getSearchStrPhone();
+			String searchStrIo = tSearch.getSearchStrIo();
+			String searchStrAllCh = tSearch.getSearchStrAllCh();
+			String searchMemoCheck = tSearch.getSearchMemoCheck();
+			String searchCheckJumin = tSearch.getSearchCheckJumin();
+			String searchStrJumin = tSearch.getSearchStrJumin();
+			String searchRecDate = tSearch.getSearchRecDate();
+
+			String query = "Select * From ncr_call_log ";
+			query = query + " Where (rec_date Between '"+ searchSDay + "' And '"+ searchEDay +"')";
+
+			if( !searchSTime.equals("") && !searchETime.equals("")  ){
+				query = query + " And (rec_DStart >= '"+ searchSTime + "' And rec_DEnd <= '"+ searchETime +"')";
+			}
+
+			if( searchCheckCh.equals("1") && !searchStrCh.equals("")  ){
+				query = query + " And (user_name Like '%"+ searchStrCh +"%')";
+			}
+
+			if( searchCheckEx.equals("1") && !searchStrEx.equals("") ){
+				query = query + " And (GroupID Like '%"+ searchStrEx +"%')";
+			}
+
+			if( searchCheckLen.equals("1") && !searchStrLen.equals("") ){
+				//query = query + " And (rec_GUse >= "+ searchStrLen +")";
+				query = query + " And (rec_DUse >= "+ searchStrLen +")";
+			}
+
+			if( (searchCheckPhone.equals("1")) && !searchStrPhone.equals("") ){
+				query = query + " And (( tel_num Like '%"+ searchStrPhone + "%') Or (CallerID Like '%" + searchStrPhone +"%'))";
+			}
+
+			if(  !searchStrIo.equals("") ){
+				if( searchStrIo.equals("3")){
+				}else{
+					query = query + " And (in_out = '"+ searchStrIo +"')";
+				}
+			}
+
+			if( !searchStrAllCh.equals("") ){
+				query = query + " And (channel = "+ searchStrAllCh +")";
+			}
+
+			if( (searchMemoCheck.equals("Y")) ){
+				query = query + " And (FilememoCheck = '"+ searchMemoCheck +"')";
+			}
+
+			if( (searchCheckJumin.equals("1")) ){
+				query = query + " And (jumin_num Like '%"+ searchStrJumin +"%')";
+			}
+
+			if( !searchRecDate.equals("") ){
+				query = query + " And (rec_date = '" + searchRecDate + "')";
+			}
+				query = query + " Order By rec_date Desc , rec_GStart Desc limit " + String.valueOf(end) + " offset " + String.valueOf(start);
+
+
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+
+				TCallLogBean tCallBean = new TCallLogBean();
+				tCallBean.setIdxIncrease(rs.getInt("idx_increase"));
+				tCallBean.setChannel(rs.getInt("channel"));
+				tCallBean.setGroupId(rs.getString("GroupID"));
+				tCallBean.setRecDate(rs.getString("rec_date"));
+				tCallBean.setRecGStart(rs.getString("rec_GStart"));
+				tCallBean.setRecGEnd(rs.getString("rec_GEnd"));
+				tCallBean.setRecGUse(rs.getFloat("rec_GUse"));
+				tCallBean.setRecDStart(rs.getString("rec_DStart"));
+				tCallBean.setRecDEnd(rs.getString("rec_DEnd"));
+				tCallBean.setRecDUse(rs.getFloat("rec_DUse"));
+				tCallBean.setInOut(rs.getString("in_out"));
+				//tCallBean.setFileName(rs.getString("filename"));
+
+				tCallBean.setRecFileName(rs.getString("rec_filename"));		// 수정
+				tCallBean.setSrcPayLoad(rs.getInt("src_payload"));			// 추가
+				tCallBean.setDstPayLoad(rs.getInt("dst_payload"));			// 추가
+
+				//tCallBean.setFileWav(rs.getString("file_wav"));
+				tCallBean.setUserName(rs.getString("user_name"));
+				tCallBean.setTelNum(rs.getString("tel_num"));
+				tCallBean.setBackupYn(rs.getString("backup_yn"));
+				tCallBean.setBackupPath(rs.getString("backup_path"));
+				tCallBean.setCallerId(rs.getString("CallerID"));
+				tCallBean.setPressLaw(rs.getInt("PressLaw"));
+				tCallBean.setYuMuLine(rs.getString("YuMuLine"));
+				tCallBean.setGHour(rs.getInt("GHour"));
+				tCallBean.setDHour(rs.getInt("DHour"));
+				tCallBean.setFileMemo(rs.getString("Filememo"));
+				tCallBean.setJuminNum(rs.getString("Jumin_Num"));
+				tCallBean.setFileMemoCheck(rs.getString("FilememoCheck"));
+				tCallBean.setFileUpload(rs.getString("file_upload"));
+				tCallBean.setIntAgc(rs.getInt("agc"));
+				tCallBean.setIntRecvVol(rs.getInt("recv_vol"));
+				tCallBean.setIntSendVol(rs.getInt("send_vol"));
+				tCallBean.setRemoved( rs.getString("removed"));
+
+				vList.add(tCallBean);
+
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+	public Vector TCallLogSelect(TCallLogBean tSearch){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+
+		try{
+			con=this.getConnection();
+
+			String searchSDay = tSearch.getSearchSDay();
+			String searchEDay = tSearch.getSearchEDay();
+			String searchSTime = tSearch.getSearchSTime();
+			String searchETime = tSearch.getSearchETime();
+			String searchCheckCh = tSearch.getSearchCheckCh();
+			String searchStrCh = tSearch.getSearchStrCh();
+			String searchCheckEx = tSearch.getSearchCheckEx();
+			String searchStrEx = tSearch.getSearchStrEx();
+			String searchCheckLen = tSearch.getSearchCheckLen();
+			String searchStrLen = tSearch.getSearchStrLen();
+			String searchCheckPhone = tSearch.getSearchCheckPhone();
+			String searchStrPhone = tSearch.getSearchStrPhone();
+			String searchStrIo = tSearch.getSearchStrIo();
+			String searchStrAllCh = tSearch.getSearchStrAllCh();
+			String searchMemoCheck = tSearch.getSearchMemoCheck();
+			String searchCheckJumin = tSearch.getSearchCheckJumin();
+			String searchStrJumin = tSearch.getSearchStrJumin();
+			String searchRecDate = tSearch.getSearchRecDate();
+
+
+			String query = "Select * From ncr_call_log ";
+			query = query + " Where (rec_date Between '"+ searchSDay + "' And '"+ searchEDay +"')";
+
+
+			if( !searchSTime.equals("") && !searchETime.equals("")  ){
+				query = query + " And (rec_DStart >= '"+ searchSTime + "' And rec_DEnd <= '"+ searchETime +"')";
+			}
+
+			if( searchCheckCh.equals("1") && !searchStrCh.equals("")  ){
+				query = query + " And (user_name Like '%"+ searchStrCh +"%')";
+			}
+
+			if( searchCheckEx.equals("1") && !searchStrEx.equals("") ){
+				query = query + " And (GroupID Like '%"+ searchStrEx +"%')";
+			}
+
+			if( searchCheckLen.equals("1") && !searchStrLen.equals("") ){
+				//query = query + " And (rec_GUse >= "+ searchStrLen +")";
+				query = query + " And (rec_DUse >= "+ searchStrLen +")";
+			}
+
+			if( (searchCheckPhone.equals("1")) && !searchStrPhone.equals("") ){
+				query = query + " And (( tel_num Like '%"+ searchStrPhone + "%') Or (CallerID Like '%" + searchStrPhone +"%'))";
+			}
+
+			if(  !searchStrIo.equals("") ){
+				if( searchStrIo.equals("3")){
+				}else{
+					query = query + " And (in_out = '"+ searchStrIo +"')";
+				}
+			}
+
+			if( !searchStrAllCh.equals("") ){
+				query = query + " And (channel = "+ searchStrAllCh +")";
+			}
+
+			if( (searchMemoCheck.equals("Y")) ){
+				query = query + " And (FilememoCheck = '"+ searchMemoCheck +"')";
+			}
+
+			if( (searchCheckJumin.equals("1")) ){
+				query = query + " And (jumin_num Like '%"+ searchStrJumin +"%')";
+			}
+
+			if( !searchRecDate.equals("") ){
+				query = query + " And (rec_date = '" + searchRecDate + "')";
+			}
+				query = query + " Order By rec_date Desc , rec_GStart Desc ";
+
+
+
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+
+				TCallLogBean tCallBean = new TCallLogBean();
+				tCallBean.setIdxIncrease(rs.getInt("idx_increase"));
+				tCallBean.setChannel(rs.getInt("channel"));
+				tCallBean.setGroupId(rs.getString("GroupID"));
+				tCallBean.setRecDate(rs.getString("rec_date"));
+				tCallBean.setRecGStart(rs.getString("rec_GStart"));
+				tCallBean.setRecGEnd(rs.getString("rec_GEnd"));
+				tCallBean.setRecGUse(rs.getFloat("rec_GUse"));
+				tCallBean.setRecDStart(rs.getString("rec_DStart"));
+				tCallBean.setRecDEnd(rs.getString("rec_DEnd"));
+				tCallBean.setRecDUse(rs.getFloat("rec_DUse"));
+				tCallBean.setInOut(rs.getString("in_out"));
+				//tCallBean.setFileName(rs.getString("filename"));
+
+				tCallBean.setRecFileName(rs.getString("rec_filename"));		// 수정
+				tCallBean.setSrcPayLoad(rs.getInt("src_payload"));			// 추가
+				tCallBean.setDstPayLoad(rs.getInt("dst_payload"));			// 추가
+
+				//tCallBean.setFileWav(rs.getString("file_wav"));
+				tCallBean.setUserName(rs.getString("user_name"));
+				tCallBean.setTelNum(rs.getString("tel_num"));
+				tCallBean.setBackupYn(rs.getString("backup_yn"));
+				tCallBean.setBackupPath(rs.getString("backup_path"));
+				tCallBean.setCallerId(rs.getString("CallerID"));
+				tCallBean.setPressLaw(rs.getInt("PressLaw"));
+				tCallBean.setYuMuLine(rs.getString("YuMuLine"));
+				tCallBean.setGHour(rs.getInt("GHour"));
+				tCallBean.setDHour(rs.getInt("DHour"));
+				tCallBean.setFileMemo(rs.getString("Filememo"));
+				tCallBean.setJuminNum(rs.getString("Jumin_Num"));
+				tCallBean.setFileMemoCheck(rs.getString("FilememoCheck"));
+				tCallBean.setFileUpload(rs.getString("file_upload"));
+				tCallBean.setIntAgc(rs.getInt("agc"));
+				tCallBean.setIntRecvVol(rs.getInt("recv_vol"));
+				tCallBean.setIntSendVol(rs.getInt("send_vol"));
+				tCallBean.setRemoved( rs.getString("removed"));
+
+				vList.add(tCallBean);
+
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+
+	public void TCallLogUpdate(TCallLogBean tCallLogBean){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+
+		try{
+			con = this.getConnection();
+			String query = "Update ncr_call_log Set Filememo = ? , Filememocheck = ?  Where idx_increase = ? ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+
+
+			pstmt.setString(1,tCallLogBean.getFileMemo());
+			pstmt.setString(2,tCallLogBean.getFileMemoCheck());
+			pstmt.setInt(3,tCallLogBean.getIdxIncrease());
+			//System.out.println(tCallLogBean.getFileMemo() + "," +tCallLogBean.getFileMemoCheck()+","+tCallLogBean.getIdxIncrease()  );
+			pstmt.executeUpdate();
+		}catch(Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+
+
+	public Vector TCallLogGroup(TCallLogBean tSearch, String viewCheck){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+
+		try{
+			con=this.getConnection();
+			String query = "";
+			String searchSDay = tSearch.getSearchSDay();
+			String searchEDay = tSearch.getSearchEDay();
+			String searchSTime = tSearch.getSearchSTime();
+			String searchETime = tSearch.getSearchETime();
+			String searchStrAllCh = tSearch.getSearchStrAllCh();
+			String searchStrIo = tSearch.getSearchStrIo();
+
+
+			if(viewCheck.equals("1")){
+
+				query = "Select channel As Data1,user_name As Data2,in_out As Data3,Count(channel) As Data4, ";
+				query = query + " Sum(rec_GUse) As Data5 From ncr_call_log ";
+				query = query + " Where (rec_date Between '"+ searchSDay + "' And '"+ searchEDay +"')";
+
+				if( (searchSTime != "") && (searchETime != "") ){
+					query = query + " And (rec_GStart >= '"+ searchSTime + "' And rec_GEnd <= '"+ searchETime +"')";
+				}
+
+				if( (searchStrAllCh != "") ){
+					query = query + " And (channel = "+ searchStrAllCh +")";
+				}
+
+				query = query + " Group By channel,user_name,in_out ";
+				query = query + " Order By user_name,in_out ";
+
+			}else{
+
+				query = "Select rec_date As Data1,'' As Data2,in_out As Data3,Count(rec_date) As Data4, ";
+				query = query + " Sum(rec_GUse) As Data5 From ncr_call_log ";
+				query = query + " Where (rec_date Between '"+ searchSDay + "' And '"+ searchEDay +"')";
+
+				if( (searchSTime != "") && (searchETime != "") ){
+					query = query + " And (rec_GStart >= '"+ searchSTime + "' And rec_GEnd <= '"+ searchETime +"')";
+				}
+
+				if( (searchStrAllCh != "") ){
+					query = query + " And (channel = "+ searchStrAllCh +")";
+				}
+
+				query = query + " Group By rec_date,in_out ";
+				query = query + " Order By rec_date,in_out ";
+			}
+			//System.out.println(query);
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				TCallLogBean tCallBean = new TCallLogBean();
+				tCallBean.setData1(rs.getString("Data1"));
+				tCallBean.setData2(rs.getString("Data2"));
+				tCallBean.setData3(rs.getString("Data3"));
+				tCallBean.setData4(rs.getString("Data4"));
+				tCallBean.setData5(rs.getString("Data5"));
+
+				vList.add(tCallBean);
+
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+	public Vector tCallLogJoinSelect(String sDay, String eDay, int channel, int title){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+
+		try{
+			con = this.getConnection();
+
+			String query = "Select idx_increase, user_name, GroupID, rec_date, channel ";
+			//query = query + " , rec_GStart, rec_GEnd, rec_GUse, tel_num, filename, CallerID, in_out ";
+			query = query + " , rec_GStart, rec_GEnd, rec_GUse, tel_num, rec_filename, CallerID, in_out ";
+			query = query + " , src_payload, dst_payload ";
+			query = query + " , rec_DStart, rec_DEnd, rec_DUse ";
+			//query = query + " , Case When IsNull(Filememo) Then  Filememo Else '' End    As Filememo ";
+			query = query + " , COALESCE(Filememo, '') As Filememo ";
+			query = query + " , jumin_num, backup_yn From ncr_call_log As tcl ";
+			query = query + " Left Join ncr_par_log As pl On tcl.idx_increase = pl.t_idx ";
+			query = query + " Where (rec_date Between ? And ?) ";
+			query = query + " And channel = ? And pl.p_idx2 = ? ";
+			query = query + " And p_active = 'Y' ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setString(1, sDay);
+			pstmt.setString(2, eDay);
+			pstmt.setInt(3, channel);
+			pstmt.setInt(4, title);
+
+			rs = pstmt.executeQuery();
+
+			while( rs.next() ){
+				TCallLogBean tCallBean = new TCallLogBean();
+
+				tCallBean.setIdxIncrease(rs.getInt("idx_increase"));
+				tCallBean.setUserName(rs.getString("user_name"));
+				tCallBean.setGroupId(rs.getString("GroupID"));
+				tCallBean.setRecDate(rs.getString("rec_date"));
+				tCallBean.setChannel(rs.getInt("channel"));
+				tCallBean.setRecGStart(rs.getString("rec_GStart"));
+				tCallBean.setRecGEnd(rs.getString("rec_GEnd"));
+				tCallBean.setRecGUse(rs.getFloat("rec_GUse"));
+				tCallBean.setTelNum(rs.getString("tel_num"));
+				//tCallBean.setFileName(rs.getString("filename"));
+
+				tCallBean.setRecFileName(rs.getString("rec_filename"));		//수정
+				tCallBean.setCallerId(rs.getString("CallerID"));
+				tCallBean.setInOut(rs.getString("in_out"));
+
+				tCallBean.setSrcPayLoad(rs.getInt("src_payload"));			//추가
+				tCallBean.setDstPayLoad(rs.getInt("dst_payload"));			//추가
+
+				tCallBean.setRecDStart(rs.getString("rec_DStart"));
+				tCallBean.setRecDEnd(rs.getString("rec_DEnd"));
+				tCallBean.setRecDUse(rs.getFloat("rec_DUse"));
+
+				tCallBean.setFileMemo(rs.getString("Filememo"));
+				tCallBean.setJuminNum(rs.getString("Jumin_Num"));
+				tCallBean.setBackupYn(rs.getString("backup_yn"));
+
+				vList.add(tCallBean);
+			}
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+	public String sFileNameReplace(String sFileName){
+
+		//  특수문자 \ / : * ? " < > |
+		sFileName = sFileName.replace("\\", "");
+		sFileName = sFileName.replace("/", "");
+		sFileName = sFileName.replace(":", "");
+		sFileName = sFileName.replace("*", "");
+		sFileName = sFileName.replace("?", "");
+		sFileName = sFileName.replace("\"", "");
+		sFileName = sFileName.replace("<", "");
+		sFileName = sFileName.replace(">", "");
+		sFileName = sFileName.replace("|", "");
+
+		return sFileName;
+
+	}
+
+	public void TCallLogDelete(int idxIncrease){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+
+		try{
+			con = this.getConnection();
+			String query = "Delete From ncr_call_log Where idx_increase = ? ";
+
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+
+			pstmt.setInt(1, idxIncrease);
+			pstmt.executeUpdate();
+		}catch(Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+
+}
+
+
+
+
+
+
+
+

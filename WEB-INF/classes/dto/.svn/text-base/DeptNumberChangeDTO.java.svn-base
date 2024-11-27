@@ -1,0 +1,56 @@
+package dto;
+
+public class DeptNumberChangeDTO {
+	
+	private String 	keynumberid = "";
+	private String 	deptname	= "";
+	private int 	hunt    	= 0;
+	private String	forwardnum	= "";
+	private int    	forwardtype	= 0;
+	private int    	calltype	= 0;
+	
+	public DeptNumberChangeDTO () {}
+
+	public String getKeynumberId() {
+		return keynumberid;
+	}
+	public void setKeynumberId(String keynumberid) {
+		this.keynumberid = keynumberid;
+	}
+
+	public String getDeptName() {
+		return deptname;
+	}
+	public void setDeptName(String deptname) {
+		this.deptname = deptname;
+	}
+
+	public int getHunt () {
+		return hunt ;
+	}
+	public void setHunt(int hunt ) {
+		this.hunt  = hunt ;
+	}
+
+	public String getForwardNum() {
+		return forwardnum;
+	}
+	public void setForwardNum(String forwardnum) {
+		this.forwardnum = forwardnum;
+	}
+	
+	public int getForwardType () {
+		return forwardtype ;
+	}
+	public void setForwardType(int forwardtype ) {
+		this.forwardtype  = forwardtype ;
+	}
+
+	public int getCallType () {
+		return calltype ;
+	}
+	public void setCallType(int calltype ) {
+		this.calltype  = calltype ;
+	}
+
+}

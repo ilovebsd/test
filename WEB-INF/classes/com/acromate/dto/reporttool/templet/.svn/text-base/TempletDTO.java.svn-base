@@ -1,0 +1,132 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.DataIO;
+
+public class TempletDTO extends DataIO {
+    String name;
+    String time;
+    SystemListDTO systemList = new SystemListDTO();
+    DetailDTO detailDTO = new DetailDTO();
+    String scedulePattern;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setSystemList(SystemListDTO systemList) {
+        this.systemList = systemList;
+    }
+
+    public SystemListDTO getSystemList() {
+        return systemList;
+    }
+
+    public void setDetailDTO(DetailDTO detailDTO) {
+        this.detailDTO = detailDTO;
+    }
+
+    public DetailDTO getDetailDTO() {
+        return detailDTO;
+    }
+
+    public String getScedulePattern() {
+		return scedulePattern;
+	}
+
+	public void setScedulePattern(String scedulePattern) {
+		this.scedulePattern = scedulePattern;
+	}
+
+    @Override
+    protected int getFieldData(String field, Index idx,
+                                       StringBuilder value) {
+        int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if (field != null && !field.equals("")) {
+            resultVal = true;
+        }
+        if (field == null) {
+            fldAlias = new StringBuilder();
+            fldAlias.append("");
+        } else {
+            fldAlias = new StringBuilder();
+            fldAlias.append(field);
+        }
+
+        if (compareFieldID(fldAlias, "name", idx, value) == true) {
+            errorcode = getString(name.toString(), value, !resultVal);
+            if (resultVal || errorcode < 0) {
+                return errorcode;
+            }
+        }
+        if (compareFieldID(fldAlias, "time", idx, value) == true) {
+            errorcode = getString(time.toString(), value, !resultVal);
+            if (resultVal || errorcode < 0) {
+                return errorcode;
+            }
+        }
+        if (compareFieldID(fldAlias, "systemList", idx, value) == true) {
+            errorcode = systemList.getParam(fldAlias.toString(), value);
+            if (resultVal || errorcode < 0) {
+                return errorcode;
+            }
+        }
+        if (compareFieldID(fldAlias, "detailDTO", idx, value) == true) {
+            errorcode = detailDTO.getParam(fldAlias.toString(), value);
+            if (resultVal || errorcode < 0) {
+                return errorcode;
+            }
+        }
+        if (compareFieldID(fldAlias, "scedulePattern", idx, value) == true) {
+            errorcode = getString(scedulePattern.toString(), value, !resultVal);
+            if (resultVal || errorcode < 0) {
+                return errorcode;
+            }
+        }
+        return (0);
+    }
+
+    @Override
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if (compareFieldID(temp, "name") == true) {
+            if (!value.equals("")) {
+                name = value;
+            }
+            return 0;
+        }
+        if (compareFieldID(temp, "time") == true) {
+            if (!value.equals("")) {
+                time = value;
+            }
+            return 0;
+        }
+        if (compareFieldID(temp, "systemList") == true) {
+            systemList.removeAll();
+            return systemList.setParam(temp.toString(), value);
+        }
+        if (compareFieldID(temp, "detailDTO") == true) {
+            return detailDTO.setParam(temp.toString(), value);
+        }
+        if (compareFieldID(temp, "scedulePattern") == true) {
+            if (!value.equals("")) {
+                scedulePattern = value;
+            }
+            return 0;
+        }
+        return ( -1);
+    }
+}

@@ -1,0 +1,20 @@
+package com.acromate.framework.data.collect;
+/*
+ * Collection.java
+ *
+ * Created on 2006년 10월 23일 (월), 오후 1:27
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 3.0.0
+ */
+public interface ICollection {
+    public int getElementCount();
+    public void addElement(Object key, Object element);
+    public void removeElement(Object key, Object element);
+    public void removeAll();
+    public Object findElement(Object key, Object element);
+}

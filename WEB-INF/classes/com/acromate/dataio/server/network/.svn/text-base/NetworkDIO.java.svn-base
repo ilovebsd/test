@@ -1,0 +1,234 @@
+package com.acromate.dataio.server.network ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class NetworkDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    public int    errorcode;
+    public StringBuilder serviceType = new StringBuilder();
+    public StringBuilder hostAddr = new StringBuilder();
+    public int    hostPort ;
+    public boolean hostActive ;
+    public int    workThreadCount ;
+    public int    bufferPoolCount ;
+    public int    bufferQueueSize ;
+    public int    extraQueueSize ;
+    public int    reqBufferSize ;
+    public int    resBufferSize ;
+    public int    reqPacketTimeOut ;
+    public int    resPacketTimeOut ;
+    public StringBuilder procHandler = new StringBuilder();
+    public StringBuilder packHandler = new StringBuilder();
+    public StringBuilder reqHandler = new StringBuilder();
+    public StringBuilder resHandler = new StringBuilder();
+
+    public String getServiceType() { return serviceType.toString() ; }
+    public void   setServiceType( String serviceType ) {
+        this.serviceType.delete(0,this.serviceType.length());
+        this.serviceType.append(serviceType) ;
+    }
+
+    public String getHostAddr() { return hostAddr.toString() ; }
+    public void   setHostAddr( String hostAddr ) {
+        this.hostAddr.delete(0,this.hostAddr.length());
+        this.hostAddr.append(hostAddr) ;
+    }
+
+    public int    getHostPort() { return hostPort ; }
+    public void   setHostPort( int hostPort ) { this.hostPort = hostPort ; }
+
+    public boolean    getHostActive() { return hostActive ; }
+    public void   setHostActive( boolean hostActive ) { this.hostActive = hostActive ; }
+
+    public int    getWorkThreadCount() { return workThreadCount ; }
+    public void   setWorkThreadCount( int workThreadCount ) { this.workThreadCount = workThreadCount ; }
+
+    public int    getBufferPoolCount() { return bufferPoolCount ; }
+    public void   setBufferPoolCount( int bufferPoolCount ) { this.bufferPoolCount = bufferPoolCount ; }
+
+    public int    getBufferQueueSize() { return bufferQueueSize ; }
+    public void   setBufferQueueSize( int bufferQueueSize ) { this.bufferQueueSize = bufferQueueSize ; }
+
+    public int    getExtraQueueSize() { return extraQueueSize ; }
+    public void   setExtraQueueSize( int extraQueueSize ) { this.extraQueueSize = extraQueueSize ; }
+
+    public int    getReqBufferSize() { return reqBufferSize ; }
+    public void   setReqBufferSize( int reqBufferSize ) { this.reqBufferSize = reqBufferSize ; }
+
+    public int    getResBufferSize() { return resBufferSize ; }
+    public void   setResBufferSize( int resBufferSize ) { this.resBufferSize = resBufferSize ; }
+
+    public int    getReqPacketTimeOut() { return reqPacketTimeOut ; }
+    public void   setReqPacketTimeOut( int reqPacketTimeOut ) { this.reqPacketTimeOut = reqPacketTimeOut ; }
+
+    public int    getResPacketTimeOut() { return resPacketTimeOut ; }
+    public void   setResPacketTimeOut( int resPacketTimeOut ) { this.resPacketTimeOut = resPacketTimeOut ; }
+
+    public String getProcHandler() { return procHandler.toString() ; }
+    public void   setProcHandler( String procHandler ) {
+        this.procHandler.delete(0,this.procHandler.length());
+        this.procHandler.append(procHandler) ;
+    }
+
+    public String getPackHandler() { return packHandler.toString() ; }
+    public void   setPackHandler( String packHandler ) {
+        this.packHandler.delete(0,this.packHandler.length());
+        this.packHandler.append(packHandler) ;
+    }
+
+    public String getReqHandler() { return reqHandler.toString() ; }
+    public void   setReqHandler( String reqHandler ) {
+        this.reqHandler.delete(0,this.reqHandler.length());
+        this.reqHandler.append(reqHandler) ;
+    }
+
+    public String getResHandler() { return resHandler.toString() ; }
+    public void   setResHandler( String resHandler ) {
+        this.resHandler.delete(0,this.resHandler.length());
+        this.resHandler.append(resHandler) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "serviceType".toLowerCase()) == true) {
+            return setString(serviceType, value);
+        }
+        if(compareFieldID(temp, "hostAddr".toLowerCase()) == true) {
+            return setString(hostAddr, value);
+        }
+        if(compareFieldID(temp, "hostPort".toLowerCase()) == true) {
+            if(!value.equals("")) hostPort = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "hostActive".toLowerCase()) == true) {
+            hostActive = Str.CheckNullBoolean(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "workThreadCount".toLowerCase()) == true) {
+            if(!value.equals("")) workThreadCount = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "bufferPoolCount".toLowerCase()) == true) {
+            if(!value.equals("")) bufferPoolCount = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "bufferQueueSize".toLowerCase()) == true) {
+            if(!value.equals("")) bufferQueueSize = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "extraQueueSize".toLowerCase()) == true) {
+            if(!value.equals("")) extraQueueSize = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "reqBufferSize".toLowerCase()) == true) {
+            if(!value.equals("")) reqBufferSize = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "resBufferSize".toLowerCase()) == true) {
+            if(!value.equals("")) resBufferSize = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "reqPacketTimeOut".toLowerCase()) == true) {
+            if(!value.equals("")) reqPacketTimeOut = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "resPacketTimeOut".toLowerCase()) == true) {
+            if(!value.equals("")) resPacketTimeOut = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "procHandler".toLowerCase()) == true) {
+            return setString(procHandler, value);
+        }
+        if(compareFieldID(temp, "packHandler".toLowerCase()) == true) {
+            return setString(packHandler, value);
+        }
+        if(compareFieldID(temp, "reqHandler".toLowerCase()) == true) {
+            return setString(reqHandler, value);
+        }
+        if(compareFieldID(temp, "resHandler".toLowerCase()) == true) {
+            return setString(resHandler, value);
+        }
+        log.error("NetworkDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "serviceType", idx, value) == true) {
+            errorcode = getString(serviceType.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hostAddr", idx, value) == true) {
+            errorcode = getString(hostAddr.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hostPort", idx, value) == true) {
+            errorcode = getInteger(hostPort, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "hostActive", idx, value) == true) {
+            errorcode = getString(Boolean.toString(hostActive), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "workThreadCount", idx, value) == true) {
+            errorcode = getInteger(workThreadCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "bufferPoolCount", idx, value) == true) {
+            errorcode = getInteger(bufferPoolCount, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "bufferQueueSize", idx, value) == true) {
+            errorcode = getInteger(bufferQueueSize, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "extraQueueSize", idx, value) == true) {
+            errorcode = getInteger(extraQueueSize, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "reqBufferSize", idx, value) == true) {
+            errorcode = getInteger(reqBufferSize, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "resBufferSize", idx, value) == true) {
+            errorcode = getInteger(resBufferSize, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "reqPacketTimeOut", idx, value) == true) {
+            errorcode = getInteger(reqPacketTimeOut, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "resPacketTimeOut", idx, value) == true) {
+            errorcode = getInteger(resPacketTimeOut, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "procHandler", idx, value) == true) {
+            errorcode = getString(procHandler.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "packHandler", idx, value) == true) {
+            errorcode = getString(packHandler.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "reqHandler", idx, value) == true) {
+            errorcode = getString(reqHandler.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "resHandler", idx, value) == true) {
+            errorcode = getString(resHandler.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}

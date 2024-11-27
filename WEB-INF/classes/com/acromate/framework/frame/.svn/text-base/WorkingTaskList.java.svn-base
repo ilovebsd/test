@@ -1,0 +1,63 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+
+/* working task list ////////////////// */
+public class WorkingTaskList  extends ListIO
+{
+// construction
+	public WorkingTaskList() {
+		m_nSequenceNo = (int)((System.currentTimeMillis() /1000) & 0xFFFF) ;	
+		m_nSpinLocker = 0 ;
+	}
+
+// attribute
+	protected int	m_nSequenceNo ;		// sequentially increase
+
+	// task finder
+	public WorkingTask 	getTask( String pTaskName ) { return (WorkingTask )getNode( pTaskName ) ; }
+	public WorkingTask 	getTask( ){
+		return getTask(-1);
+	}
+	public WorkingTask 	getTask( int nTaskID ) {
+		WorkingTask pTask ;
+
+		if   ( (pTask = (WorkingTask )getHead())!= null && (nTaskID >= 0) )
+		{    do
+		     {    if   ( pTask.getTaskID() == nTaskID )
+		               break ;
+		          pTask = (WorkingTask )pTask.m_pNext ;
+		     } while( pTask != null) ;
+		}
+		return pTask ;
+	}
+	public WorkingTask 	getTask( int moduleType, int versionNo ) {
+		WorkingTask pTask, pMostSimilar = null ;
+
+		pTask = (WorkingTask )getHead() ;
+		while( pTask != null)
+		{    if   ( pTask.getModuleType() == moduleType )
+		     {    if   ( pTask.getVersionNo() == versionNo )
+		               return pTask ;
+		          if   ( versionNo < 0 && (!( pMostSimilar == null) || (pMostSimilar.getVersionNo() < pTask.getVersionNo())) )
+		               pMostSimilar = pTask ;
+		     }
+		     pTask = (WorkingTask )pTask.m_pNext ;
+		}
+		return pMostSimilar ;
+	}
+
+// operations
+	protected DataIO 		newListNode() { return null ; }
+	// sequential id maker
+	public  synchronized int	getNewTaskID() {
+		int nTaskID ;
+		nTaskID = ++m_nSequenceNo ;
+		return nTaskID ;
+	}
+
+// imprement
+	protected long			m_nSpinLocker ;
+} ;
+

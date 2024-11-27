@@ -1,0 +1,58 @@
+package com.acromate.dataio.noms ;
+
+import java.util.ArrayList;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.util.Str;
+import com.acromate.util.Logger;
+
+public class SessionListDIO extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        int result = super.setFieldData( field,  value);
+        if (result == 0 ) return result;
+        log.error("SessionListDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        return super.getFieldData(field, idx, value);
+    }
+    protected DataIO newListNode() {
+       return new SessionDIO();
+    }
+
+    public String toXmlString( String blank, String emsId, String eqId, String time ) {
+        StringBuilder xml = new StringBuilder() ;
+        int size = 0;
+        xml.append("      <sessiontraffic>\n");
+        ArrayList sessionList = getList();
+        if (sessionList != null) {
+        	size = sessionList.size();
+        	for (int i = 0; i < size; i++) {
+        		SessionDIO session = (SessionDIO)sessionList.get(i);
+        		xml.append("            <item>\n");
+        		String str = session.toXmlString("         ",emsId, eqId, time );
+        		xml.append(str);
+        		xml.append("            </item>\n"); //
+        	}
+        }
+        xml.append("      </sessiontraffic>\n"); //
+
+        return xml.toString();
+    }
+}

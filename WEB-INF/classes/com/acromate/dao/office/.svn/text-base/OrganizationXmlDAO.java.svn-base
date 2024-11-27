@@ -1,0 +1,243 @@
+package com.acromate.dao.office;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.dto.office.*;
+import acromate.common.util.Str ;
+
+public class OrganizationXmlDAO {
+
+    public OrganizationXmlDAO() {}
+    
+    public int getRootID(DataStatement stmt, int OrgChartID) {
+        ResultSet rs = null ;
+        int nRootDeptID = 1;
+        try {
+            String sql = "SELECT  RootDeptID From Table_OrgChartList Where OrgChartID = " + OrgChartID ;
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) nRootDeptID = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+        return nRootDeptID;
+    }
+
+    public int selectDeptID(DataStatement stmt, String p_UserID) {
+        ResultSet rs = null ;
+        int nDeptID = 0;
+        try {
+            //String sql = "Select department From Table_Subscriber Where id = " + p_UserID;
+            String sql = "Select department From Table_Subscriber Where id = '" + p_UserID + "'";
+            System.out.println("부서검색 SQL문 : "+sql);
+            
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) nDeptID = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+        System.out.println("선택된 부서 ID : "+nDeptID);
+        return nDeptID;
+    }
+    
+    public List getDeptList(DataStatement stmt, int OrgChartID, String DeptName) {
+        DeptDTO 	deptDTO;
+        ResultSet 	rs = null ;
+
+        List<DeptDTO> list = new ArrayList<DeptDTO>();
+        
+        try {
+            String sql = "SELECT  DeptID, OrgChartID, ParentID, DeptName, Description, Type, UsePickup, KeyNumber, Officebox, Operation " ;
+            sql = sql + " From Table_Dept Where OrgChartID = " + OrgChartID ;
+            //sql = sql + "  And DeptName = "+ DeptName ;
+            //sql = sql + "  And DeptName = '"+ DeptName +"'" ;
+            sql = sql + "  And DeptName Like '"+ DeptName +"%'" ;
+            
+            System.out.println("SQL1 : "+sql);
+            rs = stmt.executeQuery(sql) ;
+
+            while ( rs.next() )  {
+                deptDTO = new DeptDTO() ;
+                deptDTO.setDeptID(rs.getInt("DeptID"));
+                deptDTO.setOrgChartID(rs.getInt("OrgChartID"));
+                deptDTO.setParentID(rs.getInt("ParentID"));
+                deptDTO.setDeptName(Str.CheckNullString(rs.getString("DeptName")));
+                deptDTO.setDescription(Str.CheckNullString(rs.getString("Description")));
+                deptDTO.setType(rs.getInt("Type"));
+                deptDTO.setUsePickup(rs.getInt("UsePickup"));
+                deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("KeyNumber")));
+                deptDTO.setOfficebox(Str.CheckNullString(rs.getString("Officebox")));
+                deptDTO.setOperation(rs.getInt("Operation"));
+                list.add(deptDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+
+        return list;
+    }
+
+    public List getAllDeptList(DataStatement stmt, int OrgChartID) {
+        DeptDTO 	deptDTO;
+        ResultSet 	rs = null ;
+
+        List<DeptDTO> list = new ArrayList<DeptDTO>();
+        
+        try {
+            String sql = "SELECT  DeptID, OrgChartID, ParentID, DeptName, Description, Type, UsePickup, KeyNumber, Officebox, Operation " ;
+            sql = sql + " From Table_Dept Where OrgChartID = " + OrgChartID ;
+            sql = sql + " Order By DeptID ";
+            rs = stmt.executeQuery(sql) ;
+            //System.out.println(sql) ;
+
+            while ( rs.next() )  {
+                deptDTO = new DeptDTO() ;
+                deptDTO.setDeptID(rs.getInt("DeptID"));
+                deptDTO.setOrgChartID(rs.getInt("OrgChartID"));
+                deptDTO.setParentID(rs.getInt("ParentID"));
+                deptDTO.setDeptName(Str.CheckNullString(rs.getString("DeptName")));
+                deptDTO.setDescription(Str.CheckNullString(rs.getString("Description")));
+                deptDTO.setType(rs.getInt("Type"));
+                deptDTO.setUsePickup(rs.getInt("UsePickup"));
+                deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("KeyNumber")));
+                deptDTO.setOfficebox(Str.CheckNullString(rs.getString("Officebox")));
+                deptDTO.setOperation(rs.getInt("Operation"));
+                list.add(deptDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+
+        return list;
+    }
+    
+    public List getUserList(DataStatement stmt, int OrgChartID, int DeptID) {
+        SubscriberInfoDTO 	subscriberDTO;
+        ResultSet 	rs = null ;
+
+        List<SubscriberInfoDTO> list = new ArrayList<SubscriberInfoDTO>();
+        
+        try {
+            String sql = "SELECT  sub.ID as ID, sub.LoginLevel as LoginLevel, sub.Pwd as Pwd, sub.PhoneNum as PhoneNum ";
+            sql = sql + ", sub.Name as Name, sub.Position as Position, sub.Department as Department, sub.Mobile as Mobile " ;
+            sql = sql + ", sub.HomeNumber as HomeNumber, sub.Extension as Extension, sub.MailAddress as MailAddress ";
+            sql = sql + ", sub.HomePage as HomePage, sub.Address as Address, sub.Introduction as Introduction, presence.UserE164 as UserE164" ;
+            sql = sql + " From table_DEPT dept join table_SUBSCRIBER sub  on sub.Department = dept.deptid " ;
+            sql = sql + "  left join table_presence presence  on sub.ID = presence.UserE164    " ;
+            sql = sql + " Where dept.OrgChartID = " + OrgChartID ;
+            sql = sql + "   And sub.Department = " + DeptID;
+            //sql = sql + "   And sub.Department = (Select deptid From table_dept Where deptname = " + DeptName +")" ;
+            //sql = sql + "   And sub.Department in ((Select deptid From table_dept Where deptname = " + DeptName +"))" ;
+            
+            System.out.println("SQL2 : "+sql);
+            
+            rs = stmt.executeQuery(sql) ;
+
+            while ( rs.next() )  {
+                subscriberDTO = new SubscriberInfoDTO();
+                subscriberDTO.setSubsID(Str.CheckNullString(rs.getString("ID")));
+                subscriberDTO.setLoginLevel(rs.getInt("LoginLevel"));
+                subscriberDTO.setSusbsPwd(Str.CheckNullString(rs.getString("Pwd")));
+                subscriberDTO.setPhoneNum(Str.CheckNullString(rs.getString("PhoneNum")));
+                subscriberDTO.setName(Str.CheckNullString(rs.getString("Name")));
+                subscriberDTO.setPosition(Str.CheckNullString(rs.getString("Position")));
+                subscriberDTO.setDepartment(rs.getInt("Department"));
+                subscriberDTO.setMobile(Str.CheckNullString(rs.getString("Mobile")));
+                subscriberDTO.setHomeNumber(Str.CheckNullString(rs.getString("HomeNumber")));
+                subscriberDTO.setExtension(Str.CheckNullString(rs.getString("Extension")));
+                subscriberDTO.setMailAddress(Str.CheckNullString(rs.getString("MailAddress")));
+                subscriberDTO.setHomePage(Str.CheckNullString(rs.getString("HomePage")));
+                subscriberDTO.setAddress(Str.CheckNullString(rs.getString("Address")));
+                subscriberDTO.setIntroduction(Str.CheckNullString(rs.getString("Introduction")));
+                if (Str.CheckNullString(rs.getString("UserE164")).length() > 0) subscriberDTO.setUsePresence(true) ;
+                else subscriberDTO.setUsePresence(false) ;
+                list.add(subscriberDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+
+        return list;
+    }
+
+    public List getUserList2(DataStatement stmt, int OrgChartID, int DeptID) {
+        SubscriberInfoDTO 	subscriberDTO;
+        ResultSet 	rs = null ;
+
+        List<SubscriberInfoDTO> list = new ArrayList<SubscriberInfoDTO>();
+        
+        try {
+            String sql = "SELECT  sub.ID as ID, sub.LoginLevel as LoginLevel, sub.Pwd as Pwd, sub.PhoneNum as PhoneNum ";
+            sql = sql + ", sub.Name as Name, sub.Position as Position, sub.Department as Department, sub.Mobile as Mobile " ;
+            sql = sql + ", sub.HomeNumber as HomeNumber, sub.Extension as Extension, sub.MailAddress as MailAddress ";
+            sql = sql + ", sub.HomePage as HomePage, sub.Address as Address, sub.Introduction as Introduction, presence.UserE164 as UserE164" ;
+            sql = sql + " From table_DEPT dept join table_SUBSCRIBER sub  on sub.Department = dept.deptid " ;
+            sql = sql + "  left join table_presence presence  on sub.ID = presence.UserE164    " ;
+            sql = sql + " Where dept.OrgChartID = " + OrgChartID ;
+            sql = sql + "   And sub.Department = " + DeptID;
+            
+            System.out.println("SQL2 : "+sql);
+            
+            rs = stmt.executeQuery(sql) ;
+
+            while ( rs.next() )  {
+                subscriberDTO = new SubscriberInfoDTO();
+                subscriberDTO.setSubsID(Str.CheckNullString(rs.getString("ID")));
+                subscriberDTO.setLoginLevel(rs.getInt("LoginLevel"));
+                subscriberDTO.setSusbsPwd(Str.CheckNullString(rs.getString("Pwd")));
+                subscriberDTO.setPhoneNum(Str.CheckNullString(rs.getString("PhoneNum")));
+                subscriberDTO.setName(Str.CheckNullString(rs.getString("Name")));
+                subscriberDTO.setPosition(Str.CheckNullString(rs.getString("Position")));
+                subscriberDTO.setDepartment(rs.getInt("Department"));
+                subscriberDTO.setMobile(Str.CheckNullString(rs.getString("Mobile")));
+                subscriberDTO.setHomeNumber(Str.CheckNullString(rs.getString("HomeNumber")));
+                subscriberDTO.setExtension(Str.CheckNullString(rs.getString("Extension")));
+                subscriberDTO.setMailAddress(Str.CheckNullString(rs.getString("MailAddress")));
+                subscriberDTO.setHomePage(Str.CheckNullString(rs.getString("HomePage")));
+                subscriberDTO.setAddress(Str.CheckNullString(rs.getString("Address")));
+                subscriberDTO.setIntroduction(Str.CheckNullString(rs.getString("Introduction")));
+                if (Str.CheckNullString(rs.getString("UserE164")).length() > 0) subscriberDTO.setUsePresence(true) ;
+                else subscriberDTO.setUsePresence(false) ;
+                list.add(subscriberDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+
+        return list;
+    }
+    
+}

@@ -1,0 +1,37 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.ResponseModeDAO;
+import bizportal.nasacti.ipivr.dao.IvrTelDAO;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.ArrayList;
+
+public class IvrTelListPopupFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		IvrTelDAO ivrTelDAO = IvrTelDAO.getInstance();
+
+		List ivrTelDTOList = ivrTelDAO.getActiveIvrTel();
+
+		request.setAttribute("ivrTelDTOList", ivrTelDTOList);
+
+		return "/ivr/ivrTelListPopup.jsp";
+	}
+}

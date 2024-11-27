@@ -1,0 +1,1757 @@
+package useconfig;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+import acromate.ConnectionManager;
+import acromate.l;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import acromate.common.util.WebUtil;
+
+import com.acromate.driver.db.DataStatement;
+import dto.AddServiceListDTO;
+import dto.VirtualNumberDTO;
+import dto.AdditionDTO;
+import dto.FeatureServiceDTO;
+import dto.MrbtDTO;
+import dto.AddMrbtDTO;
+import dto.E164BlockDTO;
+import dto.AddServiceDTO;
+import dto.DeptNumberChangeDTO;
+import dto.KeynumberForwardDaysDTO;
+import dto.KeynumberForwardWeekDTO;
+import dto.AddServiceArrivalDTO;
+import dto.AlarmDTO;
+
+public class AddServiceList {
+	
+	public List getList(DataStatement stmt) {
+		AddServiceListDTO addServiceListDTO;
+        List<AddServiceListDTO> addServiceList = new ArrayList<AddServiceListDTO>();
+        
+        String sql = "\n SELECT startprefix, blockidtype, description FROM table_e164block "; 
+        sql = sql +  "\n WHERE inoutflag = 0 ";
+        sql = sql +  "\n Group By startprefix, blockidtype, description ";
+        sql = sql +  "\n Order By startprefix ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	addServiceListDTO = new AddServiceListDTO();
+                	
+                	//addServiceListDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	addServiceListDTO.setStartPrefix(Str.CheckNullString(rs.getString("startprefix")));
+                	addServiceListDTO.setBlockType(rs.getInt("blockidtype"));
+                	addServiceListDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+
+                	addServiceList.add(addServiceListDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addServiceList;
+    }
+
+	public String getAnswerService(DataStatement stmt) {
+        String callerService = "";
+        
+		String sql = "SELECT c.callerservice ";
+		sql = sql + " FROM table_dept a, table_subscriber b, table_e164 c "; 
+		sql = sql + " WHERE a.deptid = b.department "; 
+		sql = sql + "   AND a.deptid != a.parentid "; 
+		sql = sql + "   AND c.e164 = b.phonenum ";
+		sql = sql + " Group By c.callerservice ";
+		sql = sql + " Order By c.callerservice ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) callerService = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return callerService;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return callerService;
+    }
+
+	public String getDescription(DataStatement stmt, String blockPrefixNo) {
+        String description = "";
+        
+		String sql = "SELECT Description FROM Table_E164block ";
+		sql = sql + " WHERE startprefix = '" + blockPrefixNo + "' And inoutflag = 0 ";
+		sql = sql + " GROUP BY Description ";
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) description = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return description;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return description;
+    }
+
+    public int getBlockPrefixChk(String hiBlockNumber){
+    	int 			nResult 	= 0;
+    	DataStatement 	statement 	= null;
+    	try {
+	    	String		sql 		= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+            sql = "SELECT count(*) FROM table_e164block WHERE startprefix = '" + hiBlockNumber + "' And inoutflag = 0 ";
+            rs = statement.executeQuery(sql);
+            if (rs.next()) nResult = rs.getInt(1);
+            rs.close();
+
+            statement.endTransaction(true);			// commit 처리	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return nResult;        
+    }
+	
+    public boolean arrivalNumberSave(String hiBlockNumber, String hiDescription, String hiBlockType, String blockType2){
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	Vector 			vecTmpKeyNum 	= new Vector();
+    	try {
+//	    	int 		count 		= 0;
+	    	int 		nResult 	= 0;
+	    	//String 		e164		= hiEi64;			// E164
+	    	String 		startprefix	= hiBlockNumber;	// E164
+	    	String 		description	= hiDescription;	// E164
+	    	String 		blockType	= hiBlockType;		// E164
+	    	String		endprefix	= "";
+	    	String		sql 		= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	        endprefix = "________________________________";
+	        if(hiBlockNumber.length() < 32) {
+	            int nLength = hiBlockNumber.length();
+	            endprefix = hiBlockNumber + endprefix.substring(nLength);
+	        }
+	        else if (hiBlockNumber.length() == 32 )
+	            endprefix = hiBlockNumber ;
+	    	
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+	    	if("3".equals(blockType)){
+	    		System.out.println("지정 발신번호 제안 : ====> ");
+		    	/***** Table_E164block 추가 ********/
+	            sql = "\n SELECT b.phonenum FROM table_dept a, table_subscriber b, table_e164 c "; 
+	            sql = sql + "\n WHERE a.deptid = b.department ";
+		        sql = sql + "\n  AND a.deptid != a.parentid ";
+		        sql = sql + "\n  AND c.e164 = b.phonenum ";
+		        sql = sql + "\n ORDER BY b.phonenum ";
+		        System.out.println("1:"+sql);
+	            
+		        rs = statement.executeQuery(sql);	            
+	            while(rs.next()){
+	            	vecTmpKeyNum.add(WebUtil.CheckNullString(rs.getString(1))) ;            	
+	            }
+	            rs.close();
+	            
+	            int 	nTmp2 		= vecTmpKeyNum.size();
+	            int 	nTmp3 		= 0;
+	            String	strE164 	= ""; 
+	            sql		=	"";
+	            for(int i=0; i < nTmp2; i++){
+	            	strE164 = (String)vecTmpKeyNum.get(i);
+		            sql = sql + "Insert into Table_E164block(e164, inoutflag, startprefix, endprefix, prefixtype, blockidtype, description) ";
+		            sql = sql + " Values('" + strE164 + "', 0, '" + startprefix + "', '" + endprefix + "', 0, " + blockType2 + ", '" + description + "'); ";                
+	            }
+	            System.out.println("2:"+sql);
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[발신제한 번호 등록] '","[Auth Properties Error] '")+l.x("'발신제한 번호 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+	    		
+	    	}
+
+            /***** table_E164 수정 ********/            
+            String temp_CallerService = "";
+            String callerService = "";            
+    		sql = "\n SELECT c.callerservice ";
+    		sql = sql + "\n  FROM table_dept a, table_subscriber b, table_e164 c "; 
+    		sql = sql + "\n  WHERE a.deptid = b.department "; 
+    		sql = sql + "\n    AND a.deptid != a.parentid "; 
+    		sql = sql + "\n    AND c.e164 = b.phonenum ";
+    		sql = sql + "\n  Group By c.callerservice ";
+    		sql = sql + "\n  Order By c.callerservice ";            
+            rs = statement.executeQuery(sql);
+            System.out.println("3:"+sql);
+            if (rs.next()) temp_CallerService = rs.getString(1);
+            rs.close();
+
+            if(blockType.equals("0")){
+            	callerService = temp_CallerService.substring(0, 1) + "0" + temp_CallerService.substring(2, 64);
+            }else if(blockType.equals("1")){
+            	callerService = temp_CallerService.substring(0, 1) + "1" + temp_CallerService.substring(2, 64);
+            }else if(blockType.equals("3")){
+            	callerService = temp_CallerService.substring(0, 1) + "3" + temp_CallerService.substring(2, 64);
+            }
+            
+            sql = "\n Update table_E164 set callerservice  = '" + callerService + "' ";
+            sql = sql + "\n  WHERE e164 IN (SELECT b.phonenum FROM table_dept a, table_subscriber b, table_e164 c "; 
+            sql = sql + "\n  				 WHERE a.deptid = b.department "; 
+            sql = sql + "\n  				   AND a.deptid != a.parentid "; 
+            sql = sql + "\n  				   AND c.e164 = b.phonenum)";
+            System.out.println("4:"+sql);
+            nResult = statement.executeUpdate(sql);
+            if (nResult < 1){	throw new Exception(l.x("[발신제한 등록] '","[Auth Properties Error] '")+l.x("'발신 제한 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+                        
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+    
+	public String getVirtualService(DataStatement stmt) {
+        String callerService = "";
+        
+		String sql = "SELECT a.callerservice ";
+		sql = sql + " FROM table_e164 a, table_subscriber b "; 
+		sql = sql + " WHERE a.e164 = b.phonenum "; 
+		sql = sql + " Group By a.callerservice ";
+		sql = sql + " Order By a.callerservice ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) callerService = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return callerService;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return callerService;
+    }
+    
+	public List getVirtuallList(DataStatement stmt) {
+		VirtualNumberDTO virtualNumberDTO;
+        List<VirtualNumberDTO> virtualNumberList = new ArrayList<VirtualNumberDTO>();
+        
+        String sql = "\n select b.name as name, ";
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept, ";
+        sql = sql +  "\n 	b.position as position, ";
+        sql = sql +  "\n 	b.phonenum as e164, ";
+        sql = sql +  "\n 	a.virtualcid as virtual ";        
+        sql = sql +  "\n from table_e164 a, table_subscriber b ";
+        sql = sql +  "\n where a.e164 = b.phonenum ";
+        sql = sql +  "\n   and substr(a.callerservice,3,1) = '2' ";
+        sql = sql +  "\n   and (a.virtualcid <> '' and a.virtualcid is not null) ";
+        sql = sql +  "\n order by b.phonenum ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	virtualNumberDTO = new VirtualNumberDTO();
+                	virtualNumberDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	virtualNumberDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	virtualNumberDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	virtualNumberDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	virtualNumberDTO.setVirtual(Str.CheckNullString(rs.getString("virtual")));
+
+                	virtualNumberList.add(virtualNumberDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return virtualNumberList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return virtualNumberList;
+    }
+	
+	public String getVirtualNumber(DataStatement stmt) {
+        String virtualNumber = "";
+        
+		String sql = "SELECT a.virtualcid ";
+		sql = sql + " FROM table_e164 a, table_subscriber b "; 
+		sql = sql + " WHERE a.e164 = b.phonenum "; 
+		sql = sql + " Group By a.virtualcid ";
+		sql = sql + " Order By a.virtualcid ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) virtualNumber = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return virtualNumber;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return virtualNumber;
+    }
+
+	public List getAdditionServiceList(DataStatement stmt) {
+		AdditionDTO additionDTO;
+        List<AdditionDTO> additionList = new ArrayList<AdditionDTO>();
+        
+        String sql = "\n SELECT a.callerservice ";
+        sql = sql +  "\n FROM table_e164 a, table_subscriber b ";
+        sql = sql +  "\n WHERE a.e164 = b.phonenum ";
+        sql = sql +  "\n Group By a.callerservice ";
+        sql = sql +  "\n Order By a.callerservice ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	additionDTO = new AdditionDTO();
+                	additionDTO.setCallerService(Str.CheckNullString(rs.getString("callerservice")));
+
+                	additionList.add(additionDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return additionList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return additionList;
+    }
+
+	public List getVirtualCidList(DataStatement stmt) {
+		AdditionDTO additionDTO;
+        List<AdditionDTO> additionList = new ArrayList<AdditionDTO>();
+        
+        String sql = "\n SELECT a.virtualcid ";
+        sql = sql +  "\n FROM table_e164 a, table_subscriber b ";
+        sql = sql +  "\n WHERE a.e164 = b.phonenum ";
+        sql = sql +  "\n Group By a.virtualcid ";
+        sql = sql +  "\n Order By a.virtualcid ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	additionDTO = new AdditionDTO();
+                	additionDTO.setCallerService(Str.CheckNullString(rs.getString("virtualcid")));
+
+                	additionList.add(additionDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return additionList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return additionList;
+    }
+	
+	public List getVirtuallList_New(DataStatement stmt) {
+		VirtualNumberDTO virtualNumberDTO;
+        List<VirtualNumberDTO> virtualNumberList = new ArrayList<VirtualNumberDTO>();
+/*        
+        String sql = "\n select b.name as name, ";
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept, ";
+        sql = sql +  "\n 	b.position as position, ";
+        sql = sql +  "\n 	b.phonenum as e164, ";
+        sql = sql +  "\n 	a.virtualcid as virtual ";        
+        sql = sql +  "\n from table_e164 a, table_subscriber b ";
+        sql = sql +  "\n where a.e164 = b.phonenum ";
+        sql = sql +  "\n   and substr(a.callerservice,3,1) = '2' ";
+        sql = sql +  "\n   and (a.virtualcid <> '' and a.virtualcid is not null) ";
+        sql = sql +  "\n order by b.phonenum ";
+*/        
+        String sql = "\n select b.name as name, "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  "; 
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	b.phonenum as e164,  ";
+        sql = sql +  "\n 	a.userparam as virtual  ";       
+        sql = sql +  "\n from table_featureservice a, table_subscriber b "; 
+        sql = sql +  "\n where a.e164 = b.phonenum "; 
+        sql = sql +  "\n   and a.serviceno = '5431' "; 
+        sql = sql +  "\n order by b.phonenum "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	virtualNumberDTO = new VirtualNumberDTO();
+                	virtualNumberDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	virtualNumberDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	virtualNumberDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	virtualNumberDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	virtualNumberDTO.setVirtual(Str.CheckNullString(rs.getString("virtual")));
+
+                	virtualNumberList.add(virtualNumberDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return virtualNumberList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return virtualNumberList;
+    }
+	
+	
+	public List getAdditionServiceList_New(DataStatement stmt) {
+		FeatureServiceDTO featureServiceDTO;
+        List<FeatureServiceDTO> featureServiceList = new ArrayList<FeatureServiceDTO>();
+/*        
+        String sql = "\n SELECT a.callerservice ";
+        sql = sql +  "\n FROM table_e164 a, table_subscriber b ";
+        sql = sql +  "\n WHERE a.e164 = b.phonenum ";
+        sql = sql +  "\n Group By a.callerservice ";
+        sql = sql +  "\n Order By a.callerservice ";
+*/        
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5431' ";
+        sql = sql +  "\n Group By userparam ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	featureServiceDTO = new FeatureServiceDTO();
+                	featureServiceDTO.setUserParam(Str.CheckNullString(rs.getString("userparam")));
+
+                	featureServiceList.add(featureServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return featureServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return featureServiceList;
+    }
+
+	
+	public String getVirtualNumber_New(DataStatement stmt) {
+        String virtualNumber = "";
+        
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5431' ";
+        sql = sql +  "\n Group By userparam ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) virtualNumber = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return virtualNumber;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return virtualNumber;
+    }
+	
+	
+	public List getMRBTList(DataStatement stmt) {
+		VirtualNumberDTO virtualNumberDTO;
+        List<VirtualNumberDTO> mrbtList = new ArrayList<VirtualNumberDTO>();
+        String sql = "\n select b.name as name, "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  "; 
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	b.phonenum as e164,  ";
+        sql = sql +  "\n 	a.userparam as filename  ";       
+        sql = sql +  "\n from table_featureservice a, table_subscriber b "; 
+        sql = sql +  "\n where a.e164 = b.phonenum "; 
+        sql = sql +  "\n   and a.serviceno = '5011' "; 
+        sql = sql +  "\n order by b.phonenum "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	virtualNumberDTO = new VirtualNumberDTO();
+                	virtualNumberDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	virtualNumberDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	virtualNumberDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	virtualNumberDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	virtualNumberDTO.setVirtual(Str.CheckNullString(rs.getString("filename")));
+
+                	mrbtList.add(virtualNumberDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getAdditionMRBTList(DataStatement stmt) {
+		FeatureServiceDTO featureServiceDTO;
+        List<FeatureServiceDTO> featureServiceList = new ArrayList<FeatureServiceDTO>();
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5011' ";
+        sql = sql +  "\n Group By userparam ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	featureServiceDTO = new FeatureServiceDTO();
+                	featureServiceDTO.setUserParam(Str.CheckNullString(rs.getString("userparam")));
+
+                	featureServiceList.add(featureServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return featureServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return featureServiceList;
+    }
+	
+	public List getAdditionMRBTServiceList(DataStatement stmt) {
+		FeatureServiceDTO featureServiceDTO;
+        List<FeatureServiceDTO> featureServiceList = new ArrayList<FeatureServiceDTO>();
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5011' ";
+        sql = sql +  "\n Group By userparam ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	featureServiceDTO = new FeatureServiceDTO();
+                	featureServiceDTO.setUserParam(Str.CheckNullString(rs.getString("userparam")));
+
+                	featureServiceList.add(featureServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return featureServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return featureServiceList;
+    }
+
+	public String getMRBTFile(DataStatement stmt) {
+        String mrbtFileName = "";
+        
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5011' ";
+        sql = sql +  "\n Group By userparam ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) mrbtFileName = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtFileName;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtFileName;
+    }
+
+	public List getMOHList(DataStatement stmt) {
+		VirtualNumberDTO virtualNumberDTO;
+        List<VirtualNumberDTO> mrbtList = new ArrayList<VirtualNumberDTO>();
+        String sql = "\n select b.name as name, "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  "; 
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	b.phonenum as e164,  ";
+        sql = sql +  "\n 	a.userparam as filename  ";       
+        sql = sql +  "\n from table_featureservice a, table_subscriber b "; 
+        sql = sql +  "\n where a.e164 = b.phonenum "; 
+        sql = sql +  "\n   and a.serviceno = '5031' "; 
+        sql = sql +  "\n order by b.phonenum "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	virtualNumberDTO = new VirtualNumberDTO();
+                	virtualNumberDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	virtualNumberDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	virtualNumberDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	virtualNumberDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	virtualNumberDTO.setVirtual(Str.CheckNullString(rs.getString("filename")));
+
+                	mrbtList.add(virtualNumberDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+	
+	public List getAdditionMOHList(DataStatement stmt) {
+		FeatureServiceDTO featureServiceDTO;
+        List<FeatureServiceDTO> featureServiceList = new ArrayList<FeatureServiceDTO>();
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5031' ";
+        sql = sql +  "\n Group By userparam ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("통화대기음 : "+sql);
+                while (rs.next()) {
+                	featureServiceDTO = new FeatureServiceDTO();
+                	featureServiceDTO.setUserParam(Str.CheckNullString(rs.getString("userparam")));
+
+                	featureServiceList.add(featureServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return featureServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return featureServiceList;
+    }
+	
+	public List getAdditionMOHServiceList(DataStatement stmt) {
+		FeatureServiceDTO featureServiceDTO;
+        List<FeatureServiceDTO> featureServiceList = new ArrayList<FeatureServiceDTO>();
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5031' ";
+        sql = sql +  "\n Group By userparam ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	featureServiceDTO = new FeatureServiceDTO();
+                	featureServiceDTO.setUserParam(Str.CheckNullString(rs.getString("userparam")));
+
+                	featureServiceList.add(featureServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return featureServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return featureServiceList;
+    }
+	
+	public String getMOHFile(DataStatement stmt) {
+        String mrbtFileName = "";
+        
+        String sql = "\n Select userparam From table_featureservice ";
+        sql = sql +  "\n Where serviceno = '5031' ";
+        sql = sql +  "\n Group By userparam ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) mrbtFileName = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtFileName;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtFileName;
+    }
+
+	public List getNewMRBTList(DataStatement stmt) {
+		return getNewMRBTList(stmt, null) ;
+	}
+	public List getNewMRBTList(DataStatement stmt, String checkgroupid) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.name as name, "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = a.department) as dept,  "; 
+        sql = sql +  "\n 	a.position as position,  ";
+        sql = sql +  "\n 	a.phonenum as e164,  ";
+        sql = sql +  "\n 	(select max(Sound) from TABLE_AddMRBT where e164 = a.phonenum) as filename,  ";       
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.phonenum and serviceno = 5011) as usechk  ";
+        sql = sql +  "\n from table_subscriber a "; 
+        sql = sql +  "\n where a.loginlevel = 1 "; 
+        if(checkgroupid!=null)
+        	sql = sql +  "\n and a.checkgroupid = '"+checkgroupid+"' ";
+        sql = sql +  "\n order by a.phonenum "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setFilename(Str.CheckNullString(rs.getString("filename")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getAddMrbtList(DataStatement stmt, String e164) {
+		AddMrbtDTO 			addMrbtDTO;
+        List<AddMrbtDTO> 	addMrbtList = new ArrayList<AddMrbtDTO>();
+        String sql = "\n Select dayvalue, starttime, endtime, sound From table_addmrbt ";
+        sql = sql +  "\n Where e164 = '"+ e164 +"' ";
+        sql = sql +  "\n Order By dayvalue, starttime, endtime ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	addMrbtDTO = new AddMrbtDTO();
+                	addMrbtDTO.setDayvalue(Str.CheckNullString(rs.getString("dayvalue")));
+                	addMrbtDTO.setStarttime(Str.CheckNullString(rs.getString("starttime")));
+                	addMrbtDTO.setEndtime(Str.CheckNullString(rs.getString("endtime")));
+                	addMrbtDTO.setSound(Str.CheckNullString(rs.getString("sound")));
+                	
+                	addMrbtList.add(addMrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addMrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addMrbtList;
+    }
+
+	public List getNewMOHList(DataStatement stmt) {
+		return getNewMOHList(stmt, null) ;
+	}
+	public List getNewMOHList(DataStatement stmt, String checkgroupid) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.name as name, "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = a.department) as dept,  "; 
+        sql = sql +  "\n 	a.position as position,  ";
+        sql = sql +  "\n 	a.phonenum as e164,  ";
+        sql = sql +  "\n 	(select userparam from table_featureservice where e164 = a.phonenum and serviceno = 5031) as filename,  ";       
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.phonenum and serviceno = 5031) as usechk  ";
+        sql = sql +  "\n from table_subscriber a "; 
+        sql = sql +  "\n where a.loginlevel = 1 "; 
+        if(checkgroupid!=null) sql = sql +  "\n AND a.checkgroupid = '"+checkgroupid+"' ";
+        sql = sql +  "\n order by a.phonenum "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setFilename(Str.CheckNullString(rs.getString("filename")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+    public int getKeyNumberIDCount(DataStatement stmt){
+    	int 		nResult 	= 0;
+    	ResultSet 	rs 			= null;
+    	try {
+	    	String		sql 		= "";
+	    	
+            sql = " Select count(b.KEYNUMBERID) "; 
+            sql = sql +  "\n FROM  table_localprefix a LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID ";
+            sql = sql +  "\n Where 1 = 1 and a.prefixtype = 4 ";
+            
+            rs = stmt.executeQuery(sql);
+            if (rs.next()) nResult = rs.getInt(1);
+            rs.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        
+        return nResult;        
+    }
+
+    public List getDeptMRBTList(DataStatement stmt) {
+    	return getDeptMRBTList(stmt, null);
+    }
+	public List getDeptMRBTList(DataStatement stmt, String checkgroupid) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n Select b.KEYNUMBERID as e164, "; 
+        sql = sql +  "\n 	(select deptname from table_dept where keynumber = b.keynumberid) as name, "; 
+        sql = sql +  "\n 	(select max(Sound) from TABLE_AddMRBT where e164 = b.keynumberid) as filename, ";
+        sql = sql +  "\n 	(select count(*) from TABLE_AddMRBT where e164 = b.keynumberid) as usechk ";
+        sql = sql +  "\n FROM  table_localprefix a LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID "; 
+        sql = sql +  "\n Where 1 = 1 and a.prefixtype = 4 ";
+        if(checkgroupid!=null)
+        	sql = sql +  "\n AND a.checkgroupid = '"+checkgroupid+"' ";
+        sql = sql +  "\n order by b.KEYNUMBERID "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setFilename(Str.CheckNullString(rs.getString("filename")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getVmsList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select count(*) from nasa_vms_user where vms_id = a.e164) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getBlfList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.e164 and serviceno = 5421) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getAlertInfoList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select userparam from table_featureservice where e164 = a.e164 and serviceno = 5451) as userparam,  ";
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.e164 and serviceno = 5451) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setFilename(Str.CheckNullString(rs.getString("userparam")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getVirtualList(DataStatement stmt) {
+		return getVirtualList(stmt, null) ;
+	}
+	public List getVirtualList(DataStatement stmt, String checkgroupid) {
+		VirtualNumberDTO virtualNumberDTO;
+        List<VirtualNumberDTO> virtualNumberList = new ArrayList<VirtualNumberDTO>();
+        
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select userparam from table_featureservice where e164 = a.e164 and serviceno = 5431) as userparam,  ";
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.e164 and serviceno = 5431) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum ";
+        if(checkgroupid!=null)
+        	sql = sql +  "\n WHERE a.checkgroupid = '"+checkgroupid+"' ";
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	virtualNumberDTO = new VirtualNumberDTO();
+                	virtualNumberDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	virtualNumberDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	virtualNumberDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	virtualNumberDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	virtualNumberDTO.setVirtual(Str.CheckNullString(rs.getString("userparam")));
+                	virtualNumberDTO.setUsechk(rs.getInt("usechk"));
+                	virtualNumberList.add(virtualNumberDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return virtualNumberList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return virtualNumberList;
+    }
+
+	public List getCallBlockList(DataStatement stmt) {
+		return getCallBlockList(stmt, null) ;
+	}
+	public List getCallBlockList(DataStatement stmt, String checkgroupid) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	substring(a.callerservice,2,1) as userparam  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        if(checkgroupid!=null) sql = sql +  "\n AND a.checkgroupid='"+checkgroupid+"' ";
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setFilename(Str.CheckNullString(rs.getString("userparam")));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getAddCallBlockList(DataStatement stmt, String e164) {
+		E164BlockDTO 			e164BlockDTO;
+        List<E164BlockDTO> 	e164BlockList = new ArrayList<E164BlockDTO>();
+        String sql = "\n Select e164, startprefix, prefixtype, blockidtype, description From table_e164block ";
+        //sql = sql +  "\n Where e164 = '"+ e164 +"' ";
+        sql = sql +  "\n Where e164 = '"+ e164 +"'  And inoutflag = 0 ";
+        sql = sql +  "\n Order By startprefix ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                //System.out.println("발신제한 : "+sql);
+                while (rs.next()) {
+                	e164BlockDTO = new E164BlockDTO();
+                	e164BlockDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	e164BlockDTO.setStartPrefix(Str.CheckNullString(rs.getString("startprefix")));
+                	e164BlockDTO.setPrefixType(Str.CheckNullString(rs.getString("prefixtype")));
+                	e164BlockDTO.setBlockIdType(Str.CheckNullString(rs.getString("blockidtype")));
+                	e164BlockDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	
+                	e164BlockList.add(e164BlockDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e164BlockList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return e164BlockList;
+    }
+
+	public String getCallBlockType(DataStatement stmt, String e164) {
+        String callBlockType = "";
+        
+        String sql = " select substring(callerservice,2,1) as userparam  from table_e164  where e164 = '" + e164 + "' ";
+		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) callBlockType = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return callBlockType;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return callBlockType;
+    }
+
+	public List getSecretaryList(DataStatement stmt) {
+		AddServiceDTO addServiceDTO;
+        List<AddServiceDTO> addServiceList = new ArrayList<AddServiceDTO>();
+        
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select userparam from table_featureservice where e164 = a.e164 and serviceno = 5121) as userparam,  ";
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.e164 and serviceno = 5121) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	addServiceDTO = new AddServiceDTO();
+                	addServiceDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	addServiceDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	addServiceDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	addServiceDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	addServiceDTO.setUserparam(Str.CheckNullString(rs.getString("userparam")));
+                	addServiceDTO.setUsechk(rs.getInt("usechk"));
+                	addServiceList.add(addServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addServiceList;
+    }
+
+	public List getFmcList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.e164 and serviceno = 5433) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+	
+	public List getMvoipList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(select count(*) from table_featureservice where e164 = a.e164 and serviceno = 5501) as usechk  ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getCallChangeList(DataStatement stmt) {
+		return getCallChangeList(stmt, null) ;
+	}
+	public List getCallChangeList(DataStatement stmt, String checkgroupid) {
+		DeptNumberChangeDTO deptNumberChangeDTO;
+        List<DeptNumberChangeDTO> deptNumberChangeList = new ArrayList<DeptNumberChangeDTO>();
+
+        String sql = "\n Select a.endpointid as endpointid, "; 
+        sql = sql +  "\n b.KEYNUMBERID as keynumberid, ";
+        sql = sql +  "\n (Select deptname From table_dept Where keynumber = b.KEYNUMBERID) as deptname, "; 
+        sql = sql +  "\n b.hunt as hunt , ";
+        //sql = sql +  "\n (Select count(*) From table_e164 Where e164 = b.forwardnum And substr(answerservice,4,1) = '3') as calltype, ";
+        sql = sql +  "\n b.vmsforward as calltype, ";
+        sql = sql +  "\n b.forwardnum as forwardnum, b.forwardtype as forwardtype ";
+        sql = sql +  "\n FROM  table_localprefix a LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID "; 
+        sql = sql +  "\n Where 1 = 1 and a.prefixtype = 4 "; 
+        if(checkgroupid!=null) sql = sql +  "\n AND a.checkgroupid = '"+checkgroupid+"' "; 
+        sql = sql +  "\n Order by a.endpointid ";
+
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("CallChange : "+sql);
+                while (rs.next()) {
+                	deptNumberChangeDTO = new DeptNumberChangeDTO();
+                	deptNumberChangeDTO.setKeynumberId(Str.CheckNullString(rs.getString("keynumberid")));
+                	deptNumberChangeDTO.setDeptName(Str.CheckNullString(rs.getString("deptname")));
+                	deptNumberChangeDTO.setHunt(rs.getInt("hunt"));
+                	deptNumberChangeDTO.setCallType(rs.getInt("calltype"));
+                	deptNumberChangeDTO.setForwardNum(Str.CheckNullString(rs.getString("forwardnum")));
+                	deptNumberChangeDTO.setForwardType(rs.getInt("forwardtype"));
+                	deptNumberChangeList.add(deptNumberChangeDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptNumberChangeList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return deptNumberChangeList;
+    }
+
+	public String getDeptNumberForwardType(DataStatement stmt, String ei64) {
+        String forwardType = "";
+        
+        String 	temp2 	= "";
+        int		temp1 	= 0;
+        int		temp3 	= 0;
+        
+		String sql = "SELECT forwardtype, forwardnum, vmsforward  FROM table_keynumberid ";
+		sql = sql + " WHERE keynumberid = '"+ei64+"' "; 		 
+		ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()){
+                	temp1 = rs.getInt(1);
+                	temp2 = rs.getString(2);
+                	temp3 = rs.getInt(3);
+                	forwardType = temp1+"|"+temp2+"|"+temp3+"|";
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return forwardType;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return forwardType;
+    }
+
+	public List getKeynumberForwardDaysList(DataStatement stmt, String e164) {
+		KeynumberForwardDaysDTO keynumberForwardDaysDTO;
+        List<KeynumberForwardDaysDTO> keynumberForwardDaysList = new ArrayList<KeynumberForwardDaysDTO>();
+
+        String sql = "\n Select forwardday, starttime, endtime, forwardnumber, vmsforward "; 
+        sql = sql +  "\n FROM  table_keynumberforward_days "; 
+        sql = sql +  "\n Where keynumber = '"+e164+"' "; 
+        sql = sql +  "\n Order by forwardday, starttime, endtime, forwardnumber ";
+
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("CallChange : "+sql);
+                while (rs.next()) {
+                	keynumberForwardDaysDTO = new KeynumberForwardDaysDTO();
+                	keynumberForwardDaysDTO.setForwardDay(Str.CheckNullString(rs.getString("forwardday")));
+                	keynumberForwardDaysDTO.setStartTime(Str.CheckNullString(rs.getString("starttime")));
+                	keynumberForwardDaysDTO.setEndTime(Str.CheckNullString(rs.getString("endtime")));
+                	keynumberForwardDaysDTO.setForwardNumber(Str.CheckNullString(rs.getString("forwardnumber")));
+                	keynumberForwardDaysDTO.setVmsForward(rs.getInt("vmsforward"));
+                	keynumberForwardDaysList.add(keynumberForwardDaysDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return keynumberForwardDaysList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return keynumberForwardDaysList;
+    }
+
+	public List getKeynumberForwardWeekList(DataStatement stmt, String e164) {
+		KeynumberForwardWeekDTO keynumberForwardWeekDTO;
+        List<KeynumberForwardWeekDTO> keynumberForwardWeekList = new ArrayList<KeynumberForwardWeekDTO>();
+
+        String sql = "\n Select dayoftheweek, starttime, endtime, forwardnumber, vmsforward "; 
+        sql = sql +  "\n FROM  table_keynumberforward_week "; 
+        sql = sql +  "\n Where keynumber = '"+e164+"' "; 
+        sql = sql +  "\n Order by dayoftheweek, starttime, endtime, forwardnumber ";
+
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("CallChange : "+sql);
+                while (rs.next()) {
+                	keynumberForwardWeekDTO = new KeynumberForwardWeekDTO();
+                	keynumberForwardWeekDTO.setDayOftheWeek(Str.CheckNullString(rs.getString("dayoftheweek")));
+                	keynumberForwardWeekDTO.setStartTime(Str.CheckNullString(rs.getString("starttime")));
+                	keynumberForwardWeekDTO.setEndTime(Str.CheckNullString(rs.getString("endtime")));
+                	keynumberForwardWeekDTO.setForwardNumber(Str.CheckNullString(rs.getString("forwardnumber")));
+                	keynumberForwardWeekDTO.setVmsForward(rs.getInt("vmsforward"));
+                	keynumberForwardWeekList.add(keynumberForwardWeekDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return keynumberForwardWeekList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return keynumberForwardWeekList;
+    }
+
+	public List getForkingList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(Select count(*) From table_e164 Where e164 = b.phonenum And substr(answerservice,8,1) = '1') as usechk ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getAlarmList(DataStatement stmt) {
+		MrbtDTO mrbtDTO;
+        List<MrbtDTO> mrbtList = new ArrayList<MrbtDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	(Select count(*) From table_alarmservice Where e164 = b.phonenum) as usechk ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	mrbtDTO = new MrbtDTO();
+                	mrbtDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	mrbtDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	mrbtDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	mrbtDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	mrbtDTO.setUsechk(rs.getInt("usechk"));
+                	mrbtList.add(mrbtDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return mrbtList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return mrbtList;
+    }
+
+	public List getArrivalList(DataStatement stmt) {
+		AddServiceArrivalDTO arrivalDTO;
+        List<AddServiceArrivalDTO> arrivalList = new ArrayList<AddServiceArrivalDTO>();
+        String sql = "\n select a.e164 as e164, "; 
+        sql = sql +  "\n 	b.name as name,  "; 
+        sql = sql +  "\n 	(Select deptname from table_dept where deptid = b.department) as dept,  ";
+        sql = sql +  "\n 	b.position as position,  ";
+        sql = sql +  "\n 	a.answerservice as usechk ";
+        sql = sql +  "\n from table_e164 a left outer join table_subscriber b on a.e164=b.phonenum "; 
+        sql = sql +  "\n order by a.e164 "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("Arrival : "+sql);
+                while (rs.next()) {
+                	arrivalDTO = new AddServiceArrivalDTO();
+                	arrivalDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	arrivalDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	arrivalDTO.setDept(Str.CheckNullString(rs.getString("dept")));
+                	arrivalDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	arrivalDTO.setUsechk(Str.CheckNullString(rs.getString("usechk")));
+                	arrivalList.add(arrivalDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return arrivalList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return arrivalList;
+    }
+
+	public List getAlarmEditList(DataStatement stmt, String e164) {
+		AlarmDTO alarmDTO;
+        List<AlarmDTO> alarmList = new ArrayList<AlarmDTO>();
+        String sql = "\n Select e164, sequenceno, alarmtype, alarmtime, alarmdate "; 
+        sql = sql +  "\n FROM table_alarmservice Where e164='"+e164+"'"; 
+        sql = sql +  "\n order by sequenceno "; 
+    
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("MRBT : "+sql);
+                while (rs.next()) {
+                	alarmDTO = new AlarmDTO();
+                	alarmDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	alarmDTO.setSequenceno(rs.getInt("sequenceno"));
+                	alarmDTO.setAlarmtype(rs.getInt("alarmtype"));
+                	alarmDTO.setAlarmtime(Str.CheckNullString(rs.getString("alarmtime")));
+                	alarmDTO.setAlarmdate(Str.CheckNullString(rs.getString("alarmdate")));
+                	alarmList.add(alarmDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return alarmList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return alarmList;
+    }
+
+}

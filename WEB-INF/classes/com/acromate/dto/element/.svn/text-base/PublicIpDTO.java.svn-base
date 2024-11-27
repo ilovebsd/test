@@ -1,0 +1,42 @@
+package com.acromate.dto.element ;
+
+public class PublicIpDTO {
+    private int ipType ;
+    private String ipAddr ;
+    private String subnetMask ;
+    private String gateway ;
+    private String hostName ;
+    private String domainName ;
+    private String firstDnsServer ;
+    private String secondDnsServer ;
+
+    public PublicIpDTO() {
+        super() ;
+    }
+
+    public int    getIpType() { return ipType ; }
+    public void   setIpType(int ipType) { this.ipType = ipType ; }
+
+    public String getIpAddr() { return ipAddr ; }
+    public void   setIpAddr(String ipAddr) { this.ipAddr =  ipAddr ; }
+
+    public String getSubnetMask() { return subnetMask ; }
+    public void   setSubnetMask(String subnetMask) { this.subnetMask =  subnetMask ; }
+
+    public String getGateway() { return gateway ; }
+    public void   setGateway(String gateway) { this.gateway  =  gateway ; }
+
+    public String getHostName() { return hostName ; }
+    public void   setHostName(String hostName) { this.hostName =  hostName ; }
+
+    public String getDomainName() { return domainName ; }
+    public void   setDomainName(String domainName) { this.domainName =  domainName ; }
+
+    public String getFirstDnsServer() { return firstDnsServer ; }
+    public void   setFirstDnsServer(String firstDnsServer) { this.firstDnsServer =  firstDnsServer ; }
+
+    public String getSecondDnsServer() { return secondDnsServer ; }
+    public void   setSecondDnsServer(String ipAddr) { this.secondDnsServer =  secondDnsServer ; }
+
+}
+

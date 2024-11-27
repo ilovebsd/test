@@ -1,0 +1,476 @@
+package com.acromate.dao.system ;
+
+import java.sql.ResultSet ;
+import java.sql.Statement;
+import java.util.ArrayList ;
+import java.util.List;
+
+import com.acromate.db.QueryStat;
+import com.acromate.db.QueryStatement ;
+import com.acromate.dto.system.TransactionLogDTO ;
+import com.acromate.util.Str ;
+
+import acromate.common.util.StringUtil;
+
+public class TransactionLogDAO {
+
+    int limitCnt;
+
+    public TransactionLogDAO() {
+        limitCnt = -1;
+    }
+
+    public void setLimitCnt(int limitCnt) {
+        this.limitCnt = limitCnt;
+    }
+    
+    /**
+     *  Update Functions : 180727 : for 'Statement' Object
+     */
+    public int getCount(Statement stmt, String startDate/*yyyy-mm-ddhh24mi*/, String endDate/* 10/30/60 */, String gubun, String search_str, String msgtype, String e164) {
+		int count = 0 ;
+		String sql = "\n SELECT count(*) ";
+		sql += "\n FROM table_transactionlog ";
+//		sql += "\n WHERE logdate >= to_date('" + StringUtil.replace(startDate+"00", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+//		sql += "\n AND logdate <= to_date('" + StringUtil.replace(startDate+"00", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+		
+		if(1!=1){
+			sql += "\n WHERE LOGDATE >= TO_TIMESTAMP('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') - interval '"+endDate+" MINUTE' ";//min
+			sql += "\n AND LOGDATE <= TO_TIMESTAMP('" + StringUtil.replace(startDate+"59", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+		}else{
+			sql += "\n WHERE LOGDATE >= TO_TIMESTAMP('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') ";
+			sql += "\n AND LOGDATE <= TO_TIMESTAMP('" + StringUtil.replace(endDate+"59", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+		}
+		//  and messagetype = 'INVITE' and endpointid like 'aaa%' and peeraddress like 'aaa%'  
+		if(search_str.trim().length()>0){
+        	if("1".equals(gubun)){
+        		sql += "\n    AND endpointid LIKE '" + search_str + "%'";//단말
+        	}else if("2".equals(gubun)){
+        		sql += "\n    AND peeraddress LIKE '" + search_str + "%'";//IP 
+        	}        	
+        }    
+		if( msgtype.length()>0 ) 
+			sql += "\n    AND messagetype = '" + msgtype + "' ";//메시지 타입
+		
+		//sql += " order by logdate desc ";		
+		//where     logdate >=   dateadd(sysdate, -10.0, 'MINUTE' )  and sysgroupid = '02'  order by logdate desc limit 1,1000
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+		return count;
+    }
+
+    public List getList(Statement stmt, int pageNo, int pageSize, String startDate/*yyyy-mm-ddhh24mi*/, String endDate/* 10/30/60 */, String gubun, String search_str, String msgtype, String e164) {
+    	String strWhere = "";
+    	ArrayList list = new ArrayList() ;
+    	ResultSet rs = null ;
+    	TransactionLogDTO transactionLogDTO ;
+    	
+//    	strWhere += "\n WHERE logdate >= to_date('" + StringUtil.replace(startDate+"00", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+//    	strWhere += "\n  AND logdate <= to_date('" + StringUtil.replace(startDate+"00", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+    	
+    	if(1!=1){
+	    	strWhere += "\n WHERE LOGDATE >= TO_TIMESTAMP('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') - interval '"+endDate+" minute' ";//min
+	    	strWhere += "\n AND LOGDATE <= TO_TIMESTAMP('" + StringUtil.replace(startDate+"59", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+    	}else{
+	    	strWhere += "\n WHERE LOGDATE >= TO_TIMESTAMP('" + StringUtil.replace(startDate+"00", "-", "") + "','YYYYMMDDHH24MISS') ";
+	    	strWhere += "\n AND LOGDATE <= TO_TIMESTAMP('" + StringUtil.replace(endDate+"59", "-", "") + "', 'YYYYMMDDHH24MISS') ";
+    	}
+    	if(search_str.trim().length()>0){
+        	if("1".equals(gubun)){
+        		strWhere += "\n    AND endpointid LIKE '" + search_str + "%'";//단말
+        	}else if("2".equals(gubun)){
+        		strWhere += "\n    AND peeraddress LIKE '" + search_str + "%'";//IP 
+        	}        	
+        }    
+		if( msgtype.length()>0 ) 
+			strWhere += "\n    AND messagetype = '" + msgtype + "' ";//메시지 타입
+    	
+    	strWhere += "\n  Order by logdate desc offset "+pageNo+" limit "+pageSize ;
+    	
+    	try {
+            String sql = "SELECT " ;
+            sql += "tl.SysGroupID, " ;
+            //sql += "LogDATE, " ;
+            sql += " to_char(logdate,'YYYY-MM-DD HH24:MI:SS.SSSSSS') as LogDATE, " ;            
+            sql += "EndpointID, " ;
+            sql += "LOWSEQNUMBER, " ;
+            sql += "PeerAddress, " ;
+            sql += "Direction, " ;
+            sql += "SUBJECT, " ;
+            sql += "FileName" ;
+            sql += ", detail" ;
+            sql += ", sg.SysGroupName " ;
+            sql += " From TABLE_TransactionLog";
+            sql += " tl left outer join table_systemgroup sg  on  tl.sysgroupid = sg.sysgroupid "; 
+            sql += strWhere;
+            System.out.println(sql);
+            rs = stmt.executeQuery(sql) ;
+            while ( rs.next() )  {
+                transactionLogDTO = new TransactionLogDTO() ;
+                transactionLogDTO.setSysGroupID( Str.CheckNullString(rs.getString("SysGroupID")) ) ;
+                transactionLogDTO.setLogDATE( Str.CheckNullString(rs.getString("LogDATE")) ) ;
+                transactionLogDTO.setEndpointID( Str.CheckNullString(rs.getString("EndpointID")) ) ;
+                transactionLogDTO.setLOWSEQNUMBER( rs.getInt("LOWSEQNUMBER") ) ;
+                transactionLogDTO.setPeerAddress( Str.CheckNullString(rs.getString("PeerAddress")) ) ;
+                transactionLogDTO.setDirection( rs.getInt("Direction") ) ;
+                transactionLogDTO.setSUBJECT( Str.CheckNullString(rs.getString("SUBJECT")) ) ;
+                transactionLogDTO.setFileName( Str.CheckNullString(rs.getString("FileName")) ) ;
+
+                transactionLogDTO.setSysGroupName( Str.CheckNullString(rs.getString("SysGroupName")) ) ;
+                transactionLogDTO.setDetail( Str.CheckNullString(rs.getString("DETAIL")) ) ;
+                
+                list.add(transactionLogDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+    	return list;
+    }
+    public ArrayList getList(Statement statement, String callId, String sysgroupID, String orderBy ) {
+        String queryString = "" ;
+        String strWhere = "";
+        ArrayList list = new ArrayList() ;
+        ResultSet rs = null ;
+        TransactionLogDTO transactionLogDTO ;
+
+        strWhere = " WHERE  CallID='" + callId + "'  ";
+        strWhere += " AND  SYSGROUPID='"+ sysgroupID +"'  ";
+
+        try {
+            queryString = "SELECT " ;
+            queryString += "LogSeq, " ;
+            queryString += "SysGroupID, " ;
+            queryString += "LogDATE, " ;
+            queryString += " to_char(logdate, 'YYYY-MM-DD HH24:MI:SS.SSSSSS') as LogDATE_Ex, " ;
+            queryString += "EndpointID, " ;
+            queryString += "EndpointType, " ;
+            queryString += "SEQNUMBER, " ;
+            queryString += "LOWSEQNUMBER, " ;
+            queryString += "MessageType, " ;
+            queryString += "PeerAddress, " ;
+            queryString += "Direction, " ;
+            queryString += "SUBJECT, " ;
+            queryString += "CallID, " ;
+            queryString += "DETAIL, " ;
+            queryString += "FileName" ;
+            queryString += " From TABLE_TransactionLog ";
+            queryString += strWhere;
+            queryString += " "+orderBy;
+            System.out.println("sql : "+ queryString);
+            rs = statement.executeQuery(queryString) ;
+
+            while ( rs.next() )  {
+                transactionLogDTO = new TransactionLogDTO() ;
+                transactionLogDTO.setLogSeq( rs.getInt("LogSeq") ) ;
+                transactionLogDTO.setSysGroupID( Str.CheckNullString(rs.getString("SysGroupID")) ) ;
+                transactionLogDTO.setLogDATE( Str.CheckNullString(rs.getString("LogDATE")) ) ;
+                transactionLogDTO.setLogDATE( Str.CheckNullString(rs.getString("LogDATE_Ex")) ) ;
+                transactionLogDTO.setEndpointID( Str.CheckNullString(rs.getString("EndpointID")) ) ;
+                transactionLogDTO.setEndpointType( rs.getInt("EndpointType") ) ;
+                transactionLogDTO.setSEQNUMBER( rs.getInt("SEQNUMBER") ) ;
+                transactionLogDTO.setLOWSEQNUMBER( rs.getInt("LOWSEQNUMBER") ) ;
+                transactionLogDTO.setMessageType( Str.CheckNullString(rs.getString("MessageType")) ) ;
+                transactionLogDTO.setPeerAddress( Str.CheckNullString(rs.getString("PeerAddress")) ) ;
+                transactionLogDTO.setDirection( rs.getInt("Direction") ) ;
+                transactionLogDTO.setSUBJECT( Str.CheckNullString(rs.getString("SUBJECT")) ) ;
+                transactionLogDTO.setCallID( Str.CheckNullString(rs.getString("CallID")) ) ;
+                transactionLogDTO.setFileName( Str.CheckNullString(rs.getString("FileName")) ) ;
+                transactionLogDTO.setDetail( Str.CheckNullString(rs.getString("DETAIL")) ) ;
+
+                list.add(transactionLogDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return list ;
+    }
+    
+    /**
+     *  Origin Functions
+     */
+    public ArrayList getList(QueryStat statement, int protocol, int type, String keyNo, String time ) {
+        String queryString = "" ;
+        String strWhere = "";
+        ArrayList list = new ArrayList() ;
+        ResultSet rs = null ;
+        TransactionLogDTO transactionLogDTO ;
+
+        strWhere = " WHERE  ";
+        System.out.println(strWhere);
+        strWhere += " LOGDATE >= SYSDATE-"+0.0007*Integer.valueOf(time);
+        System.out.println(strWhere);
+        if (type == 1)
+            strWhere += " AND EndpointID LIKE '" + keyNo + "%'  ";
+        else if (type == 2)
+            strWhere += " AND PeerAddress LIKE '" + keyNo + "%'  ";
+
+        if (protocol != 1)
+          strWhere += " AND EndpointType=" + protocol;
+
+        if (limitCnt > 0)
+          strWhere += " limit 1,"+limitCnt+" ";
+
+        try {
+            queryString = "SELECT " ;
+            queryString += "SysGroupID, " ;
+            queryString += "LogDATE, " ;
+            queryString += "EndpointID, " ;
+            queryString += "LOWSEQNUMBER, " ;
+            queryString += "PeerAddress, " ;
+            queryString += "Direction, " ;
+            queryString += "SUBJECT, " ;
+            queryString += "FileName" ;
+            queryString += " From TABLE_TransactionLog";
+            queryString += strWhere;
+            System.out.println(queryString);
+            rs = statement.executeQuery(queryString) ;
+            while ( rs.next() )  {
+                transactionLogDTO = new TransactionLogDTO() ;
+                transactionLogDTO.setSysGroupID( Str.CheckNullString(rs.getString("SysGroupID")) ) ;
+                transactionLogDTO.setLogDATE( Str.CheckNullString(rs.getString("LogDATE")) ) ;
+                transactionLogDTO.setEndpointID( Str.CheckNullString(rs.getString("EndpointID")) ) ;
+                transactionLogDTO.setLOWSEQNUMBER( rs.getInt("LOWSEQNUMBER") ) ;
+                transactionLogDTO.setPeerAddress( Str.CheckNullString(rs.getString("PeerAddress")) ) ;
+                transactionLogDTO.setDirection( rs.getInt("Direction") ) ;
+                transactionLogDTO.setSUBJECT( Str.CheckNullString(rs.getString("SUBJECT")) ) ;
+                transactionLogDTO.setFileName( Str.CheckNullString(rs.getString("FileName")) ) ;
+
+                list.add(transactionLogDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return list ;
+    }
+
+    public ArrayList getList(QueryStatement statement, String callId ) {
+        QueryStat querystat = (QueryStat)statement;
+        String queryString = "" ;
+        String strWhere = "";
+        ArrayList list = new ArrayList() ;
+        ResultSet rs = null ;
+        TransactionLogDTO transactionLogDTO ;
+
+        strWhere = " WHERE  CallID='" + callId + "'  ";
+
+        try {
+            queryString = "SELECT " ;
+            queryString += "LogSeq, " ;
+            queryString += "SysGroupID, " ;
+            queryString += "LogDATE, " ;
+            queryString += "EndpointID, " ;
+            queryString += "EndpointType, " ;
+            queryString += "SEQNUMBER, " ;
+            queryString += "LOWSEQNUMBER, " ;
+            queryString += "MessageType, " ;
+            queryString += "PeerAddress, " ;
+            queryString += "Direction, " ;
+            queryString += "SUBJECT, " ;
+            queryString += "CallID, " ;
+            queryString += "FileName" ;
+            queryString += " From TABLE_TransactionLog";
+            queryString += strWhere;
+            System.out.println(queryString);
+            rs = statement.executeQuery(queryString) ;
+
+            while ( rs.next() )  {
+                transactionLogDTO = new TransactionLogDTO() ;
+                transactionLogDTO.setLogSeq( rs.getInt("LogSeq") ) ;
+                transactionLogDTO.setSysGroupID( Str.CheckNullString(rs.getString("SysGroupID")) ) ;
+                transactionLogDTO.setLogDATE( Str.CheckNullString(rs.getString("LogDATE")) ) ;
+                transactionLogDTO.setEndpointID( Str.CheckNullString(rs.getString("EndpointID")) ) ;
+                transactionLogDTO.setEndpointType( rs.getInt("EndpointType") ) ;
+                transactionLogDTO.setSEQNUMBER( rs.getInt("SEQNUMBER") ) ;
+                transactionLogDTO.setLOWSEQNUMBER( rs.getInt("LOWSEQNUMBER") ) ;
+                transactionLogDTO.setMessageType( Str.CheckNullString(rs.getString("MessageType")) ) ;
+                transactionLogDTO.setPeerAddress( Str.CheckNullString(rs.getString("PeerAddress")) ) ;
+                transactionLogDTO.setDirection( rs.getInt("Direction") ) ;
+                transactionLogDTO.setSUBJECT( Str.CheckNullString(rs.getString("SUBJECT")) ) ;
+                transactionLogDTO.setCallID( Str.CheckNullString(rs.getString("CallID")) ) ;
+                transactionLogDTO.setFileName( Str.CheckNullString(rs.getString("FileName")) ) ;
+
+                list.add(transactionLogDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return list ;
+    }
+
+    public TransactionLogDTO getDTO(QueryStatement statement, TransactionLogDTO dto ) {
+        String queryString = "" ;
+        ResultSet rs = null ;
+        TransactionLogDTO transactionLogDTO = null ;
+
+        try {
+            queryString = "SELECT " ;
+            queryString += "LogSeq, " ;
+            queryString += "SysGroupID, " ;
+            queryString += "LogDATE, " ;
+            queryString += "EndpointID, " ;
+            queryString += "EndpointType, " ;
+            queryString += "SEQNUMBER, " ;
+            queryString += "LOWSEQNUMBER, " ;
+            queryString += "MessageType, " ;
+            queryString += "PeerAddress, " ;
+            queryString += "Direction, " ;
+            queryString += "SUBJECT, " ;
+            queryString += "CallID, " ;
+            queryString += "FileName" ;
+            queryString += " From TABLE_TransactionLog";
+            rs = statement.executeQuery(queryString) ;
+
+            if ( rs.next() )  {
+                transactionLogDTO = new TransactionLogDTO() ;
+                transactionLogDTO.setLogSeq( rs.getInt(0) ) ;
+                transactionLogDTO.setSysGroupID( Str.CheckNullString(rs.getString(1)) ) ;
+                transactionLogDTO.setLogDATE( Str.CheckNullString(rs.getString(2)) ) ;
+                transactionLogDTO.setEndpointID( Str.CheckNullString(rs.getString(3)) ) ;
+                transactionLogDTO.setEndpointType( rs.getInt(4) ) ;
+                transactionLogDTO.setSEQNUMBER( rs.getInt(5) ) ;
+                transactionLogDTO.setLOWSEQNUMBER( rs.getInt(6) ) ;
+                transactionLogDTO.setMessageType(  Str.CheckNullString(rs.getString(7)) ) ;
+                transactionLogDTO.setPeerAddress( Str.CheckNullString(rs.getString(8)) ) ;
+                transactionLogDTO.setDirection( rs.getInt(9) ) ;
+                transactionLogDTO.setSUBJECT( Str.CheckNullString(rs.getString(10)) ) ;
+                transactionLogDTO.setCallID( Str.CheckNullString(rs.getString(11)) ) ;
+                transactionLogDTO.setFileName( Str.CheckNullString(rs.getString(12)) ) ;
+
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {  if (rs != null) rs.close();  }
+            catch(Exception e) { e.printStackTrace(); }
+        }
+        return transactionLogDTO ;
+    }
+
+    public boolean insert (QueryStatement statement, TransactionLogDTO transactionLogDTO ) {
+        String queryString = "" ;
+        int count = 0 ;
+
+        try {
+            queryString = " INSERT INTO TABLE_TransactionLog (" ;
+            queryString += "LogSeq, " ;
+            queryString += "SysGroupID, " ;
+            queryString += "LogDATE, " ;
+            queryString += "EndpointID, " ;
+            queryString += "EndpointType, " ;
+            queryString += "SEQNUMBER, " ;
+            queryString += "LOWSEQNUMBER, " ;
+            queryString += "MessageType, " ;
+            queryString += "PeerAddress, " ;
+            queryString += "Direction, " ;
+            queryString += "SUBJECT, " ;
+            queryString += "CallID, " ;
+            queryString += "FileName" ;
+            queryString += ") VALUES (" ;
+            queryString += " '" + transactionLogDTO.getLogSeq() + "' ," ;
+            queryString += " '" + transactionLogDTO.getSysGroupID() + "' ," ;
+            queryString += " '" + transactionLogDTO.getLogDATE() + "' ," ;
+            queryString += " '" + transactionLogDTO.getEndpointID() + "' ," ;
+            queryString += " " + transactionLogDTO.getEndpointType() + " ," ;
+            queryString += " " + transactionLogDTO.getSEQNUMBER() + " ," ;
+            queryString += " " + transactionLogDTO.getLOWSEQNUMBER() + " ," ;
+            queryString += " " + transactionLogDTO.getMessageType() + " ," ;
+            queryString += " '" + transactionLogDTO.getPeerAddress() + "' ," ;
+            queryString += " " + transactionLogDTO.getDirection() + " ," ;
+            queryString += " '" + transactionLogDTO.getSUBJECT() + "' ," ;
+            queryString += " '" + transactionLogDTO.getCallID() + "' ," ;
+            queryString += " '" + transactionLogDTO.getFileName() + "' " ;
+            queryString += ")" ;
+
+            count = statement.executeUpdate(queryString) ;
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        }
+        return true ;
+    }
+
+    public boolean update (QueryStatement statement, TransactionLogDTO transactionLogDTO ) {
+        String queryString = "" ;
+        int count = 0 ;
+
+        try {
+            queryString = " UPDATE TABLE_TransactionLog SET " ;
+            queryString += "LogSeq = '" + transactionLogDTO.getLogSeq() + "' ," ;
+            queryString += "SysGroupID = '" + transactionLogDTO.getSysGroupID() + "' ," ;
+            queryString += "LogDATE = '" + transactionLogDTO.getLogDATE() + "' ," ;
+            queryString += "EndpointID = '" + transactionLogDTO.getEndpointID() + "' ," ;
+            queryString += "EndpointType = " + transactionLogDTO.getEndpointType() + " ," ;
+            queryString += "SEQNUMBER = " + transactionLogDTO.getSEQNUMBER() + " ," ;
+            queryString += "LOWSEQNUMBER = " + transactionLogDTO.getLOWSEQNUMBER() + " ," ;
+            queryString += "MessageType = " + transactionLogDTO.getMessageType() + " ," ;
+            queryString += "PeerAddress = '" + transactionLogDTO.getPeerAddress() + "' ," ;
+            queryString += "Direction = " + transactionLogDTO.getDirection() + " ," ;
+            queryString += "SUBJECT = '" + transactionLogDTO.getSUBJECT() + "' ," ;
+            queryString += "CallID = '" + transactionLogDTO.getCallID() + "' ," ;
+            queryString += "FileName = '" + transactionLogDTO.getFileName() + "' " ;
+
+            count = statement.executeUpdate(queryString) ;
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        }
+        return true ;
+    }
+
+    public boolean delete (QueryStatement statement, TransactionLogDTO transactionLogDTO ) {
+        String queryString = "" ;
+        int count = 0 ;
+
+        try {
+            queryString = " DELETE FROM TABLE_TransactionLog WHERE " ;
+            queryString += "LogSeq = '" + transactionLogDTO.getLogSeq() + "' ," ;
+            queryString += "SysGroupID = '" + transactionLogDTO.getSysGroupID() + "' ," ;
+            queryString += "LogDATE = '" + transactionLogDTO.getLogDATE() + "' ," ;
+            queryString += "EndpointID = '" + transactionLogDTO.getEndpointID() + "' ," ;
+            queryString += "EndpointType = " + transactionLogDTO.getEndpointType() + " ," ;
+            queryString += "SEQNUMBER = " + transactionLogDTO.getSEQNUMBER() + " ," ;
+            queryString += "LOWSEQNUMBER = " + transactionLogDTO.getLOWSEQNUMBER() + " ," ;
+            queryString += "MessageType = " + transactionLogDTO.getMessageType() + " ," ;
+            queryString += "PeerAddress = '" + transactionLogDTO.getPeerAddress() + "' ," ;
+            queryString += "Direction = " + transactionLogDTO.getDirection() + " ," ;
+            queryString += "SUBJECT = '" + transactionLogDTO.getSUBJECT() + "' ," ;
+            queryString += "CallID = '" + transactionLogDTO.getCallID() + "' ," ;
+            queryString += "FileName = '" + transactionLogDTO.getFileName() + "' " ;
+
+            count = statement.executeUpdate(queryString) ;
+        } catch(Exception e) {
+            e.printStackTrace() ;
+            return false ;
+        }
+        return true ;
+    }
+}

@@ -1,0 +1,112 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dao.ipcs.IpcsUserDAO;
+
+import acromate.common.util.WebUtil;
+import business.LogHistory;
+
+public class IpcsEditCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+
+        int 	nGroupId = 0;
+        boolean returnVal 	= false;
+        try {
+			String 	hiEndPointID	= new String(req.getParameter("hiEndPointID").getBytes("8859_1"), "euc-kr");	// 연결된 단말기 ID
+			String 	hiEi64			= new String(req.getParameter("hiEi64").getBytes("8859_1"), "euc-kr");			// E164
+			String 	hiName			= new String(req.getParameter("hiName").getBytes("8859_1"), "euc-kr");			// 이름
+			String 	hiPosition		= new String(req.getParameter("hiPosition").getBytes("8859_1"), "euc-kr");		// 직급
+			String 	hiDept			= new String(req.getParameter("hiDept").getBytes("8859_1"), "euc-kr");			// 부서
+			String 	hiMobile		= new String(req.getParameter("hiMobile").getBytes("8859_1"), "euc-kr");		// 핸드폰
+			String 	hiHomeNumber	= new String(req.getParameter("hiHomeNumber").getBytes("8859_1"), "euc-kr");	// 집전화
+			String 	hiMail			= new String(req.getParameter("hiMail").getBytes("8859_1"), "euc-kr");			// 메일주소
+			String 	hiPwd			= new String(req.getParameter("hiPwd").getBytes("8859_1"), "euc-kr");			// 상용자 비밀번호
+			String 	hiExtension		= new String(req.getParameter("hiExtension").getBytes("8859_1"), "euc-kr");		// 내선번호
+			
+			String 	hiZoneCode		= new String(req.getParameter("hiZoneCode").getBytes("8859_1"), "euc-kr");		// 망관리
+			String 	hiAuthE164		= new String(req.getParameter("hiAuthE164").getBytes("8859_1"), "euc-kr");		// 전화번호 인증 여부
+			String 	hiAuthIPChk		= new String(req.getParameter("hiAuthIPChk").getBytes("8859_1"), "euc-kr");		// IP인증 여부
+			String 	hiAuthIP		= new String(req.getParameter("hiAuthIP").getBytes("8859_1"), "euc-kr");		// IP인증
+			String 	hiAuthPortChk	= new String(req.getParameter("hiAuthPortChk").getBytes("8859_1"), "euc-kr");	// Port인증 여부
+			String 	hiAuthPort		= new String(req.getParameter("hiAuthPort").getBytes("8859_1"), "euc-kr");		// Port인증
+			String 	hiAuthMd5		= new String(req.getParameter("hiAuthMd5").getBytes("8859_1"), "euc-kr");		// MD5 인증 여부
+			String 	hiAuthRegister	= new String(req.getParameter("hiAuthRegister").getBytes("8859_1"), "euc-kr");	// Register 유형
+			String 	hiAuthStale		= new String(req.getParameter("hiAuthStale").getBytes("8859_1"), "euc-kr");		// Stale 여부
+			String 	hiAuthInvite	= new String(req.getParameter("hiAuthInvite").getBytes("8859_1"), "euc-kr");	// Invite 여부
+			String 	hiAuthID		= new String(req.getParameter("hiAuthID").getBytes("8859_1"), "euc-kr");		// 인증ID
+			String 	hiAuthPass		= new String(req.getParameter("hiAuthPass").getBytes("8859_1"), "euc-kr");		// 인증 비밀번호
+			
+			String 	PAGE_NUM		= new String(req.getParameter("Edit_PAGE").getBytes("8859_1"), "euc-kr");		// 페이지번호
+			String 	hiOldExtension	= new String(req.getParameter("hiOldExtension").getBytes("8859_1"), "euc-kr");	// 수정전 내선번호
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			String 	goodsName_Type	= new String(req.getParameter("hiGoodsName").getBytes("8859_1"), "euc-kr");		// 제품명(모델명)
+			System.out.println("인증PORT 값1 : "+hiAuthPort);
+			
+			
+		    // Auth 테이블 	(Auth 인증값 설정)
+		    int nRetAuthMode = 0;
+		    if (hiAuthE164.equals("1"))		nRetAuthMode += WebUtil.conCheckAuth_Phone_Num_Use;				//전화번호인증(E164) : 2048
+		    if (hiAuthIPChk.equals("1"))		nRetAuthMode += WebUtil.conCheckAuth_IP_Use;				//IP인증 : 2
+		    if (hiAuthPortChk.equals("1"))	nRetAuthMode += WebUtil.conCheckAuth_IP_Port_Use;				//Port 인증 :1
+		    if (hiAuthMd5.equals("1")){
+		    	nRetAuthMode += WebUtil.conCheckAuth_Passwd_Use;											//비밀번호 인증 :128
+		    	if (hiAuthRegister.equals("1")){
+		    		nRetAuthMode += WebUtil.conCheckAuth_Passwd_Register_IPchange;							//Register관련 : IP변경 시 : 64
+		    	}else if (hiAuthRegister.equals("2")){
+		    		nRetAuthMode += WebUtil.conCheckAuth_Passwd_Register_AnyTime;							//Register관련 : 항상인증 : 0
+		    	}
+		    	if (hiAuthStale.equals("1"))	nRetAuthMode += WebUtil.conCheckAuth_Passwd_Register_Stale;	//Register관련 : Stele 모드 : 8
+		    	if (hiAuthInvite.equals("1")){
+		    		nRetAuthMode += WebUtil.conCheckAuth_Passwd_Invite_Uncheck;								//Inviter관련 : 인증안함 :0
+		    	}else if (hiAuthInvite.equals("2")){
+		    		nRetAuthMode += WebUtil.conCheckAuth_Passwd_Invite_IPReject;							//Inviter관련 : IP변경시 Reject :32
+		    	}else if (hiAuthInvite.equals("3")){
+		    		nRetAuthMode += WebUtil.conCheckAuth_Passwd_Invite_IPchange;							//Inviter관련 : IP변경시 인증 :48
+		    	}else if (hiAuthInvite.equals("4")){
+		    		nRetAuthMode += WebUtil.conCheckAuth_Passwd_Invite_AnyTime;								//Inviter관련 : 항상 인증 :16
+		    	}
+		    }
+		    
+			IpcsUserDAO dao = new IpcsUserDAO();
+			
+			// 사용자 정보 수정
+			//returnVal = dao.ipcsEdit(hiEndPointID, hiEi64, hiName, hiPosition, hiDept, hiMobile, hiHomeNumber, hiMail);
+			//returnVal = dao.ipcsEdit(hiEndPointID, hiEi64, hiName, hiPosition, hiDept, hiMobile, hiHomeNumber, hiMail, hiPwd, hiZoneCode, hiAuthIP, hiAuthPort, hiAuthID, hiAuthPass, nRetAuthMode, hiExtension, hiOldExtension);
+			returnVal = dao.ipcsEdit(hiEndPointID, hiEi64, hiName, hiPosition, hiDept, hiMobile, hiHomeNumber, hiMail, hiPwd, hiZoneCode, hiAuthIP, hiAuthPort, hiAuthID, hiAuthPass, nRetAuthMode, hiExtension, hiOldExtension, goodsName_Type);
+			
+			if (returnVal) {
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|82|개인내선번호/단말관리 ("+hiEi64+" 번)|3|"+strIp);
+				// ##############################################
+
+				System.out.println("IPCS 수정 성공 .......");
+				//forwardingPage = "/bizportal/publicAddrList.jsp?group=" + nGroupId + "&result=" + Integer.toString(updateResult);
+				res.sendRedirect("/bizportal/ipcs/ipcsList_New.jsp?PAGE_NUM="+PAGE_NUM);
+			}else{
+				System.out.println("IPCS 수정 실패 .......");
+				//forwardingPage = "/address/publicGroupList.jsp?session=0";
+			}
+			
+		} catch (Exception e) {
+			System.out.println("IPCS 에러발생 .......");
+			//forwardingPage = "/address/publicGroupList.jsp?group=" + nGroupId + "&result=-1" ;
+			
+			e.printStackTrace();
+		}		
+		return forwardingPage;
+	}
+}

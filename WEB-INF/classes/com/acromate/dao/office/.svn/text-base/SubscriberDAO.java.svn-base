@@ -1,0 +1,239 @@
+package com.acromate.dao.office ;
+
+import com.acromate.db.QueryStatement ;
+import com.acromate.dto.office.SubscriberInfoDTO;
+import java.util.ArrayList;
+import java.sql.ResultSet;
+import com.acromate.util.Str;
+import com.acromate.dto.office.SubscriberInfoDTO;
+import com.acromate.util.Logger;
+
+public class SubscriberDAO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private SubscriberInfoDTO subscriberDTO ;
+    QueryStatement statement ;
+    public SubscriberDAO() {}
+    public SubscriberDAO( QueryStatement statement, SubscriberInfoDTO subscriberDTO ) {
+        this.statement = statement ;
+        this.subscriberDTO = subscriberDTO ;
+    }
+
+    public int getMax ( QueryStatement statement ) {
+        int  nMax =  0 ;
+        ResultSet rs = null ;
+
+        try {
+            String queryString = "SELECT  max(DEPTID) From Table_Subscriber " ;
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            if ( rs.next() )  nMax = rs.getInt(1);
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+        return nMax ;
+    }
+
+    public ArrayList getList(QueryStatement statement, int OrgChartID, String strName ) {
+        ArrayList list = new ArrayList() ;
+        return getList(statement, OrgChartID, strName, list);
+    }
+
+
+    public SubscriberInfoDTO getDTO(QueryStatement statement, String SubscriberID) {
+        SubscriberInfoDTO subscriberDTO = null ;
+        ResultSet rs = null ;
+
+        try {
+            String queryString = "SELECT  ID, LoginLevel, Pwd, PhoneNum, Name, Position, Department, Mobile " ;
+            queryString += ", HomeNumber, Extension, MailAddress, HomePage, Address, Introduction " ;
+            queryString += " From table_SUBSCRIBER Where ID = '" + SubscriberID + "' " ;
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            while ( rs.next() )  {
+                subscriberDTO = new SubscriberInfoDTO();
+                subscriberDTO.setSubsID(Str.CheckNullString(rs.getString(1)));
+                subscriberDTO.setLoginLevel(rs.getInt(2));
+                subscriberDTO.setSusbsPwd(Str.CheckNullString(rs.getString(3)));
+                subscriberDTO.setPhoneNum(Str.CheckNullString(rs.getString(4)));
+                subscriberDTO.setName(Str.CheckNullString(rs.getString(5)));
+                subscriberDTO.setPosition(Str.CheckNullString(rs.getString(6)));
+                subscriberDTO.setDepartment(rs.getInt(7));
+                subscriberDTO.setMobile(Str.CheckNullString(rs.getString(8)));
+                subscriberDTO.setHomeNumber(Str.CheckNullString(rs.getString(9)));
+                subscriberDTO.setExtension(Str.CheckNullString(rs.getString(10)));
+                subscriberDTO.setMailAddress(Str.CheckNullString(rs.getString(11)));
+                subscriberDTO.setHomePage(Str.CheckNullString(rs.getString(12)));
+                subscriberDTO.setAddress(Str.CheckNullString(rs.getString(13)));
+                subscriberDTO.setIntroduction(Str.CheckNullString(rs.getString(14)));
+                //if (Str.CheckNullString(rs.getString(15)).length() > 0) subscriberDTO.setUsePresence(true) ;
+                //else subscriberDTO.setUsePresence(false) ;
+            }
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+
+        return subscriberDTO;
+    }
+
+    public ArrayList getList(QueryStatement statement, int OrgChartID, String strName, ArrayList list) {
+        SubscriberInfoDTO subscriberDTO = null ;
+        ResultSet rs = null ;
+        String strWhere =  " Where dept.OrgChartID = " + OrgChartID + " ";
+        if ( strName.length() > 0) strWhere += " AND dept.DeptName like %" + strName + "% ";
+
+        try {
+            String queryString = "SELECT  sub.ID, sub.LoginLevel, sub.Pwd, sub.PhoneNum, sub.Name, sub.Position, sub.Department, sub.Mobile " ;
+            queryString += ", sub.HomeNumber, sub.Extension, sub.MailAddress, sub.HomePage, sub.Address, sub.Introduction, presence.UserE164 " ;
+            queryString += " From table_DEPT dept join table_SUBSCRIBER sub  on sub.Department = dept.deptid " ;
+            queryString += "  left join table_presence presence  on sub.ID = presence.UserE164    " ;
+            queryString += strWhere ;
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            while ( rs.next() )  {
+                subscriberDTO = new SubscriberInfoDTO();
+                subscriberDTO.setSubsID(Str.CheckNullString(rs.getString(1)));
+                subscriberDTO.setLoginLevel(rs.getInt(2));
+                subscriberDTO.setSusbsPwd(Str.CheckNullString(rs.getString(3)));
+                subscriberDTO.setPhoneNum(Str.CheckNullString(rs.getString(4)));
+                subscriberDTO.setName(Str.CheckNullString(rs.getString(5)));
+                subscriberDTO.setPosition(Str.CheckNullString(rs.getString(6)));
+                subscriberDTO.setDepartment(rs.getInt(7));
+                subscriberDTO.setMobile(Str.CheckNullString(rs.getString(8)));
+                subscriberDTO.setHomeNumber(Str.CheckNullString(rs.getString(9)));
+                subscriberDTO.setExtension(Str.CheckNullString(rs.getString(10)));
+                subscriberDTO.setMailAddress(Str.CheckNullString(rs.getString(11)));
+                subscriberDTO.setHomePage(Str.CheckNullString(rs.getString(12)));
+                subscriberDTO.setAddress(Str.CheckNullString(rs.getString(13)));
+                subscriberDTO.setIntroduction(Str.CheckNullString(rs.getString(14)));
+                if (Str.CheckNullString(rs.getString(15)).length() > 0) subscriberDTO.setUsePresence(true) ;
+                else subscriberDTO.setUsePresence(false) ;
+                list.add(subscriberDTO) ;
+            }
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+
+        return list;
+    }
+
+    public boolean insert ( QueryStatement statement, SubscriberInfoDTO subscriberDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = " INSERT INTO Table_Subscriber ( ID, LoginLevel, Pwd, PhoneNum, Name, Position, Department, Mobile, HomeNumber, Extension, MailAddress, HomePage, Address, Introduction ) ";
+            queryString += " VALUES ('" + subscriberDTO.getSubsID() + "', " ;
+            queryString += "  " + subscriberDTO.getLoginLevel() + ", " ;
+            queryString += " '" + subscriberDTO.getSusbsPwd() + "', " ;
+            queryString += " '" + subscriberDTO.getPhoneNum() + "', " ;
+            queryString += " '" + subscriberDTO.getName() + "', " ;
+            queryString += " '" + subscriberDTO.getPosition() + "', " ;
+            queryString += "  " + subscriberDTO.getDepartment() + ", " ;
+            queryString += " '" + subscriberDTO.getMobile() + "', " ;
+            queryString += " '" + subscriberDTO.getHomeNumber() + "', " ;
+            queryString += " '" + subscriberDTO.getExtension() + "', " ;
+            queryString += " '" + subscriberDTO.getMailAddress() + "', " ;
+            queryString += " '" + subscriberDTO.getHomePage() + "', " ;
+            queryString += " '" + subscriberDTO.getAddress() + "', " ;
+            queryString += " '" + subscriberDTO.getIntroduction() + "' ) " ;
+
+            log.info(queryString) ;
+
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+
+    public boolean update( QueryStatement statement, SubscriberInfoDTO subscriberDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = "UPDATE table_SUBSCRIBER SET " ;
+            queryString += " LoginLevel = " + subscriberDTO.getLoginLevel() + "" ;
+            queryString += " , Pwd = '" + Str.CheckNullString(subscriberDTO.getSusbsPwd()).trim() + "'" ;
+            queryString += " , PhoneNum = '" + Str.CheckNullString(subscriberDTO.getPhoneNum()).trim() + "'" ;
+            queryString += " , Name = '" + Str.CheckNullString(subscriberDTO.getName()).trim() + "'" ;
+            queryString += " , Position = '" + Str.CheckNullString(subscriberDTO.getPosition()).trim() + "'" ;
+            queryString += " , Department = " + subscriberDTO.getDepartment() ;
+            queryString += " , Mobile = '" + Str.CheckNullString(subscriberDTO.getMobile()).trim() + "'" ;
+		queryString += ", HomeNumber = '" + Str.CheckNullString(subscriberDTO.getHomeNumber()).trim() + "'" ;
+            queryString += " , Extension = '" + Str.CheckNullString(subscriberDTO.getExtension()).trim() + "'" ;
+		queryString += ", MailAddress = '" +Str.CheckNullString(subscriberDTO.getMailAddress()).trim() + "'" ;
+            queryString += " , HomePage = '" +Str.CheckNullString(subscriberDTO.getHomePage()).trim() + "'" ;
+		queryString += ", Address = '" +Str.CheckNullString(subscriberDTO.getAddress()).trim() + "'" ;
+		queryString += ", Introduction = '" +Str.CheckNullString(subscriberDTO.getIntroduction()).trim() + "' " ;
+		queryString += " Where ID = '"+ Str.CheckNullString(subscriberDTO.getSubsID()).trim() +"'" ;
+
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement, SubscriberInfoDTO subscriberDTO) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = " DELETE FROM Table_Subscriber Where ID = '" +  subscriberDTO.getSubsID()+ "' ";
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+    public int checkDuplication(QueryStatement statement, String SubscriberID) {
+      ResultSet rs = null;
+      int nTotalCount = 0;
+      try {
+          String strQuery = " SELECT count(*) FROM Table_Subscriber  Where  ID = '" +  SubscriberID + "' ";
+          rs = statement.executeQuery(strQuery);
+
+          if(rs.next())
+               nTotalCount += rs.getInt(1);
+      } catch (Exception e){
+               log.error("exception occurred > ", e);
+      } finally {
+               try {
+                    if (rs != null) rs.close();
+                }
+                catch(Exception ee){}
+
+      }
+      return nTotalCount ;
+    }
+}

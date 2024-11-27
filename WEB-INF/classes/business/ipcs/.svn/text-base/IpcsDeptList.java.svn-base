@@ -1,0 +1,332 @@
+package business.ipcs;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+
+import dto.DeptDTO;
+import dto.SubGroupDTO;
+import dto.ipcs.IpcsDetailDTO;
+import dto.ipcs.IpcsDeptDTO;
+import dto.ipcs.IpcsVirtualDeptDTO;
+import dto.ipcs.IpcsVirtualDeptE164DTO;
+
+public class IpcsDeptList {
+	public List getList(DataStatement stmt, int pageNo, int pageSize, String endpointid) {		
+		IpcsDeptDTO 		ipcsDeptDTO;
+        List<IpcsDeptDTO> 	ipcsDeptList 	= new ArrayList<IpcsDeptDTO>();
+        
+        String sql ="\n Select a.startprefix as startprefix, a.prefixtype as prefixtype, a.endpointid as endpointid, ";
+        sql = sql + "\n b.KEYNUMBERID as keynumberid, b.KEYNUMBERDESC as keynumberdesc, b.groupID as groupID, b.hunt as hunt ";
+        sql = sql + "\n FROM  table_localprefix a LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID ";
+        sql = sql + "\n Where 1 = 1 and a.prefixtype = 4 ";
+        
+        if(endpointid != null && !"".equals(endpointid)){
+//        	sql = sql + " WHERE OwnerID = '" + OwnerID + "' And GroupID = " + GroupID + " ";
+        }else{
+        	
+//        	sql = sql + " Order by Name offset "+pageNo+" limit "+pageSize ;
+        }
+        //sql = sql + " Order by a.endpointid offset "+pageNo+" limit "+pageSize ;
+        sql = sql + " Order by a.endpointid ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    ipcsDeptDTO = new IpcsDeptDTO(
+                    	Str.CheckNullString(rs.getString("endpointid")),
+                        Str.CheckNullString(rs.getString("keynumberdesc")),
+                        Str.CheckNullInt(rs.getString("hunt"))
+                    );
+
+                    ipcsDeptList.add(ipcsDeptDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsDeptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsDeptList;
+    }
+
+	public int getCount(DataStatement stmt, String endpointid) {
+		int count = 0 ;
+		ResultSet rs = null;
+		
+        String sql ="\n Select Count(*) FROM  table_localprefix a ";
+        sql = sql + "\n LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID ";
+        sql = sql + "\n Where 1 = 1 and a.prefixtype = 4 ";
+        
+        if(endpointid != null && !"".equals(endpointid)){
+//        	sql = sql + " WHERE OwnerID = '" + OwnerID + "' And GroupID = " + GroupID + " ";
+        }else{
+        	
+//        	sql = sql + " Order by Name offset "+pageNo+" limit "+pageSize ;
+        }
+		
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+	
+	/*
+	 * 사용가능한 부서 대표번호 조회
+	 */	
+	public List getParentDeptList(DataStatement stmt) {
+		IpcsDeptDTO 		ipcsDeptDTO;
+        List<IpcsDeptDTO> 	ipcsDeptList 	= new ArrayList<IpcsDeptDTO>();
+        
+        String sql = "\n SELECT a.keynumberid AS keynumberid FROM table_keynumberid a ";
+        sql = sql +  "\n WHERE a.keynumberid NOT IN(SELECT a.keynumberid FROM table_keynumberid a , table_dept b WHERE b.keynumber = a.keynumberid)";
+        sql = sql +  "\n ORDER BY a.keynumberid ";
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsDeptDTO = new IpcsDeptDTO();
+                	
+                	ipcsDeptDTO.setKeynumberid(Str.CheckNullString(rs.getString("keynumberid"))); //부서대표번호
+
+                	ipcsDeptList.add(ipcsDeptDTO);
+                }
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsDeptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsDeptList;
+    }
+
+	/*
+	 * 선택한 부서의 대표점호 와 사용가능한 부서 대표번호 조회
+	 */	
+	public List getDeptKeyNumberList(DataStatement stmt, String deptid) {
+		IpcsDeptDTO 		ipcsDeptDTO;
+        List<IpcsDeptDTO> 	ipcsDeptList 	= new ArrayList<IpcsDeptDTO>();
+        
+        String sql = "\n SELECT a.keynumberid AS keynumberid FROM table_keynumberid a ";
+        sql = sql +  "\n WHERE a.keynumberid NOT IN(SELECT a.keynumberid FROM table_keynumberid a , table_dept b WHERE b.keynumber = a.keynumberid)";
+        sql = sql +  "\n    OR a.keynumberid = (SELECT coalesce(keynumber,'') FROM table_dept WHERE deptid = "+ deptid +") ";
+        sql = sql +  "\n ORDER BY a.keynumberid ";
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsDeptDTO = new IpcsDeptDTO();
+                	
+                	ipcsDeptDTO.setKeynumberid(Str.CheckNullString(rs.getString("keynumberid"))); //부서대표번호
+
+                	ipcsDeptList.add(ipcsDeptDTO);
+                }
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsDeptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsDeptList;
+    }
+
+	public List getNewList(DataStatement stmt, int pageNo, int pageSize, String endpointid) {		
+		IpcsDeptDTO 		ipcsDeptDTO;
+        List<IpcsDeptDTO> 	ipcsDeptList 	= new ArrayList<IpcsDeptDTO>();
+        
+        String sql ="\n Select a.startprefix as startprefix, a.prefixtype as prefixtype, a.endpointid as endpointid, ";
+        sql = sql + "\n b.KEYNUMBERID as keynumberid, b.KEYNUMBERDESC as keynumberdesc, b.groupID as groupID, b.hunt as hunt ";
+        sql = sql + "\n , b.QueueStartAnn as queuestartann, b.QueueEndAnn as aueueendann ";
+        sql = sql + "\n FROM  table_localprefix a LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID ";
+        sql = sql + "\n Where 1 = 1 and a.prefixtype = 4 ";
+        
+        if(endpointid != null && !"".equals(endpointid)){
+//        	sql = sql + " WHERE OwnerID = '" + OwnerID + "' And GroupID = " + GroupID + " ";
+        }else{
+        	
+//        	sql = sql + " Order by Name offset "+pageNo+" limit "+pageSize ;
+        }
+        //sql = sql + " Order by a.endpointid offset "+pageNo+" limit "+pageSize ;
+        sql = sql + " Order by a.endpointid ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    ipcsDeptDTO = new IpcsDeptDTO(
+                    	Str.CheckNullString(rs.getString("endpointid")),
+                        Str.CheckNullString(rs.getString("keynumberdesc")),
+                        Str.CheckNullInt(rs.getString("hunt")),
+                        Str.CheckNullString(rs.getString("queuestartann")),
+                        Str.CheckNullString(rs.getString("aueueendann"))
+                    );
+
+                    ipcsDeptList.add(ipcsDeptDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsDeptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsDeptList;
+    }
+
+	public List getVirtualDeptList(DataStatement stmt, int pageNo, int pageSize, String endpointid) {		
+		IpcsVirtualDeptDTO 		ipcsVirtualDeptDTO;
+        List<IpcsVirtualDeptDTO> 	ipcsDeptList 	= new ArrayList<IpcsVirtualDeptDTO>();
+        
+        String sql ="\n Select a.startprefix as startprefix, a.prefixtype as prefixtype, a.endpointid as endpointid, ";
+        //sql = sql + "\n b.KEYNUMBERID as keynumberid, b.KEYNUMBERDESC as keynumberdesc, b.groupID as groupID, b.hunt as hunt ";
+        sql = sql + "\n b.KEYNUMBERID as keynumberid, c.deptname as keynumberdesc, b.groupID as groupID, b.hunt as hunt ";
+        sql = sql + "\n , b.QueueStartAnn as queuestartann, b.QueueEndAnn as aueueendann ";
+        sql = sql + "\n , (Select count(*) From table_keynumber Where keynumberid = a.endpointid) as e164Count ";
+        sql = sql + "\n FROM  table_localprefix a LEFT OUTER JOIN table_KeyNumberID b  ON a.endpointid = b.KEYNUMBERID ";
+        sql = sql + "\n 	LEFT OUTER JOIN table_dept c  ON a.endpointid = c.KEYNUMBER ";
+        sql = sql + "\n Where 1 = 1 And a.prefixtype = 4 ";
+        sql = sql + "\n   And (c.KEYNUMBER <> '' Or c.KEYNUMBER is not null) ";
+        sql = sql + " Order by a.endpointid ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	ipcsVirtualDeptDTO = new IpcsVirtualDeptDTO(
+                    	Str.CheckNullString(rs.getString("endpointid")),
+                        Str.CheckNullString(rs.getString("keynumberdesc")),
+                        Str.CheckNullInt(rs.getString("hunt")),
+                        Str.CheckNullString(rs.getString("queuestartann")),
+                        Str.CheckNullString(rs.getString("aueueendann")),
+                        Str.CheckNullInt(rs.getString("e164Count"))
+                    );
+
+                    ipcsDeptList.add(ipcsVirtualDeptDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsDeptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsDeptList;
+    }
+
+	/*
+	 * 부서대표번호 전체 인원 리스트 조회
+	 */
+	public List getE164List(DataStatement stmt, String endpointID, String type) {
+		IpcsVirtualDeptE164DTO ipcsVirtualDeptE164DTO;
+        List<IpcsVirtualDeptE164DTO> subGroupList = new ArrayList<IpcsVirtualDeptE164DTO>();
+        
+        String sql = "\n SELECT a.e164, a.subid, ";
+        sql = sql +  "\n        coalesce(b.id, '') AS id, " ;
+        sql = sql +  "\n        coalesce(b.name, '') AS name, " ;
+        sql = sql +  "\n        coalesce(b.phonenum, '') AS phonenum, " ;
+        sql = sql +  "\n        coalesce(b.position, '') AS position, " ;
+        sql = sql +  "\n        coalesce(c.ranking, 100) AS rank, " ;
+        sql = sql +  "\n        b.department as s_deptid, " ;
+        sql = sql +  "\n        (select deptid from table_dept where keynumber = '"+endpointID+"') as d_deptid " ;
+        sql = sql +  "\n   FROM table_e164 a " ;
+        sql = sql +  "\n   LEFT OUTER JOIN table_subscriber b " ;
+        sql = sql +  "\n                ON a.e164  = b.phonenum " ;
+        sql = sql +  "\n   LEFT OUTER JOIN table_position c " ;
+        sql = sql +  "\n                ON b.position = c.positionname " ;
+        if("1".equals(type)){
+        	sql = sql +  "\n  WHERE a.e164 not in (select e164 from table_keynumber where keynumberid = '"+endpointID+"') " ;
+        }else{
+        	sql = sql +  "\n  WHERE a.e164 in (select e164 from table_keynumber where keynumberid = '"+endpointID+"') " ;
+        }
+        sql = sql +  "\n  Order By rank ASC, b.name ASC ";               
+
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsVirtualDeptE164DTO = new IpcsVirtualDeptE164DTO();
+                	
+                	ipcsVirtualDeptE164DTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	ipcsVirtualDeptE164DTO.setE164SubID(Str.CheckNullString(rs.getString("subid")));
+                	ipcsVirtualDeptE164DTO.setSubScriberID(Str.CheckNullString(rs.getString("id")));
+                	ipcsVirtualDeptE164DTO.setName(Str.CheckNullString(rs.getString("name")));
+                	ipcsVirtualDeptE164DTO.setPhoneNum(Str.CheckNullString(rs.getString("phonenum")));
+                	ipcsVirtualDeptE164DTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	ipcsVirtualDeptE164DTO.setRanking(rs.getInt("rank"));
+                	ipcsVirtualDeptE164DTO.setS_deptid(rs.getInt("s_deptid"));
+                	ipcsVirtualDeptE164DTO.setD_deptid(rs.getInt("d_deptid"));
+                	subGroupList.add(ipcsVirtualDeptE164DTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return subGroupList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return subGroupList;
+    }	
+
+}

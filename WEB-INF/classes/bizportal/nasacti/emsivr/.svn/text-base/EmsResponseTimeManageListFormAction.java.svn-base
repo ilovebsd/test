@@ -1,0 +1,90 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.ModeSettingDAO;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.VoiceDTO;
+import java.util.ArrayList;
+import bizportal.nasacti.ipivr.dao.ResponseModeDAO;
+import java.text.DecimalFormat;
+import java.util.List;
+import bizportal.nasacti.ipivr.dto.ResponseModeDTO;
+import bizportal.nasacti.ipivr.dto.UsedVoiceDTO;
+import bizportal.nasacti.ipivr.dao.ResponseTimeDAO;
+
+public class EmsResponseTimeManageListFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+	ResponseModeDAO responseModeDAO = ResponseModeDAO.getInstance();
+	List responseModeDTOList = responseModeDAO.getAllResponseMode(ResponseModeDAO.ACTIVE_IVR);
+
+
+	ArrayList usedVoiceDTOList = new ArrayList();
+	ArrayList voiceDTOList = new ArrayList();
+
+
+	VoiceDAO voiceDAO = VoiceDAO.getInstance();
+
+	for(int i=0; i < responseModeDTOList.size(); i++) {
+		usedVoiceDTOList.add(voiceDAO.getUsedResponseModeVoice(((ResponseModeDTO)responseModeDTOList.get(i)).getScVoiceFile()));
+
+		String strScVoiceFile = ((ResponseModeDTO)responseModeDTOList.get(i)).getScVoiceFile();
+		UsedVoiceDTO usedVoiceDTO = null;
+		VoiceDTO voiceDTO = null;
+		usedVoiceDTO = voiceDAO.getUsedResponseModeVoice(strScVoiceFile);
+		String strWIndex = "";
+		if(usedVoiceDTO != null) {
+			strWIndex = usedVoiceDTO.getWIndex();
+			voiceDTO = voiceDAO.getVoice(strWIndex);
+		}
+		voiceDTOList.add(voiceDTO);
+	}
+
+	usedVoiceDTOList.trimToSize();
+	voiceDTOList.trimToSize();
+
+	DecimalFormat df = new DecimalFormat("00");
+
+	List hourList = new ArrayList();
+	for(int i=0; i < 24; i++)
+		hourList.add(df.format(i));
+
+	List minuteList = new ArrayList();
+	for(int i=0; i < 60; i++)
+		minuteList.add(df.format(i));
+
+	ResponseTimeDAO responseTimeDAO = ResponseTimeDAO.getInstance();
+	List responseTimeDTO1List = responseTimeDAO.getAllResponseTime();
+
+
+
+	request.setAttribute("responseModeDTOList", responseModeDTOList);
+	request.setAttribute("usedVoiceDTOList", usedVoiceDTOList);
+	request.setAttribute("voiceDTOList", voiceDTOList);
+	request.setAttribute("hourList", hourList);
+	request.setAttribute("minuteList", minuteList);
+	request.setAttribute("responseTimeDTO1List", responseTimeDTO1List);
+
+
+
+	return "/ivr/emsResponseTimeManageList.jsp";
+
+	}
+}

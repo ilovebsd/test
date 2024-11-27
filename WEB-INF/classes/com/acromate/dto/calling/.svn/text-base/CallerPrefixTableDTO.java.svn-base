@@ -1,0 +1,63 @@
+package com.acromate.dto.calling;
+
+public class CallerPrefixTableDTO {
+
+    private String startPrefix  = "";
+    private String endPrefix  = "";
+    private int routeSelectRule  = 0;
+    private String routeID  = "";
+    private int protocol  = 0;
+    private int options  = 0;
+    private int callType  = 0;
+    private String description  = "";
+    private int callerType  = 0;
+    private int endpointclass  = 0;
+
+    public String getStartPrefix() {return this.startPrefix; }
+    public void setStartPrefix(String startPrefix ) { this.startPrefix = startPrefix; }
+
+    public String getEndPrefix() {return this.endPrefix; }
+    public void setEndPrefix(String endPrefix ) { this.endPrefix = endPrefix; }
+
+    public int getRouteSelectRule() {return this.routeSelectRule; }
+    public void setRouteSelectRule(int routeSelectRule ) { this.routeSelectRule = routeSelectRule; }
+
+    public String getRouteID() {return this.routeID; }
+    public void setRouteID(String routeID ) { this.routeID = routeID; }
+
+    public int getProtocol() {return this.protocol; }
+    public void setProtocol(int protocol ) { this.protocol = protocol; }
+
+    public int getOptions() {return this.options; }
+    public void setOptions(int options ) { this.options = options; }
+
+    public int getCallType() {return this.callType; }
+    public void setCallType(int callType ) { this.callType = callType; }
+
+    public String getDescription() {return this.description; }
+    public void setDescription(String description ) { this.description = description; }
+
+    public int getCallerType() {return this.callerType; }
+    public void setCallerType(int callerType ) { this.callerType = callerType; }
+
+    public int	getEndpointClass() { return this.endpointclass; }
+    public void	setEndpointClass(int endpointclass ) { this.endpointclass = endpointclass; }
+
+    public String toString(){
+
+    StringBuffer sb = new StringBuffer("");
+    sb.append("(startPrefix:" 	+ getStartPrefix() + ") ") ;
+    sb.append("(endPrefix:" 	        + getEndPrefix() + ") ") ;
+    sb.append("[routeSelectRule:"  	+ getRouteSelectRule() + "] ") ;
+    sb.append("[routeID:"      	+ getRouteID() + "] ") ;
+    sb.append("[protocol:"  	+ getProtocol() + "] ") ;
+    sb.append("[options:"  	+ getOptions() + "] ") ;
+    sb.append("[callType:"  	+ getCallType() + "] ") ;
+    sb.append("[description:"  	+ getDescription() + "] ") ;
+    sb.append("[callerType:"  	+ getCallerType() + "] ") ;
+    sb.append("[endpointclass:"  + getEndpointClass() + "] ") ;
+
+    return sb.toString();
+    }
+
+}

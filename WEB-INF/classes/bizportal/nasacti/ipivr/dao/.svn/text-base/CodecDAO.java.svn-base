@@ -1,0 +1,130 @@
+package bizportal.nasacti.ipivr.dao;
+
+import java.sql.*;
+import java.util.*;
+import bizportal.nasacti.ipivr.DBPoolConnector;
+import bizportal.nasacti.ipivr.dto.CodecDTO;
+
+public class CodecDAO extends DBPoolConnector {
+
+	private static CodecDAO instance = new CodecDAO();
+
+	public static CodecDAO getInstance() {
+		return instance;
+	}
+
+	private CodecDAO() {
+	}
+
+
+	public int updateCodec(List codecList) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+		PreparedStatement pstmt3 = null;
+		ResultSet rs = null;
+		StringBuffer sb1 = new StringBuffer();
+		StringBuffer sb2 = new StringBuffer();
+		StringBuffer sb3 = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+		int iIdx = 0;
+
+		try {
+			cn = this.getConnection();
+
+			sb1.append("DELETE FROM nasa_audio_codec         \n");
+
+			pstmt1 = cn.prepareStatement(sb1.toString());
+
+
+			iRtnCnt = pstmt1.executeUpdate();
+			if(iRtnCnt > 0) iRtn = 1;
+			iRtn = 1;
+
+			sb3.append("select coalesce(max(nco_index), 0) from nasa_audio_codec");
+
+			sb2.append("INSERT INTO nasa_audio_codec(system_idx, nco_code, nco_name, nco_sort, nco_div, nco_index)      \n");
+            sb2.append("VALUES(?,?,?,?,?,?)                                       ");
+
+			pstmt3 = cn.prepareStatement(sb3.toString());
+
+
+
+			pstmt2 = cn.prepareStatement(sb2.toString());
+
+			for(int i=0; i < codecList.size(); i++) {
+				rs = pstmt3.executeQuery();
+				if(rs.next())
+					iIdx = rs.getInt(1) + 1;
+				if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+				rs = null;
+
+				pstmt2.setInt(1, 1);
+				pstmt2.setString(2, ((CodecDTO)codecList.get(i)).getNcoCode());
+				pstmt2.setString(3, ((CodecDTO)codecList.get(i)).getNcoName());
+				pstmt2.setInt(4, Integer.parseInt(((CodecDTO)codecList.get(i)).getNcoSort()));
+				pstmt2.setString(5, ((CodecDTO)codecList.get(i)).getNcoDiv());
+				pstmt2.setInt(6, iIdx);
+				iRtnCnt = pstmt2.executeUpdate();
+				if(iRtnCnt > 0) iRtn = 1;
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt1 != null) try{ pstmt1.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt2 != null) try{ pstmt2.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt3 != null) try{ pstmt3.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+
+
+	public List getCodec() throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuffer sb = new StringBuffer();
+
+		ArrayList codecList = null;
+
+		try {
+			cn = this.getConnection();
+			sb.append("SELECT system_idx, nco_index, nco_code, nco_name, nco_sort, nco_div    \n");
+			sb.append("FROM nasa_audio_codec ORDER BY nco_sort ASC                                  ");
+
+			pstmt = cn.prepareStatement(sb.toString());
+			rs = pstmt.executeQuery();
+
+			codecList = new ArrayList();
+			if(rs.next()) {
+				do {
+					CodecDTO codecData = new CodecDTO();
+					codecData.setSystemIdx(String.valueOf(rs.getInt("system_idx")));
+					codecData.setNcoIndex(String.valueOf(rs.getInt("nco_index")));
+					codecData.setNcoCode(rs.getString("nco_code") == null ? "" : rs.getString("nco_code"));
+					codecData.setNcoName(rs.getString("nco_name") == null ? "" : rs.getString("nco_name"));
+					codecData.setNcoSort(String.valueOf(rs.getInt("nco_sort")));
+					codecData.setNcoDiv(rs.getString("nco_div") == null ? "" : rs.getString("nco_div"));
+					codecList.add(codecData);
+				} while(rs.next());
+			}
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+		if(codecList != null) codecList.trimToSize();
+		return codecList;
+
+    }
+
+}

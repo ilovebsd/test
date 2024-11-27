@@ -1,0 +1,138 @@
+package com.acromate.dao.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+import com.acromate.db.QueryStatement ;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+import java.sql.ResultSet;
+import com.acromate.dto.element.DomainRouteTableDTO;
+import com.acromate.dto.element.SpecialNoGIDDTO;
+import com.acromate.util.Logger;
+
+public class SpecialNoGIDDAO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private SpecialNoGIDDTO specialNoGIDDTO ;
+    QueryStatement statement ;
+
+    public SpecialNoGIDDAO() {}
+
+    public SpecialNoGIDDAO( QueryStatement statement, SpecialNoGIDDTO specialNoGIDDTO ) {
+        this.statement = statement ;
+        this.specialNoGIDDTO = specialNoGIDDTO ;
+    }
+
+    public ArrayList getList(QueryStatement statement, String specialNoGID) {
+        ArrayList list = new ArrayList() ;
+        SpecialNoGIDDTO specialNoGIDDTO = null ;
+        ResultSet rs = null ;
+        String strWhere = "";
+
+        if(!specialNoGID.equals("")){
+            strWhere = " AND SPECIALNOGID = '" + specialNoGID + "' ";
+        }
+
+        try {
+            String queryString = "SELECT SPECIALNOGID , DESCRIPTION "
+                                 + " FROM table_SPECIALNOGID   Where 1 = 1 "
+                                 + strWhere;
+
+            queryString += strWhere;
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            while ( rs.next() )  {
+                specialNoGIDDTO = new SpecialNoGIDDTO() ;
+                specialNoGIDDTO.setSpecialNoGID(Str.CheckNullString(rs.getString(1)));
+                specialNoGIDDTO.setDescription(Str.CheckNullString(rs.getString(2)));
+                list.add(specialNoGIDDTO) ;
+            }
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+
+        return list;
+    }
+
+    public boolean insert ( QueryStatement statement, SpecialNoGIDDTO specialNoGIDDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString =   "INSERT INTO TABLE_SPECIALNOGID(SPECIALNOGID, DESCRIPTION) VALUES  (" ;
+            queryString += " ('" + specialNoGIDDTO.getSpecialNoGID() + "' ," ;
+            queryString += "  '" + specialNoGIDDTO.getDescription() + "') " ;
+
+            log.info(queryString) ;
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+
+    public boolean update( QueryStatement statement, SpecialNoGIDDTO specialNoGIDDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = "Update table_SPECIALNOGID ";
+            queryString +="set  Description = '" + specialNoGIDDTO.getDescription()+"' " ;
+            queryString += " where SPECIALNOGID ='"+specialNoGIDDTO.getSpecialNoGID()+"'" ;
+
+
+
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement,  SpecialNoGIDDTO specialNoGIDDTO) {
+        String queryString = "";
+        String strWhere = "WHERE SpecialNoGID = '"+specialNoGIDDTO+"' " ;
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = queryString = "Delete from table_SpecialNoGID " + strWhere;
+
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+}
+
+
+
+
+

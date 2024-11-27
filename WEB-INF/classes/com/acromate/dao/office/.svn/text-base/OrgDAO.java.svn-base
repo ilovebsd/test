@@ -1,0 +1,67 @@
+package com.acromate.dao.office ;
+
+import com.acromate.db.QueryStatement ;
+import com.acromate.dto.office.OrgDTO;
+import java.util.ArrayList;
+import java.sql.ResultSet;
+import com.acromate.util.Str;
+
+public class OrgDAO {
+    private OrgDTO orgDTO ;
+    QueryStatement statement ;
+
+    public OrgDAO() {}
+
+    public OrgDAO( QueryStatement statement, OrgDTO orgDTO ) {
+        this.statement = statement ;
+        this.orgDTO = orgDTO ;
+    }
+
+    public ArrayList getList ( QueryStatement statement, int OrgChartID ) {
+        ArrayList list = new ArrayList() ;
+        OrgDTO orgDTO = null ;
+        ResultSet rs = null ;
+
+        try {
+            String queryString = "SELECT  OrgChartID, RootDeptID , Description  " ;
+            queryString += " From Table_OrgChartList " ;
+            rs = statement.executeQuery(queryString) ;
+            System.out.println(queryString) ;
+
+            while ( rs.next() )  {
+                orgDTO = new OrgDTO() ;
+                orgDTO.setOrgChartID(rs.getInt(1)) ;
+                orgDTO.setRootDeptID(rs.getInt(2)) ;
+                orgDTO.setDescription(Str.CheckNullString(rs.getString(3))) ;
+                list.add(orgDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace() ;
+        } finally {
+            try {
+                if (rs != null) rs.close() ;
+            } catch(Exception e) {}
+        }
+        return list ;
+    }
+
+    public int getRootID(QueryStatement statement, int OrgChartID) {
+        ArrayList list = new ArrayList() ;
+        OrgDTO orgDTO = new OrgDTO() ;
+        ResultSet rs = null ;
+        int nRootDeptID = 1;
+        try {
+            String queryString = "SELECT  RootDeptID From Table_OrgChartList Where OrgChartID = " + OrgChartID ;
+            rs = statement.executeQuery(queryString) ;
+            System.out.println(queryString) ;
+            if ( rs.next() )  nRootDeptID = rs.getInt(1);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) {}
+        }
+        return nRootDeptID;
+    }
+}

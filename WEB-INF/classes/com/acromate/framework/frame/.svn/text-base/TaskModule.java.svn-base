@@ -1,0 +1,193 @@
+package com.acromate.framework.frame;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.code.AppCode;
+
+public class TaskModule extends ListIO
+{
+// construction
+
+	//public TaskModule( char *pModuleName = NULL ) ;
+	public TaskModule(   ) {
+		ModuleName = null;
+	}
+	public TaskModule( String pModuleName  ) {
+		ModuleName = new StringBuilder(pModuleName);	
+	}
+
+// attribute
+	// object identifier
+	protected StringBuilder				ModuleName ;
+	// top level linker
+	protected WorkingTask 			pActionTask ;
+	// up linker
+	protected TaskModule 			pParent ;
+	// module options
+	protected int					m_nActionMode ;
+	
+
+	// class data i/o
+	protected int  getFieldData( String field, Index indx, StringBuilder data){
+		boolean stop = (field != null) ;
+		int  errcode ;
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "name", indx, data) )
+		{    errcode = getString( ModuleName.toString(), data, ! stop ) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		if   ( compareFieldID( sbfield, "actionMode", indx, data) )
+		{    errcode = getInteger( m_nActionMode, data) ;
+			if   ( stop || errcode != AppCode.ERR_NOERROR )	return errcode ;
+		}
+		return  super.getFieldData(  field,  indx,  data);
+	}
+	protected int setFieldData( String field, String value ) {
+		StringBuilder sbfield = new StringBuilder(field);
+		if   ( compareFieldID( sbfield, "name" ) ){
+			 if(ModuleName == null )ModuleName = new StringBuilder();
+		     return setString( ModuleName, value ) ;
+		}
+		if   ( compareFieldID( sbfield, "actionMode" ) )
+		{    if   ( value != null )
+		          m_nActionMode = a2i( value ) ;
+		     return AppCode.ERR_NOERROR ;
+		}
+		return super.setFieldData(field, value);
+		//return (AppCode.ERR_MEMBER_IO | AppCode.ERR_UNDEFINED_MEMBER) ;
+		
+	}
+	// class identity
+	public String			getClassID()	{ if(ModuleName== null) return "";return ModuleName.toString() ; }
+	public TaskModule 		getParent()		{ return pParent ; }
+	// top level linker
+	public WorkingTask 	getActionTask()	{ return pActionTask ; }
+	public void			setActionTask( WorkingTask pWorkingTask ) {	
+		TaskModule pModule ;
+	
+		if   ( pActionTask == pWorkingTask )
+		     return ;
+		pActionTask = pWorkingTask ;
+	
+		// update all sub module
+		pModule = (TaskModule )getHead() ;
+		while( pModule != null)
+		{    pModule.setActionTask( pActionTask ) ;
+		     pModule = (TaskModule )pModule.m_pNext ;
+		}
+	}
+
+	// index i/o
+	public DataIO 		getNode( String pNodeID ) {
+		DataIO pNode = null;
+		if(pNodeID != null){    
+			char temp[] = pNodeID.toCharArray();
+			int nStar = 0;
+			int nEnd = 0;
+			nEnd = temp.length-1;
+			for(int i=0;i<nEnd;i++){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nStar++;
+				else break;
+			}
+			for(int i = temp.length-1;i> nStar;i--){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nEnd--;
+				else break;
+			}
+			pNodeID = pNodeID.substring(nStar, nEnd+1);
+		}
+		if( (pNode = super.getNode( pNodeID )) != null )
+			return pNode ;
+		if( pNodeID == null)
+			return null ;
+		if( (pNode = new SystemMenu( pNodeID )) != null )
+			appendTail( pNode ) ;
+		return pNode ;
+	}
+	public DataIO 		search(  String pNodeID ) {
+		if(pNodeID != null){    
+			char temp[] = pNodeID.toCharArray();
+			int nStar = 0;
+			int nEnd = 0;
+			nEnd = temp.length-1;
+			for(int i=0;i<nEnd;i++){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nStar++;
+				else break;
+			}
+			for(int i = temp.length-1;i> nStar;i--){
+				if((0 < temp[i] && temp[i] < 0x21) || (temp[i] == '\'')) nEnd--;
+				else break;
+			}
+			pNodeID = pNodeID.substring(nStar, nEnd+1);
+		}
+		return super.getNode( pNodeID ) ;		
+	}
+	
+	// options
+	public int			getActionMode()	{ return m_nActionMode ; }
+
+// operations
+	protected DataIO 	newListNode()	{ return new TaskModule() ; }
+	public void			makeCardinalModules() {	
+		TaskModule pModule ;
+	
+		pModule = (TaskModule )getHead() ;
+		while( pModule != null)
+		{    pModule.makeCardinalModules() ;
+			pModule = (TaskModule )pModule.m_pNext ;
+		}
+	}
+
+
+	// modified list tools
+	public void			appendHead( DataIO pNode ) {
+		if   ( ((TaskModule )pNode).getParent() != this )
+		     ((TaskModule )pNode).pParent = this ;
+		((TaskModule )pNode).setActionTask( pActionTask ) ;
+
+		super.appendHead( pNode ) ;
+	}
+	public void			appendTail( DataIO pNode ) {
+		if(!(pNode instanceof TaskModule)) return;
+		if   ( ((TaskModule )pNode).getParent() != this )
+		     ((TaskModule )pNode).pParent = this ;
+		((TaskModule )pNode).setActionTask( pActionTask ) ;
+		super.appendTail( pNode ) ;
+	}
+
+	public void			insertNode( DataIO pPosAfter, DataIO pNode ) {
+		if   ( ((TaskModule )pNode).getParent() != this )
+		     ((TaskModule )pNode).pParent = this ;
+		((TaskModule )pNode).setActionTask( pActionTask ) ;
+		super.insertNode( pPosAfter, pNode ) ;
+	}
+
+	public void			removeNode( DataIO pNode ) {
+		super.removeNode( pNode ) ;
+		((TaskModule )pNode).pParent = null ;
+		((TaskModule )pNode).setActionTask( null ) ;
+		return ;		
+	}
+	public int updateParam(){return 0;};
+
+	//Auto Find Node on the Node Tree
+	public DataIO getFieldObjectAuto(TaskModule nNode, String pNodeID) {
+		if(nNode == null || nNode.getCount() == 0) return null;		
+		TaskModule tmpNode = null;
+		
+		tmpNode = (TaskModule) nNode.getFieldObject(pNodeID);
+		if(tmpNode != null) return tmpNode;
+		
+		for(int i=0; i<nNode.getCount(); i++){
+			tmpNode = (TaskModule) nNode.getNode(i);
+			if(tmpNode == null) return null;
+			tmpNode = (TaskModule) getFieldObjectAuto(tmpNode, pNodeID);
+			if(tmpNode!=null)
+				break;
+		}		
+		return tmpNode;
+	}
+	public DataIO getFieldObjectAuto(String pNodeID) {
+		return getFieldObjectAuto(this, pNodeID);
+	}
+	
+} ;

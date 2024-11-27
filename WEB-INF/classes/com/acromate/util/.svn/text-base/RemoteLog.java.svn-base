@@ -1,0 +1,35 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.acromate.util;
+
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+/**
+ *
+ * @author pljoin1024
+ */
+public abstract class RemoteLog extends UnicastRemoteObject {
+
+    public Logger log;
+    /**
+     *
+     * @throws RemoteException
+     */
+    public RemoteLog()  throws RemoteException {
+        log = Logger.getLogger(this.getClass());
+    }
+
+    /**
+     *
+     * @param port
+     * @throws RemoteException
+     */
+    public RemoteLog(int port)  throws RemoteException {
+        super(port);
+        log = Logger.getLogger(this.getClass());
+    }
+}

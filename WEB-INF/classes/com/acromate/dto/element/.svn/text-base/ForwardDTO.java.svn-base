@@ -1,0 +1,73 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class ForwardDTO
+{
+    public final static int FORWARD_TYPE_TIME_TERM = 0 ;
+    public final static int FORWARD_TYPE_NO_ANSWER  = 1 ;
+    public final static int FORWARD_TYPE_BUSY = 2 ;
+    public final static int FORWARD_TYPE_ENDPOINT_PROBLEM = 3 ;
+
+    private String e164 ;
+    private int    orderNumber ;
+    private String forwardNumber ;
+    private int    forwardType;
+    private int    forwardWaitTime;
+    private String description;
+    private String fromTime;
+    private String toTime;
+
+
+
+    public String getE164() { return this.e164; }
+    public void   setE164(String vE164 ) { this.e164 = vE164; }
+
+    public int    getOrderNumber() { return this.orderNumber; }
+    public void   setOrderNumber(int vOrderNumber ) { this.orderNumber = vOrderNumber; }
+
+    public String getForwardNumber() { return this.forwardNumber; }
+    public void   setForwardNumber(String vForwardNumber ) { this.forwardNumber = vForwardNumber; }
+
+    public int    getForwardType() { return this.forwardType; }
+    public void   setForwardType(int vForwardType ) { this.forwardType = vForwardType; }
+
+    public int    getForwardWaitTime() { return this.forwardWaitTime; }
+    public void   setForwardWaitTime(int vForwardWaitTime ) { this.forwardWaitTime = vForwardWaitTime; }
+
+    public String getDescription() { return this.description; }
+    public void   setDescription(String vDescription ) { this.description = vDescription; }
+
+    public String getFromTime() { return this.fromTime; }
+    public void   setFromTime(String vFromTime ) { this.fromTime = vFromTime; }
+
+    public String getToTime() { return this.toTime; }
+    public void   setToTime(String vToTime ) { this.toTime = vToTime; }
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(e164:"                    + getE164() + ") ") ;
+        sb.append("[orderNumber:"             + getOrderNumber() + "] ") ;
+        sb.append("[forwardNumber:"           + getForwardNumber() + "] ") ;
+        sb.append("[forwardType:"             + getForwardType() + "] ") ;
+        sb.append("[forwardWaitTime:"         + getForwardWaitTime() + "] ") ;
+        sb.append("[description:"             + getDescription() + "] ") ;
+        sb.append("[fromTime:"                + getFromTime() + "] ") ;
+        sb.append("[toTime:"                  + getToTime() + "] ") ;
+
+        return sb.toString();
+    }
+}

@@ -1,0 +1,128 @@
+package system;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+import dto.system.AutoPhoneSetDTO;
+
+public class AutoPhoneList {
+	public List getAutoPhoneIDSetList(DataStatement stmt) {		
+		AutoPhoneSetDTO 		autoPhoneSetDTO;
+        List<AutoPhoneSetDTO> 	autoPhoneSetList 	= new ArrayList<AutoPhoneSetDTO>();
+        
+        String sql = " SELECT sub.name as name, sub.position as position, contact.SIGNALADDRESS as signalAddress, ep.ENDPOINTID as endPointId, ";
+        sql = sql + "\n e164.extensionnumber as extensio, route.e164 as e164, contact.registerid as registerid, ";
+        sql = sql + "\n   (SELECT deptname FROM table_dept WHERE sub.department = deptid) as deptname, ";
+//        sql = sql + "\n (SELECT password FROM table_auth WHERE ep.ENDPOINTID = endpointid) as authPwd ";
+        sql = sql + "\n auth.password as authPwd, auth.descriptor as descriptor, auth.username as authName ";
+        sql = sql + "\n From Table_SipEndpoint ep ";
+        sql = sql + "\n LEFT JOIN  table_e164Route route ON ep.ENDPOINTID = route.ENDPOINTID  and route.routingNumbertype in (1, 2, 5) ";
+        sql = sql + "\n LEFT OUTER JOIN TABLE_SIPCONTACT contact ON ep.ENDPOINTID = contact.ENDPOINTID ";
+        sql = sql + "\n JOIN  table_e164 e164 ON e164.e164 = route.e164 ";
+        sql = sql + "\n LEFT OUTER JOIN  table_SUBSCRIBER sub ON ep.ENDPOINTID = sub.id ";
+        sql = sql + "\n LEFT OUTER JOIN  table_auth auth ON ep.ENDPOINTID = auth.endpointid ";
+        sql = sql + "\n WHERE ep.ENDPOINTID not like 'ACRO_MS_%' ";
+        sql = sql + "\n   And ep.ENDPOINTID not in (select coalesce(auth_id,'') from NASA_TRUNK_SET)";
+        sql = sql + "\n   And ep.endpointclass = 33 ";
+        sql = sql + "\n   And contact.SIGNALADDRESS is not null ";
+        sql = sql + "\n Group by sub.name, sub.position, contact.SIGNALADDRESS, ep.endPointId, e164.extensionnumber, route.e164, contact.registerid, deptname, authPwd, authName, descriptor ";
+        sql = sql + "\n Order by route.e164, sub.name ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	autoPhoneSetDTO = new AutoPhoneSetDTO(
+                    	Str.CheckNullString(rs.getString("name")),                        
+                    	Str.CheckNullString(rs.getString("position")),
+                    	Str.CheckNullString(rs.getString("signalAddress")),
+                    	Str.CheckNullString(rs.getString("endPointId")),
+                    	Str.CheckNullString(rs.getString("extensio")),
+                    	Str.CheckNullString(rs.getString("e164")),
+                    	Str.CheckNullString(rs.getString("registerid")),
+                    	Str.CheckNullString(rs.getString("deptname")),
+                        Str.CheckNullString(rs.getString("authPwd")),
+                        Str.CheckNullString(rs.getString("descriptor")),
+                        Str.CheckNullString(rs.getString("authName"))
+                    );
+
+                	autoPhoneSetList.add(autoPhoneSetDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return autoPhoneSetList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return autoPhoneSetList;
+    }
+
+	public String getName(DataStatement stmt, String strE164) {
+		String strName = "" ;
+        //String sql = " Select name From table_subscriber Where phonenum  = '"+strE164+"' ";
+        String sql = " Select sub.name, (SELECT password FROM table_auth WHERE sub.ID = endpointid) as authPwd , ";
+        sql = sql + "\n (SELECT signaladdress FROM TABLE_SIPCONTACT WHERE sub.ID = endpointid ORDER BY signaladdress DESC limit 1) as phone_ip ";
+        sql = sql + "\n From table_subscriber sub ";
+        sql = sql + "\n Where phonenum  = '"+strE164+"' ";
+        System.out.println("sql==="+sql);        
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) strName = rs.getString("name")+"|"+rs.getString("authPwd")+"|"+rs.getString("phone_ip"); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return strName;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch (Exception e) {}
+        }
+        return strName;
+    }
+
+	public String getNameIMS(DataStatement stmt, String strE164) {
+		String strName = "" ;
+        String sql = " Select sub.name, auth.password as authPwd, ";
+        sql = sql + "\n (SELECT signaladdress FROM TABLE_SIPCONTACT WHERE sub.ID = endpointid) as phone_ip, ";
+        sql = sql + "\n auth.descriptor as descriptor, auth.username as authName ";
+        sql = sql + "\n From table_subscriber sub ";
+        sql = sql + "\n LEFT OUTER JOIN  table_auth auth ON sub.id = auth.endpointid ";
+        sql = sql + "\n Where phonenum  = '"+strE164+"' ";
+        System.out.println("sql==="+sql);        
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) strName = rs.getString("name")+"|"+rs.getString("authPwd")+"|"+rs.getString("phone_ip")+"|"+rs.getString("descriptor")+"|"+rs.getString("authName"); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return strName;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch (Exception e) {}
+        }
+        return strName;
+    }
+	
+}

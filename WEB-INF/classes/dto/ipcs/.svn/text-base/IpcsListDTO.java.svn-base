@@ -1,0 +1,158 @@
+package dto.ipcs;
+
+public class IpcsListDTO {
+	
+	private String 	name ;
+	private String 	position;
+	private String 	signalAddress;
+	private int 	startFlag = 0;
+	private String 	endPointId;
+	private String 	zoneCode;
+	private String 	e164;
+	private String 	id;
+	private String	registerid;
+	private String	deptName;
+	private String	physicalAddress;
+	private String	extensionnumber;
+	private String	answerservice;
+	private int 	callState = 0;
+	private String	starttime;
+	
+	public IpcsListDTO() {}
+	public IpcsListDTO(String endPointId) {      		
+		super();		
+		this.endPointId	= endPointId;
+	}
+	public IpcsListDTO(String endPointId, String e164, String extensionnumber) {      		
+		super();		
+		this.endPointId 		= endPointId;
+		this.e164 				= e164;
+		this.extensionnumber 	= extensionnumber;
+	}
+
+	public IpcsListDTO(String name,String position, String signalAddress, int startFlag, String endPointId, String zoneCode, String e164, String loginID, String extensionnumber, String registerid, String deptName, String physicalAddress, int callState, String answerservice, String starttime) {      
+			
+		super();
+		
+		this.name 				= name;
+		this.position 			= position;
+		this.signalAddress 		= signalAddress;
+		this.startFlag 			= startFlag;
+		this.endPointId 		= endPointId;
+		this.zoneCode 			= zoneCode;
+		this.e164 				= e164;
+		this.id 				= loginID;
+		this.extensionnumber 	= extensionnumber;
+		this.registerid 		= registerid;
+		this.deptName 			= deptName;
+		this.physicalAddress 	= physicalAddress;
+		this.callState			= callState;
+		this.answerservice		= answerservice;
+		this.starttime			= starttime;
+	}
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public String getSignalAddress() {
+		return signalAddress;
+	}
+	public void setSignalAddress(String signalAddress) {
+		this.signalAddress = signalAddress;
+	}
+	
+ 	public int getStartFlag() {
+		return startFlag;
+	}
+	public void setStartFlag(int startFlag) {
+		this.startFlag = startFlag;
+	}
+
+	public String getEndPointId() {
+		return endPointId;
+	}
+	public void setEndPointId(String endPointId) {
+		this.endPointId = endPointId;
+	}
+	
+	public String getZoneCode() {
+		return zoneCode;
+	}
+	public void setZoneCode(String zoneCode) {
+		this.zoneCode = zoneCode;
+	}
+	
+	public String getE164() {
+		return e164;
+	}
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getRegisterid() {
+		return registerid;
+	}
+	public void setRegisterid(String registerid) {
+		this.registerid = registerid;
+	}
+
+	public String getDeptName() {
+		return deptName;
+	}
+	public void setDeptName(String deptName) {
+		this.deptName = deptName;
+	}
+
+	public String getPhysicalAddress() {
+		return physicalAddress;
+	}
+	public void setPhysicalAddress(String physicalAddress) {
+		this.physicalAddress = physicalAddress;
+	}
+	
+	public String getExtensionnumber() {
+		return extensionnumber;
+	}
+	public void setExtensionnumber(String extensionnumber) {
+		this.extensionnumber = extensionnumber;
+	}	
+
+ 	public int getCallState() {
+		return callState;
+	}
+	public void setCallState(int callState) {
+		this.callState = callState;
+	}
+
+	public String getAnswerservice() {
+		return answerservice;
+	}
+	public void setAnswerservice(String answerservice) {
+		this.answerservice = answerservice;
+	}
+	
+	public String getStarttime() {
+		return starttime;
+	}
+	public void setStarttime(String starttime) {
+		this.starttime = starttime;
+	}
+}

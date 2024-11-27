@@ -1,0 +1,65 @@
+package AcroRestore;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import framework.File.FileManager;
+import framework.Shell.LinuxShell;
+import framework.config.Config;
+import framework.config.ConfigFactory;
+import framework.exception.PropNotFoundException;
+import framework.systeminfo.SystemInfo;
+
+public class RestoreConfigFile {
+	private String restorePath="/data/acromate_home/acroBackup/restore/conf/";
+	FileManager			fileManager				=	new FileManager();
+	public ArrayList getBackupConfigList(String keysName) throws PropNotFoundException{
+		Config conf = null;
+		if(SystemInfo.isLinux()==1){
+			conf	=	ConfigFactory.getInstance().getConfiguration("/data/acromate_home/acroBackup/backupQuery.properties");
+		}else{
+			conf	=	ConfigFactory.getInstance().getConfiguration("/data/acromate_home/acroBackup/backupWinQuery.properties");			
+		}
+		Iterator 	keys	 		=	conf.getKeys(keysName);
+		String		key[]				=	null;
+		ArrayList 		arry_Query	=	new ArrayList();
+		int 		count			=	0;
+		while(keys.hasNext()){
+			key						=	new String[2];
+			key[0]					=	(String) keys.next();
+			key[1]					=	conf.getString(key[0]);
+			int 	nspitpz			=	key[0].indexOf('.');
+			key[0]					=	key[0].substring(nspitpz+1, key[0].length());
+			key[0]					=	key[0].replace('_', '.');
+			arry_Query.add(key); 
+		}
+		return arry_Query;
+	}
+	public void Execut() throws Exception{
+		ArrayList 		alist				=	getBackupConfigList("AcroConfigFile");
+		String 			strArrayFileInfo[]	=null;
+		LinuxShell	linuxShell=new LinuxShell();
+		if(SystemInfo.isLinux()!=1) restorePath="C:/backup/conf/";	
+		if(alist!=null){
+			for(int i=0;i<alist.size();i++){
+				strArrayFileInfo=(String[])alist.get(i);
+				if(strArrayFileInfo!=null){
+					try{
+						String cmdShell="cp "+restorePath+""+strArrayFileInfo[0]+" "+strArrayFileInfo[1];
+						System.out.println(cmdShell);
+						linuxShell.runShell(cmdShell);
+						cmdShell="rm "+restorePath+""+strArrayFileInfo[0];
+						linuxShell.runShell(cmdShell);
+						
+					}catch(Exception ex){
+					}finally{
+					}
+				}
+			}
+		}
+	}
+	public static void main(String argss[]) throws Exception{
+		RestoreConfigFile restoreConfigFile=new RestoreConfigFile();
+		restoreConfigFile.Execut();
+	}
+}

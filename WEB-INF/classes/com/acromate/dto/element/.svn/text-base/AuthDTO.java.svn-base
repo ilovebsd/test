@@ -1,0 +1,72 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+
+public class AuthDTO
+{
+    private String endpointID = "";
+    private int    protocol;
+    private int    authMode;
+    private String password = "";
+    private String userName = "";
+    private String ipAddress = "";
+    private int    ipPort;
+    private String e164 = "";
+
+    public String getEndpointID() { return this.endpointID; }
+    public void   setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+    public int    getProtocol() { return this.protocol; }
+    public void   setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public int    getAuthMode() { return this.authMode; }
+    public void   setAuthMode(int vAuthMode ) { this.authMode = vAuthMode; }
+
+    public String getPassword() { return this.password; }
+    public void   setPassword(String vPassword ) { this.password = vPassword; }
+
+    public String getUserName() { 
+        if (this.userName != null && this.userName.length() == 0) return " " ;
+        else return this.userName; 
+    }
+    public void   setUserName(String vUserName ) { this.userName = vUserName; }
+
+    public String getIpAddress() { return this.ipAddress; }
+    public void   setIpAddress(String vIpAddress ) { this.ipAddress = vIpAddress; }
+
+    public int    getIpPort() { return this.ipPort; }
+    public void   setIpPort(int vIpPort ) { this.ipPort = vIpPort; }
+
+    public String getE164() { 
+        if (this.e164 != null && this.e164.length() == 0) return " " ;
+        else return this.e164; 
+    }
+    public void   setE164(String vE164 ) { this.e164 = vE164; }
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:"              + getEndpointID() + ") ") ;
+        sb.append("[protocol:"                + getProtocol() + "] ") ;
+        sb.append("[authMode:"                + getAuthMode() + "] ") ;
+        sb.append("[password:"                + getPassword() + "] ") ;
+        sb.append("[userName:"                + getUserName() + "] ") ;
+        sb.append("[ipAddress:"               + getIpAddress() + "] ") ;
+        sb.append("[port:"                    + getIpPort() + "] ") ;
+        sb.append("[e164:"                    + getE164() + "] ") ;
+
+        return sb.toString();
+    }
+}

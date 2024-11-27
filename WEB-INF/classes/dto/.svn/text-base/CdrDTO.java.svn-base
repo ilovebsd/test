@@ -1,0 +1,360 @@
+package dto;
+
+public class CdrDTO {
+	
+	private int    sysgroupID = 0;
+	private int    cdrsequence = 0;
+	private String callID ;
+	private String e164 ;
+	private String success ;
+	private String cdrType ;
+	private String callerE164 ;
+	private int    callerType = 0;
+	private String callerGroupID ;
+	private String calleeE164 ;
+	private int    calleeType ;
+	private String calleeGroupID ;
+	private String dialedNumber ;
+	private String chargeNumber ;
+	private String chargeType ;
+	private String callType ;
+	private String svcType ;
+	private String startTime ;
+	private String inOccupiedTime ;
+	private String outOccupiedTime ;
+	private String connectTime ;
+	private String releaseTime ;
+	private int    callingTime ;
+	private String serviceType ;
+	private String serviceCaller ;
+	private String serviceCallee ;
+	private String serviceCallerAddable ;
+	private String serviceCalleeAddable ;
+	private String callTrmType ;
+	private String memo ;
+	
+	private int    calleeSum = 0;		// 수신건수
+	private int    calleeTimeSum = 0;	// 수신통화시간
+	private int    callerSum = 0;		// 발신건수
+	private int    callerTimeSum = 0;	// 발신통화시간
+	private int    totalSum = 0;		// 전체건수
+	private int    totalTimeSum = 0;	// 전체통화시간
+	private String name ;
+	private String position ;
+	private String partnerName ;
+	
+	public CdrDTO () {}
+
+	public int getSysgroupID() {
+		return sysgroupID;
+	}
+
+	public void setSysgroupID(int sysgroupID) {
+		this.sysgroupID = sysgroupID;
+	}
+
+	public int getCdrsequence() {
+		return cdrsequence;
+	}
+
+	public void setCdrsequence(int cdrsequence) {
+		this.cdrsequence = cdrsequence;
+	}
+
+	public String getCallID() {
+		return callID;
+	}
+
+	public void setCallID(String callID) {
+		this.callID = callID;
+	}
+
+	public String getE164() {
+		return e164;
+	}
+
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public String getSuccess() {
+		return success;
+	}
+
+	public void setSuccess(String success) {
+		this.success = success;
+	}
+
+	public String getCdrType() {
+		return cdrType;
+	}
+
+	public void setCdrType(String cdrType) {
+		this.cdrType = cdrType;
+	}
+
+	public String getCallerE164() {
+		return callerE164;
+	}
+
+	public void setCallerE164(String callerE164) {
+		this.callerE164 = callerE164;
+	}
+
+	public int getCallerType() {
+		return callerType;
+	}
+
+	public void setCallerType(int callerType) {
+		this.callerType = callerType;
+	}
+
+	public String getCallerGroupID() {
+		return callerGroupID;
+	}
+
+	public void setCallerGroupID(String callerGroupID) {
+		this.callerGroupID = callerGroupID;
+	}
+
+	public String getCalleeE164() {
+		return calleeE164;
+	}
+
+	public void setCalleeE164(String calleeE164) {
+		this.calleeE164 = calleeE164;
+	}
+
+	public int getCalleeType() {
+		return calleeType;
+	}
+
+	public void setCalleeType(int calleeType) {
+		this.calleeType = calleeType;
+	}
+
+	public String getCalleeGroupID() {
+		return calleeGroupID;
+	}
+
+	public void setCalleeGroupID(String calleeGroupID) {
+		this.calleeGroupID = calleeGroupID;
+	}
+
+	public String getDialedNumber() {
+		return dialedNumber;
+	}
+
+	public void setDialedNumber(String dialedNumber) {
+		this.dialedNumber = dialedNumber;
+	}
+
+	public String getChargeNumber() {
+		return chargeNumber;
+	}
+
+	public void setChargeNumber(String chargeNumber) {
+		this.chargeNumber = chargeNumber;
+	}
+
+	public String getChargeType() {
+		return chargeType;
+	}
+
+	public void setChargeType(String chargeType) {
+		this.chargeType = chargeType;
+	}
+
+	public String getCallType() {
+		return callType;
+	}
+
+	public void setCallType(String callType) {
+		this.callType = callType;
+	}
+
+	public String getSvcType() {
+		return svcType;
+	}
+
+	public void setSvcType(String svcType) {
+		this.svcType = svcType;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getInOccupiedTime() {
+		return inOccupiedTime;
+	}
+
+	public void setInOccupiedTime(String inOccupiedTime) {
+		this.inOccupiedTime = inOccupiedTime;
+	}
+
+	public String getOutOccupiedTime() {
+		return outOccupiedTime;
+	}
+
+	public void setOutOccupiedTime(String outOccupiedTime) {
+		this.outOccupiedTime = outOccupiedTime;
+	}
+
+	public String getConnectTime() {
+		return connectTime;
+	}
+
+	public void setConnectTime(String connectTime) {
+		this.connectTime = connectTime;
+	}
+
+	public String getReleaseTime() {
+		return releaseTime;
+	}
+
+	public void setReleaseTime(String releaseTime) {
+		this.releaseTime = releaseTime;
+	}
+
+	public int getCallingTime() {
+		return callingTime;
+	}
+
+	public void setCallingTime(int callingTime) {
+		this.callingTime = callingTime;
+	}
+
+	public String getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+
+	public String getServiceCaller() {
+		return serviceCaller;
+	}
+
+	public void setServiceCaller(String serviceCaller) {
+		this.serviceCaller = serviceCaller;
+	}
+
+	public String getServiceCallee() {
+		return serviceCallee;
+	}
+
+	public void setServiceCallee(String serviceCallee) {
+		this.serviceCallee = serviceCallee;
+	}
+
+	public String getServiceCallerAddable() {
+		return serviceCallerAddable;
+	}
+
+	public void setServiceCallerAddable(String serviceCallerAddable) {
+		this.serviceCallerAddable = serviceCallerAddable;
+	}
+
+	public String getServiceCalleeAddable() {
+		return serviceCalleeAddable;
+	}
+
+	public void setServiceCalleeAddable(String serviceCalleeAddable) {
+		this.serviceCalleeAddable = serviceCalleeAddable;
+	}
+
+	public String getCallTrmType() {
+		return callTrmType;
+	}
+
+	public void setCallTrmType(String callTrmType) {
+		this.callTrmType = callTrmType;
+	}
+
+	public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	public int getCalleeSum() {
+		return calleeSum;
+	}
+
+	public void setCalleeSum(int calleeSum) {
+		this.calleeSum = calleeSum;
+	}
+
+	public int getCalleeTimeSum() {
+		return calleeTimeSum;
+	}
+
+	public void setCalleeTimeSum(int calleeTimeSum) {
+		this.calleeTimeSum = calleeTimeSum;
+	}
+
+	public int getCallerSum() {
+		return callerSum;
+	}
+
+	public void setCallerSum(int callerSum) {
+		this.callerSum = callerSum;
+	}
+
+	public int getCallerTimeSum() {
+		return callerTimeSum;
+	}
+
+	public void setCallerTimeSum(int callerTimeSum) {
+		this.callerTimeSum = callerTimeSum;
+	}
+
+	public int getTotalSum() {
+		return totalSum;
+	}
+
+	public void setTotalSum(int totalSum) {
+		this.totalSum = totalSum;
+	}
+
+	public int getTotalTimeSum() {
+		return totalTimeSum;
+	}
+
+	public void setTotalTimeSum(int totalTimeSum) {
+		this.totalTimeSum = totalTimeSum;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+
+	public String getPartnerName() {
+		return partnerName;
+	}
+
+	public void setPartnerName(String partnerName) {
+		this.partnerName = partnerName;
+	}
+
+}

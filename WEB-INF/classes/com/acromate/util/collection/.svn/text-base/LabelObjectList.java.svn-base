@@ -1,0 +1,55 @@
+package com.acromate.util.collection;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import com.acromate.util.LabelObject;
+
+public class LabelObjectList {
+    List labelList = Collections.synchronizedList(new LinkedList());
+
+    public LabelObjectList() {}
+
+    public boolean add(String label, Object object) {
+        LabelObject labelObject = new LabelObject(object,label);
+        return labelList.add(labelObject);
+    }
+    public Object get(String label) {
+        LabelObject labelObject = null;
+
+        int labelSize = labelList.size();
+        for ( int i=0; i<labelSize; i++ ) {
+            labelObject = (LabelObject)labelList.get(i);
+            if ( labelObject.getLabel().equals(label) ) {
+                return labelObject;
+            }
+        }
+        return null;
+    }
+    public boolean remove(String label) {
+        LabelObject labelObject = null;
+
+        int labelSize = labelList.size();
+        for ( int i=0; i<labelSize; i++ ) {
+            labelObject = (LabelObject)labelList.get(i);
+            if ( labelObject.getLabel().equals(label) ) {
+                labelList.remove(labelObject);
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean removeObject(Object obj) {
+        LabelObject labelObject = null;
+
+        int labelSize = labelList.size();
+        for ( int i=0; i<labelSize; i++ ) {
+            labelObject = (LabelObject)labelList.get(i);
+            if ( labelObject.getObject() == obj ) {
+                labelList.remove(labelObject);
+                return true;
+            }
+        }
+        return false;
+    }
+}

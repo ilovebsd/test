@@ -1,0 +1,252 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class RouteStateDTO
+{
+
+    private String  endpointid = "";
+    private int     protocol =0;
+    private int     endpointclass =0;
+    private String  routecode = "";
+    private String  routename = "";
+    private String  routetype = "";
+    private int     islocal =0;
+    private String  groupid = "";
+    private int     groupAttach =0;
+
+    private int     incalleeblock =0;
+    private int     incallerblock =0;
+    private int     outcallerblock =0;
+
+    private int     StateFlag =0;
+    private int     channellimitmode =0;
+    private int     ServiceFlag =0;
+    private int     inmaxcall =0;
+    private int     outmaxcall =0;
+    private int     totalmaxcall =0;
+    private int     incurrentcall =0;
+    private int     outcurrentcall =0;
+    private int     inalarmcall =0;
+    private int     outalarmcall =0;
+    private int     totalalarmcall =0;
+    private int     blockcount =0;
+    private int     instartposition =0;
+    private int     incutprefix =0;
+    private String  inaddprefix = "";
+    private int     outstartposition =0;
+    private int     outcutprefix =0;
+    private String  outaddprefix = "";
+    private int     incutcid =0;
+    private String  inaddcid = "";
+    private int     outcutcid =0;
+    private String  outaddcid = "";
+    private int     inreplace =0;
+    private int     outreplace =0;
+    private int     maxdetourcount =0;
+    private int     timeOutFault =0;
+    private int     inAddibleFlag =0;
+    private int     outAddibleFlag =0;
+    private int     options =0;
+    private int     chargeType =0;
+    private String  chargeNumber = "";
+    private String  zonecode = "";
+    /**
+     * member functions
+     */
+    public String getEndpointid() { return this.endpointid; }
+    public void	  setEndpointid(String vEndpointid ) { this.endpointid = vEndpointid; }
+
+    public int	  getProtocol() { return this.protocol; }
+    public void	  setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public int	  getEndpointclass() { return this.endpointclass; }
+    public void	  setEndpointclass(int vEndpointclass ) { this.endpointclass = vEndpointclass; }
+
+    public String getRouteCode() { return this.routecode; }
+    public void	  setRouteCode(String vRouteCode ) { this.routecode = vRouteCode; }
+
+    public String getRouteName() { return this.routename; }
+    public void	  setRouteName(String vRouteName ) { this.routename = vRouteName; }
+
+    public String getRoutetype() { return this.routetype; }
+    public void	  setRoutetype(String vRoutetype ) { this.routetype = vRoutetype; }
+
+    public int	  getIsLocal() { return this.islocal; }
+    public void	  setIsLocal(int vIsLocal ) { this.islocal = vIsLocal; }
+
+    public String getGroupId() { return this.groupid; }
+    public void	  setGroupId(String vGroupId ) { this.groupid = vGroupId; }
+
+    public int	  getGroupAttach() { return this.groupAttach; }
+    public void   setGroupAttach(int vGroupAttach ) { this.groupAttach = vGroupAttach; }
+
+    public int	  getInCalleeBlock() { return this.incalleeblock; }
+    public void	  setInCalleeBlock(int vInCalleeBlock ) { this.incalleeblock = vInCalleeBlock; }
+
+    public int	  getInCallerBlock() { return this.incallerblock; }
+    public void	  setInCallerBlock(int vInCallerBlock ) { this.incallerblock = vInCallerBlock; }
+
+    public int	  getOutCallerBlock() { return this.outcallerblock; }
+    public void	  setOutCallerBlock(int vOutCallerBlock ) { this.outcallerblock = vOutCallerBlock; }
+
+    public int	  getStateFlag() { return this.StateFlag; }
+    public void	  setStateFlag(int vStateFlag ) { this.StateFlag = vStateFlag; }
+
+    public int	  getChannellimitmode() { return this.channellimitmode; }
+    public void	  setChannellimitmode(int vChannellimitmode ) { this.channellimitmode = vChannellimitmode; }
+
+    public int	  getServiceFlag() { return this.ServiceFlag; }
+    public void	  setServiceFlag(int vServiceFlag ) { this.ServiceFlag = vServiceFlag; }
+
+    public int	  getInMaxcall() { return this.inmaxcall; }
+    public void	  setInMaxcall(int vInMaxcall ) { this.inmaxcall = vInMaxcall; }
+
+    public int	  getOutMaxcall() { return this.outmaxcall; }
+    public void	  setOutMaxcall(int vOutMaxcall ) { this.outmaxcall = vOutMaxcall; }
+
+    public int	  getTotalmaxcall() { return this.totalmaxcall; }
+    public void	  setTotalmaxcall(int vTotalmaxcall ) { this.totalmaxcall = vTotalmaxcall; }
+
+    public int	  getInCurrentcall() { return this.incurrentcall; }
+    public void	  setInCurrentcall(int vInCurrentcall ) { this.incurrentcall = vInCurrentcall; }
+
+    public int	  getOutCurrentcall() { return this.outcurrentcall; }
+    public void	  setOutCurrentcall(int vOutCurrentcall ) { this.outcurrentcall = vOutCurrentcall; }
+
+    public int	  getInAlarmcall() { return this.inalarmcall; }
+    public void	  setInAlarmcall(int vInAlarmcall ) { this.inalarmcall = vInAlarmcall; }
+
+    public int	  getOutAlarmcall() { return this.outalarmcall; }
+    public void	  setOutAlarmcall(int vOutAlarmcall ) { this.outalarmcall = vOutAlarmcall; }
+
+    public int	  getTotalalarmcall() { return this.totalalarmcall; }
+    public void	  setTotalalarmcall(int vTotalalarmcall ) { this.totalalarmcall = vTotalalarmcall; }
+
+    public int	  getBlockcount() { return this.blockcount; }
+    public void	  setBlockcount(int vBlockcount ) { this.blockcount = vBlockcount; }
+
+    public int	  getInstartposition() { return this.instartposition; }
+    public void	  setInstartposition(int vInstartposition ) { this.instartposition = vInstartposition; }
+
+    public int	  getIncutprefix() { return this.incutprefix; }
+    public void	  setIncutprefix(int vIncutprefix ) { this.incutprefix = vIncutprefix; }
+
+    public String getInaddprefix() { return this.inaddprefix; }
+    public void	  setInaddprefix(String vInaddprefix ) { this.inaddprefix = vInaddprefix; }
+
+    public int	  getOutstartposition() { return this.outstartposition; }
+    public void	  setOutstartposition(int vOutstartposition ) { this.outstartposition = vOutstartposition; }
+
+    public int	  getOutcutprefix() { return this.outcutprefix; }
+    public void	  setOutcutprefix(int vOutcutprefix ) { this.outcutprefix = vOutcutprefix; }
+
+    public String getOutaddprefix() { return this.outaddprefix; }
+    public void	  setOutaddprefix(String vOutaddprefix ) { this.outaddprefix = vOutaddprefix; }
+
+    public int	  getInCutcid() { return this.incutcid; }
+    public void	  setInCutcid(int vInCutcid ) { this.incutcid = vInCutcid; }
+
+    public String getInAddcid() { return this.inaddcid; }
+    public void	  setInAddcid(String vInAddcid ) { this.inaddcid = vInAddcid; }
+
+    public int	  getOutCutcid() { return this.outcutcid; }
+    public void	  setOutCutcid(int vOutCutcid ) { this.outcutcid = vOutCutcid; }
+
+    public String getOutAddcid() { return this.outaddcid; }
+    public void	  setOutAddcid(String vOutAddcid ) { this.outaddcid = vOutAddcid; }
+
+    public int	  getInReplace() { return this.inreplace; }
+    public void	  setInReplace(int vInReplace ) { this.inreplace = vInReplace; }
+
+    public int	  getOutReplace() { return this.outreplace; }
+    public void	  setOutReplace(int vOutReplace ) { this.outreplace = vOutReplace; }
+
+    public int	  getMaxdetourcount() { return this.maxdetourcount; }
+    public void	  setMaxdetourcount(int vMaxdetourcount ) { this.maxdetourcount = vMaxdetourcount; }
+
+    public int	  getTimeOutFault() { return this.timeOutFault; }
+    public void	  setTimeOutFault(int vTimeOutFault ) { this.timeOutFault = vTimeOutFault; }
+
+    public int	  getInAddibleFlag() { return this.inAddibleFlag; }
+    public void	  setInAddibleFlag(int vInAddibleFlag ) { this.inAddibleFlag = vInAddibleFlag; }
+
+    public int	  getOutAddibleFlag() { return this.outAddibleFlag; }
+    public void	  setOutAddibleFlag(int vOutAddibleFlag ) { this.outAddibleFlag = vOutAddibleFlag; }
+
+    public int	  getOptions() { return this.options; }
+    public void	  setOptions(int vOptions ) { this.options = vOptions; }
+
+    public int	  getChargeType() { return this.chargeType; }
+    public void	  setChargeType(int chargeType ) { this.chargeType = chargeType; }
+
+    public String getChargeNumber() { return this.chargeNumber; }
+    public void	  setChargeNumber(String chargeNumber ) { this.chargeNumber = chargeNumber; }
+
+    public String getZonecode() { return this.zonecode; }
+    public void	  setZonecode(String vzonecode ) { this.zonecode = vzonecode; }
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+        sb.append("(endpointid:" 	+ getEndpointid() + ") ") ;
+        sb.append("(protocol:"   	+ getProtocol() + ") ") ;
+        sb.append("[endpointclass:"   	+ getEndpointclass() + "] ") ;
+        sb.append("[routecode:" 	+ getRouteCode() + "] ") ;
+        sb.append("[routename:" 	+ getRouteName() + "] ") ;
+        sb.append("[routetype:" 	+ getRoutetype() + "] ") ;
+        sb.append("[islocal:" 	        + getIsLocal() + "] ") ;
+        sb.append("[groupid:"    	+ getGroupId() + "] ") ;
+        sb.append("[GroupAttach:"    	+ getGroupAttach() + "] ") ;
+        sb.append("[incalleeblock:"    	+ getInCalleeBlock() + "] ") ;
+        sb.append("[incallerblock:"    	+ getInCallerBlock() + "] ") ;
+        sb.append("[outcallerblock:"    + getOutCallerBlock() + "] ") ;
+        sb.append("[StateFlag:"  	+ getStateFlag() + "] ") ;
+        sb.append("[channellimitmode:"  + getChannellimitmode() + "] ") ;
+        sb.append("[ServiceFlag:"       + getServiceFlag() + "] ") ;
+        sb.append("[inmaxcall:" 	+ getInMaxcall() + "] ") ;
+        sb.append("[outmaxcall:" 	+ getOutMaxcall() + "] ") ;
+        sb.append("[totalmaxcall:" 	+ getTotalmaxcall() + "] ") ;
+        sb.append("[incurrentcall:" 	+ getInCurrentcall() + "] ") ;
+        sb.append("[outcurrentcall:" 	+ getOutCurrentcall() + "] ") ;
+        sb.append("[inalarmcall:" 	+ getInAlarmcall() + "] ") ;
+        sb.append("[outalarmcall:" 	+ getOutAlarmcall() + "] ") ;
+        sb.append("[totalarmcall:" 	+ getTotalalarmcall() + "] ") ;
+        sb.append("[blockcount:" 	+ getBlockcount() + "] ") ;
+        sb.append("[instartposition:" 	+ getInstartposition() + "] ") ;
+        sb.append("[incutprefix:" 	+ getIncutprefix() + "] ") ;
+        sb.append("[inaddprefix:" 	+ getInaddprefix() + "] ") ;
+        sb.append("[outstartposition:" 	+ getOutstartposition() + "] ") ;
+        sb.append("[outcutprefix:" 	+ getOutcutprefix() + "] ") ;
+        sb.append("[outaddprefix:" 	+ getOutaddprefix() + "] ") ;
+        sb.append("[incutcid:" 		+ getInCutcid() + "] ") ;
+        sb.append("[inaddcid:" 		+ getInAddcid() + "] ") ;
+        sb.append("[outcutcid:" 	+ getOutCutcid() + "] ") ;
+        sb.append("[outaddcid:" 	+ getOutAddcid() + "] ") ;
+        sb.append("[inreplace:"         + getInReplace() + "] ") ;
+        sb.append("[outreplace:"        + getOutReplace() + "] ") ;
+        sb.append("[maxdetourcount:"    + getMaxdetourcount() + "] ") ;
+        sb.append("[timeOutFault:"      + getTimeOutFault()   + "] ") ;
+        sb.append("[inAddibleFlag:"     + getInAddibleFlag()   + "] ") ;
+        sb.append("[outAddibleFlag:"    + getOutAddibleFlag()   + "] ") ;
+        sb.append("[options:"             + getOptions()   + "] ") ;
+        sb.append("[chargeType:"        + getChargeType()   + "] ") ;
+        sb.append("[chargeNumber:"      + getChargeNumber()   + "] ") ;
+        sb.append("[zonecode:"          + getZonecode() + "] ") ;
+
+
+        return sb.toString();
+    }
+}

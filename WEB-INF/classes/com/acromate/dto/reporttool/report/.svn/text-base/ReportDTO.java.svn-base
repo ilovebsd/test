@@ -1,0 +1,52 @@
+package com.acromate.dto.reporttool.report;
+
+import com.acromate.data.DataIO;
+
+public class ReportDTO extends DataIO {
+
+	String reportName;
+	ItemListDTO itemList = new ItemListDTO();
+
+	public void setReportName(String reportName) { this.reportName = reportName; }
+	public String getReportName() { return reportName; }
+
+	public void setItemList(ItemListDTO itemList) { this.itemList = itemList; }
+	public ItemListDTO getItemList() { return itemList; }
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+        int     errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "reportName", idx, value) == true) {
+            errorcode = getString(reportName.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "itemList", idx, value) == true) {
+            errorcode = itemList.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		return 0;
+	}
+
+	@Override
+	protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "reportName") == true) {
+            if(!value.equals("")) reportName = value;
+            return 0;
+        }
+        if(compareFieldID(temp, "itemList") == true) {
+        	itemList.removeAll() ;
+            return itemList.setParam(temp.toString(), value);
+        }
+        return (-1);
+	}
+}

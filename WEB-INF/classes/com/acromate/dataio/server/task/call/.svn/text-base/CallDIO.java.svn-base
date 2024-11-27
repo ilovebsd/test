@@ -1,0 +1,64 @@
+package com.acromate.dataio.server.task.call ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class CallDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private SummaryDIO summary = new SummaryDIO();
+    private DeleteDIO delete = new DeleteDIO();
+    private BackupDIO backup = new BackupDIO();
+
+    public SummaryDIO    getSummaryDIO() { return summary ; }
+    public void   setSummaryDIO( SummaryDIO summary ) { this.summary = summary ; }
+
+    public DeleteDIO    getDeleteDIO() { return delete ; }
+    public void   setDeleteDIO( DeleteDIO delete ) { this.delete = delete ; }
+
+    public BackupDIO    getBackupDIO() { return backup ; }
+    public void   setBackupDIO( BackupDIO backup ) { this.backup = backup ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "summary".toLowerCase()) == true) {
+            return summary.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "delete".toLowerCase()) == true) {
+            return delete.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "backup".toLowerCase()) == true) {
+            return backup.setParam(temp.toString(), value);
+        }
+        log.error("CallDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "summary", idx, value) == true) {
+            errorcode = summary.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "delete", idx, value) == true) {
+            errorcode = delete.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "backup", idx, value) == true) {
+            errorcode = backup.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}
+

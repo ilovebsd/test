@@ -1,0 +1,90 @@
+package buddy;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+
+import dto.PositionDTO;
+
+public class PositionList {
+	/*
+	 * 조직도 직급 리스트 조회
+	 */
+	public List getPositionList(DataStatement stmt) {
+		PositionDTO positionDTO;
+        List<PositionDTO> positionList = new ArrayList<PositionDTO>();
+        
+        String sql = "\n SELECT a.positionid, a.positionname, a.ranking, ";
+        sql = sql +  "\n        (SELECT count(*) FROM table_subscriber WHERE position = a.positionname) AS sumcnt" ;
+        sql = sql +  "\n   FROM table_position a" ;
+        sql = sql +  "\n  Order By a.ranking ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	positionDTO = new PositionDTO();
+                	
+                	positionDTO.setPositionID(rs.getInt("positionid"));
+                	positionDTO.setPositionName(Str.CheckNullString(rs.getString("positionname")));
+                	positionDTO.setRanking(rs.getInt("ranking"));
+                	positionDTO.setSumCnt(rs.getInt("sumcnt"));
+
+                	positionList.add(positionDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return positionList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return positionList;
+    }	
+	
+	public List getDetail(DataStatement stmt, String PositionID) {
+		PositionDTO positionDTO;
+        List<PositionDTO> positionList = new ArrayList<PositionDTO>();
+        
+        String sql = "\n SELECT positionid, positionname, ranking ";
+        sql = sql +  "\n   FROM table_position" ;
+        sql = sql +  "\n  WHERE positionid = " + PositionID;
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	positionDTO = new PositionDTO();
+                	
+                	positionDTO.setPositionID(rs.getInt("positionid"));
+                	positionDTO.setPositionName(Str.CheckNullString(rs.getString("positionname")));
+                	positionDTO.setRanking(rs.getInt("ranking"));
+
+                	positionList.add(positionDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return positionList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return positionList;
+    }
+
+}

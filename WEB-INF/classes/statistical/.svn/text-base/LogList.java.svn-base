@@ -1,0 +1,124 @@
+package statistical;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+
+import dto.LogDTO;
+
+public class LogList {	
+	
+	/*
+	 * 조회(페이지)
+	 */
+	public List getLogList(DataStatement stmt, int pageNo, int pageSize, String startDate, String endDate, String code) {
+		LogDTO logDTO;
+        List<LogDTO> logList = new ArrayList<LogDTO>();
+
+        String sql = "\n SELECT code, workname, workstate, ip, version, worktime ";
+        sql = sql +  "\n       ,to_char(worktime, 'yyyy-mm-dd') AS startdate ";
+        sql = sql +  "\n       ,to_char(worktime, 'hh24:mi:ss') AS starttime ";
+    	sql = sql +  "\n   FROM table_systemhistory ";
+    	sql = sql +  "\n  WHERE to_char(worktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	if("2".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL001' ";
+    	}else if("3".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL002' ";
+    	}else if("4".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL003' ";
+    	}else if("5".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL004' ";
+    	}else if("6".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL005' ";
+    	}else if("7".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL006' ";
+    	}else if("8".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL007' ";
+    	}
+        //sql = sql +  "\n  Order by worktime desc, code offset "+pageNo+" limit "+pageSize ;
+        sql = sql +  "\n  Order by worktime desc, code ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	logDTO = new LogDTO();
+                	
+                	logDTO.setCode(Str.CheckNullString(rs.getString("code")));
+                	logDTO.setWorkName(Str.CheckNullString(rs.getString("workname")));
+                	logDTO.setWorkState(Str.CheckNullString(rs.getString("workstate")));
+                	logDTO.setIp(Str.CheckNullString(rs.getString("ip")));
+                	logDTO.setVersion(Str.CheckNullString(rs.getString("version")));
+                	logDTO.setStartDate(Str.CheckNullString(rs.getString("startdate")));
+                	logDTO.setStartTime(Str.CheckNullString(rs.getString("starttime")));
+
+                	logList.add(logDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return logList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return logList;
+    }
+
+
+	/*
+	 * 총건수 조회
+	 */
+	public int getCount(DataStatement stmt, String startDate, String endDate, String code) {
+		int count = 0 ;
+
+        String sql = "\n SELECT count(*) FROM table_systemhistory ";
+    	sql = sql +  "\n  WHERE to_char(worktime, 'yyyymmdd') between '" + StringUtil.replace(startDate, "-", "") + "' and '" + StringUtil.replace(endDate, "-", "") + "'";
+    	if("2".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL001' ";
+    	}else if("3".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL002' ";
+    	}else if("4".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL003' ";
+    	}else if("5".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL004' ";
+    	}else if("6".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL005' ";
+    	}else if("7".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL006' ";
+    	}else if("8".equals(code)){
+    		sql = sql +  "\n    AND code = 'SL007' ";
+    	}
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+	
+}

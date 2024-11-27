@@ -1,0 +1,16 @@
+package com.acromate.session;
+
+import com.acromate.util.Logger;
+import java.util.TimerTask;
+import com.acromate.data.DataIO;
+
+public class SessionNotiTimer extends TimerTask {
+    DataIO session = null ;
+    private Logger log = Logger.getLogger(this.getClass());
+    public SessionNotiTimer(DataIO session) {
+        this.session = session;
+    }
+    public void run() {
+        session.callMethod("", "getServerTimeAndNoti");
+    }
+}

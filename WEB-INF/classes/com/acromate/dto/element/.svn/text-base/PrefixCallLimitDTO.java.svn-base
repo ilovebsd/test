@@ -1,0 +1,53 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class PrefixCallLimitDTO
+{
+
+    private String StartPrefix;
+    private String endPrefix;
+    private int    method;
+    private String callLimitID;
+    private int    maxCall;
+
+    public String getStartPrefix() { return this.StartPrefix; }
+    public void   setStartPrefix(String vStartPrefix ) { this.StartPrefix = vStartPrefix; }
+
+    public String getEndPrefix() { return this.endPrefix; }
+    public void   setEndPrefix(String vEndPrefix ) { this.endPrefix = vEndPrefix; }
+
+    public int    getMethod() { return this.method; }
+    public void   setMethod(int vMethod ) { this.method = vMethod; }
+
+    public String getCallLimitID() { return this.callLimitID; }
+    public void   setCallLimitID(String vCallLimitID ) { this.callLimitID = vCallLimitID; }
+
+    public int    getMaxCall() { return this.maxCall; }
+    public void   setMaxCall(int vMaxCall ) { this.maxCall = vMaxCall; }
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(StartPrefix:"              + getStartPrefix() + ") ") ;
+        sb.append("[endPrefix:"                + getEndPrefix() + "] ") ;
+        sb.append("[method:"                   + getMethod() + "] ") ;
+        sb.append("[callLimitID:"              + getCallLimitID() + "] ") ;
+        sb.append("[maxCall:"                  + getMaxCall() + "] ") ;
+
+        return sb.toString();
+    }
+}

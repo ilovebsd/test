@@ -1,0 +1,69 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.ResponseTimeDAO;
+import bizportal.nasacti.ipivr.dto.ResponseTimeDTO;
+import java.util.List;
+import java.util.ArrayList;
+import bizportal.nasacti.ipivr.dto.ScheduleDTO;
+import bizportal.nasacti.ipivr.dao.ResponseModeDAO;
+import java.text.DecimalFormat;
+import bizportal.nasacti.ipivr.dao.KeyActionDAO;
+
+
+public class EmsResponseTimeManageEditFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+		String strAmIndex = request.getParameter("amIndex");
+
+		ResponseTimeDAO responseTimeDAO = ResponseTimeDAO.getInstance();
+		ResponseTimeDTO responseTimeDTO = responseTimeDAO.getResponseTime(strAmIndex);
+		List scheduleDTOList = responseTimeDAO.getSchedule(strAmIndex);
+
+
+
+		ResponseModeDAO responseModeDAO = ResponseModeDAO.getInstance();
+
+		List responseModeDTOList = responseModeDAO.getAllResponseMode(ResponseModeDAO.ACTIVE_IVR);
+
+		KeyActionDAO keyActionDAO = KeyActionDAO.getInstance();
+		List keyActionDTOList = keyActionDAO.getKeyAction(keyActionDAO.IVR);
+
+		DecimalFormat df = new DecimalFormat("00");
+
+		List hourList = new ArrayList();
+		for(int i=0; i < 24; i++)
+			hourList.add(df.format(i));
+
+		List minuteList = new ArrayList();
+		for(int i=0; i < 60; i++)
+			minuteList.add(df.format(i));
+
+		request.setAttribute("responseTimeDTO", responseTimeDTO);
+		request.setAttribute("scheduleDTOList", scheduleDTOList);
+		request.setAttribute("keyActionDTOList", keyActionDTOList);
+		request.setAttribute("responseModeDTOList", responseModeDTOList);
+		request.setAttribute("hourList", hourList);
+		request.setAttribute("minuteList", minuteList);
+
+
+		return "/ivr/emsResponseTimeManageEdit.jsp";
+	}
+}

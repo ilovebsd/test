@@ -1,0 +1,10 @@
+package com.acromate.dataio.server.task.shape;
+
+import com.acromate.system.hardware.ShelfSystem;
+
+public interface IbladeServerInfo {
+
+    public void setShelfSystem(ShelfSystem shelfSystem);
+    public void switchOver();
+    public void changeFanLevel(String level);
+}

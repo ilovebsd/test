@@ -1,0 +1,142 @@
+package com.acromate.dataio.noms ;
+
+import org.apache.log4j.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class AlarmDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder alarmCode = new StringBuilder();
+    private StringBuilder alarmType = new StringBuilder();
+    private StringBuilder location = new StringBuilder();
+    private StringBuilder probableCause = new StringBuilder();
+    private StringBuilder severity = new StringBuilder();
+    private StringBuilder time = new StringBuilder();
+    private StringBuilder additionalText = new StringBuilder();
+
+    public String getAlarmCode() { return alarmCode.toString() ; }
+    public void   setAlarmCode( String alarmCode ) {
+        this.alarmCode.delete(0,this.alarmCode.length());
+        this.alarmCode.append(alarmCode) ;
+    }
+
+    public String getAlarmType() { return alarmType.toString() ; }
+    public void   setAlarmType( String alarmType ) {
+        this.alarmType.delete(0,this.alarmType.length());
+        this.alarmType.append(alarmType) ;
+    }
+
+    public String getLocation() { return location.toString() ; }
+    public void   setLocation( String location ) {
+        this.location.delete(0,this.location.length());
+        this.location.append(location) ;
+    }
+
+    public String getProbableCause() { return probableCause.toString() ; }
+    public void   setProbableCause( String probableCause ) {
+        this.probableCause.delete(0,this.probableCause.length());
+        this.probableCause.append(probableCause) ;
+    }
+
+    public String getSeverity() { return severity.toString() ; }
+    public void   setSeverity( String severity ) {
+        this.severity.delete(0,this.severity.length());
+        this.severity.append(severity) ;
+    }
+
+    public String getTime() { return time.toString() ; }
+    public void   setTime( String time ) {
+        this.time.delete(0,this.time.length());
+        this.time.append(time) ;
+    }
+
+    public String getAdditionalText() { return additionalText.toString() ; }
+    public void   setAdditionalText( String additionalText ) {
+        this.additionalText.delete(0,this.additionalText.length());
+        this.additionalText.append(additionalText) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "alarmCode".toLowerCase()) == true) {
+            return setString(alarmCode, value);
+        }
+        if(compareFieldID(temp, "alarmType".toLowerCase()) == true) {
+            return setString(alarmType, value);
+        }
+        if(compareFieldID(temp, "location".toLowerCase()) == true) {
+            return setString(location, value);
+        }
+        if(compareFieldID(temp, "probableCause".toLowerCase()) == true) {
+            return setString(probableCause, value);
+        }
+        if(compareFieldID(temp, "severity".toLowerCase()) == true) {
+            return setString(severity, value);
+        }
+        if(compareFieldID(temp, "time".toLowerCase()) == true) {
+            return setString(time, value);
+        }
+        if(compareFieldID(temp, "additionalText".toLowerCase()) == true) {
+            return setString(additionalText, value);
+        }
+        log.error("AlarmDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "alarmCode", idx, value) == true) {
+            errorcode = getString(alarmCode.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "alarmType", idx, value) == true) {
+            errorcode = getString(alarmType.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "location", idx, value) == true) {
+            errorcode = getString(location.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "probableCause", idx, value) == true) {
+            errorcode = getString(probableCause.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "severity", idx, value) == true) {
+            errorcode = getString(severity.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "time", idx, value) == true) {
+            errorcode = getString(time.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "additionalText", idx, value) == true) {
+            errorcode = getString(additionalText.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+
+    public String toXmlString( String blank ) {
+		StringBuilder xml = new StringBuilder();
+
+		xml.append ( blank+"   <alarmCode>" + getAlarmCode() + "</alarmCode>\n") ;
+		xml.append ( blank+"   <alarmType>" + getAlarmType() + "</alarmType>\n") ;
+		xml.append ( blank+"   <location>" + getLocation() + "</location>\n") ;
+		xml.append ( blank+"   <probableCause>" + getProbableCause() + "</probableCause>\n") ;
+		xml.append ( blank+"   <severity>" + getSeverity() + "</severity>\n") ;
+		xml.append ( blank+"   <time>" + getTime() + "</time>\n") ;
+		xml.append ( blank+"   <additionalText>" + getAdditionalText() + "</additionalText>\n") ;
+
+		return xml.toString();
+    }
+}

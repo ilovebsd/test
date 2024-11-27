@@ -1,0 +1,58 @@
+package bizportal.nasacti.ipivr.dto;
+
+public class CodecDTO {
+	private String strSystemIdx = "";
+	private String strNcoIndex = "";
+	private String strNcoCode = "";
+	private String strNcoName = "";
+	private String strServerIp = "";
+	private String strNcoSort = "";
+	private String strNcoDiv = "";
+
+
+	public void setSystemIdx(String strSystemIdx) {
+		this.strSystemIdx = strSystemIdx;
+	}
+	public void setNcoIndex(String strNcoIndex) {
+		this.strNcoIndex = strNcoIndex;
+	}
+	public void setNcoCode(String strNcoCode) {
+		this.strNcoCode = strNcoCode;
+	}
+	public void setNcoName(String strNcoName) {
+		this.strNcoName = strNcoName;
+	}
+	public void setServerIp(String strServerIp) {
+		this.strServerIp = strServerIp;
+	}
+	public void setNcoSort(String strNcoSort) {
+		this.strNcoSort = strNcoSort;
+	}
+	public void setNcoDiv(String strNcoDiv) {
+		this.strNcoDiv = strNcoDiv;
+	}
+
+
+	public String getSystemIdx() {
+		return this.strSystemIdx;
+	}
+	public String getNcoIndex() {
+		return this.strNcoIndex;
+	}
+	public String getNcoCode() {
+		return this.strNcoCode;
+	}
+	public String getNcoName() {
+		return this.strNcoName;
+	}
+	public String getServerIp() {
+		return this.strServerIp;
+	}
+	public String getNcoSort() {
+		return this.strNcoSort;
+	}
+	public String getNcoDiv() {
+		return this.strNcoDiv;
+	}
+
+}

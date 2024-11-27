@@ -1,0 +1,49 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.action.CommandAction;
+import java.util.List;
+import java.util.ArrayList;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.VoiceDTO;
+
+public class EmsVoiceFileManageListFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+		VoiceDAO voiceDAO = VoiceDAO.getInstance();
+		List voiceDTOList = voiceDAO.getAllVoice("w_div","U");
+
+		ArrayList usedVoiceDTOList = new ArrayList();;
+
+		int i = 0;
+
+		for(i=0; i < voiceDTOList.size(); i++) {
+			usedVoiceDTOList.add(voiceDAO.getAllUsedVoice(((VoiceDTO)voiceDTOList.get(i)).getWIndex()));
+		}
+
+		usedVoiceDTOList.trimToSize();
+
+
+		request.setAttribute("voiceDTOList", voiceDTOList);
+		request.setAttribute("usedVoiceDTOList", usedVoiceDTOList);
+
+		return "/ivr/emsVoiceFileManageList.jsp";
+
+	}
+}

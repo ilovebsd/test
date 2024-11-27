@@ -1,0 +1,531 @@
+package gateway;
+
+import org.snmp4j.CommunityTarget;
+import org.snmp4j.PDU;
+import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
+import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.GenericAddress;
+import org.snmp4j.smi.Integer32;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.UnsignedInteger32;
+import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.snmp4j.event.ResponseListener;
+import org.snmp4j.smi.*;
+
+public class DtmfSNMP {
+
+	private OctetString get_community;
+	private Address targetaddress;
+	private TransportMapping transport;
+	private CommunityTarget comtarget;
+	private PDU pdu;
+	private ResponseEvent response;
+	private Snmp snmp;
+
+	public void snmpSetConf(String strAddress, String community) {
+
+		try {
+
+			get_community = new OctetString(community);
+			strAddress = strAddress + "/" + "161";
+
+			targetaddress = new UdpAddress(strAddress);
+			transport = new DefaultUdpTransportMapping();
+			transport.listen();
+
+			comtarget = new CommunityTarget();
+			comtarget.setCommunity(get_community);
+			comtarget.setVersion(SnmpConstants.version1);
+			comtarget.setAddress(targetaddress);
+			comtarget.setRetries(2);
+			comtarget.setTimeout(5000);
+
+			pdu = new PDU();
+			snmp = new Snmp(transport);
+			System.out.println("Connection Success");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void snmpCloseSession() {
+
+		try {
+			snmp.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String snmpGet() {
+
+		String strOID			= "";
+		String str 				= "";
+		String strTemp1			= "";
+		String strTemp2			= "";
+		String strTemp3			= "";
+		String strTemp4			= "";
+		String strTemp5			= "";
+		String strTemp6			= "";
+		String strTemp7			= "";
+		String strTemp8			= "";
+		String strTemp9			= "";
+		String strTemp10		= "";
+		String strTemp11		= "";
+		String strTemp12		= "";
+		
+		String strMaxDigits		= "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.1.0";
+		String strTimeOut		= "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.2.0";
+		String strOption_1		= "1.3.6.1.4.1.5003.9.10.3.1.2.2.21.1.5.0";
+		String strRFC2833		= "1.3.6.1.4.1.5003.9.10.3.1.1.11.12.0";
+		String strHookFlash		= "1.3.6.1.4.1.5003.9.10.3.1.2.2.6.0";
+		String strDigitMapping	= "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.4.0";
+		String strDigitPlan		= "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.6.0";
+		String strDigitTone		= "1.3.6.1.4.1.5003.9.10.3.1.1.8.2.0";
+		String strHotlineDial	= "1.3.6.1.4.1.5003.9.10.3.1.1.4.4.0";
+		String strEnableSpecial	= "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.3.0";
+		String strSpecialDigit	= "1.3.6.1.4.1.5003.9.10.3.1.2.2.7.0";
+		String strRfc_2833sdp	= "1.3.6.1.4.1.5003.9.10.3.1.2.2.5.0";
+		
+		try {
+			// MaxDigits
+			strOID = strMaxDigits;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp1 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp1.contains("=")) {
+						int len = strTemp1.indexOf("=");
+						strTemp1 = strTemp1.substring(len + 1, strTemp1.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp1)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp1+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// strTimeOut
+			strOID = strTimeOut;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp2 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp2.contains("=")) {
+						int len = strTemp2.indexOf("=");
+						strTemp2 = strTemp2.substring(len + 1, strTemp2.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp2)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp2+";";
+			}
+
+			pdu.clear();
+			response = null;
+			
+			
+			// DTMF Option 1
+			strOID = strOption_1;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp3 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp3.contains("=")) {
+						int len = strTemp3.indexOf("=");
+						strTemp3 = strTemp3.substring(len + 1, strTemp3.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp3)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp3+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+
+			// RFC2833
+			strOID = strRFC2833;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp4 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp4.contains("=")) {
+						int len = strTemp4.indexOf("=");
+						strTemp4 = strTemp4.substring(len + 1, strTemp4.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp4)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp4+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// HookFlash
+			strOID = strHookFlash;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp5 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp5.contains("=")) {
+						int len = strTemp5.indexOf("=");
+						strTemp5 = strTemp5.substring(len + 1, strTemp5.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp5)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp5+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+
+			// DigitMapping
+			strOID = strDigitMapping;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp6 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp6.contains("=")) {
+						int len = strTemp6.indexOf("=");
+						strTemp6 = strTemp6.substring(len + 1, strTemp6.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp6)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp6+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// DigitPlan
+			strOID = strDigitPlan;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp7 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp7.contains("=")) {
+						int len = strTemp7.indexOf("=");
+						strTemp7 = strTemp7.substring(len + 1, strTemp7.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp7)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp7+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// DigitTone
+			strOID = strDigitTone;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp8 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp8.contains("=")) {
+						int len = strTemp8.indexOf("=");
+						strTemp8 = strTemp8.substring(len + 1, strTemp8.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp8)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp8+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// HotlineDial
+			strOID = strHotlineDial;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp9 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp9.contains("=")) {
+						int len = strTemp9.indexOf("=");
+						strTemp9 = strTemp9.substring(len + 1, strTemp9.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp9)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp9+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// EnableSpecial
+			strOID = strEnableSpecial;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp10 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp10.contains("=")) {
+						int len = strTemp10.indexOf("=");
+						strTemp10 = strTemp10.substring(len + 1, strTemp10.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp10)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp10+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// SpecialDigit
+			strOID = strSpecialDigit;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp11 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp11.contains("=")) {
+						int len = strTemp11.indexOf("=");
+						strTemp11 = strTemp11.substring(len + 1, strTemp11.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp11)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp11+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+			
+			// Rfc_2833 SDP
+			strOID = strRfc_2833sdp;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp12 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp12.contains("=")) {
+						int len = strTemp12.indexOf("=");
+						strTemp12 = strTemp12.substring(len + 1, strTemp12.length());
+					}
+				}
+			} else {
+				System.out.println("Timeout occured");
+			}
+
+			if("".equals(strTemp12)){
+				str = str+" ;";
+			}else{
+				str = str+strTemp12+";";
+			}
+
+			pdu.clear();
+			response = null;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return str;
+	}
+
+	public Snmp retSnmp() {
+		return snmp;
+	}
+	
+	public String getSNMP(String snmpIP) {
+		DtmfSNMP dtmfSNMP = new DtmfSNMP();
+
+		dtmfSNMP.snmpSetConf(snmpIP,"public");
+		
+		String Result= dtmfSNMP.snmpGet();
+		
+		dtmfSNMP.snmpCloseSession();
+		
+		return Result;
+	}
+
+	public void snmpSet(String strAddress, String community, String strOID, String Value, int type)
+	{
+		strAddress= strAddress+"/"+"161";
+		Address targetAddress = GenericAddress.parse(strAddress);
+		Snmp snmp;
+		try
+		{
+			TransportMapping transport = new DefaultUdpTransportMapping();
+			snmp = new Snmp(transport);
+			transport.listen();
+			CommunityTarget target = new CommunityTarget();
+			target.setCommunity(new OctetString(community));
+			target.setAddress(targetAddress);
+			target.setRetries(2);
+			target.setTimeout(5000);
+			target.setVersion(SnmpConstants.version1);
+			PDU pdu = new PDU();
+			if(type==1){
+				int temp = Integer.parseInt(Value);
+				pdu.add(new VariableBinding(new OID(strOID), new Integer32(temp)));
+			}else if(type==2){
+				int temp = Integer.parseInt(Value);
+				pdu.add(new VariableBinding(new OID(strOID), new UnsignedInteger32(temp)));
+			}else if(type==3){
+				pdu.add(new VariableBinding(new OID(strOID), new OctetString(Value)));
+			}else if(type==4){
+				int temp = Integer.parseInt(Value);
+				pdu.add(new VariableBinding(new OID(strOID), new Gauge32(temp)));
+			}
+			
+			pdu.setType(PDU.SET);
+
+			ResponseListener listener = new ResponseListener() {
+				public void onResponse(ResponseEvent event) {
+					try{
+						((Snmp)event.getSource()).cancel(event.getRequest(), this);
+						System.out.println("Set Status is: "+event.getResponse().getErrorStatusText());
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+			};
+			snmp.send(pdu, target, null, listener);
+			snmp.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+}
+

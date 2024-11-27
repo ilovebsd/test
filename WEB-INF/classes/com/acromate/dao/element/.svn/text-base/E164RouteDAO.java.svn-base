@@ -1,0 +1,326 @@
+package com.acromate.dao.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+import com.acromate.db.QueryStatement ;
+import com.acromate.dto.element.E164RouteDTO;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+import java.sql.ResultSet;
+import com.acromate.dto.element.E164RouteDTO;
+import com.acromate.util.Logger;
+
+public class E164RouteDAO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private E164RouteDTO e164RouteDTO ;
+    QueryStatement statement ;
+
+    public E164RouteDAO() {}
+
+    public E164RouteDAO( QueryStatement statement, E164RouteDTO e164RouteDTO ) {
+        this.statement = statement ;
+        this.e164RouteDTO = e164RouteDTO ;
+    }
+
+    public int getE164RouteCount(QueryStatement statement, String strE164, String strEPID, int protocol ) {
+        ResultSet rs = null;
+        int count = 0;
+        try {
+            String queryString = "SELECT count(*) FROM table_E164Route WHERE ";
+            queryString += " E164 = '"+strE164+"' AND EndpointID = '"+strEPID+"' AND protocol = "+protocol;
+            rs = statement.executeQuery(queryString) ;
+            if ( rs.next() )
+                count = rs.getInt(1);
+            rs.close();
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch (Exception e) {
+                log.error("exception occurred > ", e);
+            }
+        }
+        return count;
+    }
+
+    public int getE164RouteCount(QueryStatement statement, String strE164) {
+        ResultSet rs = null;
+        int count = 0;
+        try {
+            String queryString = "SELECT count(*) FROM table_E164Route WHERE E164 = '"+strE164+"' ";
+            rs = statement.executeQuery(queryString) ;
+            if ( rs.next() )
+                count = rs.getInt(1);
+            rs.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { e.printStackTrace(); }
+        }
+        return count;
+    }
+
+    public E164RouteDTO getDTO(QueryStatement statement, String strE164, int nRoutingNumberType ) {
+        E164RouteDTO e164RouteDTO = null;
+        ResultSet rs = null;
+
+        try {
+            String queryString = "SELECT routingNumber, e164, endpointID, protocol, endpointType, routingNumberType, priority ";
+            queryString += " From Table_E164ROUTE Where e164 = '" + strE164 +"' ";
+            queryString += " AND  routingNumberType = " + nRoutingNumberType +" " ;
+
+            rs = statement.executeQuery(queryString) ;
+
+            if ( rs.next() )  {
+                e164RouteDTO = new E164RouteDTO() ;
+
+                e164RouteDTO.setRoutingNumber(Str.CheckNullString(rs.getString(1)));
+                e164RouteDTO.setE164(Str.CheckNullString(rs.getString(2)));
+                e164RouteDTO.setEndpointID(Str.CheckNullString(rs.getString(3)));
+                e164RouteDTO.setProtocol(rs.getInt(4));
+                e164RouteDTO.setEndpointType(rs.getInt(5));
+                e164RouteDTO.setRoutingNumberType(rs.getInt(6));
+                e164RouteDTO.setPriority(rs.getInt(7));
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { e.printStackTrace(); }
+        }
+        return e164RouteDTO;
+    }
+
+    public E164RouteDTO getDTO(QueryStatement statement, String strRoutingNumber ) {
+        E164RouteDTO e164RouteDTO = null;
+        ResultSet rs = null;
+
+        try {
+            String queryString = "SELECT routingNumber, e164, endpointID, protocol, endpointType, routingNumberType, priority ";
+            queryString += " From Table_E164ROUTE Where RoutingNumber = '" + strRoutingNumber +"' ";
+
+            rs = statement.executeQuery(queryString) ;
+
+            if ( rs.next() )  {
+                e164RouteDTO = new E164RouteDTO() ;
+
+                e164RouteDTO.setRoutingNumber(Str.CheckNullString(rs.getString(1)));
+                e164RouteDTO.setE164(Str.CheckNullString(rs.getString(2)));
+                e164RouteDTO.setEndpointID(Str.CheckNullString(rs.getString(3)));
+                e164RouteDTO.setProtocol(rs.getInt(4));
+                e164RouteDTO.setEndpointType(rs.getInt(5));
+                e164RouteDTO.setRoutingNumberType(rs.getInt(6));
+                e164RouteDTO.setPriority(rs.getInt(7));
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { e.printStackTrace(); }
+        }
+        return e164RouteDTO;
+    }
+
+    public ArrayList getList(QueryStatement statement, String E164) {
+        ArrayList list = new ArrayList() ;
+        E164RouteDTO e164RouteDTO = null ;
+        ResultSet rs = null ;
+
+        try {
+            String queryString = "SELECT  routingNumber, e164, endpointID, protocol, endpointType, routingNumberType, priority " ;
+            queryString += " From Table_E164ROUTE Where e164 = '" + E164 +"' ";
+
+            rs = statement.executeQuery(queryString) ;
+            System.out.println(queryString) ;
+
+            while ( rs.next() )  {
+                e164RouteDTO = new E164RouteDTO() ;
+                e164RouteDTO.setRoutingNumber(Str.CheckNullString(rs.getString(1)));
+                e164RouteDTO.setE164(E164);
+                e164RouteDTO.setEndpointID(Str.CheckNullString(rs.getString(3)));
+                e164RouteDTO.setProtocol(rs.getInt(4));
+                e164RouteDTO.setEndpointType(rs.getInt(5));
+                e164RouteDTO.setRoutingNumberType(rs.getInt(6));
+                e164RouteDTO.setPriority(rs.getInt(7));
+                list.add(e164RouteDTO) ;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { e.printStackTrace(); }
+        }
+
+        return list;
+    }
+
+    public int getAliasCount(QueryStatement statement, String endpointID) {
+        ArrayList list = new ArrayList() ;
+        ResultSet rs = null ;
+        int count = 0;
+        try {
+            String queryString = "SELECT count(*) FROM Table_E164Route " ;
+            queryString +=  " WHERE Endpointid = '"+endpointID+"' AND Protocol=2 AND RoutingNumberType=1";
+            System.out.println(queryString) ;
+            rs = statement.executeQuery(queryString) ;
+            if (rs.next())
+                count = rs.getInt(1);
+            rs.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { e.printStackTrace(); }
+        }
+        return count;
+    }
+
+    public boolean insert ( QueryStatement statement, E164RouteDTO e164RouteDTO ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+
+            queryString =   " INSERT INTO Table_E164ROUTE ";
+            queryString += " (routingNumber, e164, endpointID, protocol, endpointType, routingNumberType, priority )";
+            queryString += " VALUES (" ;
+            queryString += " '" + e164RouteDTO.getRoutingNumber() + "'," ;
+            queryString += " '" + e164RouteDTO.getE164() + "'," ;
+            queryString += " '" + e164RouteDTO.getEndpointID() + "'," ;
+            queryString += "  " + e164RouteDTO.getProtocol() + "," ;
+            queryString += "  " + e164RouteDTO.getEndpointType() + "," ;
+            queryString += "  " + e164RouteDTO.getRoutingNumberType() + "," ;
+            queryString += "  " + e164RouteDTO.getPriority() + ") " ;
+
+            System.out.println(queryString) ;
+            count = statement.executeUpdate(queryString);
+            if (count < 1) return false ;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true ;
+    }
+
+
+    public boolean update( QueryStatement statement, E164RouteDTO e164RouteDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = " UPDATE Table_E164ROUTE SET ";
+            queryString += "endpointType = " + e164RouteDTO.getEndpointType() + "," ;
+            queryString += "routingNumberType = " + e164RouteDTO.getRoutingNumberType() + "," ;
+            queryString += "priority = " + e164RouteDTO.getPriority() + " " ;
+            queryString += " WHERE e164 = '" + e164RouteDTO.getE164() + "' ";
+            queryString += " AND routingNumber = '" + e164RouteDTO.getRoutingNumber() + "' " ;
+            queryString += " AND endpointID = '" + e164RouteDTO.getEndpointID() + "' " ;
+            queryString += " AND protocol = " + e164RouteDTO.getProtocol() + " " ;
+
+            System.out.println(">>>>>>>>>>>>update>>>>>>>>>>>>>" + queryString) ;
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement,  String e164,  String endpointID, int protocol) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null)
+                return false;
+
+            queryString = " DELETE FROM Table_E164ROUTE Where e164='" + e164 + "' AND endpointid = '" + endpointID + "' AND Protocol = " +  protocol;
+            count = statement.executeUpdate(queryString);
+            System.out.println(count + " deleted. " + queryString) ;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement,  String endpointID, int protocol) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null)
+                return false;
+
+            queryString = " DELETE FROM Table_E164ROUTE Where endpointid = '" + endpointID + "' AND Protocol = " +  protocol;
+            count = statement.executeUpdate(queryString);
+            System.out.println(count + " deleted. " + queryString) ;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+
+    public boolean deleteRoutingNumber( QueryStatement statement,  String strRoutingNumber) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM Table_E164ROUTE  " ;
+            queryString += " Where routingNumber = '" + strRoutingNumber + "' " ;
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+
+    public boolean deleteE164( QueryStatement statement,  String strE164) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM Table_E164ROUTE Where e164 = '" + strE164 + "' " ;
+            count = statement.executeUpdate(queryString);
+            System.out.println(count + " deleted. " + queryString) ;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+
+}
+

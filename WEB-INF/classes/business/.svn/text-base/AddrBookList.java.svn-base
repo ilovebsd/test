@@ -1,0 +1,435 @@
+package business;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+import dto.AddrBookDTO ;
+
+public class AddrBookList {
+	/*
+	 * 전화번호부 리스트 조회
+	 */
+	public List getList(DataStatement stmt, int pageNo, int pageSize, String OwnerID, String GroupID, String common, String gubun, String str, String UserID) {
+	    AddrBookDTO addrBookDTO;
+        List<AddrBookDTO> addrBookList = new ArrayList<AddrBookDTO>();
+
+        System.out.println("받은 로그인 사용자 ID : "+OwnerID);
+        
+        String sql = "\n SELECT b.OwnerID, b.GroupID, b.AddrID, b.IdType, b.Name, b.IDX, b.PhoneNum, ";
+        sql = sql  + "\n        b.Mobile, b.Position, b.department, b.Address, b.Memo, b.UseMobileACF, ";
+        sql = sql  + "\n        b.UsePhoneACF, b.Mailaddress, b.Company, b.Companynumber, b.Companyaddress, ";
+        sql = sql  + "\n        b.Homepage, b.Introduction, b.Fax, b.Birthday, b.CreateDate, b.EditDate, ";
+        sql = sql  + "\n        b.keynumber, b.common, ";
+        sql = sql  + "\n        b.shareddate, b.sharedgroupid, b.sharedownerid, b.sharedaddrid, ";
+        sql = sql  + "\n        (SELECT d.name ";
+        sql = sql  + "\n           FROM table_addrbook d ";
+        sql = sql  + "\n          WHERE d.ownerid = b.sharedownerid ";
+        sql = sql  + "\n            AND d.groupid = b.sharedgroupid ";
+        sql = sql  + "\n            AND d.addrid = b.sharedaddrid) AS sharedgroupname, ";
+//    	sql = sql  + "\n        (SELECT name FROM table_subscriber WHERE id = '" + UserID + "') as publicName ";
+//    	sql = sql  + "\n        (SELECT name FROM table_subscriber WHERE phonenum = b.ownerid) as publicName ";
+        sql = sql  + "\n        (SELECT name ";
+        sql = sql  + "\n           FROM table_subscriber ";
+        sql = sql  + "\n          WHERE phonenum = (SELECT c.ownerid ";
+        sql = sql  + "\n                              FROM table_addrbook c ";
+        sql = sql  + "\n                             WHERE c.sharedownerid = b.ownerid ";
+        sql = sql  + "\n                               AND c.sharedgroupid = b.groupid ";
+        //sql = sql  + "\n                               AND c.sharedaddrid  = b.addrid ";
+        sql = sql  + "\n                               AND c.sharedaddrid  = b.addrid limit 1 ";
+        sql = sql  + "\n                            )) AS publicName ";
+        sql = sql  + "\n   FROM table_AddrBookGroup a, table_addrbook b ";
+    	sql = sql  + "\n  WHERE a.ownerid = b.ownerid ";
+    	sql = sql  + "\n    AND a.groupid = b.groupid ";
+    	sql = sql  + "\n    AND a.common  = " + common;
+    	if("2".equals(common)){
+            if(OwnerID != null && !"".equals(OwnerID)){
+            	sql +=   "\n    AND b.ownerid = '" + OwnerID + "'";
+            	sql +=   "\n    AND b.groupid = " + GroupID;
+            }
+    	}else{
+        	sql = sql +  "\n    AND b.ownerid = '" + OwnerID + "'";
+            if(GroupID != null && !"".equals(GroupID)){
+            	sql +=   "\n    AND b.groupid = " + GroupID;
+            }
+    	}
+        if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    And b.name LIKE '%" + str + "%'";
+        	}else if("2".equals(gubun)){
+        		sql += "\n    And b.keynumber LIKE '%" + str + "%'";
+        	}else if("3".equals(gubun)){
+        		sql += "\n    And b.company LIKE '%" + str + "%'";
+        	}else if("4".equals(gubun)){
+        		sql += "\n    And b.department LIKE '%" + str + "%'";
+        	}else if("5".equals(gubun)){
+        		sql += "\n    And b.memo LIKE '%" + str + "%'";
+        	}else if("6".equals(gubun)){
+        		sql += "\n    And b.introduction LIKE '%" + str + "%'";
+        	}
+        }
+        if("2".equals(common)){
+        	sql = sql +  "\n  Order by Name offset "+pageNo+" limit "+pageSize ;
+        }else{
+        	sql = sql +  "\n  Order by Name ";
+        }
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	
+                	addrBookDTO = new AddrBookDTO();
+                	addrBookDTO.setOwnerID(Str.CheckNullString(rs.getString("OwnerID")));
+                	addrBookDTO.setGroupID(rs.getInt("GroupID"));
+                	addrBookDTO.setAddrID(rs.getInt("AddrID"));
+                	addrBookDTO.setIdType(rs.getInt("IdType"));
+                	addrBookDTO.setName(Str.CheckNullString(rs.getString("Name")));
+                	addrBookDTO.setIdx(rs.getInt("IDX"));
+                	addrBookDTO.setPhoneNum(Str.CheckNullString(rs.getString("PhoneNum")));
+                	addrBookDTO.setMobile(Str.CheckNullString(rs.getString("Mobile")));
+                	addrBookDTO.setPosition(Str.CheckNullString(rs.getString("Position")));
+                	addrBookDTO.setDepartment(Str.CheckNullString(rs.getString("department")));
+                	addrBookDTO.setAddress(Str.CheckNullString(rs.getString("Address")));
+                	addrBookDTO.setMemo(Str.CheckNullString(rs.getString("Memo")));
+                	addrBookDTO.setUseMobileACF(rs.getInt("UseMobileACF"));
+                	addrBookDTO.setUsePhoneACF(rs.getInt("UsePhoneACF"));
+                	addrBookDTO.setMailAddress(Str.CheckNullString(rs.getString("Mailaddress")));
+                	addrBookDTO.setCompany(Str.CheckNullString(rs.getString("Company")));
+                	addrBookDTO.setCompanyNumber(Str.CheckNullString(rs.getString("Companynumber")));
+                	addrBookDTO.setFax(Str.CheckNullString(rs.getString("Fax")));
+                	addrBookDTO.setCompanyAddress(Str.CheckNullString(rs.getString("Companyaddress")));
+                	addrBookDTO.setHomePage(Str.CheckNullString(rs.getString("Homepage")));
+                	addrBookDTO.setIntroduction(Str.CheckNullString(rs.getString("Introduction")));
+                	addrBookDTO.setBirthday(Str.CheckNullString(rs.getString("Birthday")));
+                	addrBookDTO.setCreateDate(Str.CheckNullString(rs.getString("CreateDate")));
+                	addrBookDTO.setEditDate(Str.CheckNullString(rs.getString("EditDate")));
+                	addrBookDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	addrBookDTO.setCommon(rs.getInt("common")); // 공유폴더유무
+                	addrBookDTO.setSharedDate(Str.CheckNullString(rs.getString("shareddate")));
+                	addrBookDTO.setSharedGroupID(rs.getInt("sharedgroupid"));
+                	addrBookDTO.setSharedGroupName(Str.CheckNullString(rs.getString("sharedgroupname")));
+                	addrBookDTO.setSharedOwnerID(Str.CheckNullString(rs.getString("sharedownerid")));
+                	addrBookDTO.setSharedAddrID(rs.getInt("sharedaddrid"));
+                	addrBookDTO.setPublicName(Str.CheckNullString(rs.getString("publicName")));
+
+                    addrBookList.add(addrBookDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addrBookList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addrBookList;
+    }
+
+	/*
+	 * 전화번호부 총건수 조회
+	 */
+	public int getCount(DataStatement stmt, String OwnerID, String GroupID, String common, String gubun, String str) {
+		int count = 0 ;
+		ResultSet rs = null;
+		
+		String sql = "\n SELECT count(b.ownerid) ";	
+		sql = sql +  "\n   FROM table_AddrBookGroup a, table_AddrBook b ";
+		sql = sql +  "\n  WHERE a.ownerid = b.ownerid ";
+		sql = sql +  "\n    AND a.groupid = b.groupid ";
+		sql = sql +  "\n    AND a.common = " + common;
+    	if("2".equals(common)){
+            if(OwnerID != null && !"".equals(OwnerID)){
+            	sql +=   "\n    AND a.ownerid = '" + OwnerID + "'";
+            	sql +=   "\n    AND a.groupid = " + GroupID;
+            }
+    	}else{
+        	sql = sql +  "\n    AND a.ownerid = '" + OwnerID + "'";
+            if(GroupID != null && !"".equals(GroupID)){
+            	sql +=   "\n    AND a.groupid = " + GroupID;
+            }
+    	}
+		if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    And b.name LIKE '%" + str + "%'";
+        	}else if("2".equals(gubun)){
+        		sql += "\n    And b.keynumber LIKE '%" + str + "%'";
+        	}else if("3".equals(gubun)){
+        		sql += "\n    And b.company LIKE '%" + str + "%'";
+        	}else if("4".equals(gubun)){
+        		sql += "\n    And b.department LIKE '%" + str + "%'";
+        	}else if("5".equals(gubun)){
+        		sql += "\n    And b.memo LIKE '%" + str + "%'";
+        	}else if("6".equals(gubun)){
+        		sql += "\n    And b.introduction LIKE '%" + str + "%'";
+        	}
+        }
+		System.out.println("sql==="+sql);        
+		
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+	
+	/*
+	 * 우선 수신 전화번호부 리스트 조회
+	 */
+	public List getFirstCalleeList(DataStatement stmt, String OwnerID, String common, String gubun, String str) {
+	    AddrBookDTO addrBookDTO;
+        List<AddrBookDTO> addrBookList = new ArrayList<AddrBookDTO>();
+        
+        String sql = "\n SELECT c.OwnerID, c.GroupID, c.AddrID, c.IdType, c.Name, c.IDX, c.PhoneNum, ";
+        sql = sql +  "\n        c.Mobile, c.Position, c.department, c.Address, c.Memo, c.UseMobileACF, ";
+        sql = sql +  "\n        c.UsePhoneACF, c.Mailaddress, c.Company, c.Companynumber, c.Companyaddress, ";
+        sql = sql +  "\n        c.Homepage, c.Introduction, c.Fax, c.Birthday, c.CreateDate, c.EditDate, ";
+        sql = sql +  "\n        c.keynumber, c.common, c.usecompanynumberacf, c.gubun ";
+    	sql = sql +  "\n   FROM ( ";
+        sql = sql +  "\n SELECT b.OwnerID, b.GroupID, b.AddrID, b.IdType, b.Name, b.IDX, b.PhoneNum, ";
+        sql = sql +  "\n        b.Mobile, b.Position, b.department, b.Address, b.Memo, b.UseMobileACF, ";
+        sql = sql +  "\n        b.UsePhoneACF, b.Mailaddress, b.Company, b.Companynumber, b.Companyaddress, ";
+        sql = sql +  "\n        b.Homepage, b.Introduction, b.Fax, b.Birthday, b.CreateDate, b.EditDate, ";
+        sql = sql +  "\n        b.keynumber, b.common, b.usecompanynumberacf, '1' AS gubun ";
+    	sql = sql +  "\n   FROM table_AddrBookGroup a, table_addrbook b ";
+    	sql = sql +  "\n  WHERE a.ownerid = b.ownerid ";
+    	sql = sql +  "\n    AND a.groupid = b.groupid ";
+    	sql = sql +  "\n    AND a.ownerid = '" + OwnerID + "'";
+    	sql = sql +  "\n    AND b.common  = " + common;
+    	sql = sql +  "\n    AND b.usecompanynumberacf = 1 ";
+        if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    And b.name LIKE '%" + str + "%'";
+        	}
+        }
+        sql = sql +  "\n UNION ALL ";
+        sql = sql +  "\n SELECT b.OwnerID, b.GroupID, b.AddrID, b.IdType, b.Name, b.IDX, b.PhoneNum, ";
+        sql = sql +  "\n        b.Mobile, b.Position, b.department, b.Address, b.Memo, b.UseMobileACF, ";
+        sql = sql +  "\n        b.UsePhoneACF, b.Mailaddress, b.Company, b.Companynumber, b.Companyaddress, ";
+        sql = sql +  "\n        b.Homepage, b.Introduction, b.Fax, b.Birthday, b.CreateDate, b.EditDate, ";
+        sql = sql +  "\n        b.keynumber, b.common, b.usecompanynumberacf, '2' AS gubun ";
+    	sql = sql +  "\n   FROM table_AddrBookGroup a, table_addrbook b ";
+    	sql = sql +  "\n  WHERE a.ownerid = b.ownerid ";
+    	sql = sql +  "\n    AND a.groupid = b.groupid ";
+    	sql = sql +  "\n    AND a.ownerid = '" + OwnerID + "'";
+    	sql = sql +  "\n    AND b.common  = " + common;
+    	sql = sql +  "\n    AND b.UsePhoneACF = 1 ";
+        if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    And b.name LIKE '%" + str + "%'";
+        	}
+        }
+        sql = sql + "\n UNION ALL ";
+        sql = sql +  "\n SELECT b.OwnerID, b.GroupID, b.AddrID, b.IdType, b.Name, b.IDX, b.PhoneNum, ";
+        sql = sql +  "\n        b.Mobile, b.Position, b.department, b.Address, b.Memo, b.UseMobileACF, ";
+        sql = sql +  "\n        b.UsePhoneACF, b.Mailaddress, b.Company, b.Companynumber, b.Companyaddress, ";
+        sql = sql +  "\n        b.Homepage, b.Introduction, b.Fax, b.Birthday, b.CreateDate, b.EditDate, ";
+        sql = sql +  "\n        b.keynumber, b.common, b.usecompanynumberacf, '3' AS gubun ";
+    	sql = sql +  "\n   FROM table_AddrBookGroup a, table_addrbook b ";
+    	sql = sql +  "\n  WHERE a.ownerid = b.ownerid ";
+    	sql = sql +  "\n    AND a.groupid = b.groupid ";
+    	sql = sql +  "\n    AND a.ownerid = '" + OwnerID + "'";
+    	sql = sql +  "\n    AND b.common  = " + common;
+    	sql = sql +  "\n    AND b.UseMobileACF = 1 ";
+        if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n    And b.name LIKE '%" + str + "%'";
+        	}
+        }
+    	sql = sql +  "\n        ) c ";
+    	sql = sql +  "\n  ORDER BY c.Name, c.OwnerID, c.GroupID, c.AddrID, c.gubun ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	
+                	addrBookDTO = new AddrBookDTO();
+                	addrBookDTO.setOwnerID(Str.CheckNullString(rs.getString("OwnerID")));
+                	addrBookDTO.setGroupID(rs.getInt("GroupID"));
+                	addrBookDTO.setAddrID(rs.getInt("AddrID"));
+                	addrBookDTO.setIdType(rs.getInt("IdType"));
+                	addrBookDTO.setName(Str.CheckNullString(rs.getString("Name")));
+                	addrBookDTO.setIdx(rs.getInt("IDX"));
+                	addrBookDTO.setPhoneNum(Str.CheckNullString(rs.getString("PhoneNum")));
+                	addrBookDTO.setMobile(Str.CheckNullString(rs.getString("Mobile")));
+                	addrBookDTO.setPosition(Str.CheckNullString(rs.getString("Position")));
+                	addrBookDTO.setDepartment(Str.CheckNullString(rs.getString("department")));
+                	addrBookDTO.setAddress(Str.CheckNullString(rs.getString("Address")));
+                	addrBookDTO.setMemo(Str.CheckNullString(rs.getString("Memo")));
+                	addrBookDTO.setUseMobileACF(rs.getInt("UseMobileACF"));
+                	addrBookDTO.setUsePhoneACF(rs.getInt("UsePhoneACF"));
+                	addrBookDTO.setMailAddress(Str.CheckNullString(rs.getString("Mailaddress")));
+                	addrBookDTO.setCompany(Str.CheckNullString(rs.getString("Company")));
+                	addrBookDTO.setCompanyNumber(Str.CheckNullString(rs.getString("Companynumber")));
+                	addrBookDTO.setFax(Str.CheckNullString(rs.getString("Fax")));
+                	addrBookDTO.setCompanyAddress(Str.CheckNullString(rs.getString("Companyaddress")));
+                	addrBookDTO.setHomePage(Str.CheckNullString(rs.getString("Homepage")));
+                	addrBookDTO.setIntroduction(Str.CheckNullString(rs.getString("Introduction")));
+                	addrBookDTO.setBirthday(Str.CheckNullString(rs.getString("Birthday")));
+                	addrBookDTO.setCreateDate(Str.CheckNullString(rs.getString("CreateDate")));
+                	addrBookDTO.setEditDate(Str.CheckNullString(rs.getString("EditDate")));
+                	addrBookDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	addrBookDTO.setCommon(rs.getInt("common")); // 공유폴더유무
+                	addrBookDTO.setUseCompanyNumberACF(rs.getInt("usecompanynumberacf"));
+                	addrBookDTO.setGubun(Str.CheckNullString(rs.getString("gubun")));            	
+
+                    addrBookList.add(addrBookDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addrBookList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addrBookList;
+    }
+	
+	/*
+	 * 우선 수신 추가용 전화번호부 리스트 조회
+	 */
+	public List getAddFirstCalleeList(DataStatement stmt, String OwnerID, String common) {
+	    AddrBookDTO addrBookDTO;
+        List<AddrBookDTO> addrBookList = new ArrayList<AddrBookDTO>();
+        
+        String sql = "\n SELECT a.name AS groupname, b.OwnerID, b.GroupID, b.AddrID, b.IdType, b.Name, b.IDX, b.PhoneNum, ";
+        sql = sql +  "\n        b.Mobile, b.Position, b.department, b.Address, b.Memo, coalesce(b.UseMobileACF,0) AS UseMobileACF, ";
+        sql = sql +  "\n        coalesce(b.UsePhoneACF,0) AS UsePhoneACF, b.Mailaddress, b.Company, b.Companynumber, b.Companyaddress, ";
+        sql = sql +  "\n        b.Homepage, b.Introduction, b.Fax, b.Birthday, b.CreateDate, b.EditDate, ";
+        sql = sql +  "\n        b.keynumber, b.common, coalesce(b.usecompanynumberacf,0) AS usecompanynumberacf";
+    	sql = sql +  "\n   FROM table_AddrBookGroup a, table_addrbook b ";
+    	sql = sql +  "\n  WHERE a.ownerid = b.ownerid ";
+    	sql = sql +  "\n    AND a.groupid = b.groupid ";
+    	sql = sql +  "\n    AND a.ownerid = '" + OwnerID + "'";
+    	sql = sql +  "\n    AND b.common  = " + common;
+    	sql = sql +  "\n  ORDER BY a.name, b.name ";
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	
+                	addrBookDTO = new AddrBookDTO();
+                	addrBookDTO.setGroupName(Str.CheckNullString(rs.getString("groupname")));
+                	addrBookDTO.setOwnerID(Str.CheckNullString(rs.getString("OwnerID")));
+                	addrBookDTO.setGroupID(rs.getInt("GroupID"));
+                	addrBookDTO.setAddrID(rs.getInt("AddrID"));
+                	addrBookDTO.setIdType(rs.getInt("IdType"));
+                	addrBookDTO.setName(Str.CheckNullString(rs.getString("Name")));
+                	addrBookDTO.setIdx(rs.getInt("IDX"));
+                	addrBookDTO.setPhoneNum(Str.CheckNullString(rs.getString("PhoneNum")));
+                	addrBookDTO.setMobile(Str.CheckNullString(rs.getString("Mobile")));
+                	addrBookDTO.setPosition(Str.CheckNullString(rs.getString("Position")));
+                	addrBookDTO.setDepartment(Str.CheckNullString(rs.getString("department")));
+                	addrBookDTO.setAddress(Str.CheckNullString(rs.getString("Address")));
+                	addrBookDTO.setMemo(Str.CheckNullString(rs.getString("Memo")));
+                	addrBookDTO.setUseMobileACF(rs.getInt("UseMobileACF"));
+                	addrBookDTO.setUsePhoneACF(rs.getInt("UsePhoneACF"));
+                	addrBookDTO.setMailAddress(Str.CheckNullString(rs.getString("Mailaddress")));
+                	addrBookDTO.setCompany(Str.CheckNullString(rs.getString("Company")));
+                	addrBookDTO.setCompanyNumber(Str.CheckNullString(rs.getString("Companynumber")));
+                	addrBookDTO.setFax(Str.CheckNullString(rs.getString("Fax")));
+                	addrBookDTO.setCompanyAddress(Str.CheckNullString(rs.getString("Companyaddress")));
+                	addrBookDTO.setHomePage(Str.CheckNullString(rs.getString("Homepage")));
+                	addrBookDTO.setIntroduction(Str.CheckNullString(rs.getString("Introduction")));
+                	addrBookDTO.setBirthday(Str.CheckNullString(rs.getString("Birthday")));
+                	addrBookDTO.setCreateDate(Str.CheckNullString(rs.getString("CreateDate")));
+                	addrBookDTO.setEditDate(Str.CheckNullString(rs.getString("EditDate")));
+                	addrBookDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	addrBookDTO.setCommon(rs.getInt("common")); // 공유폴더유무
+                	addrBookDTO.setUseCompanyNumberACF(rs.getInt("usecompanynumberacf"));
+
+                    addrBookList.add(addrBookDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addrBookList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addrBookList;
+    }
+	
+	/*
+	 * 팝업 개인 전화번호부 리스트 조회
+	 */
+	public List getAddPopupList(DataStatement stmt, String OwnerID, String common) {
+	    AddrBookDTO addrBookDTO;
+        List<AddrBookDTO> addrBookList = new ArrayList<AddrBookDTO>();
+        
+        String sql = "\n SELECT OwnerID, GroupID, AddrID, Name, keynumber ";
+    	sql = sql +  "\n   FROM table_addrbook ";
+    	sql = sql +  "\n  WHERE ownerid = '" + OwnerID + "'";
+    	sql = sql +  "\n    AND common  = " + common;
+    	sql = sql +  "\n  ORDER BY Name, keynumber ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	
+                	addrBookDTO = new AddrBookDTO();
+                	addrBookDTO.setOwnerID(Str.CheckNullString(rs.getString("OwnerID")));
+                	addrBookDTO.setGroupID(rs.getInt("GroupID"));
+                	addrBookDTO.setAddrID(rs.getInt("AddrID"));
+                	addrBookDTO.setName(Str.CheckNullString(rs.getString("Name")));
+                	addrBookDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+
+                    addrBookList.add(addrBookDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return addrBookList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return addrBookList;
+    }
+
+
+}

@@ -1,0 +1,53 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dao.addition.BlockPrefixDAO;
+
+public class BlockPrefixEditCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String forwardingPage = "";
+
+        int 	nGroupId = 0;
+        boolean returnVal 	= false;
+        try {
+			String 	hiEi64			= new String(req.getParameter("hiEi64").getBytes("8859_1"), "euc-kr");			// E164
+			String 	hiBlockNumber	= new String(req.getParameter("hiBlockNumber").getBytes("8859_1"), "euc-kr");			// 이름
+			String 	hiDescription	= new String(req.getParameter("hiDescription").getBytes("8859_1"), "euc-kr");			// 이름
+			
+			BlockPrefixDAO dao = new BlockPrefixDAO();
+			
+			// 사용자 정보 수정
+			returnVal = dao.blockPrefixEdit(hiEi64, hiBlockNumber, hiDescription);
+
+			if (returnVal) {
+				System.out.println("착신거부 번호 수정 성공 .......");
+				//forwardingPage = "/bizportal/publicAddrList.jsp?group=" + nGroupId + "&result=" + Integer.toString(updateResult);
+				res.sendRedirect("/bizportal/addition/blockPrefixList.jsp");
+			}else{
+				System.out.println("착신거부 번호 수정 실패 .......");
+				//forwardingPage = "/address/publicGroupList.jsp?session=0";
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}
+			
+		} catch (Exception e) {
+			System.out.println("착신거부 번호 에러발생 .......");
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			
+			e.printStackTrace();
+		}		
+		return forwardingPage;
+	}
+}

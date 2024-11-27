@@ -1,0 +1,200 @@
+package	acromate.common.util;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.StringTokenizer;
+import acromate.common.util.*;
+import system.SystemConfigSet;
+
+/**
+ *  temp파일 생성 util
+ */
+public class FileWrite {
+	public String gbn_upmu = null;   /** 임시파일 생성 폴더 */
+	public String fileName = null;   /** 임시파일명         */
+	public String fileExt = null;    /** 임시파일 확장자    */
+	public File srcFile = null;      /** 임시파일           */
+	public Writer outputFile = null; /** 임시파일 write     */
+	
+	public FileWrite()	{
+
+	}
+
+	/**
+     *  생성자
+     *
+     *  @param  gbn_upmu 메뉴 구분
+     *  @param  gbn_upmu 임시파일명
+     *  @param  gbn_upmu 임시파일 확장자
+     *
+     */
+	public FileWrite(String gbn_upmu, String fileName, String ext)	{
+		this.gbn_upmu = gbn_upmu;
+		this.fileName = fileName;
+		this.fileExt = ext;
+	}
+
+	/**
+     *  임시파일 path 존재 여부 체크, 임시파일명 존재 여부 체크
+     *
+     */
+	public void setFileInfo() throws Exception	{
+		String sHost = null;
+		String tmpFilePath = null;
+		String tmpFullFileName = null;
+
+		//임시 파일명
+//		String srvFileName = String.valueOf(System.currentTimeMillis()) + fileName;
+		String srvFileName = StringUtil.getKSTFormat("yyyyMMddHHmmssSSSS") + fileName;
+		try {
+			sHost = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {}
+			//tmpFilePath = "C:/FTP_SERVER" + "/" + gbn_upmu.toLowerCase();
+			//tmpFullFileName = tmpFilePath + "/" + srvFileName;           // Web 템프 경로 (중복방지)
+
+			SystemConfigSet systemConfig 	= new SystemConfigSet();
+			String 			osType 			= "";		
+			osType = systemConfig.osChk();
+	        if("win".equals(osType)){
+				tmpFilePath = "C:/FTP_SERVER" + "/" + gbn_upmu.toLowerCase();
+				tmpFullFileName = tmpFilePath + "/" + srvFileName;           // Web 템프 경로 (중복방지)        	
+	        }else{
+				tmpFilePath = Constant.CM_FILEUPLOAD_TEMP + "/" + gbn_upmu.toLowerCase();
+				tmpFullFileName = tmpFilePath + "/" + srvFileName;           // Web 템프 경로 (중복방지)        	
+	        }		
+
+		//임시 파일에 대한 폴더 존재 여부 체크
+		File dir = new File(tmpFilePath);
+		if(!dir.exists()) {
+			StringTokenizer st = new StringTokenizer(tmpFilePath, "/");
+			String tmpPath = "";
+			while (st.hasMoreTokens()) {
+				
+				tmpPath += st.nextToken() + File.separator;
+				
+				dir = new File(tmpPath);
+				if(!dir.exists())	{
+					dir.mkdir();
+				}
+			}
+		}
+
+		//임시 파일 존재 여부 체크
+		File checkFile = new File(tmpFullFileName + "." + fileExt);
+		int     cnt     = 0;
+		while (checkFile.exists()) {
+			cnt++;
+			checkFile = new File(tmpFullFileName +"_"+ Integer.toString(cnt) + "." + fileExt);
+		}
+
+		fileName = tmpFullFileName + "." + fileExt;
+		if (cnt > 0) {
+			fileName   = tmpFullFileName  + "_" + Integer.toString(cnt) + "." + fileExt;
+		}
+
+		srcFile = new File(fileName);
+		outputFile = new BufferedWriter(new FileWriter(srcFile));
+	}
+
+	/**
+     *  파일에 해당 문자열을 write한다
+     *
+     *  @param  textToWrite 파일에 write할 문자열
+     *  @param  delim       파일에 write할 문자열 구분자
+     *
+     */
+	public boolean doWrite(String textToWrite, String delim) throws Exception	{
+		String textData[] = StringUtil.getParser(textToWrite, delim);
+		StringBuffer buff = new StringBuffer();
+		String lineDelim = "\r\n";
+		try	{
+			for(int i=0;i<textData.length;i++)	{
+				buff.append(textData[i]);
+				if( i >= (textData.length-1))	{
+					lineDelim = "";
+				}
+
+				buff.append(lineDelim);
+			}
+
+			outputFile.write(buff.toString());
+		}catch(IOException ioe)	{
+			throw ioe;
+		}catch(Exception e)	{
+			throw e;
+		}finally	{
+			outputFile.close();
+		}
+
+		//파일 생성 여부 리턴
+		boolean isExist = srcFile.exists();
+
+		return isExist;
+	}
+	
+	/**
+     *  Writer를 종료한다.
+     *
+     */
+	public void close() throws Exception	{
+		if (outputFile != null)	{
+			outputFile.close();
+		}
+	}
+
+	/**
+     *  파일에 해당 문자열을 write한다
+     *
+     *  @param  textToWrite 파일에 write할 문자열
+     *  @param  delim       파일에 write할 문자열 구분자
+     *  @return isMade      파일 생성여부
+     */
+	public boolean makeFile(String textToWrite, String delim) throws Exception	{
+		boolean isMade = false;
+		try	{
+			//임시파일 path 존재 여부 체크, 임시파일명 존재 여부 체크
+			setFileInfo();
+			//파일 생성
+			isMade = doWrite(textToWrite, delim);
+		}catch(Exception e)	{
+			throw e;
+		} finally	{
+			close();
+		}
+
+		return isMade;
+	}
+
+	/**
+     *  생성된 파일을 삭제한다.
+     *
+     *  @return isDeleted      파일 삭제여부
+     */
+	public boolean deleteFile()	{
+		boolean isDeleted = false;
+		isDeleted = srcFile.delete();
+
+		return isDeleted;
+	}
+
+	/**
+     *  생성된 파일의 fullFileName을 반환한다.
+     *
+     *  @param  textToWrite 파일에 write할 문자열
+     *  @param  delim       파일에 write할 문자열 구분자
+     *  @return isMade      파일 생성여부
+     */
+	public String getFullFileName()	{
+		return fileName;
+	}
+	
+	public File getTempFile()	{
+		return srcFile; 
+	}
+
+}

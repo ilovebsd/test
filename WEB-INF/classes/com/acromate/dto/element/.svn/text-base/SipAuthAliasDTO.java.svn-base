@@ -1,0 +1,42 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class SipAuthAliasDTO
+{
+
+    private String      endpointID;
+    private String	aliasID;
+
+
+
+/**
+ * member functions
+ */
+public String	getEndpointID() { return this.endpointID; }
+public void	setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+public String	getAliasID() { return this.aliasID; }
+public void	setAliasID(String vAliasID ) { this.aliasID = vAliasID; }
+
+
+public String toString()
+{
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:" 	                + getEndpointID() + ") ") ;
+        sb.append("[aliasID:" 	                        + getAliasID() + "] ") ;
+
+         return sb.toString();
+     }
+ }

@@ -1,0 +1,140 @@
+package dto;
+ 
+
+public class E164InfoDTO {
+	private String e164;
+	private String groupId;
+	private String callerService;
+	private String answerService;
+	private String commonService;
+	private String extensionNum;
+	private String directForwardNum;
+	private String vcid;
+	private String hotLineNum;
+	private String hotLineDelayTime;
+	private String mailBox;
+	private String alarmService;
+	private String moh;
+	private String mrbt;
+	private String disa;
+
+	public String getAlarmService() {
+		return alarmService;
+	}
+
+	public void setAlarmService(String alarmService) {
+		this.alarmService = alarmService;
+	}
+
+	public String getAnswerService() {
+		return answerService;
+	}
+
+	public void setAnswerService(String answerService) {
+		this.answerService = answerService;
+	}
+
+	public String getCallerService() {
+		return callerService;
+	}
+
+	public void setCallerService(String callerService) {
+		this.callerService = callerService;
+	}
+
+	public String getCommonService() {
+		return commonService;
+	}
+
+	public void setCommonService(String commonService) {
+		this.commonService = commonService;
+	}
+
+	public String getDirectForwardNum() {
+		return directForwardNum;
+	}
+
+	public void setDirectForwardNum(String directForwardNum) {
+		this.directForwardNum = directForwardNum;
+	}
+
+	public String getE164() {
+		return e164;
+	}
+
+	public void setE164(String e164) {
+		this.e164 = e164;
+	}
+
+	public String getExtensionNum() {
+		return extensionNum;
+	}
+
+	public void setExtensionNum(String extensionNum) {
+		this.extensionNum = extensionNum;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getHotLineDelayTime() {
+		return hotLineDelayTime;
+	}
+
+	public void setHotLineDelayTime(String hotLineDelayTime) {
+		this.hotLineDelayTime = hotLineDelayTime;
+	}
+
+	public String getHotLineNum() {
+		return hotLineNum;
+	}
+
+	public void setHotLineNum(String hotLineNum) {
+		this.hotLineNum = hotLineNum;
+	}
+
+	public String getMailBox() {
+		return mailBox;
+	}
+
+	public void setMailBox(String mailBox) {
+		this.mailBox = mailBox;
+	}
+
+	public String getVcid() {
+		return vcid;
+	}
+
+	public void setVcid(String vcid) {
+		this.vcid = vcid;
+	}
+
+	public String getMoh() {
+		return moh;
+	}
+
+	public void setMoh(String moh) {
+		this.moh = moh;
+	}
+
+	public String getMrbt() {
+		return mrbt;
+	}
+
+	public void setMrbt(String mrbt) {
+		this.mrbt = mrbt;
+	}
+
+	public String getDisa() {
+		return disa;
+	}
+
+	public void setDisa(String disa) {
+		this.disa = disa;
+	}
+}

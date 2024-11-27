@@ -1,0 +1,92 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import gateway.AutomaticAreaSNMP;
+
+public class SnmpAreaNumberCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		try {
+			String 	snmp_Ip 	= new String(Str.CheckNullString(req.getParameter("hiSnmp_Ip")).getBytes("8859_1"), "euc-kr");	// 
+			String 	saveType	= new String(Str.CheckNullString(req.getParameter("hiSaveType")).getBytes("8859_1"), "euc-kr");	// 
+			String 	newAreacode	= new String(Str.CheckNullString(req.getParameter("newAreacode")).getBytes("8859_1"), "euc-kr");	//
+			
+			String 	userID		= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "areaNumber.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			HttpSession hs = req.getSession();
+			String id = hs.getId();
+			BaseEntity entity = manager.getBaseEntity(id);	
+			
+			AutomaticAreaSNMP automaticAreaSNMP = new AutomaticAreaSNMP();
+
+			// ############### LogHistory 처리  ###############
+			String		strIp		= req.getRemoteAddr();
+			LogHistory	logHistory 	= new LogHistory();
+			// ##############################################
+
+			if("1".equals(saveType)){
+				// 신규저장
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.5.0", "[2-9]xxxxxx", 3);	// OctetString
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.6.0", "0", 2);				// UnsignedInteger32
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.7.0", newAreacode, 3);		// OctetString
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.8.0", "255", 2);			// UnsignedInteger32
+				
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.11.0", "*", 3);			// OctetString
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.12.0", "0", 2);			// UnsignedInteger32
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.13.0", "", 3);				// OctetString
+				
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.16.0", "-1", 1);			// Integer
+				
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.2.0", "1", 1);				// Integer
+			}else if("2".equals(saveType)){
+				// 수정
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.2.0", "2", 1);				// Integer
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.7.0", newAreacode, 3);		// OctetString
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.2.0", "1", 1);				// Integer
+			}else if("3".equals(saveType)){
+				// 삭제
+				automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.2.21.22.1.2.0", "6", 1);				// Integer
+			}
+			automaticAreaSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.10.3.1.1.4.0", "1", 2);						// Burn OID
+			
+			// ############### LogHistory 처리  ###############
+			if("1".equals(saveType)){
+				int int_result = logHistory.LogHistorySave(userID+"|87|자동지역번호|1|"+strIp);
+			}else if("2".equals(saveType)){
+				int int_result = logHistory.LogHistorySave(userID+"|87|자동지역번호|3|"+strIp);
+			}else if("3".equals(saveType)){
+				int int_result = logHistory.LogHistorySave(userID+"|87|자동지역번호|2|"+strIp);
+			}
+			// ##############################################
+
+			res.sendRedirect("/bizportal/gateway/"+resStr);			
+
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+}

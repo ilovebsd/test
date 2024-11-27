@@ -1,0 +1,192 @@
+package dto.system;
+
+public class RouteStateDTO {
+	/**
+	 * member variables
+	 */
+	private String	endpointid;
+	private int		protocol;
+	private int     endpointclass;
+	private String	routecode;
+	private String  routename;
+	private String  routetype;
+	private int		islocal;
+	private String	groupid;
+	private int		groupAttach;
+
+	private int		incalleeblock;
+	private int     incallerblock;
+	private int		outcallerblock;
+
+	private int		stateFlag;
+	private int		channellimitmode;
+	private int		serviceFlag;
+	private int		inmaxcall;
+	private int		outmaxcall;
+	private int		totalmaxcall;
+	private int		incurrentcall;
+	private int		outcurrentcall;
+	private int		inalarmcall;
+	private int		outalarmcall;
+	private int		totalalarmcall;
+	private int		blockcount;
+	private int		instartposition;
+	private int		incutprefix;
+	private String	inaddprefix;
+	private int		outstartposition;
+	private int		outcutprefix;
+	private String	outaddprefix;
+	private int		incutcid;
+	private String	inaddcid;
+	private int		outcutcid;
+	private String	outaddcid;
+	private int		inreplace;
+	private int		outreplace;
+	private int     maxdetourcount;
+	private String  zonecode;
+	private int     chargeType;
+	private String  chargeNumber;
+	private int     rcount;
+	private int     options;
+	
+	public RouteStateDTO(String endpointid) {      		
+		super();		
+		this.endpointid 		= endpointid;
+	}
+
+	public RouteStateDTO(String endpointid, int protocol) {      		
+		super();		
+		this.endpointid 		= endpointid;
+		this.protocol 			= protocol;
+	}
+	
+	/**
+	 * member functions
+	 */
+	public String	getEndpointid() { return this.endpointid; }
+	public void	setEndpointid(String endpointid ) { this.endpointid = endpointid; }
+
+	public int	getProtocol() { return this.protocol; }
+	public void	setProtocol(int protocol ) { this.protocol = protocol; }
+
+	public int	getEndpointclass() { return this.endpointclass; }
+	public void	setEndpointclass(int endpointclass ) { this.endpointclass = endpointclass; }
+
+	public String	getRouteCode() { return this.routecode; }
+	public void	setRouteCode(String routecode ) { this.routecode = routecode; }
+
+	public String	getRoutename() { return this.routename; }
+	public void	setRoutename(String routename ) { this.routename = routename; }
+
+	public String	getRoutetype() { return this.routetype; }
+	public void	setRoutetype(String routetype ) { this.routetype = routetype; }
+
+	public int	getIsLocal() { return this.islocal; }
+	public void	setIsLocal(int islocal ) { this.islocal = islocal; }
+
+	public String	getGroupId() { return this.groupid; }
+	public void	setGroupId(String groupid ) { this.groupid = groupid; }
+
+	public int	getGroupAttach() { return this.groupAttach; }
+	public void	setGroupAttach(int groupAttach ) { this.groupAttach = groupAttach; }
+
+	public int	getInCalleeBlock() { return this.incalleeblock; }
+	public void	setInCalleeBlock(int incalleeblock ) { this.incalleeblock = incalleeblock; }
+
+	public int	getInCallerBlock() { return this.incallerblock; }
+	public void	setInCallerBlock(int incallerblock ) { this.incallerblock = incallerblock; }
+
+	public int	getOutCallerBlock() { return this.outcallerblock; }
+	public void	setOutCallerBlock(int outcallerblock ) { this.outcallerblock = outcallerblock; }
+
+	public int	getStateFlag() { return this.stateFlag; }
+	public void	setStateFlag(int stateFlag ) { this.stateFlag = stateFlag; }
+
+	public int	getChannellimitmode() { return this.channellimitmode; }
+	public void	setChannellimitmode(int channellimitmode ) { this.channellimitmode = channellimitmode; }
+
+	public int	getServiceFlag() { return this.serviceFlag; }
+	public void	setServiceFlag(int serviceFlag ) { this.serviceFlag = serviceFlag; }
+
+	public int	getInMaxcall() { return this.inmaxcall; }
+	public void	setInMaxcall(int inmaxcall ) { this.inmaxcall = inmaxcall; }
+
+	public int	getOutMaxcall() { return this.outmaxcall; }
+	public void	setOutMaxcall(int outmaxcall ) { this.outmaxcall = outmaxcall; }
+
+	public int	getTotalmaxcall() { return this.totalmaxcall; }
+	public void	setTotalmaxcall(int totalmaxcall ) { this.totalmaxcall = totalmaxcall; }
+
+	public int	getInCurrentcall() { return this.incurrentcall; }
+	public void	setInCurrentcall(int incurrentcall ) { this.incurrentcall = incurrentcall; }
+
+	public int	getOutCurrentcall() { return this.outcurrentcall; }
+	public void	setOutCurrentcall(int outcurrentcall ) { this.outcurrentcall = outcurrentcall; }
+
+	public int	getInAlarmcall() { return this.inalarmcall; }
+	public void	setInAlarmcall(int inalarmcall ) { this.inalarmcall = inalarmcall; }
+
+	public int	getOutAlarmcall() { return this.outalarmcall; }
+	public void	setOutAlarmcall(int outalarmcall ) { this.outalarmcall = outalarmcall; }
+
+	public int	getTotalalarmcall() { return this.totalalarmcall; }
+	public void	setTotalalarmcall(int totalalarmcall ) { this.totalalarmcall = totalalarmcall; }
+
+	public int	getBlockcount() { return this.blockcount; }
+	public void	setBlockcount(int blockcount ) { this.blockcount = blockcount; }
+
+	public int	getInstartposition() { return this.instartposition; }
+	public void	setInstartposition(int instartposition ) { this.instartposition = instartposition; }
+
+	public int	getIncutprefix() { return this.incutprefix; }
+	public void	setIncutprefix(int incutprefix ) { this.incutprefix = incutprefix; }
+
+	public String	getInaddprefix() { return this.inaddprefix; }
+	public void	setInaddprefix(String inaddprefix ) { this.inaddprefix = inaddprefix; }
+
+	public int	getOutstartposition() { return this.outstartposition; }
+	public void	setOutstartposition(int outstartposition ) { this.outstartposition = outstartposition; }
+
+	public int	getOutcutprefix() { return this.outcutprefix; }
+	public void	setOutcutprefix(int outcutprefix ) { this.outcutprefix = outcutprefix; }
+
+	public String	getOutaddprefix() { return this.outaddprefix; }
+	public void	setOutaddprefix(String outaddprefix ) { this.outaddprefix = outaddprefix; }
+
+	public int	getInCutcid() { return this.incutcid; }
+	public void	setInCutcid(int incutcid ) { this.incutcid = incutcid; }
+
+	public String	getInAddcid() { return this.inaddcid; }
+	public void	setInAddcid(String inaddcid ) { this.inaddcid = inaddcid; }
+
+	public int	getOutCutcid() { return this.outcutcid; }
+	public void	setOutCutcid(int outcutcid ) { this.outcutcid = outcutcid; }
+
+	public String	getOutAddcid() { return this.outaddcid; }
+	public void	setOutAddcid(String outaddcid ) { this.outaddcid = outaddcid; }
+
+	public int	getInReplace() { return this.inreplace; }
+	public void	setInReplace(int inreplace ) { this.inreplace = inreplace; }
+
+	public int	getOutReplace() { return this.outreplace; }
+	public void	setOutReplace(int outreplace ) { this.outreplace = outreplace; }
+
+	public int	getMaxdetourcount() { return this.maxdetourcount; }
+	public void	setMaxdetourcount(int maxdetourcount ) { this.maxdetourcount = maxdetourcount; }
+
+	public String	getZonecode() { return this.zonecode; }
+	public void	setZonecode(String zonecode ) { this.zonecode = zonecode; }
+
+	public int	getChargeType() { return this.chargeType; }
+	public void	setChargeType(int chargeType ) { this.chargeType = chargeType; }
+
+	public String	getChargeNumber() { return this.chargeNumber; }
+	public void	setChargeNumber(String chargeNumber ) { this.chargeNumber = chargeNumber; }
+
+	public int	getRcount() { return this.rcount; }
+	public void	setRcount(int rcount ) { this.rcount = rcount; }
+
+	public int	getOptions() { return this.options; }
+	public void	setOptions(int options ) { this.options = options; }
+	
+}

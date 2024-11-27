@@ -1,0 +1,121 @@
+package system;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+
+import dto.system.GeoIpDTO;
+
+public class GeoIPList {
+	public List getPrefixList(DataStatement stmt) {		
+		GeoIpDTO 		geoIpDTO;
+        List<GeoIpDTO> 	prefixList 	= new ArrayList<GeoIpDTO>();
+        
+        String 	strTemp = "";
+        int 	nTemp2 	= 1;
+        
+        String sql = " Select startprefix, endprefix, note From table_geoip_prefix Order By startprefix ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                    nTemp2 = (rs.getString("endprefix")).indexOf('_');
+                    if (nTemp2 > -1)
+                        strTemp = rs.getString("endprefix").substring(0, nTemp2);
+                    else
+                        strTemp = rs.getString("endprefix");
+                	
+                	geoIpDTO = new GeoIpDTO();
+                	
+                	geoIpDTO.setPrefix_start(Str.CheckNullString(rs.getString("startprefix")));
+                	//geoIpDTO.setPrefix_start(Str.CheckNullString(rs.getString("endprefix")));
+                	geoIpDTO.setPrefix_end(Str.CheckNullString(strTemp));
+                	geoIpDTO.setPrefix_note(Str.CheckNullString(rs.getString("note")));
+
+                	prefixList.add(geoIpDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return prefixList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return prefixList;
+    }
+
+	public List getGeoIPList(DataStatement stmt) {		
+		GeoIpDTO 		geoIpDTO;
+        List<GeoIpDTO> 	geoipList 	= new ArrayList<GeoIpDTO>();
+        
+        String sql = " Select geoip_start, geoip_end, state, note From table_geoip Order By state, geoip_start ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	geoIpDTO = new GeoIpDTO();
+                	
+                	geoIpDTO.setGeoip_start(Str.CheckNullString(rs.getString("geoip_start")));
+                	geoIpDTO.setGeoip_end(Str.CheckNullString(rs.getString("geoip_end")));
+                	geoIpDTO.setState(rs.getInt("state"));
+                	geoIpDTO.setNote(Str.CheckNullString(rs.getString("note")));
+
+                	geoipList.add(geoIpDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return geoipList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return geoipList;
+    }
+
+	public String getGeoIPDetail(DataStatement stmt, String startIp, String endIp) {		
+        String returnVal = "";
+		String sql 		 = " Select note From table_geoip Where geoip_start = '"+startIp+"' And geoip_end = '"+endIp+"' ";
+        
+        System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) returnVal = rs.getString(1);
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+}

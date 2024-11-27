@@ -1,0 +1,84 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class SIPcontactDTO
+{
+
+    private String      endpointID;
+    private String	contactID;
+    private String	userName;
+    private String	transID;
+    private int 	contactClass;
+    private String	signalAddress;
+    private int 	signalPort;
+    private int 	registeredTime;
+    private String	registerID;
+    private String	peerAddress;
+    private int 	expireTime;
+
+/**
+ * member functions
+ */
+public String	getEndpointID() { return this.endpointID; }
+public void	setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+public String	getContactID() { return this.contactID; }
+public void	setContactID(String vContactID ) { this.contactID = vContactID; }
+
+public String	getUserName() { return this.userName; }
+public void	setUserName(String vUserName ) { this.userName = vUserName; }
+
+public String	getTransID() { return this.transID; }
+public void	setTransID(String vTransID ) { this.transID = vTransID; }
+
+public int 	getContactClass() { return this.contactClass; }
+public void	setContactClass(int vContactClass ) { this.contactClass = vContactClass; }
+
+public String	getSignalAddress() { return this.signalAddress; }
+public void	setSignalAddress(String vSignalAddress ) { this.signalAddress = vSignalAddress; }
+
+public int 	getSignalPort() { return this.signalPort; }
+public void	setSignalPort(int vSignalPort ) { this.signalPort = vSignalPort; }
+
+public int 	getRegisteredTime() { return this.registeredTime; }
+public void	setRegisteredTime(int vRegisteredTime ) { this.registeredTime = vRegisteredTime; }
+
+public String	getRegisterID() { return this.registerID; }
+public void	setRegisterID(String vRegisterID ) { this.registerID = vRegisterID; }
+
+public String	getPeerAddress() { return this.peerAddress; }
+public void	setPeerAddress(String vPeerAddress ) { this.peerAddress = vPeerAddress; }
+
+public int 	getExpireTime() { return this.expireTime; }
+public void	setExpireTime(int vExpireTime ) { this.expireTime = vExpireTime; }
+
+
+public String toString()
+{
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:" 	                + getEndpointID() + ") ") ;
+        sb.append("[contactID:" 	                + getContactID() + "] ") ;
+        sb.append("[userName:" 	                        + getUserName() + "] ") ;
+        sb.append("[transID:" 	                        + getTransID() + "] ") ;
+        sb.append("[contactClass:" 	                + getContactClass() + "] ") ;
+        sb.append("[signalAddress:" 	                + getSignalAddress() + "] ") ;
+        sb.append("[signalPort:" 	                + getSignalPort() + "] ") ;
+        sb.append("[registeredTime:" 	                + getRegisteredTime() + "] ") ;
+        sb.append("[registerID:" 	                + getRegisterID() + "] ") ;
+        sb.append("[peerAddress:" 	                + getPeerAddress() + "] ") ;
+        sb.append("[expireTime:" 	                + getExpireTime() + "] ") ;
+        return sb.toString();
+     }
+ }

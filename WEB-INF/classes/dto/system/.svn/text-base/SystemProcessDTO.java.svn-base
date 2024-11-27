@@ -1,0 +1,76 @@
+package dto.system;
+
+public class SystemProcessDTO {
+	/**
+	 * member variables
+	 */
+	private String	sysgroupid;
+	private String	hwclusterid;
+	private String	hwid;
+	private String	clusterid;
+	private String	processid;
+	private String	dbconnectionstring;
+	private String	dbusername;
+	private String	dbpassword;
+	private String	dbdriverclass;	
+	private int		status;
+	private int		dbmaxconnection;
+	
+	public SystemProcessDTO() {      		
+		
+	}
+	
+	public SystemProcessDTO(String sysgroupid, String hwclusterid, String hwid, String clusterid, String processid, String dbconnectionstring, String dbusername, String dbpassword, String dbdriverclass, int status, int dbmaxconnection) {      		
+		
+		super();
+		
+		this.sysgroupid 		= sysgroupid;
+		this.hwclusterid 		= hwclusterid;
+		this.hwid 				= hwid;
+		this.clusterid 			= clusterid;
+		this.processid 			= processid;
+		this.dbconnectionstring = dbconnectionstring;
+		this.dbusername 		= dbusername;
+		this.dbpassword 		= dbpassword;
+		this.dbdriverclass 		= dbdriverclass;
+		this.status 			= status;
+		this.dbmaxconnection 	= dbmaxconnection;
+	}
+
+	/**
+	 * member functions
+	 */
+	public String	getSysgroupid() { return this.sysgroupid; }
+	public void	setSysgroupid(String sysgroupid ) { this.sysgroupid = sysgroupid; }
+
+	public String	getHwclusterid() { return this.hwclusterid; }
+	public void	setHwclusterid(String hwclusterid ) { this.hwclusterid = hwclusterid; }
+
+	public String	getHwid() { return this.hwid; }
+	public void	setHwid(String hwid ) { this.hwid = hwid; }
+
+	public String	getClusterid() { return this.clusterid; }
+	public void	setClusterid(String clusterid ) { this.clusterid = clusterid; }
+
+	public String	getProcessid() { return this.processid; }
+	public void	setProcessid(String processid ) { this.processid = processid; }
+
+	public String	getDbconnectionstring() { return this.dbconnectionstring; }
+	public void	setDbconnectionstring(String dbconnectionstring ) { this.dbconnectionstring = dbconnectionstring; }
+	
+	public String	getDbusername() { return this.dbusername; }
+	public void	setDbusername(String dbusername ) { this.dbusername = dbusername; }
+
+	public String	getDbpassword() { return this.dbpassword; }
+	public void	setDbpassword(String dbpassword ) { this.dbpassword = dbpassword; }
+
+	public String	getDbdriverclass() { return this.dbdriverclass; }
+	public void	setDbdriverclass(String dbdriverclass ) { this.dbdriverclass = dbdriverclass; }
+
+	public int	getStatus() { return this.status; }
+	public void	setLocationx(int status ) { this.status = status; }
+
+	public int	getDbmaxconnection() { return this.dbmaxconnection; }
+	public void	setDbmaxconnection(int dbmaxconnection ) { this.dbmaxconnection = dbmaxconnection; }
+	
+}

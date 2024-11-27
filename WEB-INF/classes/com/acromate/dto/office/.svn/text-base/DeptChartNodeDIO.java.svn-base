@@ -1,0 +1,124 @@
+package com.acromate.dto.office ;
+
+import com.acromate.util.Logger;
+import com.acromate.util.Str;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.data.code.AppCode;
+import com.acromate.dto.office.DeptDIO;
+import com.acromate.dto.office.SubscriberInfoDIO;
+
+public class DeptChartNodeDIO extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    public static final int CHARTROOT_TYPE = 1;
+    public static final int DEPT_TYPE = 2;
+    public static final int SUBSCRIBER_TYPE = 3;
+    private int    errorcode;
+    private int    nodeType ;
+    private String nodeName = "";
+    private DeptDIO dept = null;
+    private SubscriberInfoDIO subscriberInfo = null;
+    public  Object linker = null;
+
+    public int    getNodeType() { return nodeType ; }
+    public void   setNodeType( int nodeType ) { this.nodeType = nodeType ; }
+
+    public String getNodeName() { return nodeName; }
+    public void setNodeName(String nodeName) { this.nodeName = nodeName; }
+
+    public DeptDIO    getDeptDIO() { return dept ; }
+    public void   setDeptDIO( DeptDIO dept ) { this.dept = dept ; }
+
+    public SubscriberInfoDIO    getSubscriberInfoDIO() { return subscriberInfo ; }
+    public void   setSubscriberInfoDIO( SubscriberInfoDIO subscriberInfo ) { this.subscriberInfo = subscriberInfo ; }
+
+    public int getIndex(Object obj) {
+        return list.indexOf(obj);
+    }
+
+    public String getClassID() {
+        return nodeName;
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+		int errcode = 0;
+        if(compareFieldID(temp, "nodeType".toLowerCase()) == true) {
+            if(!value.equals("")) nodeType = Str.CheckNullInt(value);
+            return 0;
+        }
+		if(compareFieldID( temp, "nodeName".toLowerCase()) ){
+			StringBuilder sbText = new StringBuilder();
+			if   ((errcode = setString( sbText, value)) == 0)
+				nodeName = sbText.toString();
+			return (AppCode.ERR_NOERROR) ;
+		}
+        if(compareFieldID(temp, "dept".toLowerCase()) == true) {
+            if (value.trim().length()==0) return 0;
+            if (dept == null) dept = new DeptDIO();
+            return dept.setParam(temp.toString(), value);
+        }
+        if(compareFieldID(temp, "subscriberInfo".toLowerCase()) == true) {
+            if (value.trim().length()==0) return 0;
+            if (subscriberInfo == null) subscriberInfo = new SubscriberInfoDIO();
+            return subscriberInfo.setParam(temp.toString(), value);
+        }
+        int result = super.setFieldData( field,  value);
+        if (result == 0 ) return result;
+        log.error("DeptChartNodeDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "nodeType", idx, value) == true) {
+            errorcode = getInteger(nodeType, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		if   ( compareFieldID( fldAlias, "nodeName", idx, value ) ){
+			errorcode = getString( nodeName, value ,  ! resultVal);
+			if   ( resultVal || errorcode < 0)	return errorcode ;
+		}
+        if(compareFieldID(fldAlias, "dept", idx, value) == true) {
+            if (dept != null) errorcode = dept.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "subscriberInfo", idx, value) == true) {
+            if (subscriberInfo != null) errorcode = subscriberInfo.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return super.getFieldData(field, idx, value);
+    }
+    protected DataIO newListNode() {
+       return new DeptChartNodeDIO();
+    }
+    public String toXmlString( String strParentDesc, String blank ) {
+        StringBuilder xml = new StringBuilder() ;
+        if (nodeType == DEPT_TYPE || nodeType == CHARTROOT_TYPE) {
+            if (dept != null) xml.append ( dept.toXmlString(strParentDesc,blank) ) ;
+            int size = this.getCount();
+            for ( int i = 0 ; i < size ; i++ ) {
+                //String str = ((DeptChartNodeDIO)list.get(i)).toXmlString(dept.getDeptName(),blank);
+                String deptID = "";
+                if  (dept != null) deptID = String.valueOf(dept.getDeptID());
+                String str = ((DeptChartNodeDIO)this.getNode(i)).toXmlString(deptID,blank);
+                xml.append( str ) ;
+            }
+            if (dept != null) xml.append ( blank + "</BuddyItem>\n" ) ;
+        }
+        else if (nodeType == SUBSCRIBER_TYPE) {
+            //xml.append ( subscriberInfo.toXmlString(String.valueOf(dept.getDeptID()),blank) ) ;
+            if (subscriberInfo != null) xml.append ( subscriberInfo.toXmlString(strParentDesc,blank) ) ;
+        }
+        return xml.toString();
+    }
+}

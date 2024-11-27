@@ -1,0 +1,69 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class ServiceRouteDTO
+{
+
+    private int    serviceCode;
+    private int    routeSelectRule;
+    private String routeID;
+    private int    protocol;
+    private int    stateFlag;
+    private String comment;
+    private String parameter;
+    private int    endpointClass;
+
+    public int    getServiceCode() { return this.serviceCode; }
+    public void   setServiceCode(int vServiceCode ) { this.serviceCode = vServiceCode; }
+
+    public int    getRouteSelectRule() { return this.routeSelectRule; }
+    public void   setRouteSelectRule(int vRouteSelectRule ) { this.routeSelectRule = vRouteSelectRule; }
+
+    public String getRouteID() { return this.routeID; }
+    public void   setRouteID(String vRouteID ) { this.routeID = vRouteID; }
+
+    public int    getProtocol() { return this.protocol; }
+    public void   setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public int    getStateFlag() { return this.stateFlag; }
+    public void   setStateFlag(int vStateFlag ) { this.stateFlag = vStateFlag; }
+
+    public String getComment() { return this.comment; }
+    public void   setComment(String vComment ) { this.comment = vComment; }
+
+    public String getParameter() { return this.parameter; }
+    public void   setParameter(String vParameter ) { this.parameter = vParameter; }
+
+    public int getEndpointClass() { return this.endpointClass; }
+    public void   setEndpointClass(int endpointClass ) { this.endpointClass = endpointClass; }
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(serviceCode:"                 + getServiceCode() + ") ") ;
+        sb.append("[routeSelectRule:"             + getRouteSelectRule() + "] ") ;
+        sb.append("[routeID:"                     + getRouteID() + "] ") ;
+        sb.append("[protocol:"                    + getProtocol() + "] ") ;
+        sb.append("[stateFlag:"                   + getStateFlag() + "] ") ;
+        sb.append("[comment:"                     + getComment() + "] ") ;
+        sb.append("[parameter:"                   + getParameter() + "] ") ;
+
+        return sb.toString();
+    }
+}
+
+

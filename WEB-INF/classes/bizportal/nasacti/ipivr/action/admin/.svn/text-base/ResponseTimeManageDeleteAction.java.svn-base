@@ -1,0 +1,54 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.ResponseTimeDAO;
+
+public class ResponseTimeManageDeleteAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		int iRtn = -1;
+		String strMsg = "";
+		String[] strDelIndex;
+		strDelIndex = request.getParameterValues("delIndex");
+
+		if(strDelIndex != null) {
+			ResponseTimeDAO responseTimeDAO = ResponseTimeDAO.getInstance();
+			for(int i=0; i < strDelIndex.length; i++) {
+				iRtn = responseTimeDAO.deleteResponseTime(strDelIndex[i]);
+
+				switch(iRtn) {
+					case 1:
+						//request.setAttribute("msg", "삭제되었습니다.");
+						break;
+					case 2:
+						strMsg += "\"" + responseTimeDAO.getResponseTime(strDelIndex[i]).getAmModeName() +  "\"는(은) 음성안내설정에서 사용된 응답스케줄로 삭제할 수 없습니다.\\n";
+						break;
+					case -1:
+						strMsg += responseTimeDAO.getResponseTime(strDelIndex[i]).getAmModeName() +  "는 삭제되지 않았습니다.\\n";
+						break;
+				}
+			}
+			if(strMsg.length() > 0)
+				request.setAttribute("msg", strMsg);
+		}
+
+		return "./responseTimeManageListForm.do2";
+
+	}
+}

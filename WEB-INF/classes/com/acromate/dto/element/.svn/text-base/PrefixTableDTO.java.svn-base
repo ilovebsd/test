@@ -1,0 +1,95 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class PrefixTableDTO
+{
+    private String prefixTableID;
+    private String startPrefix;
+    private String endPrefix;
+    private int    routeSelectRule;
+    private String routeID;
+    private int    protocol;
+    private int    callType;
+    private int    chargeType;
+    private String description;
+    private int    minDigitCount;
+    private int    maxDigitCount;
+    private int    routingEndpointType;
+    private int    endpointClass;
+    private int    nrsService;
+
+    public String getPrefixTableID() { return this.prefixTableID; }
+    public void   setPrefixTableID(String vPrefixTableID ) { this.prefixTableID = vPrefixTableID; }
+
+    public String getStartPrefix() { return this.startPrefix; }
+    public void   setStartPrefix(String vStartPrefix ) { this.startPrefix = vStartPrefix; }
+
+    public String getEndPrefix() { return this.endPrefix; }
+    public void   setEndPrefix(String vEndPrefix ) { this.endPrefix = vEndPrefix; }
+
+    public int    getRouteSelectRule() { return this.routeSelectRule; }
+    public void   setRouteSelectRule(int vRouteSelectRule ) { this.routeSelectRule = vRouteSelectRule; }
+
+    public String getRouteID() { return this.routeID; }
+    public void   setRouteID(String vRouteID ) { this.routeID = vRouteID; }
+
+    public int    getProtocol() { return this.protocol; }
+    public void   setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public int    getCallType() { return this.callType; }
+    public void   setCallType(int vCallType ) { this.callType = vCallType; }
+
+    public int    getChargeType() { return this.chargeType; }
+    public void   setChargeType(int vChargeType ) { this.chargeType = vChargeType; }
+
+    public String getDescription() { return this.description; }
+    public void   setDescription(String vDescription ) { this.description = vDescription; }
+
+    public int    getMinDigitCount() { return this.minDigitCount; }
+    public void   setMinDigitCount(int vMinDigitCount ) { this.minDigitCount = vMinDigitCount; }
+
+    public int    getMaxDigitCount() { return this.maxDigitCount; }
+    public void   setMaxDigitCount(int vMaxDigitCount ) { this.maxDigitCount = vMaxDigitCount; }
+
+    public int    getRoutingEndpointType() { return this.routingEndpointType; }
+    public void   setRoutingEndpointType(int vRoutingEndpointType ) { this.routingEndpointType = vRoutingEndpointType; }
+
+    public int    getEndpointClass() { return this.endpointClass; }
+    public void   setEndpointClass(int endpointClass ) { this.endpointClass = endpointClass; }
+
+    public int    getNrsService() { return this.nrsService; }
+    public void   setNrsService(int nrsService ) { this.nrsService = nrsService; }
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(prefixTableID:"              + getPrefixTableID() + ") ") ;
+        sb.append("[startPrefix:"                + getStartPrefix() + "] ") ;
+        sb.append("[endPrefix:"                  + getEndPrefix() + "] ") ;
+        sb.append("[routeSelectRule:"            + getRouteSelectRule() + "] ") ;
+        sb.append("[routeID:"                    + getRouteID() + "] ") ;
+        sb.append("[protocol:"                   + getProtocol() + "] ") ;
+        sb.append("[callType:"                   + getCallType() + "] ") ;
+        sb.append("[chargeType:"                 + getChargeType() + "] ") ;
+        sb.append("[description:"                + getDescription() + "] ") ;
+        sb.append("[minDigitCount:"              + getMinDigitCount() + "] ") ;
+        sb.append("[maxDigitCount:"              + getMaxDigitCount() + "] ") ;
+        sb.append("[routingEndpointType:"        + getRoutingEndpointType() + "] ") ;
+
+        return sb.toString();
+    }
+}

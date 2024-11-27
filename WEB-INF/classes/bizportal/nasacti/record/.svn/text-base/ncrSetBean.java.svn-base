@@ -1,0 +1,328 @@
+package bizportal.nasacti.record;
+
+public class ncrSetBean{
+
+	private int sysIndex;
+
+	private String line;
+
+	private String siteName;
+
+	private String server;
+
+	private String defaultMsg;
+
+	private String internetAdds;
+
+	private String mailid;
+
+	private int boxLen;
+
+	private String pbx;
+
+	private String vms;
+
+	private String longExt;
+
+	private String area;
+
+	private String callOutCnt;
+
+	private String mapFile;
+
+	private int scnt;
+
+	private int simsi;
+
+	private String myIp;
+
+	private String msgDir;
+
+	private String useCode;
+
+	private String unUseCode;
+
+	private int nicIndex;
+
+	private String nicName;
+
+	private int pbxIndex;
+
+	private String pbxIp;
+
+	private int pbxPort;
+
+	private int sbcIndex;
+
+	private String sbcIp;
+
+	private int subIndex;
+
+	private String subIp;
+
+	private String selCode;
+
+	private String strNicCountName;
+
+	private int intNicCount;
+
+
+	public void setSysIndex(int sysIndex){
+		this.sysIndex = sysIndex;
+	}
+
+	public void setLine(String line){
+		this.line = line;
+	}
+
+	public void setSiteName(String siteName){
+		this.siteName = siteName;
+	}
+
+	public void setServer(String server){
+		this.server = server;
+	}
+
+	public void setDefaultMsg(String defaultMsg){
+		this.defaultMsg = defaultMsg;
+	}
+
+	public void setInternetAdds(String internetAdds){
+		this.internetAdds = internetAdds;
+	}
+
+	public void setMailid(String mailid){
+		this.mailid = mailid;
+	}
+
+	public void setBoxLen(int boxLen){
+		this.boxLen = boxLen;
+	}
+
+	public void setPbx(String pbx){
+		this.pbx = pbx;
+	}
+
+	public void setVms(String vms){
+		this.vms = vms;
+	}
+
+	public void setLongExt(String longExt){
+		this.longExt = longExt;
+	}
+
+	public void setArea(String area){
+		this.area = area;
+	}
+
+	public void setCallOutCnt(String callOutCnt){
+		this.callOutCnt = callOutCnt;
+	}
+
+	public void setMapFile(String mapFile){
+		this.mapFile = mapFile;
+	}
+
+	public void setScnt(int scnt){
+		this.scnt = scnt;
+	}
+
+	public void setSimsi(int simsi){
+		this.simsi = simsi;
+	}
+
+	public void setMyIp(String myIp){
+		this.myIp = myIp;
+	}
+
+	public void setMsgDir(String msgDir){
+		this.msgDir = msgDir;
+	}
+
+	public void setUseCode(String useCode){
+		this.useCode = useCode;
+	}
+
+	public void setUnUseCode(String unUseCode){
+		this.unUseCode = unUseCode;
+	}
+
+	public void setNicIndex(int nicIndex){
+		this.nicIndex = nicIndex;
+	}
+
+	public void setNicName(String nicName){
+		this.nicName = nicName;
+	}
+
+	public void setPbxIndex(int pbxIndex){
+		this.pbxIndex = pbxIndex;
+	}
+
+	public void setPbxIp(String pbxIp){
+		this.pbxIp = pbxIp;
+	}
+
+	public void setPbxPort(int pbxPort){
+		this.pbxPort = pbxPort;
+	}
+
+	public void setSbcIndex(int sbcIndex){
+		this.sbcIndex = sbcIndex;
+	}
+
+	public void setSbcIp(String sbcIp){
+		this.sbcIp = sbcIp;
+	}
+
+	public void setSubIndex(int subIndex){
+		this.subIndex = subIndex;
+	}
+
+	public void setSubIp(String subIp){
+		this.subIp = subIp;
+	}
+
+	public void setSelCode(String selCode){
+		this.selCode = selCode;
+	}
+
+	public void setNicCountName(String strNicCountName){
+		this.strNicCountName = strNicCountName;
+	}
+
+	public void setNicCount(int intNicCount){
+		this.intNicCount = intNicCount;
+	}
+
+
+
+
+	public int getSysIndex(){
+		return sysIndex;
+	}
+
+	public String getLine(){
+		return line;
+	}
+
+	public String getSiteName(){
+		return siteName;
+	}
+
+	public String getServer(){
+		return server;
+	}
+
+	public String getDefaultMsg(){
+		return defaultMsg;
+	}
+
+	public String getInternetAdds(){
+		return internetAdds;
+	}
+
+	public String getMailid(){
+		return mailid;
+	}
+
+	public int getBoxLen(){
+		return boxLen;
+	}
+
+	public String getPbx(){
+		return pbx;
+	}
+
+	public String getVms(){
+		return vms;
+	}
+
+	public String getLongExt(){
+		return longExt;
+	}
+
+	public String getArea(){
+		return area;
+	}
+
+	public String getCallOutCnt(){
+		return callOutCnt;
+	}
+
+	public String getMapFile(){
+		return mapFile;
+	}
+
+	public int getScnt(){
+		return scnt;
+	}
+
+	public int getSimsi(){
+		return simsi;
+	}
+
+	public String getMyIp(){
+		return myIp;
+	}
+
+	public String getMsgDir(){
+		return msgDir;
+	}
+
+	public String getUseCode(){
+		return useCode;
+	}
+
+	public String getUnUseCode(){
+		return unUseCode;
+	}
+
+	public int getNicIndex(){
+		return nicIndex;
+	}
+
+	public String getNicName(){
+		return nicName;
+	}
+
+	public int getPbxIndex(){
+		return pbxIndex;
+	}
+
+	public String getPbxIp(){
+		return pbxIp;
+	}
+
+	public int getPbxPort(){
+		return pbxPort;
+	}
+
+	public int getSbcIndex(){
+		return sbcIndex;
+	}
+
+	public String getSbcIp(){
+		return sbcIp;
+	}
+
+	public int getSubIndex(){
+		return subIndex;
+	}
+
+	public String getSubIp(){
+		return subIp;
+	}
+
+	public String getSelCode(){
+		return selCode;
+	}
+
+	public String getNicCountName(){
+		return strNicCountName;
+	}
+
+	public int getNicCount(){
+		return intNicCount;
+	}
+}

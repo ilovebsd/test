@@ -1,0 +1,128 @@
+package com.acromate.system.hardware;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.system.ManSystem;
+
+public class FileSystem extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int           errorcode;
+    private int           used = 0 ;
+    private int           total = 0 ;
+    private StringBuilder fileSystemID;
+    private StringBuilder rootDir;
+    private ManSystem manSystem;
+
+    public FileSystem( ManSystem manSystem ) {
+        this.manSystem = manSystem;
+        this.fileSystemID = new StringBuilder() ;
+        this.rootDir = new StringBuilder() ;
+    }
+
+    public String getClassID() {
+        return fileSystemID.toString();
+    }
+
+    public void setFileSystemID(String value) {
+        this.fileSystemID.delete(0, fileSystemID.length());
+        this.fileSystemID.append(value) ;
+    }
+
+    public String getFileSystemID() { return this.fileSystemID.toString() ; }
+
+    public void setUsed(int used) { this.used = used ; }
+
+    public int getUsed() { return this.used ; }
+
+    public void setTotal(int total) {
+		this.total = total ;
+    }
+
+    public int getTotal() {
+		if ( this.total == 0 ) return 0 ;
+		return this.total ;
+    }
+
+    public int getUsage() {
+        if ( total == 0 ) return 0 ;
+	 else return 100 *  getUsed() /getTotal() ;
+    }
+
+
+    public void setRootDir(StringBuilder rootDir) { this.rootDir = rootDir ; }
+
+    public String getRootDir() { return this.rootDir.toString() ; }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+         StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "id") == true) {
+            return setString(fileSystemID, value);
+        }
+        if(compareFieldID(temp, "rootDir") == true) {
+            return setString(rootDir, value);
+        }
+        if(compareFieldID(temp, "usage") == true) {
+            return 0;
+        }
+        if(compareFieldID(temp, "total") == true) {
+            if(value.equals("0")) ;
+            else if(!value.equals("")) total = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "used") == true) {
+            if(!value.equals("")) used = Integer.valueOf(value);
+            return 0;
+        }
+        log.error("FileSystem - Not founded field :" + field);
+        return (-1);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "id", idx, value) == true) {
+            errorcode = getString(fileSystemID.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "rootDir", idx, value) == true) {
+            errorcode = getString(rootDir.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "total", idx, value) == true) {
+            if (total == 0) errorcode = getInteger(0, value);
+            else errorcode = getInteger(total, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "used", idx, value) == true) {
+            errorcode = getInteger(used, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "usage", idx, value) == true) {
+            errorcode = getInteger(getUsage(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}

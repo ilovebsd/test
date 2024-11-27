@@ -1,0 +1,206 @@
+package com.acromate.dao.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+import com.acromate.db.QueryStatement ;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+import java.sql.ResultSet;
+import com.acromate.dto.element.NeighborProxyDTO;
+import com.acromate.util.Logger;
+
+public class NeighborProxyDAO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private NeighborProxyDTO neighborProxyDTO ;
+    QueryStatement statement ;
+
+    public NeighborProxyDAO() {}
+
+    public NeighborProxyDAO( QueryStatement statement, NeighborProxyDTO neighborProxyDTO ) {
+        this.statement = statement ;
+        this.neighborProxyDTO = neighborProxyDTO ;
+    }
+
+    public ArrayList getList(QueryStatement statement, String EndpointID, int Protocol) {
+        ArrayList list = new ArrayList() ;
+        NeighborProxyDTO neighborProxyDTO = null ;
+        ResultSet rs = null ;
+        String strWhere = "";
+
+        if(!EndpointID.equals("")){
+            strWhere += " AND EndpointID = '" + EndpointID+ "' ";
+        }
+
+        if(Protocol > 0){
+            strWhere += " AND Protocol = " + Protocol+ " ";
+        }
+
+
+        try {
+            String queryString = "SELECT ENDPOINTID, ENDPOINTCLASS, URITYPE, URIPARAM, AUTHMODE, Options, SIGNALADDRESS, SIGNALPORT, INVIAADDRESS, ";
+            queryString += " INVIAPORT, InDOMAINNAME, PASSWORD, USERNAME, OUTTODOMAINNAME, OUTFROMDOMAINNAME, DtmfType " ;
+            queryString += " From TABLE_NEIGHBORPROXY Where 1 = 1  " ;
+            queryString += strWhere;
+
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            while ( rs.next() )  {
+                neighborProxyDTO = new NeighborProxyDTO() ;
+                neighborProxyDTO.setEndpointid(Str.CheckNullString(rs.getString(1)));
+                neighborProxyDTO.setEndpointclass(rs.getInt(2));
+                neighborProxyDTO.setUriType(rs.getInt(3));
+                neighborProxyDTO.setUriParam(Str.CheckNullString(rs.getString(4)));
+                neighborProxyDTO.setAuthMode(rs.getInt(5));
+                neighborProxyDTO.setOptions(rs.getInt(6));
+                neighborProxyDTO.setSignalAddress(Str.CheckNullString(rs.getString(7)));
+                neighborProxyDTO.setSignalPort(rs.getInt(8));
+                neighborProxyDTO.setInviaaddress(Str.CheckNullString(rs.getString(9)));
+                neighborProxyDTO.setInviaport(rs.getInt(10));
+                neighborProxyDTO.setInDomainname(Str.CheckNullString(rs.getString(11)));
+                neighborProxyDTO.setPassword(Str.CheckNullString(rs.getString(12)));
+                neighborProxyDTO.setUsername(Str.CheckNullString(rs.getString(13)));
+                neighborProxyDTO.setOutToDomainname(Str.CheckNullString(rs.getString(14)));
+                neighborProxyDTO.setOutFromDomainname(Str.CheckNullString(rs.getString(15)));
+                neighborProxyDTO.setDtmfType(rs.getInt(16));
+
+                list.add(neighborProxyDTO) ;
+            }
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+
+        return list;
+    }
+
+    public boolean insert ( QueryStatement statement, NeighborProxyDTO neighborProxyDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString =   " INSERT INTO TABLE_NEIGHBORPROXY ";
+            queryString += " (ENDPOINTID, ENDPOINTCLASS, URITYPE, URIPARAM, AUTHMODE, Options, SIGNALADDRESS, SIGNALPORT, INVIAADDRESS, ";
+            queryString += " INVIAPORT, InDOMAINNAME, PASSWORD, USERNAME, OUTTODOMAINNAME, OUTFROMDOMAINNAME, ";
+            queryString += " DtmfType, OpenDate ) ";
+            queryString += " VALUES (" ;
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getEndpointid()).trim()+"', " ;
+            queryString += "  "+neighborProxyDTO.getEndpointclass()+", ";
+            queryString += "  "+neighborProxyDTO.getUriType()+", ";
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getUriParam()).trim()+"', " ;
+            queryString += "  "+neighborProxyDTO.getAuthMode()+", ";
+            queryString += "  "+neighborProxyDTO.getOptions()+", ";
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getSignalAddress()).trim()+"', " ;
+            queryString += "  "+neighborProxyDTO.getSignalPort()+", ";
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getInviaaddress()).trim()+"', " ;
+            queryString += "  "+neighborProxyDTO.getInviaport()+", ";
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getInDomainname()).trim()+"', " ;
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getPassword()).trim()+"', " ;
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getUsername()).trim()+"', " ;
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getOutToDomainname()).trim()+"', " ;
+            queryString += " '"+Str.CheckNullString(neighborProxyDTO.getOutFromDomainname()).trim()+"', " ;
+            queryString += "  "+neighborProxyDTO.getDtmfType()+", ";
+            queryString += " sysdate) ";
+
+            System.out.println(queryString) ;
+            count = statement.executeUpdate(queryString);
+            if (count < 1) return false ;
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+
+
+    public boolean update( QueryStatement statement, NeighborProxyDTO neighborProxyDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = " UPDATE TABLE_NEIGHBORPROXY SET ";
+            queryString += " ENDPOINTCLASS = "+neighborProxyDTO.getEndpointclass()+", ";
+            queryString += " URITYPE=" + neighborProxyDTO.getUriType() + ", ";
+            queryString += " URIPARAM='" + neighborProxyDTO.getUriParam() + "', ";
+            queryString += " AUTHMODE = "+neighborProxyDTO.getAuthMode()+", ";
+            queryString += " Options = " + neighborProxyDTO.getOptions() + ", ";
+//            queryString += " SIGNALADDRESS = '"+neighborProxyDTO.getSignalAddress()+"', ";
+//            queryString += " SIGNALPORT = "+neighborProxyDTO.getSignalPort()+", ";
+//            queryString += " INVIAADDRESS = '"+neighborProxyDTO.getInviaaddress()+"', ";
+//            queryString += " INVIAPORT = "+neighborProxyDTO.getInviaport()+", ";
+//            queryString += " INDOMAINNAME = '"+neighborProxyDTO.getInDomainname()+"', ";
+            queryString += " PASSWORD = '"+neighborProxyDTO.getPassword()+"', ";
+            queryString += " USERNAME = '"+neighborProxyDTO.getUsername()+"', ";
+//            queryString += " OUTFROMDOMAINNAME = '"+neighborProxyDTO.getOutFromDomainname()+"', ";
+//            queryString += " OUTTODOMAINNAME = '"+neighborProxyDTO.getOutToDomainname()+"', ";
+            queryString += " DtmfType = " + neighborProxyDTO.getDtmfType() + " ";
+            queryString += " WHERE EndpointID = '" + neighborProxyDTO.getEndpointid() +"' ";
+
+            count = statement.executeUpdate(queryString);
+            log.info(queryString) ;
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement,  String endpointID) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM TABLE_NEIGHBORPROXY WHERE EndpointID = '" + endpointID + "' " ;
+            count = statement.executeUpdate(queryString);
+            System.out.println(count + " deleted. " + queryString) ;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+    public boolean delete( QueryStatement statement,  NeighborProxyDTO neighborProxyDTO) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM TABLE_NEIGHBORPROXY WHERE EndpointID = '" + neighborProxyDTO.getEndpointid()+ "' " ;
+            count = statement.executeUpdate(queryString);
+            log.info(queryString) ;
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        if (count <= 0) return false ;
+        return true ;
+    }
+}
+
+

@@ -1,0 +1,54 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class DetourDTO
+{
+    private String endpointID = "";
+    private int    protocol = 2 ;
+    private int    endpointClass = 33 ;
+    private int    detourIndex = 0 ;
+    private String detourEndpointID = "" ;
+    private int    detourProtocol = 2 ;
+
+    public String getEndpointID() { return this.endpointID; }
+    public void   setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+    public int    getProtocol() { return this.protocol; }
+    public void   setProtocol(int protocol ) { this.protocol = protocol ; }
+
+    public int    getEndpointClass() { return this.endpointClass; }
+    public void   setEndpointClass(int endpointClass ) { this.endpointClass = endpointClass; }
+
+    public int    getDetourIndex() { return this.detourIndex; }
+    public void   setDetourIndex(int vDetourIndex ) { this.detourIndex = vDetourIndex; }
+
+    public String getDetourEndpointID() { return this.detourEndpointID; }
+    public void   setDetourEndpointID(String vDetourEndpointID ) { this.detourEndpointID = vDetourEndpointID; }
+
+    public int    getDetourProtocol() { return this.detourProtocol; }
+    public void   setDetourProtocol(int vDetourProtocol ) { this.detourProtocol = vDetourProtocol; }
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:"                   + getEndpointID() + ") ") ;
+        sb.append("[protocol:"                     + getProtocol() + "] ") ;
+        sb.append("[detourIndex:"                  + getDetourIndex() + "] ") ;
+        sb.append("[detourEndpointID:"             + getDetourEndpointID() + "] ") ;
+        sb.append("[detourProtocol:"               + getDetourProtocol() + "] ") ;
+
+        return sb.toString();
+    }
+}

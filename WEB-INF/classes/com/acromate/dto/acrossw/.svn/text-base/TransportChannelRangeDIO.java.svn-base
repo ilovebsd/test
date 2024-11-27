@@ -1,0 +1,36 @@
+package com.acromate.dto.acrossw ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class TransportChannelRangeDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder range = new StringBuilder();
+
+    public String getRange() { return range.toString() ; }
+    public void   setRange( String range ) {
+        this.range.delete(0,range.length());
+        this.range.append(range) ;
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        return setString(range, value);
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        value.append(range.toString());
+        return(0);
+    }
+}

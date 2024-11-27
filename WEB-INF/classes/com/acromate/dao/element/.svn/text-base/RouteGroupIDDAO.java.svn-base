@@ -1,0 +1,148 @@
+package com.acromate.dao.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+import com.acromate.db.QueryStatement ;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+import java.sql.ResultSet;
+import com.acromate.dto.element.RouteGroupIDDTO;
+import com.acromate.util.Logger;
+
+public class RouteGroupIDDAO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private RouteGroupIDDTO routeGroupIDDTO ;
+    QueryStatement statement ;
+
+    public RouteGroupIDDAO() {}
+
+    public RouteGroupIDDAO( QueryStatement statement, RouteGroupIDDTO routeGroupIDDTO ) {
+        this.statement = statement ;
+        this.routeGroupIDDTO = routeGroupIDDTO ;
+    }
+
+    public ArrayList getList(QueryStatement statement, String RouteGroupID) {
+        ArrayList list = new ArrayList() ;
+        RouteGroupIDDTO routeGroupIDDTO = null ;
+        ResultSet rs = null ;
+
+        String strWhere = "";
+
+        if(!RouteGroupID.equals("")){
+            strWhere = " AND routegroupid = '" + RouteGroupID+ "' ";
+        }
+
+
+        try {
+            String queryString = "SELECT  routegroupid, hunt, huntindex, maxhuntindex, maxdetourcount, maxAvailableFaultCall, outAddibleFlag " ;
+            queryString += " From Table_ROUTEGROUPID Where 1 = 1 ";
+            queryString += strWhere;
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            while ( rs.next() )  {
+                routeGroupIDDTO = new RouteGroupIDDTO() ;
+                routeGroupIDDTO.setRoutegroupid(Str.CheckNullString(rs.getString(1)));
+                routeGroupIDDTO.setHunt(rs.getInt(2));
+                routeGroupIDDTO.setHuntindex(rs.getInt(3));
+                routeGroupIDDTO.setMaxhuntindex(rs.getInt(4));
+                routeGroupIDDTO.setMaxdetourcount(rs.getInt(5));
+                routeGroupIDDTO.setMaxAvailableFaultCall(rs.getInt(6));
+                routeGroupIDDTO.setOutAddibleFlag(rs.getInt(7));
+                list.add(routeGroupIDDTO) ;
+            }
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+
+        return list;
+    }
+
+    public boolean insert ( QueryStatement statement, RouteGroupIDDTO routeGroupIDDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString =   " INSERT INTO Table_ROUTEGROUPID ";
+            queryString += " (routegroupid, hunt, huntindex, maxhuntindex, maxdetourcount, maxAvailableFaultCall, outAddibleFlag)";
+            queryString += " VALUES (" ;
+            queryString += " '" + routeGroupIDDTO.getRoutegroupid() + "' ," ;
+            queryString += "  " + routeGroupIDDTO.getHunt() + "," ;
+            queryString += "  " + routeGroupIDDTO.getHuntindex() + "," ;
+            queryString += "  " + routeGroupIDDTO.getMaxhuntindex() + "," ;
+            queryString += "  " + routeGroupIDDTO.getMaxdetourcount() + "," ;
+            queryString += "  " + routeGroupIDDTO.getMaxAvailableFaultCall() + "," ;
+            queryString += "  " + routeGroupIDDTO.getOutAddibleFlag() + ") " ;
+
+            log.info(queryString) ;
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+
+    public boolean update( QueryStatement statement, RouteGroupIDDTO routeGroupIDDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = " UPDATE Table_ROUTEGROUPID SET ";
+            queryString += "hunt = " + routeGroupIDDTO.getHunt() + " ," ;
+            queryString += "huntindex = " + routeGroupIDDTO.getHuntindex() + "," ;
+            queryString += "maxhuntindex = " + routeGroupIDDTO.getMaxhuntindex() + "," ;
+            queryString += "maxdetourcount = " + routeGroupIDDTO.getMaxdetourcount() + "," ;
+            queryString += "maxAvailableFaultCall = " + routeGroupIDDTO.getMaxAvailableFaultCall() + "," ;
+            queryString += "outAddibleFlag = " + routeGroupIDDTO.getOutAddibleFlag() + " " ;
+            queryString += " WHERE routegroupid = '" + routeGroupIDDTO.getRoutegroupid() + "' ";
+
+
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement,  RouteGroupIDDTO routeGroupIDDTO) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM Table_ROUTEGROUPID Where routegroupid = '" + routeGroupIDDTO.getRoutegroupid() + "' " ;
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+}
+
+

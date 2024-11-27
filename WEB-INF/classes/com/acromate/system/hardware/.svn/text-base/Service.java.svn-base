@@ -1,0 +1,69 @@
+/*
+ * Service.java
+ *
+ * Created on 2007년 8월 2일 (목), 오후 10:39
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package com.acromate.system.hardware;
+
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.system.ManSystem;
+import java.util.ArrayList;
+import com.acromate.driver.core.SystemSingleton;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 2.0.0
+ */
+public class Service extends ListIO {
+
+    private ManSystem manSystem;
+    /** Creates a new instance of Service */
+    public Service( ManSystem manSystem ) {
+        this.manSystem = manSystem;
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+     protected int getFieldData(String field, Index idx, StringBuilder value) {
+         return super.getFieldData(field, idx, value);
+     }
+
+    /**
+     *
+     * @return
+     */
+    protected DataIO newListNode() {
+        return new Adapter(manSystem, Adapter.LINE_SERVICE);
+    }
+    /**
+     *
+     * @param field
+     * @return
+     */
+    public DataIO getNode(String field) {
+        DataIO node = (Adapter)super.getNode(field);
+        if ( node != null) return node;
+        Adapter adapter = new Adapter(manSystem, Adapter.LINE_SERVICE);
+        adapter.setParam("id", field);
+        appendTail(adapter);
+        DataIO systemHandler = SystemSingleton.getInstance().getHandler();
+        systemHandler.callMethod("", "insertNetworkLine", manSystem.getGroupId(), manSystem.getHwClusterId(), manSystem.getHwId(),"lan.service(" + field + ")", "lan.service." + getCount(), String.valueOf(Adapter.LINE_SERVICE), "", "1");
+        return adapter;
+    }
+
+    public ArrayList getNodes() {
+        return this.list;
+    }
+}

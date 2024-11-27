@@ -1,0 +1,96 @@
+package business.ipcs;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+
+import dto.ipcs.IpPhoneDTO;
+
+public class IpPhoneList {
+	public List getIpPhone(DataStatement stmt) {
+		IpPhoneDTO 		ipPhoneDTO;
+        List<IpPhoneDTO> 	phoneList 	= new ArrayList<IpPhoneDTO>();
+		
+        String sql = "SELECT physical_address From table_provision WHERE use = 0 ";
+        sql = sql + " Order By physical_address ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipPhoneDTO = new IpPhoneDTO(
+                        Str.CheckNullString(rs.getString("physical_address"))
+                    );
+                	phoneList.add(ipPhoneDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return phoneList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return phoneList;
+    }
+
+	public int setIpPhone(DataStatement stmt, String physical, String makename) {
+		int 		count 	= 0 ;
+		int			nResult = 0;
+		ResultSet 	rs 		= null;
+		
+        String sql = "SELECT count(*) FROM table_provision "; 
+        sql = sql + "\n where physical_address = '"+physical+"' ";
+		
+		try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+                rs.close();
+                
+                if (count == 0){
+    	            sql   = "Insert into table_provision(makename, physical_address, use, createtime) ";
+    	            sql += " values('" + makename +"', '" + physical + "', 0, now())";
+    	            System.out.println("1-5:"+sql);
+    	            nResult = stmt.executeUpdate(sql);
+                }
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+            
+            nResult = 0;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return nResult;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return nResult;
+    }
+
+	public int deleteIpPhone(DataStatement stmt) {
+		int	nResult = 0;
+		
+		try {
+            if (stmt != null) {
+        		String sql = " Delete From table_provision Where use = 0 ";
+	            nResult = stmt.executeUpdate(sql);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return nResult;
+        }
+        
+        return nResult;
+    }
+
+}

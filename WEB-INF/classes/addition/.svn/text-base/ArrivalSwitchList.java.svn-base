@@ -1,0 +1,176 @@
+package addition;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.ArrivalSwitchDTO;
+
+public class ArrivalSwitchList {
+	
+	public List getList(DataStatement stmt, String e164) {
+		ArrivalSwitchDTO arrivalSwitchDTO;
+        List<ArrivalSwitchDTO> arrivalSwitchList = new ArrayList<ArrivalSwitchDTO>();
+        
+        String sql = "\n Select forwardnumber, forwardtype, forwardwaittime, fromtime, totime From table_forward ";
+        sql = sql +  "\n  WHERE e164 = '" + e164 + "' Order By forwardtype ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("착신거부 : "+sql);
+                while (rs.next()) {
+                	arrivalSwitchDTO = new ArrivalSwitchDTO();
+                	
+                	arrivalSwitchDTO.setForwardnumber(Str.CheckNullString(rs.getString("forwardnumber")));
+                	arrivalSwitchDTO.setForwardtype(rs.getInt("forwardtype"));                	
+                	arrivalSwitchDTO.setForwardwaittime(rs.getInt("forwardwaittime"));
+                	arrivalSwitchDTO.setFromtime(Str.CheckNullString(rs.getString("fromtime")));
+                	arrivalSwitchDTO.setTotime(Str.CheckNullString(rs.getString("totime")));
+                	
+                	arrivalSwitchList.add(arrivalSwitchDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return arrivalSwitchList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return arrivalSwitchList;
+    }
+
+	public String getAnswerService(DataStatement stmt, String e164) {
+        String returnData 			= "";
+        String answerService 		= "";
+        String commonservice 		= "";
+        String directforwardnumber 	= "";
+        
+		String sql = "SELECT answerservice, commonservice, directforwardnumber FROM table_E164 WHERE e164 = '" + e164 + "'";        
+        ResultSet rs = null;        
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()){
+                	answerService = rs.getString(1);
+                	commonservice = rs.getString(2);
+                	directforwardnumber = rs.getString(3);
+                	
+                	returnData = answerService+"|"+commonservice+"|"+directforwardnumber;
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnData;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnData;
+    }
+
+	public String getDescription(DataStatement stmt, String e164, String blockPrefixNo) {
+        String description = "";
+        
+		String sql = "SELECT Description FROM Table_E164block WHERE e164 = '" + e164 + "' And startprefix = '" + blockPrefixNo + "'";        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+
+                if (rs.next()) description = rs.getString(1);
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return description;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return description;
+    }
+	
+	public List getDetailList(DataStatement stmt, String e164) {
+		ArrivalSwitchDTO arrivalSwitchDTO;
+        List<ArrivalSwitchDTO> arrivalSwitchList = new ArrayList<ArrivalSwitchDTO>();
+        
+        String sql = "\n Select forwardnumber, forwardtype, forwardwaittime, fromtime, totime From table_forward ";
+        sql = sql +  "\n  WHERE e164 = '" + e164 + "' And forwardtype = 0 Order By ordernumber ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("착신거부 : "+sql);
+                while (rs.next()) {
+                	arrivalSwitchDTO = new ArrivalSwitchDTO();
+                	
+                	arrivalSwitchDTO.setForwardnumber(Str.CheckNullString(rs.getString("forwardnumber")));
+                	arrivalSwitchDTO.setForwardtype(rs.getInt("forwardtype"));                	
+                	arrivalSwitchDTO.setForwardwaittime(rs.getInt("forwardwaittime"));
+                	arrivalSwitchDTO.setFromtime(Str.CheckNullString(rs.getString("fromtime")));
+                	arrivalSwitchDTO.setTotime(Str.CheckNullString(rs.getString("totime")));
+                	
+                	arrivalSwitchList.add(arrivalSwitchDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return arrivalSwitchList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return arrivalSwitchList;
+    }
+
+	public int getTimeCount(DataStatement stmt, String e164) {
+		int tCount = 0;
+		
+		String sql = " Select count(*) From table_forward WHERE e164 = '" + e164 + "' And forwardtype = 0 ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                System.out.println("특정 시간대별 착신전환 : "+sql);
+                while (rs.next()) {
+                	tCount = rs.getInt(1);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return tCount;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return tCount;
+    }
+
+}

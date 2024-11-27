@@ -1,0 +1,116 @@
+package com.acromate.framework.util;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class DateUtil {
+	
+	static public DayField substrDate(Date wantDay){
+		Calendar calr = Calendar.getInstance();			
+//		DateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");			
+		
+		if(wantDay != null)
+			calr.setTime(wantDay);
+		DayField dayField = new DayField();
+		int year = calr.get( calr.YEAR );
+		int month = calr.get( calr.MONTH );
+		int day = calr.get( calr.DAY_OF_MONTH);
+		dayField.year = year+"";
+		dayField.nYear = year;		
+		dayField.month = month+"";
+		dayField.nMonth = month;
+		dayField.day = day+"";
+		dayField.nDay = day;
+		
+		return dayField;
+	}
+	
+	static public String changingForm(String longTime){
+		//longTime = "1282116857834";
+		//long today = System.currentTimeMillis();			
+		Date date = new Date( Long.valueOf(longTime) );			
+		return changingForm(date, "yyyy-MM-dd hh:mm:ss");
+	}
+	static public String changingForm(Date date, String formate){
+		if( formate == null ) formate = "yyyy-MM-dd hh:mm:ss"; 
+		SimpleDateFormat sdFormat = new SimpleDateFormat(formate);		
+		String strTime = sdFormat.format( date );
+		System.out.println( formate+" - date : "+strTime );
+		return strTime;
+	}
+	
+	static public Date dateOfDateToMonths(String startTime, int months){
+		Date date = wantUnixTimeToYYYYMMDD(startTime,"yyyy-MM-dd");
+		return dateOfDateToMonths(date, months);
+	}
+	static public Date dateOfDateToMonths(Date startTime, int months){		
+		Calendar calr = Calendar.getInstance();
+		calr.setTime(startTime);
+		calr.add( calr.MONTH, months);		
+		return calr.getTime();
+	}
+	
+	static public Date wantUnixTimeToYYYYMMDD(String strTime){
+		return wantUnixTimeToYYYYMMDD(strTime,"yyyy-MM-dd HH:mm:ss");
+	}
+	static public Date wantUnixTimeToYYYYMMDD(String strTime,String formate){
+		Calendar calr = Calendar.getInstance();
+		DateFormat sdFormat = new SimpleDateFormat(formate);
+		Date date = null;
+		try{				
+			date = sdFormat.parse( strTime );//strTime = "2010-08-18";
+			System.out.println("date : "+date );
+		}catch(Exception ex){	ex.printStackTrace();	}
+		
+		
+		return date;
+	}
+	
+	
+	static public int gapOfDay(Date startDate, Date endDate){						
+        int days = (int) ( (endDate.getTime() - startDate.getTime()) / (1000*60*60*24) );
+		System.out.println("days : "+days );		
+		return days;
+	}
+	static public int gapOfMonth(String startDate, String endDate){
+		Calendar calr = Calendar.getInstance();			
+		DateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");			
+		Date sdate=null, edate = null;
+		try{
+			sdate = sdFormat.parse( startDate );//String birthdayStr ="19790806";
+			edate = sdFormat.parse( endDate );
+			System.out.println("sdate : "+sdate +" / edate : "+edate);			
+		}catch(Exception ex){	ex.printStackTrace();	}
+		
+		return gapOfMonth(sdate, edate);
+	}
+	static public int gapOfMonth(Date startDate, Date endDate){
+		//개월수 차이
+	    //년도가 같으면 단순히 월을 마이너스 한다.
+	    // => 20090301-20090201 의 경우 아래 else의 로직으로는 정상적인 1이 리턴되지 않는다.
+		int months;
+	    if(endDate.getYear() == startDate.getYear()) {
+	    	months = (endDate.getMonth() * 1 - startDate.getMonth() * 1) -1;
+	    } else {
+	    	months = (int) ( Math.floor((endDate.getTime()-startDate.getTime())/(1000*60*60*24*365.25/12)) );
+	    }	
+		
+		return months;
+	}
+	
+	/// 지연시간 체크
+	static private double nanoStartTime = 0; 
+	static public double nanoTimeStart(){		
+		return nanoStartTime = System.nanoTime();
+	}
+	static public double nanoTimeEnd(){
+		//(나노타임 : 1/10억)
+		double delayTime = System.nanoTime() - nanoStartTime;
+		System.out.println( "==========> Delay Time: "+ (delayTime / 1000000000) + " 초 " );
+		return delayTime;
+	}
+}
+
+

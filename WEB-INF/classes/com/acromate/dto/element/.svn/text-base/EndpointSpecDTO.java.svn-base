@@ -1,0 +1,87 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class EndpointSpecDTO
+{
+
+    private String      endpointID;
+    private int         protocol;
+    private String      companyName;
+    private String      personName;
+    private String      personTel;
+    private String      officerName;
+    private String      officerTel;
+    private String		specification;
+
+    /**
+     * member functions
+     */
+    public String	getEndpointID() { return this.endpointID; }
+    public void	setEndpointID(String vEndpointID ) { this.endpointID = vEndpointID; }
+
+    public int	getProtocol() { return this.protocol; }
+    public void	setProtocol(int vProtocol ) { this.protocol = vProtocol; }
+
+    public String getCompanyName() {
+		return companyName;
+	}
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+	public String getPersonName() {
+		return personName;
+	}
+	public void setPersonName(String personName) {
+		this.personName = personName;
+	}
+	public String getPersonTel() {
+		return personTel;
+	}
+	public void setPersonTel(String personTel) {
+		this.personTel = personTel;
+	}
+	public String getOfficerName() {
+		return officerName;
+	}
+	public void setOfficerName(String officerName) {
+		this.officerName = officerName;
+	}
+	public String getOfficerTel() {
+		return officerTel;
+	}
+	public void setOfficerTel(String officerTel) {
+		this.officerTel = officerTel;
+	}
+
+	public String	getSpecification() { return this.specification; }
+	public void	setSpecification(String vSpecification ) { this.specification = vSpecification; }
+
+
+public String toString()
+{
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:" 	                		+ getEndpointID() + ") ") ;
+        sb.append("[protocol:" 	                       		+ getProtocol() + "] ") ;
+        sb.append("[companyName:" 	                        + getSpecification() + "] ") ;
+        sb.append("[personName:" 	                        + getSpecification() + "] ") ;
+        sb.append("[personTel:" 	                        + getSpecification() + "] ") ;
+        sb.append("[officerName:" 	                        + getSpecification() + "] ") ;
+        sb.append("[officerTel:" 	                        + getSpecification() + "] ") ;
+        sb.append("[specification:" 	                    + getSpecification() + "] ") ;
+
+
+         return sb.toString();
+     }
+ }

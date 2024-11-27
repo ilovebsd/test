@@ -1,0 +1,70 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.KeyActionDAO;
+import java.util.List;
+import bizportal.nasacti.ipivr.dao.ResponseModeDAO;
+import bizportal.nasacti.ipivr.dto.ResponseModeDTO;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.UsedVoiceDTO;
+import bizportal.nasacti.ipivr.dto.VoiceDTO;
+
+public class NormalResponseModeManageEditFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+		KeyActionDAO keyActionDAO = KeyActionDAO.getInstance();
+
+		List keyActionDTOList = null;
+
+		if(ipivrConfig.strKeyActionVisibleType.equals("1")) {
+			keyActionDTOList = keyActionDAO.getKeyAction(keyActionDAO.SIMPLE_IVR);
+		} else {
+			keyActionDTOList = keyActionDAO.getKeyAction(keyActionDAO.IVR);
+		}
+
+
+		request.setAttribute("keyActionDTOList", keyActionDTOList);
+
+		ResponseModeDAO responseModeDAO = ResponseModeDAO.getInstance();
+
+		ResponseModeDTO responseModeDTO = responseModeDAO.getResponseMode(ipivrConfig.strResponseModeKey);
+
+		VoiceDAO voiceDAO = VoiceDAO.getInstance();
+		UsedVoiceDTO usedVoiceDTO = voiceDAO.getUsedResponseModeVoice(responseModeDTO.getScVoiceFile());
+
+		VoiceDTO voiceDTO = null;
+		if(usedVoiceDTO != null) {
+			voiceDTO = voiceDAO.getVoice(usedVoiceDTO.getWIndex());
+		}
+
+		List responseModeDTOList = responseModeDAO.getAllResponseMode(ResponseModeDAO.ACTIVE_IVR);
+
+		request.setAttribute("responseModeDTOList", responseModeDTOList);
+		request.setAttribute("responseModeDTO", responseModeDTO);
+		request.setAttribute("usedVoiceDTO", usedVoiceDTO);
+		request.setAttribute("voiceDTO", voiceDTO);
+
+		if(!responseModeDTO.getScCode().equals(""))
+			return "/ivr/normalResponseModeManageEdit.jsp";
+		else
+			return "/ivr/normalResponseModeNotExist.jsp";
+
+	}
+}

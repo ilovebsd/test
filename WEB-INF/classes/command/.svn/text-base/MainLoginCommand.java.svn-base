@@ -1,0 +1,363 @@
+package command;
+
+import java.sql.ResultSet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.framework.util.Str;
+
+import acromate.ConnectionManager;
+import acromate.common.util.WebUtil;
+import business.LogHistory;
+import dto.E164InfoDTO;
+import dto.LoginDTO;
+import dto.SubscriberInfoDTO;
+import login.LoginCommit;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+
+public class MainLoginCommand implements Command {
+	
+	// 아이디/패스워드 체크
+	// 세션 생성. 
+	// 세션에 statement, DTO 저장.
+	// 포워딩할 페이지의 주소 리턴
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+
+		// ############## CHECK ALLOW IP (20171130:req. chun) ##############
+		if( ServerLogin.getServerLogin().lbean.getIsblockaddr()
+				&& !isValidClientIP(req.getRemoteAddr()) ) return "/index.jsp?err=invalidAddr"; 
+		
+		String inputId = WebUtil.CheckNullString(req.getParameter("id")).trim();
+		String inputPwd = WebUtil.CheckNullString(req.getParameter("pwd")).trim();
+		
+		// ############## ID에 DOMAIN 붙이기 start  ############## 		
+		int adminChk = chkAdminID(inputId);
+		
+		//if(!"admin".equals(inputId)&&!"ADMIN".equals(inputId)){
+		if(adminChk == 0){
+			String strIdDomain = WebUtil.CheckNullString(getIdDomain()).trim();
+			if("".equals(strIdDomain)){
+				return "/index.jsp?err=domainFail";			
+			}
+			inputId = inputId + "@" + strIdDomain + ":5060";
+		}
+		//  ############## ID에 DOMAIN 붙이기 end  ############## 
+		
+		LoginDTO loginDTO = new LoginDTO(inputId, inputPwd);
+		LoginCommit loginCom = new LoginCommit(loginDTO);
+		SubscriberInfoDTO scDTO;
+		boolean login = false;
+		SessionManager manager = SessionManager.getInstance();
+		try {
+			// ############### LogHistory 처리  ###############
+			int 		int_result	= 0;
+			String		strIp		= manager.getClientIP(req);//req.getRemoteAddr();
+			LogHistory	logHistory 	= new LogHistory();
+			// ##############################################
+
+			if (!inputId.equals("") && !inputPwd.equals("")) {
+				scDTO = loginCom.getSubsInfo();
+				if (scDTO == null)
+					scDTO = loginCom.getSubsInfo();
+				login = loginCom.checkIdPwd();
+				BaseEntity entity = new BaseEntity(inputId, strIp);//new BaseEntity(inputId);
+				if (login) {
+					if (!manager.isLogin(req)) {		//로그인 상태이면 setAttribute 생략하고 service페이지 리턴.
+						DataStatement statement = ConnectionManager.allocStatement("SSW");
+			            statement.stxTransaction();	            
+			            E164InfoDTO e164DTO = loginCom.getE164Info(statement);
+			            
+						entity.setAttribute("statement", statement);
+						entity.setAttribute("scDTO", scDTO);
+						
+						entity.setAttribute("e164DTO", e164DTO);
+						manager.doLogin(req, entity);
+						
+						// ############## Transaction 처리  ##############
+			            statement.endTransaction(true);			// commit 처리
+			            //할당받은 DataStatement 객체는 반납
+			            if (statement != null ) ConnectionManager.freeStatement(statement);			            
+			            // ##############################################
+			            
+					} else
+						System.out.println("이미 로그인 되어있는 상태");
+					
+					// ############### LogHistory 처리  ###############
+					int delete_result = logHistory.LogHistoryDelete();	// 3달전 시스템 로그 데이타 삭제
+					
+					int_result = logHistory.LogHistorySave(inputId+"|81|로그인|5|"+strIp);
+					
+					int sms_delete = logHistory.SmsMessageDelete();		// 3달전 SMS 데이타 삭제
+					int cdr_delete = logHistory.CdrDataDelete();		// 3달전 CDR 데이타 삭제
+					// ##############################################
+					
+					if(scDTO.getLoginLevel() == 1){
+						return "/index.jsp?err=loginOk1";
+					}else{
+						//return "/index.jsp?err=loginOk2";
+						return "/index.jsp?err=loginOk2&hiPWD="+inputPwd;
+					}
+				} else
+					// ############### LogHistory 처리  ###############
+					int_result = logHistory.LogHistorySave(inputId+"|81|로그인 실패|5|"+strIp);
+					// ##############################################
+
+					return "/index.jsp?err=loginFail";
+			} else		//로그인 상태에서 login.do 로 바로 접근했을 경우.
+				return "/index.jsp?err=loginFail";
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+		return null;
+	}
+	
+	/**
+	 * check invalid clientIP 
+	 */
+	public boolean isValidClientIP(String client_ip){
+		if(1==1) return true;
+		boolean bValid = true;
+	    DataStatement stmt=null;
+	    ResultSet rs = null;
+	    String sql = "", valid_ip="", valid_netmask="";
+	    try {        	  
+	    	stmt = ConnectionManager.allocStatement("SSW");
+	        sql   = "SELECT weballowip, netmask FROM Table_WebAllowIP ;";
+	        rs = stmt.executeQuery(sql);
+	        while (rs.next()) {
+	        	valid_ip = rs.getString(1);
+	        	valid_netmask = rs.getString(2);//0, 8, 16, 32 bits
+	        	System.out.println("Web Allow IP : "+valid_ip+", netmask : "+valid_netmask);
+	        	if( isValidClientIp(Str.CheckNullInt(valid_netmask), client_ip, valid_ip) ){
+	        		bValid = true;
+	        		break;
+	        	}
+	        	bValid = false;
+	        }
+	    } catch (Exception e) {
+	    	bValid = true;//is not exist this table
+	    	ServerLogin.getServerLogin().login();
+	    } finally {
+	    	try{
+	    		if (rs != null) rs.close();
+				if (stmt != null) ConnectionManager.freeStatement(stmt);
+			}catch(Exception ee){}
+	    }
+	  
+	    return bValid;
+	}		
+	/**
+	 * check invalid subnewmask 
+	 */
+	public  boolean isValidSubnetmask(String subnetmask) {
+		if( 0 == toBitSubnetmask(subnetmask) )
+			return false;
+		return true;
+	}
+	
+	public  int toBitSubnetmask(String subnetmask) {
+		//1111 1111 . 1111 1111 . 1111 1111 . 1111 1111
+		int classbit=8, bitmax = 32, classidx = 0, bitidx = 0;
+		String tmpmask = "";
+		while(++bitidx<=bitmax){
+			classidx = bitidx%classbit==0? bitidx/classbit : bitidx/classbit+1 ;
+			tmpmask = "";
+			for (int i = 1; i <= 4; i++) {
+				if(i<classidx){
+					tmpmask += i==1?"255":".255";
+				}
+				else if(i==classidx){
+					if(bitidx%classbit==0){
+						tmpmask += i==1?"255":".255";
+					}else{
+						tmpmask += "."+( 2^( classbit-(bitidx%classbit) )-1 );
+					}
+				}else
+					tmpmask += ".0";
+			}//for
+			if(tmpmask.equals(subnetmask)){
+				return bitidx;
+			}
+		}//while
+		return 0;
+	}
+	public  String toSubnetmaskBit(int bit) {
+		//1111 1111 . 1111 1111 . 1111 1111 . 1111 1111
+		int classbit=8, bitmax = 32, classidx = 0, bitidx = 0;
+		String tmpmask = "";
+		while(++bitidx<=bitmax){
+			classidx = bitidx%classbit==0? bitidx/classbit : bitidx/classbit+1 ;
+			tmpmask = "";
+			for (int i = 1; i <= 4; i++) {
+				if(i<classidx){
+					tmpmask += i==1?"255":".255";
+				}
+				else if(i==classidx){
+					if(bitidx%classbit==0){
+						tmpmask += i==1?"255":".255";
+					}else{
+						tmpmask += "."+( 2^( classbit-(bitidx%classbit) )-1 );
+					}
+				}else
+					tmpmask += ".0";
+			}//for
+			
+			if(bit==bitidx){
+				return tmpmask;
+			}
+		}//while
+		return "0.0.0.0";
+	}
+	
+	public  boolean isValidPublicIp(String subnetmask, String publicip) {
+		int bit = toBitSubnetmask(subnetmask);
+		int classidx = bit/8;
+		String addrs[] = publicip.split("[.]");
+			
+		int nSub	  = 256;
+		int temp_txt_WanIP_Last;
+		double namo;
+		
+		for (int i = classidx; i < addrs.length; i++) {
+			temp_txt_WanIP_Last = Integer.parseInt(addrs[i]) ;
+			namo	 			= (temp_txt_WanIP_Last%nSub)*1.0;
+			if(namo==0 || namo==(nSub-1)*1.0){
+				//alert("외부 IP주소가 잘 못 되었습니다.");
+				return false;
+			}
+		}//for
+	    return true;
+	}
+	public  boolean isValidGateway(String subnetmask, String publicip, String gateway) {
+		if(publicip.trim().equals(gateway.trim())) return false;
+		
+		int bit = toBitSubnetmask(subnetmask);
+		int classidx = bit/8;
+		String addrs[] = publicip.split("[.]");
+		String gateways[] = gateway.split("[.]");
+		
+		int nSub	  = 256;
+		int temp_txt_WanIP_Last,  temp_txtWanGateway, div, rang_Start, rang_End;
+		float temp_txtWanGateway_Last1;
+		for (int i = 0; i < addrs.length; i++) {
+			if(i>=classidx){
+				temp_txt_WanIP_Last = Integer.parseInt(addrs[i]) ;
+				temp_txtWanGateway 	= Integer.parseInt(gateways[i]);
+	
+				div			=(int)(temp_txt_WanIP_Last/nSub);
+				rang_Start	=(nSub*div)+1;
+				rang_End	=(nSub*(div+1))-2; 
+				
+				temp_txtWanGateway_Last1 = Integer.valueOf(temp_txtWanGateway);
+				if(temp_txtWanGateway_Last1*1.0 >= rang_Start*1.0  && temp_txtWanGateway_Last1*1.0 <= rang_End*1.0){
+				}else{
+					//alert("게이트웨이가 범위 내에 있지 않습니다.");
+					return false;
+				}
+			}else if(addrs.length != gateways.length 
+						|| ! (addrs[i]+"").equals(gateways[i])
+					){//invalid address class type
+				return false;
+			}
+		}//for
+	    return true;
+	}
+	public boolean isValidClientIp(String validsubnetmask, String clientip, String validip) {
+		int bits = toBitSubnetmask(validsubnetmask);
+		return isValidClientIp(bits, clientip, validip);
+	}
+	public boolean isValidClientIp(int validsubnetmask_bits, String clientip, String validip) {
+		int classidx = validsubnetmask_bits/8;
+		String addrs[] = clientip.split("[.]");
+		String gateways[] = validip.split("[.]");
+		
+		int nSub	  = 256;
+		int temp_txt_WanIP_Last,  temp_txtWanGateway, div, rang_Start, rang_End;
+		float temp_txtWanGateway_Last1;
+		for (int i = 0; i < addrs.length; i++) {
+			if(i>=classidx){
+				temp_txt_WanIP_Last = Integer.parseInt(addrs[i]) ;
+				temp_txtWanGateway 	= Integer.parseInt(gateways[i]);
+	
+				div			=(int)(temp_txt_WanIP_Last/nSub);
+				rang_Start	=(nSub*div);
+				rang_End	=(nSub*(div+1))-2;
+				
+				temp_txtWanGateway_Last1 = Integer.valueOf(temp_txtWanGateway);
+				if(temp_txtWanGateway_Last1*1.0 < rang_Start*1.0 || temp_txtWanGateway_Last1*1.0 > rang_End*1.0){
+					//alert("게이트웨이가 범위 내에 있지 않습니다.");
+					return false;
+				}
+			}else if(addrs.length != gateways.length 
+						|| ! (addrs[i]+"").equals(gateways[i])
+					){//invalid address class type
+				return false;
+			}
+		}//for
+        return true;
+    }
+	
+	/**
+	 * @return
+	 */
+	public String getIdDomain(){
+		String strId = "";
+	    DataStatement statement=null;
+	    ResultSet rs = null;
+	    String sql = "";
+	    try {        	  
+	    	statement = ConnectionManager.allocStatement("SSW");
+	        sql   = " select domainid from table_domain ";
+	        rs = statement.executeQuery(sql);
+	        if (rs.next()) {
+	        	strId = rs.getString(1);
+	        }
+	
+	    } catch (Exception e) {
+	    	  
+	    	ServerLogin.getServerLogin().login();
+	    	  
+	    } finally {
+	    	try{
+	    		if (rs != null) rs.close();
+				if (statement != null) ConnectionManager.freeStatement(statement);
+			}catch(Exception ee){}
+	    }
+	  
+	    return strId;
+	}	
+
+	public int chkAdminID(String inputAdmin){
+		int strId = 0;
+	    DataStatement statement=null;
+	    ResultSet rs = null;
+	    String sql = "";
+	    try {        	  
+	    	statement = ConnectionManager.allocStatement("SSW");
+	    	sql   = " Select count(*) From table_subscriber Where loginlevel = 2 And id = '"+inputAdmin+"' ";
+	    	rs = statement.executeQuery(sql);
+	        
+	        if (rs.next()) {
+	        	strId = rs.getInt(1);
+	        }
+	
+	    } catch (Exception e) {
+	    	System.out.println("########## err : "+e);  
+	    	ServerLogin.getServerLogin().login();
+	    	  
+	    } finally {
+	    	try{
+	    		if (rs != null) rs.close();
+				if (statement != null) ConnectionManager.freeStatement(statement);
+			}catch(Exception ee){}
+	    }
+	  
+	    return strId;
+	}	
+
+}

@@ -1,0 +1,88 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dto.ScheduleDTO;
+import bizportal.nasacti.ipivr.dao.ResponseTimeDAO;
+import bizportal.nasacti.ipivr.dto.ResponseTimeDTO;
+
+public class EmsResponseTimeManageEditAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		request.setCharacterEncoding("euc-kr");
+		int iRtn = -1;
+
+		String strAmIndex = request.getParameter("amIndex");                        // 응답스케줄 인덱스
+		String strAmModeName = request.getParameter("amModeName").trim();           // 응답스케줄 명
+		String strAmMemo = request.getParameter("amMemo").trim();                   // 응답 스케줄 설명
+
+		String tdHidden1[] = request.getParameterValues("tdHidden1");				//시간(시)
+		String tdHidden2[] = request.getParameterValues("tdHidden2");				//시간(분)
+		String tdHidden3[] = request.getParameterValues("tdHidden3");				//응답모드명
+		String tdHidden4[] = request.getParameterValues("tdHidden4");				//인덱스(scCode)
+		String tdHidden5[] = request.getParameterValues("tdHidden5");				//추가(I),수정(E),삭제(D), 최초로딩되었으며 변경 사항 없음(O)
+		String tdHidden6[] = request.getParameterValues("tdHidden6");				//응답스케줄에 등록된 스케줄의 인덱스(at_index)
+
+		ResponseTimeDTO responseTimeDTO = new ResponseTimeDTO();
+		responseTimeDTO.setAmIndex(strAmIndex);
+		responseTimeDTO.setAmModeName(strAmModeName);
+		responseTimeDTO.setAmMemo(strAmMemo);
+
+		ResponseTimeDAO rsponseTimeDAO = ResponseTimeDAO.getInstance();
+		iRtn = rsponseTimeDAO.updateResponseTime(responseTimeDTO);
+
+
+		switch(iRtn) {
+			case 1:
+				//request.setAttribute("msg", "수정되었습니다.");
+				for(int i=0; i < tdHidden5.length; i++) {
+					if(tdHidden5[i].equals("I")) {
+						ScheduleDTO scheduleDTO = new ScheduleDTO();
+						scheduleDTO.setAtIndex(tdHidden6[i]);
+						scheduleDTO.setAmIndex(strAmIndex);
+						scheduleDTO.setAtStartTime(tdHidden1[i] + ":" + tdHidden2[i]);
+						scheduleDTO.setAtScode(tdHidden4[i]);
+						scheduleDTO.setAtScName(tdHidden3[i]);
+						rsponseTimeDAO.insertSchedule(strAmIndex, scheduleDTO);
+					} else if(tdHidden5[i].equals("E")) {
+						ScheduleDTO scheduleDTO = new ScheduleDTO();
+						scheduleDTO.setAtIndex(tdHidden6[i]);
+						scheduleDTO.setAmIndex(strAmIndex);
+						scheduleDTO.setAtStartTime(tdHidden1[i] + ":" + tdHidden2[i]);
+						scheduleDTO.setAtScode(tdHidden4[i]);
+						scheduleDTO.setAtScName(tdHidden3[i]);
+						rsponseTimeDAO.updateSchedule(scheduleDTO);
+					} else if(tdHidden5[i].equals("D")) {
+						rsponseTimeDAO.deleteSchedule(tdHidden6[i]);
+					}
+				}
+				break;
+			case 2:
+				request.setAttribute("msg", "응답스케줄 이름이 중복되었습니다.");
+				break;
+			case -1:
+				request.setAttribute("msg", "수정에러가 발생하였습니다.");
+				break;
+		}
+
+
+
+
+		return "./emsResponseTimeManageListForm.do2";
+	}
+}

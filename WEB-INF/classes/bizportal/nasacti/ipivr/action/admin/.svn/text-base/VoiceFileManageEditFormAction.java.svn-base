@@ -1,0 +1,35 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.VoiceDTO;
+
+public class VoiceFileManageEditFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		String strWIndex = request.getParameter("wIndex");
+
+		VoiceDAO voiceDAO = VoiceDAO.getInstance();
+		VoiceDTO voiceDTO = voiceDAO.getVoice(strWIndex);
+
+		request.setAttribute("voiceDTO", voiceDTO);
+
+		return "/ivr/voiceFileManageEdit.jsp";
+	}
+}

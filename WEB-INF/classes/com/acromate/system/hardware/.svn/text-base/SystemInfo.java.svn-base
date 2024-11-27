@@ -1,0 +1,83 @@
+/*
+ * SystemInfo.java
+ *
+ * Created on 2006년 10월 23일 (월), 오후 1:15
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+package com.acromate.system.hardware;
+
+import java.util.Hashtable;
+import java.util.Enumeration;
+
+import com.acromate.data.DataIO;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class SystemInfo extends DataIO {
+    
+    private Hashtable elements;
+    public SystemInfo() {
+        this.elements = new Hashtable();
+    }
+    
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    private int getElementAttr(StringBuilder value) {
+        int index = 0;
+        Enumeration enumerator = elements.keys();
+        while(enumerator.hasMoreElements()) {
+            String key     = (String)enumerator.nextElement();
+            String element = (String)elements.get(key);
+            if(index == 0) {
+                   value.append(String.format("%s=%s",  key, element)); index++;
+            }else value.append(String.format("|%s=%s", key, element));
+        }   
+        return 0;
+    }
+    
+    /**
+     *
+     * @param section
+     * @param value
+     * @return
+     */
+    public int addElement(String field, String value) {               
+        if( elements.containsKey(field) ) {
+                 elements.remove(field);
+        } elements.put(field, value);
+        return 0;
+    }
+    
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {        
+        return addElement(field , value);
+    }
+    
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        //Get list data....
+        if(idx.v < 0) {
+            return getElementAttr(value);
+        }   return(0);
+    }
+    
+}

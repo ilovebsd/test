@@ -1,0 +1,51 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.UsedVoiceDTO;
+import bizportal.nasacti.ipivr.common.FileUtil;
+import java.util.List;
+import bizportal.nasacti.ipivr.dao.SystemDAO;
+import bizportal.nasacti.ipivr.dto.SystemDTO;
+
+public class EmsVoiceFileManageUnRegAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+        String strNwuIdx = request.getParameter("nwuIdx");
+		String strMsg = "";
+		int nRtn = 0;
+
+		VoiceDAO voiceDAO = VoiceDAO.getInstance();
+		UsedVoiceDTO usedVoiceDTO = voiceDAO.getUsedVoice(strNwuIdx);
+
+
+		if(usedVoiceDTO.getNwuType().equals("F")) {
+			nRtn = FileUtil.delete(ipivrConfig.strFileMentPath + "/kor/" + usedVoiceDTO.getNwuFileName());
+		} else if(usedVoiceDTO.getNwuType().equals("A") || usedVoiceDTO.getNwuType().equals("S")) {
+			nRtn = FileUtil.delete(ipivrConfig.strAnCodePath + "/kor/" + usedVoiceDTO.getNwuFileName());
+		}
+		if(nRtn == 1)
+            voiceDAO.deleteUsedVoice(strNwuIdx);
+		else
+		    request.setAttribute("msg", "해제되지 않았습니다.");
+
+		return "./emsVoiceFileManageListForm.do2";
+	}
+}

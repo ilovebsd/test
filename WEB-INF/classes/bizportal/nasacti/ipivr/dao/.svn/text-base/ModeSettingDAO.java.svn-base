@@ -1,0 +1,312 @@
+package bizportal.nasacti.ipivr.dao;
+
+import java.sql.*;
+import java.util.*;
+import bizportal.nasacti.ipivr.DBPoolConnector;
+import bizportal.nasacti.ipivr.dto.ModeSettingDTO;
+
+public class ModeSettingDAO extends DBPoolConnector {
+	private static ModeSettingDAO instance = new ModeSettingDAO();
+
+	public static ModeSettingDAO getInstance() {
+		return instance;
+	}
+
+	private ModeSettingDAO() {
+	}
+
+	public int updateModeSetting(ModeSettingDTO msDTO) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt1 = null;
+		StringBuffer sb = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+
+		try {
+			cn = this.getConnection();
+
+			sb.append("UPDATE nasa_answer_dateday SET	\n");
+			sb.append("tr_idx = ?,				        \n");
+			sb.append("am_index = ?,					\n");
+			sb.append("am_mode_name = ?,				\n");
+			sb.append("ad_date_type = ?,				\n");
+			sb.append("ad_sdate_day = ?, 				\n");
+			sb.append("ad_edate_day = ?, 				\n");
+			sb.append("ad_week_mon = ?,				    \n");
+			sb.append("ad_week_tue = ?, 				\n");
+			sb.append("ad_week_wed = ?, 				\n");
+			sb.append("ad_week_thu = ?, 				\n");
+			sb.append("ad_week_fri = ?, 				\n");
+			sb.append("ad_week_sat = ?, 				\n");
+			sb.append("ad_week_sun = ?, 				\n");
+			sb.append("ad_memo = ?					    \n");
+			sb.append("WHERE ad_index = ? 			      ");
+
+
+			pstmt1 = cn.prepareStatement(sb.toString());
+
+			pstmt1.setInt(1, Integer.parseInt(msDTO.getTrIdx()));
+			pstmt1.setInt(2, Integer.parseInt(msDTO.getAmIndex()));
+			pstmt1.setString(3, msDTO.getAmModeName());
+			pstmt1.setString(4, msDTO.getAdDateType());
+			pstmt1.setString(5, msDTO.getAdSDateDay());
+			pstmt1.setString(6, msDTO.getAdEDateDay());
+			pstmt1.setString(7, msDTO.getAdWeekMon());
+			pstmt1.setString(8, msDTO.getAdWeekTue());
+			pstmt1.setString(9, msDTO.getAdWeekWed());
+			pstmt1.setString(10, msDTO.getAdWeekThu());
+			pstmt1.setString(11, msDTO.getAdWeekFri());
+			pstmt1.setString(12, msDTO.getAdWeekSat());
+			pstmt1.setString(13, msDTO.getAdWeekSun());
+			pstmt1.setString(14, msDTO.getAdMemo());
+			pstmt1.setInt(15, Integer.parseInt(msDTO.getAdIndex()));
+			
+			iRtnCnt = pstmt1.executeUpdate();
+
+			String sql = "UPDATE nasa_systemupdate SET su_check = 'Y' ";
+			System.out.println("sql : "+ sql);
+			pstmt1 = cn.prepareStatement(sql);
+			iRtnCnt = pstmt1.executeUpdate();
+			
+			if(iRtnCnt > 0) iRtn = 1;
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(pstmt1 != null) try{ pstmt1.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+
+
+
+	public ModeSettingDTO getModeSetting(String strAdIndex) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuffer sb = new StringBuffer();
+
+		ModeSettingDTO msDTO = new ModeSettingDTO();
+
+		try {
+			cn = this.getConnection();
+
+			sb.append("SELECT											\n");
+			sb.append("ad_index,										\n");
+			sb.append("tr_idx,									        \n");
+			sb.append("am_index,										\n");
+			sb.append("am_mode_name,									\n");
+			sb.append("ad_date_type, 									\n");
+			sb.append("COALESCE(ad_sdate_day, '') as ad_sdate_day, 	    \n");
+			sb.append("COALESCE(ad_edate_day, '') as ad_edate_day, 		\n");
+			sb.append("ad_week_mon, 									\n");
+			sb.append("ad_week_tue, 									\n");
+			sb.append("ad_week_wed, 									\n");
+			sb.append("ad_week_thu, 									\n");
+			sb.append("ad_week_fri, 									\n");
+			sb.append("ad_week_sat, 									\n");
+			sb.append("ad_week_sun, 									\n");
+			sb.append("ad_memo										    \n");
+			sb.append("FROM nasa_answer_dateday WHERE ad_index = ?	      ");
+
+			pstmt = cn.prepareStatement(sb.toString());
+
+			pstmt.setInt(1, Integer.parseInt(strAdIndex));
+
+			rs = pstmt.executeQuery();
+
+			if(rs.next()) {
+				msDTO.setAdIndex(String.valueOf(rs.getInt("ad_index")));
+				msDTO.setTrIdx(String.valueOf(rs.getInt("tr_idx")));
+				msDTO.setAmIndex(String.valueOf(rs.getInt("am_index")));
+				msDTO.setAmModeName(rs.getString("am_mode_name"));
+				msDTO.setAdDateType(rs.getString("ad_date_type"));
+				msDTO.setAdSDateDay(rs.getString("ad_sdate_day"));
+				msDTO.setAdEDateDay(rs.getString("ad_edate_day"));
+				msDTO.setAdWeekMon(rs.getString("ad_week_mon"));
+				msDTO.setAdWeekTue(rs.getString("ad_week_tue"));
+				msDTO.setAdWeekWed(rs.getString("ad_week_wed"));
+				msDTO.setAdWeekThu(rs.getString("ad_week_thu"));
+				msDTO.setAdWeekFri(rs.getString("ad_week_fri"));
+				msDTO.setAdWeekSat(rs.getString("ad_week_sat"));
+				msDTO.setAdWeekSun(rs.getString("ad_week_sun"));
+				msDTO.setAdMemo(rs.getString("ad_memo"));
+			}
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+		return msDTO;
+
+	}
+
+
+	public int deleteModeSetting(String strAdIndex) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		StringBuffer sb = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+
+		try {
+			cn = this.getConnection();
+
+			sb.append("DELETE FROM nasa_answer_dateday     \n");
+			sb.append("WHERE ad_index = ?                    ");
+
+			pstmt = cn.prepareStatement(sb.toString());
+
+			pstmt.setInt(1, Integer.parseInt(strAdIndex));
+
+			iRtnCnt = pstmt.executeUpdate();
+
+			if(iRtnCnt > 0) iRtn = 1;
+
+			String sql = "UPDATE nasa_systemupdate SET su_check = 'Y'";
+			System.out.println("sql : "+ sql);
+			pstmt = cn.prepareStatement(sql);
+			System.out.println("sql :"+sql);
+			iRtnCnt = pstmt.executeUpdate();
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+	public int insertModeSetting(ModeSettingDTO msDTO) throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		StringBuffer sb = new StringBuffer();
+		int iRtn = -1;
+		int iRtnCnt = 0;
+
+		try {
+			cn = this.getConnection();
+
+			sb.append("INSERT INTO nasa_answer_dateday(ad_index,tr_idx,am_index,					    \n");
+			sb.append("am_mode_name,ad_date_type,ad_sdate_day,ad_edate_day,ad_week_mon,				    \n");
+			sb.append("ad_week_tue,ad_week_wed,ad_week_thu,ad_week_fri,ad_week_sat,					    \n");
+			sb.append("ad_week_sun,ad_memo)															    \n");
+			sb.append("values(nextval('nasa_answer_dateday_ad_index_seq'),?,?,?,?,?,?,?,?,?,?,?,?,?,?)    ");
+
+
+			pstmt = cn.prepareStatement(sb.toString());
+
+			pstmt.setInt(1, Integer.parseInt(msDTO.getTrIdx()));
+			pstmt.setInt(2, Integer.parseInt(msDTO.getAmIndex()));
+			pstmt.setString(3, msDTO.getAmModeName());
+			pstmt.setString(4, msDTO.getAdDateType());
+			pstmt.setString(5, msDTO.getAdSDateDay());
+			pstmt.setString(6, msDTO.getAdEDateDay());
+			pstmt.setString(7, msDTO.getAdWeekMon());
+			pstmt.setString(8, msDTO.getAdWeekTue());
+			pstmt.setString(9, msDTO.getAdWeekWed());
+			pstmt.setString(10, msDTO.getAdWeekThu());
+			pstmt.setString(11, msDTO.getAdWeekFri());
+			pstmt.setString(12, msDTO.getAdWeekSat());
+			pstmt.setString(13, msDTO.getAdWeekSun());
+			pstmt.setString(14, msDTO.getAdMemo());
+
+			iRtnCnt = pstmt.executeUpdate();
+
+			if(iRtnCnt > 0) iRtn = 1;
+			
+			String sql = "UPDATE nasa_systemupdate SET su_check = 'Y'";
+			System.out.println("sql : "+ sql);
+			pstmt = cn.prepareStatement(sql);
+			System.out.println("sql :"+sql);
+			iRtnCnt = pstmt.executeUpdate();
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return iRtn;
+
+	}
+
+	public List getAllModeSetting() throws Exception {
+		Connection cn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuffer sb = new StringBuffer();
+
+		ArrayList modeSettingDTOList = null;
+
+		try {
+			cn = this.getConnection();
+			sb.append("SELECT 			                                                                            \n");
+			sb.append("b.ad_index,		                                                                            \n");
+			sb.append("b.tr_idx,			                                                                        \n");
+			sb.append("b.am_index,		                                                                            \n");
+			sb.append("b.am_mode_name,	                                                                            \n");
+			sb.append("b.ad_date_type, 	                                                                            \n");
+			sb.append("b.ad_sdate_day,	                                                                            \n");
+			sb.append("b.ad_edate_day, 	                                                                            \n");
+			sb.append("b.ad_week_mon, 	                                                                            \n");
+			sb.append("b.ad_week_tue, 	                                                                            \n");
+			sb.append("b.ad_week_wed, 	                                                                            \n");
+			sb.append("b.ad_week_thu, 	                                                                            \n");
+			sb.append("b.ad_week_fri, 	                                                                            \n");
+			sb.append("b.ad_week_sat, 	                                                                            \n");
+			sb.append("b.ad_week_sun, 	                                                                            \n");
+			sb.append("b.ad_memo,                                                                                   \n");
+			sb.append("COALESCE((select a.ivr_tel from nasa_trunk_set a where a.tr_idx = b.tr_idx), '') as ivr_tel	\n");
+			sb.append("FROM nasa_answer_dateday b ORDER BY b.ad_index ASC                                             ");
+
+			pstmt = cn.prepareStatement(sb.toString());
+			rs = pstmt.executeQuery();
+
+			modeSettingDTOList = new ArrayList();
+			if(rs.next()) {
+				do {
+					ModeSettingDTO msDTO = new ModeSettingDTO();
+					msDTO.setAdIndex(String.valueOf(rs.getInt("ad_index")));
+					msDTO.setTrIdx(String.valueOf(rs.getInt("tr_idx")));
+					msDTO.setAmIndex(String.valueOf(rs.getInt("am_index")));
+					msDTO.setAmModeName(rs.getString("am_mode_name"));
+					msDTO.setAdDateType(rs.getString("ad_date_type"));
+					msDTO.setAdSDateDay(rs.getString("ad_sdate_day"));
+					msDTO.setAdEDateDay(rs.getString("ad_edate_day"));
+					msDTO.setAdWeekMon(rs.getString("ad_week_mon"));
+					msDTO.setAdWeekTue(rs.getString("ad_week_tue"));
+					msDTO.setAdWeekWed(rs.getString("ad_week_wed"));
+					msDTO.setAdWeekThu(rs.getString("ad_week_thu"));
+					msDTO.setAdWeekFri(rs.getString("ad_week_fri"));
+					msDTO.setAdWeekSat(rs.getString("ad_week_sat"));
+					msDTO.setAdWeekSun(rs.getString("ad_week_sun"));
+					msDTO.setAdMemo(rs.getString("ad_memo"));
+					msDTO.setIvrTel(rs.getString("ivr_tel"));
+					modeSettingDTOList.add(msDTO);
+				} while(rs.next());
+			}
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) try{ rs.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(cn != null) try{ cn.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+		if(modeSettingDTOList != null) modeSettingDTOList.trimToSize();
+		return modeSettingDTOList;
+
+	}
+
+}

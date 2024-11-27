@@ -1,0 +1,148 @@
+package com.acromate.dao.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+import com.acromate.db.QueryStatement ;
+import java.util.ArrayList;
+import com.acromate.util.Str;
+import java.sql.ResultSet;
+import com.acromate.dto.element.ShortCutDTO;
+import com.acromate.util.Logger;
+
+public class ShortCutDAO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private ShortCutDTO shortCutDTO ;
+    QueryStatement statement ;
+
+    public ShortCutDAO() {}
+
+    public ShortCutDAO( QueryStatement statement, ShortCutDTO shortCutDTO ) {
+        this.statement = statement ;
+        this.shortCutDTO = shortCutDTO ;
+    }
+
+    public ArrayList getList(QueryStatement statement, String E164) {
+        ArrayList list = new ArrayList() ;
+        ShortCutDTO shortCutDTO = null ;
+        ResultSet rs = null ;
+
+        try {
+            String queryString = "SELECT e164, shortCutNumber, targetNumber, description " ;
+            queryString += " From Table_ShortCut Where e164 = '" + E164 + "' ";
+
+            rs = statement.executeQuery(queryString) ;
+            log.info(queryString) ;
+
+            while ( rs.next() )  {
+                shortCutDTO = new ShortCutDTO() ;
+                shortCutDTO.setE164(Str.CheckNullString(rs.getString(1)));
+                shortCutDTO.setShortCutNumber(Str.CheckNullString(rs.getString(2)));
+                shortCutDTO.setTargetNumber(Str.CheckNullString(rs.getString(3)));
+                shortCutDTO.setDescription(Str.CheckNullString(rs.getString(4)));
+                list.add(shortCutDTO) ;
+            }
+
+        } catch(Exception e) {
+            log.error("exception occurred > ", e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch(Exception e) { log.error("exception occurred > ", e); }
+        }
+
+        return list;
+    }
+
+    public boolean insert ( QueryStatement statement, ShortCutDTO shortCutDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString =   " INSERT INTO Table_ShortCut ";
+            queryString += " (e164, shortCutNumber, targetNumber, description)";
+            queryString += " VALUES (" ;
+            queryString += " '" + shortCutDTO.getE164() + "' ," ;
+            queryString += " '" + shortCutDTO.getShortCutNumber() + "'," ;
+            queryString += " '" + shortCutDTO.getTargetNumber() + "'," ;
+            queryString += " '" + shortCutDTO.getDescription() + "') " ;
+
+            log.info(queryString) ;
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+
+    public boolean update( QueryStatement statement, ShortCutDTO shortCutDTO  ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+
+            queryString = " UPDATE Table_ShortCut SET ";
+            queryString += "shortCutNumber = '" + shortCutDTO.getShortCutNumber() + "'," ;
+            queryString += "targetNumber = '" + shortCutDTO.getTargetNumber() + "'," ;
+            queryString += "description = '" + shortCutDTO.getDescription() + "' " ;
+            queryString += " Where e164 = '" + shortCutDTO.getE164() + "' ";
+
+
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+
+    public boolean delete( QueryStatement statement,  String strE164 ) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM Table_ShortCut Where e164 = '" + strE164 + "' ";
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+    public boolean delete( QueryStatement statement,  ShortCutDTO shortCutDTO) {
+        String queryString = "";
+        int count = 0;
+        try {
+            if (statement == null) {
+                return false;
+            }
+            queryString = " DELETE FROM Table_ShortCut Where e164 = '" + shortCutDTO.getE164() + "' ";
+            count = statement.executeUpdate(queryString);
+        } catch (Exception e) {
+            log.error("exception occurred > ", e);
+            return false;
+        }
+        return true ;
+    }
+}
+
+

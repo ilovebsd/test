@@ -1,0 +1,241 @@
+package bizportal.nasacti.record;
+
+public class TUserBean{
+
+	private int userIndex;
+
+	private String userName ="";
+
+	private String groupId ="";
+
+	private String extId ="";
+	
+	private String agtIp ="";
+	
+	private String passWord="";
+	
+	private int adminLevel;
+	
+	private int channel;
+	
+	private int recType;
+	
+	private int agc;
+	
+	private int recVolume;
+	
+	private int recMax;
+	
+	private float recMin;
+	
+	private int pressLaw;
+	
+	private String yuMuLine;
+	
+	private int usaging;
+	
+	private int silenceTime;
+	
+	private int recLaw;
+
+	private int maxChannel;
+
+	private String lineSelect;
+
+	private String gId;
+
+	private int recvVol;
+
+	private int sendVol;
+
+
+	public void setUserIndex(int userIndex){
+		this.userIndex = userIndex;
+	}
+
+	public void setUserName(String userName){
+		this.userName = userName;
+	}
+
+	public void setGroupId(String groupId){
+		this.groupId = groupId;
+	}
+
+	public void setExtId(String extId){
+		this.extId = extId;
+	}
+
+	public void setAgtIp(String agtIp){
+		this.agtIp = agtIp;
+	}
+
+	public void setPassWord(String passWord){
+		this.passWord = passWord;
+	}
+
+	public void setAdminLevel(int adminLevel){
+		this.adminLevel = adminLevel;
+	}
+
+	public void setChannel(int channel){
+		this.channel = channel;
+	}
+
+	public void setRecType(int recType){
+		this.recType = recType;
+	}
+
+	public void setAgc(int agc){
+		this.agc = agc;
+	}
+
+	public void setRecVolume(int recVolume){
+		this.recVolume = recVolume;
+	}
+
+	public void setRecMax(int recMax){
+		this.recMax = recMax;
+	}
+
+	public void setRecMin(float recMin){
+		this.recMin = recMin;
+	}
+
+	public void setPressLaw(int pressLaw){
+		this.pressLaw = pressLaw;
+	}
+
+	public void setYuMuLine(String yuMuLine){
+		this.yuMuLine = yuMuLine;
+	}
+
+	public void setUsaging(int usaging){
+		this.usaging = usaging;
+	}
+
+	public void setSilenceTime(int silenceTime){
+		this.silenceTime = silenceTime;
+	}
+
+	public void setRecLaw(int recLaw){
+		this.recLaw = recLaw;
+	}
+
+
+	public void setMaxChannel(int maxChannel){
+		this.maxChannel = maxChannel;
+	}
+
+
+	public void setLineSelect(String lineSelect){
+		this.lineSelect = lineSelect;
+	}
+
+	public void setGId(String gId){
+		this.gId = gId;
+	}
+
+	public void setRecvVol(int recvVol){
+		this.recvVol = recvVol;
+	}
+
+	public void setSendVol(int sendVol){
+		this.sendVol = sendVol;
+	}
+
+
+
+	public int getUserIndex(){
+		return userIndex;
+	}
+
+	public String getUserName(){
+		return userName;
+	}
+
+	public String getGroupId(){
+		return groupId;
+	}
+
+	public String getExtId(){
+		return extId;
+	}
+
+	public String getAgtIp(){
+		return agtIp;
+	}
+
+	public String getPassWord(){
+		return passWord;
+	}
+
+	public int getAdminLevel(){
+		return adminLevel;
+	}
+
+	public int getChannel(){
+		return channel;
+	}
+
+	public int getRecType(){
+		return recType;
+	}
+
+	public int getAgc(){
+		return agc;
+	}
+
+	public int getRecVolume(){
+		return recVolume;
+	}
+
+	public int getRecMax(){
+		return recMax;
+	}
+
+	public float getRecMin(){
+		return recMin;
+	}
+
+	public int getPressLaw(){
+		return pressLaw;
+	}
+
+	public String getYuMuLine(){
+		return yuMuLine;
+	}
+
+	public int getUsaging(){
+		return usaging;
+	}
+
+	public int getSilenceTime(){
+		return silenceTime;
+	}
+
+	public int getRecLaw(){
+		return recLaw;
+	}
+
+	public int getMaxChannel(){
+		return maxChannel;
+	}
+
+	
+	public String getLineSelect(){
+		return lineSelect;
+	}
+
+	public String getGId(){
+		return gId;
+	}
+
+	public int getRecvVol(){
+		return recvVol;
+	}
+
+	public int getSendVol(){
+		return sendVol;
+	}
+
+}

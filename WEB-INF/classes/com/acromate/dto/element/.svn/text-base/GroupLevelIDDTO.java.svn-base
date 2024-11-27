@@ -1,0 +1,24 @@
+package com.acromate.dto.element;
+
+
+
+public class GroupLevelIDDTO {
+
+    private String groupID ;
+    private String levelID ;
+    private String description ;
+
+    public GroupLevelIDDTO() {
+        super() ;
+    }
+
+    public String getGroupID() {   return groupID ;   }
+    public void setGroupID(String groupID) {   this.groupID = groupID ;  }
+
+    public String getLevelID() { return levelID ; }
+    public void setLevelID(String levelID) {   this.levelID = levelID ; }
+
+    public String getDescription() {   return description ;   }
+    public void setDescription(String description) {   this.description = description ;  }
+}
+

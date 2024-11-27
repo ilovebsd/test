@@ -1,0 +1,42 @@
+package bizportal.nasacti.ipivr.action.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.CodecDAO;
+import bizportal.nasacti.ipivr.dao.DTMFDAO;
+import bizportal.nasacti.ipivr.dto.DTMFDTO;
+import java.util.List;
+
+
+
+
+public class CodecDTMFConfigFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+		CodecDAO codecDAO = CodecDAO.getInstance();
+		DTMFDAO dtmfDAO = DTMFDAO.getInstance();
+
+		List codecDTOList = codecDAO.getCodec();
+
+		DTMFDTO dtmfDTO = dtmfDAO.getDTMF();
+
+		request.setAttribute("codecDTOList", codecDTOList);
+		request.setAttribute("dtmfDTO", dtmfDTO);
+
+		return "/ivr/codecDTMFConfig.jsp";
+	}
+}

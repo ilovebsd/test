@@ -1,0 +1,70 @@
+package bizportal.nasacti.record;
+
+public class FtpConfigBean{
+
+	private String ftphost;
+	private String ftpwebhost;
+	private String ftpuser;
+	private String ftppassword;
+	private int ftpport;
+	private String ftpremotepath;
+	private int ftppasv;
+
+	public void setFtpHost(String ftphost){
+		this.ftphost = ftphost;
+	}
+
+	public void setFtpWebHost(String ftpwebhost){
+		this.ftpwebhost = ftpwebhost;
+	}
+
+	public void setFtpUser(String ftpuser){
+		this.ftpuser = ftpuser;
+	}
+
+	public void setFtpPassword(String ftppassword){
+		this.ftppassword = ftppassword;
+	}
+
+	public void setFtpPort(int ftpport){
+		this.ftpport = ftpport;
+	}
+
+	public void setFtpRemotepath(String ftpremotepath){
+		this.ftpremotepath = ftpremotepath;
+	}
+
+	public void setFtpPasv(int ftppasv ){
+		this.ftppasv = ftppasv;
+	}
+
+
+	public String getFtpHost(){
+		return ftphost;
+	}
+
+	public String getFtpWebHost(){
+		return ftpwebhost;
+	}
+
+	public String getFtpUser(){
+		return ftpuser;
+	}
+
+	public String getFtpPassword(){
+		return ftppassword;
+	}
+
+	public int getFtpPort(){
+		return ftpport;
+	}
+
+	public String getFtpRemotepath(){
+		return ftpremotepath;
+	}
+
+	public int getFtpPasv(){
+		return ftppasv;
+	}
+
+}

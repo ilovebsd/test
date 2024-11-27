@@ -1,0 +1,135 @@
+/*
+ * Utility.java
+ *
+ * Created on 2006년 8월 9일 (수), 오후 5:43
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+package com.acromate.util;
+
+import java.util.*;
+import com.acromate.util.Logger;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class Convert {
+    private static Logger log = Logger.getLogger(Convert.class);
+
+    public static boolean getBooleanProperty(Properties properties, String key, String defaultValue)
+    {
+		Object value = properties.getProperty(key, defaultValue);
+
+		if (value == null)
+		{	log.info("boolean property " + key + " does not exist");
+			return false;
+		}
+		if (value instanceof String)
+		{	String v = (String) value;
+			if (v.equalsIgnoreCase("true"))
+			return true;
+			if (v.equalsIgnoreCase("false"))
+			return false;
+			if (v.equalsIgnoreCase("t"))
+			return true;
+			if (v.equalsIgnoreCase("f"))
+			return false;
+			log.info("unknown string value '" + v + "' for boolean property");
+			return false;
+		}
+		if (value instanceof Boolean)
+		return ((Boolean)value).booleanValue();
+
+		log.info("illegal property type: " + value.getClass().getName());
+		return false;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static String BytesToString(byte[] value) {
+        String tempValue = new String(value);
+        return tempValue;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static int BytesToInt(byte[] value) {
+        String tempValue = BytesToString(value);
+        return Integer.parseInt(tempValue.trim());
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static short BytesToShort(byte[] value) {
+        String tempValue = BytesToString(value);
+        return Short.parseShort(tempValue.trim());
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static byte CharToByte(char value) {
+        return (byte)value;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static byte[] IntToBytes(int value) {
+        String tempValue = String.valueOf(value);
+        return tempValue.getBytes();
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static int StrToInt(String value) {
+        int result = -1;
+        try {
+            result = Integer.valueOf(value.trim());
+        }catch(NumberFormatException ex) {
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static String IntToStr(int value) {
+        String result = "";
+        result = String.valueOf(value);
+        return result;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static int StrToHashCode(String value) {
+        int hashcode = 0;
+        for(int i = 0; i < value.getBytes().length; i++) {
+             byte temp = (byte)value.charAt(i);
+             hashcode += temp + i * 10;
+        }    return hashcode;
+    }
+}

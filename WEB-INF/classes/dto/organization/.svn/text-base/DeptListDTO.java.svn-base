@@ -1,0 +1,59 @@
+package dto.organization;
+
+public class DeptListDTO {
+
+	private int DeptID ;
+	private int OrgChartID ;
+	private int ParentID ;
+    private String DeptName ;
+	private String Description ;
+	private int Type ;
+	private int UsePickup ;
+	private String KeyNumber ;
+	private String Officebox ;
+	private int Operation ;
+
+	public DeptListDTO() {}
+	public DeptListDTO(int DeptID, String DeptName, int ParentID) {      
+			
+		super();
+		
+		this.DeptID 		= DeptID;
+		this.DeptName 		= DeptName;
+		this.ParentID 		= ParentID;
+	}
+
+	public int getDeptID() {   return DeptID ;   }
+	public void setDeptID(int DeptID) {   this.DeptID = DeptID ;  }
+
+	public int getOrgChartID() {   return OrgChartID ;   }
+	public void setOrgChartID(int OrgChartID) {   this.OrgChartID = OrgChartID ;  }
+
+	public int getParentID() {   return ParentID; }
+	public void setParentID(int ParentID) {   this.ParentID = ParentID;  }
+
+    public String getDeptName() { return DeptName ; }
+    public void setDeptName(String DeptName) {   this.DeptName = DeptName ; }
+
+    public String getDescription() { return Description ; }
+    public void setDescription(String Description) {   this.Description = Description ; }
+
+	public int getType() {   return Type; }
+	public void setType(int Type) {   this.Type = Type;  }
+
+	public int getUsePickup() {   return UsePickup; }
+	public void setUsePickup(int UsePickup) {   this.UsePickup = UsePickup;  }
+
+	public String getKeyNumber() {   return KeyNumber; }
+	public void setKeyNumber( String KeyNumber ) {   this.KeyNumber = KeyNumber;  }
+
+	public String getOfficebox() {   return Officebox; }
+	public void setOfficebox(String Officebox) {   this.Officebox = Officebox;  }
+
+	public int getOperation() {   return Operation; }
+	public void setOperation(int Operation) {   this.Operation = Operation;  }
+
+	public String toString(){ return DeptName ;}
+
+}
+

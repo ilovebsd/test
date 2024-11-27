@@ -1,0 +1,848 @@
+package bizportal.nasacti.record;
+
+import java.util.*;
+
+import java.sql.*;
+
+import bizportal.nasacti.record.ncrSetBean;
+
+import bizportal.nasacti.ipivr.DBPoolConnector;
+
+
+public class ncrSetClass extends DBPoolConnector{
+
+	public ncrSetClass(){
+	}
+
+
+
+
+	public void ncrSetInsert(ncrSetBean ncrSetInfo){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Insert Into ncr_set(line, sitename, server, defaultmsg, internetadds, mailid, boxlen, pbx, vms, longext, area, calloutcnt, mapfile, scnt, th_sip_cnt, th_rtp_cnt, myip, linkip, msgdir, usecode, unusecode, branch_code, branch_name, sel_code)";
+			strQuery = strQuery + " Values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.setString(1,ncrSetInfo.getLine());
+			pstmt.setString(2,ncrSetInfo.getSiteName());
+			pstmt.setString(3,ncrSetInfo.getServer());
+			pstmt.setString(4,"");
+			pstmt.setString(5,"");
+			pstmt.setString(6,"");
+			pstmt.setInt(7,4);
+			pstmt.setString(8,"");
+			pstmt.setString(9,"");
+			pstmt.setString(10,"");
+			pstmt.setString(11,"");
+			pstmt.setString(12,"");
+			pstmt.setString(13,"");
+			pstmt.setInt(14,ncrSetInfo.getScnt());
+			pstmt.setInt(15,3);
+			pstmt.setInt(16,10);
+			pstmt.setString(17,ncrSetInfo.getMyIp());
+			pstmt.setString(18,ncrSetInfo.getMyIp());
+			pstmt.setString(19,ncrSetInfo.getMsgDir());
+			pstmt.setString(20,ncrSetInfo.getUseCode());
+			pstmt.setString(21,ncrSetInfo.getUnUseCode());
+			pstmt.setString(22,"");
+			pstmt.setString(23,"");
+			pstmt.setString(24,ncrSetInfo.getSelCode());
+
+			pstmt.executeUpdate();
+		}catch(Exception ex){
+			System.out.println("Exception1" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+	public void ncrNicSetInsert(int intSysIndex, String strNicName, int intBufCount, int intNicType){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Insert Into ncr_nic_set(sys_index, nic_name, buf_count, nic_type) Values(?,?,?,?)";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, intSysIndex);
+			pstmt.setString(2, strNicName);
+			pstmt.setInt(3, intBufCount);
+			pstmt.setInt(4, intNicType);
+			pstmt.executeUpdate();
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+	public void ncrNicSetUpdate(int sys_index, int nic_index, String nic_name){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Update ncr_nic_set Set nic_name = ? Where nic_index = ? And sys_index = ?  ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setString(1, nic_name);
+			pstmt.setInt(2, nic_index);
+			pstmt.setInt(3, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+	public void ncrNicSetDelete(int sys_index, int nic_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_nic_set Where sys_index = ? And nic_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setInt(2, nic_index);
+				pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+	public void ncrPbxSetInsert(int sys_index, String pbx_ip, int pbx_port){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Insert Into ncr_pbx_set(sys_index, pbx_ip, pbx_port) Values(?,?,?)";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setString(2, pbx_ip);
+			pstmt.setInt(3, pbx_port);
+			pstmt.executeUpdate();
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+	public void ncrPbxSetUpdate(int sys_index, int pbx_index, String pbx_ip, int pbx_port){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Update ncr_pbx_set Set pbx_ip = ? , pbx_port = ? Where pbx_index = ? And sys_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setString(1, pbx_ip);
+			pstmt.setInt(2, pbx_port);
+			pstmt.setInt(3, pbx_index);
+			pstmt.setInt(4, sys_index);
+			pstmt.executeUpdate();
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+	public void ncrPbxSetDelete(int sys_index, int pbx_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_pbx_set Where sys_index = ? And pbx_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setInt(2, pbx_index);
+				pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+	public void ncrSbcSetInsert(int sys_index, String sbc_ip){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Insert Into ncr_sbc_set(sys_index, sbc_ip) Values(?,?)";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setString(2, sbc_ip);
+			pstmt.executeUpdate();
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+	public void ncrSbcSetUpdate(int sys_index, int sbc_index, String sbc_ip){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Update ncr_sbc_set Set sbc_ip = ? Where sbc_index = ? And sys_index = ?  ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setString(1, sbc_ip);
+			pstmt.setInt(2, sbc_index);
+			pstmt.setInt(3, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+	public void ncrSbcSetDelete(int sys_index, int sbc_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_sbc_set Where sys_index = ? And sbc_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setInt(2, sbc_index);
+				pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+
+
+
+////////////////
+
+	public void ncrSubSetInsert(int sys_index, String subip_ip){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Insert Into ncr_subip_set(sys_index, subip_ip) Values(?,?)";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setString(2, subip_ip);
+			pstmt.executeUpdate();
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+
+	public void ncrSubSetUpdate(int sys_index, int subip_index, String subip_ip){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Update ncr_subip_set Set subip_ip = ? Where subip_index = ? And sys_index = ?  ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setString(1, subip_ip);
+			pstmt.setInt(2, subip_index);
+			pstmt.setInt(3, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+	public void ncrSubSetDelete(int sys_index, int subip_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_subip_set Where sys_index = ? And subip_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.setInt(2, subip_index);
+				pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+///////////
+
+
+	public Vector ncrNicSetSelect(int sysIndex){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			String query = "Select nic_index, nic_name From ncr_nic_set ";
+			query = query + " Where sys_index = ? ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sysIndex);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+				ncrSet.setNicIndex(rs.getInt("nic_index"));
+				ncrSet.setNicName(rs.getString("nic_name"));
+				vList.add(ncrSet);
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+	public Vector ncrNicSetCount(){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			String query = "Select nic_name , Count(*) As nicCount From ncr_nic_set "
+						 + " Group By nic_name Order By nic_name Asc ";
+
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+				ncrSet.setNicCountName (rs.getString("nic_name"));
+				ncrSet.setNicCount( rs.getInt("nicCount") );
+				vList.add(ncrSet);
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+	public Vector ncrPbxSetSelect(int sysIndex){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			String query = "Select pbx_index, pbx_ip, pbx_port From ncr_pbx_set ";
+			query = query + " Where sys_index = ? ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sysIndex);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+				ncrSet.setPbxIndex(rs.getInt("pbx_index"));
+				ncrSet.setPbxIp(rs.getString("pbx_ip"));
+				ncrSet.setPbxPort(rs.getInt("pbx_port"));
+				vList.add(ncrSet);
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+	public Vector ncrSbcSetSelect(int sysIndex){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			String query = "Select sbc_index, sbc_ip From ncr_sbc_set ";
+			query = query + " Where sys_index = ? ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sysIndex);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+				ncrSet.setSbcIndex(rs.getInt("sbc_index"));
+				ncrSet.setSbcIp(rs.getString("sbc_ip"));
+				vList.add(ncrSet);
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+
+	public Vector ncrSubSetSelect(int sysIndex){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			String query = "Select subip_index, subip_ip From ncr_subip_set ";
+			query = query + " Where sys_index = ? ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sysIndex);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+				ncrSet.setSubIndex(rs.getInt("subip_index"));
+				ncrSet.setSubIp(rs.getString("subip_ip"));
+				vList.add(ncrSet);
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+
+
+
+	public void ncrSetUpdate(ncrSetBean ncrSetInfo){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Update ncr_set Set ";
+			strQuery = strQuery + " line = ? ,";
+			strQuery = strQuery + " SiteName = ? ,";
+			strQuery = strQuery + " Server = ? , ";
+			strQuery = strQuery + " Myip = ? , ";
+			strQuery = strQuery + " Msgdir = ? , ";
+			strQuery = strQuery + " UseCode = ? , ";
+			strQuery = strQuery + " UnUseCode = ? ,";
+			strQuery = strQuery + " sel_code = ?  ,";
+			strQuery = strQuery + " Scnt = ? ";
+			strQuery = strQuery + " Where sys_index = ?";
+
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setString(1,ncrSetInfo.getLine());
+			pstmt.setString(2,ncrSetInfo.getSiteName());
+			//pstmt.setString(3,ncrSetInfo.getServer());
+			pstmt.setString(3,ncrSetInfo.getServer());
+			pstmt.setString(4,ncrSetInfo.getMyIp());
+			pstmt.setString(5,ncrSetInfo.getMsgDir());
+			pstmt.setString(6,ncrSetInfo.getUseCode());
+			pstmt.setString(7,ncrSetInfo.getUnUseCode());
+			pstmt.setString(8,ncrSetInfo.getSelCode());
+			pstmt.setInt(9,ncrSetInfo.getScnt());
+			pstmt.setInt(10,ncrSetInfo.getSysIndex());
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+
+
+	public Vector ncrSetSelectSysIndex(ncrSetBean ncrSetInfo){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			//String query = "Select sys_index From ncrset";
+			//query = query + " Where sitename = ? And line = ? And myip = ? And msgdir = ? ";
+			//pstmt = con.prepareStatement(query);
+			//pstmt.clearParameters();
+
+			//pstmt.setString(1, ncrSetInfo.getSiteName());
+			//pstmt.setString(2, ncrSetInfo.getLine());
+			//pstmt.setString(3, ncrSetInfo.getMyIp());
+			//pstmt.setString(4, ncrSetInfo.getMsgDir());
+
+
+			String query = "Select Max(sys_index) As sys_index From ncr_set ";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+				ncrSet.setSysIndex(rs.getInt("sys_index"));
+				vList.add(ncrSet);
+			}
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+
+	}
+
+
+	public Vector ncrSetSelectIndex(int sysIndex){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+			//String dbName = this.getDBConfig();
+			String dbName = "postgre";
+
+			String query = "Select sys_index, line, SiteName, Server, Defaultmsg, Internetadds, mailid, BoxLen ";
+			query = query + " , PBX, VMS, LONGEXT, AREA, CALLOUTCNT, MAPFILE, SCNT, Myip ";
+
+			if( dbName.equals("mysql") ){
+				query = query + " , Msgdir , UseCode, UnUseCode, sel_code ";
+			}else if( dbName.equals("postgre") ){
+				query = query + " , Msgdir , UseCode, UnUseCode, sel_code ";
+			}else if( dbName.equals("mssql2000") ){
+				query = query + " , replace( Msgdir , '\\', '/') As Msgdir , UseCode, UnUseCode, sel_code ";
+			}else if( dbName.equals("mssql2005") ){
+				query = query + " , replace( Msgdir , '\\', '/') As Msgdir , UseCode, UnUseCode, sel_code ";
+			}else{
+				query = query + " , Msgdir , UseCode, UnUseCode, sel_code ";
+			}
+
+			query = query + " From ncr_set ";
+			query = query + " Where sys_index = ?";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sysIndex);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+
+				ncrSet.setSysIndex(rs.getInt("sys_index"));
+				ncrSet.setLine(rs.getString("line"));
+				ncrSet.setSiteName(rs.getString("SiteName"));
+				ncrSet.setServer(rs.getString("Server"));
+				ncrSet.setDefaultMsg(rs.getString("Defaultmsg"));
+				ncrSet.setInternetAdds(rs.getString("Internetadds"));
+				ncrSet.setMailid(rs.getString("mailid"));
+				ncrSet.setBoxLen(rs.getInt("BoxLen"));
+				ncrSet.setPbx(rs.getString("PBX"));
+				ncrSet.setVms(rs.getString("VMS"));
+				ncrSet.setLongExt(rs.getString("LONGEXT"));
+				ncrSet.setArea(rs.getString("AREA"));
+				ncrSet.setCallOutCnt(rs.getString("CALLOUTCNT"));
+				ncrSet.setMapFile(rs.getString("MAPFILE"));
+				ncrSet.setScnt(rs.getInt("SCNT"));
+				//ncrSet.setSimsi(rs.getInt("SIMSI"));
+				ncrSet.setMyIp(rs.getString("Myip"));
+				ncrSet.setMsgDir(rs.getString("Msgdir"));
+				ncrSet.setUseCode(rs.getString("UseCode"));
+				ncrSet.setUnUseCode(rs.getString("UnUseCode"));
+				ncrSet.setSelCode(rs.getString("sel_code"));
+
+				vList.add(ncrSet);
+			}
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+	}
+
+
+
+	public Vector ncrSetSelect(){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();
+		try{
+			con=this.getConnection();
+
+			String query = "Select * From ncr_set";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				ncrSetBean ncrSet = new ncrSetBean();
+
+				ncrSet.setSysIndex(rs.getInt("sys_index"));
+				ncrSet.setLine(rs.getString("line"));
+				ncrSet.setSiteName(rs.getString("SiteName"));
+				ncrSet.setServer(rs.getString("Server"));
+				ncrSet.setDefaultMsg(rs.getString("Defaultmsg"));
+				ncrSet.setInternetAdds(rs.getString("Internetadds"));
+				ncrSet.setMailid(rs.getString("mailid"));
+				ncrSet.setBoxLen(rs.getInt("BoxLen"));
+				ncrSet.setPbx(rs.getString("PBX"));
+				ncrSet.setVms(rs.getString("VMS"));
+				ncrSet.setLongExt(rs.getString("LONGEXT"));
+				ncrSet.setArea(rs.getString("AREA"));
+				ncrSet.setCallOutCnt(rs.getString("CALLOUTCNT"));
+				ncrSet.setMapFile(rs.getString("MAPFILE"));
+				ncrSet.setScnt(rs.getInt("SCNT"));
+				//ncrSet.setSimsi(rs.getInt("SIMSI"));
+				ncrSet.setMyIp(rs.getString("Myip"));
+				ncrSet.setMsgDir(rs.getString("Msgdir"));
+				ncrSet.setUseCode(rs.getString("UseCode"));
+				ncrSet.setUnUseCode(rs.getString("UnUseCode"));
+
+				vList.add(ncrSet);
+			}
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+	}
+
+
+
+
+
+	public void ncrSetDelete(int sys_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_set Where sys_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+	public void ncrNicSetDelete2(int sys_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_nic_set Where sys_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+	public void ncrNicSetNameDelete(String strNicName){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_nic_set Where nic_name = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setString(1, strNicName);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+
+
+	public void ncrPbxSetDelete2(int sys_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_pbx_set Where sys_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+	public void ncrSbcSetDelete2(int sys_index){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try{
+			con=this.getConnection();
+
+			String strQuery = "Delete From ncr_sbc_set Where sys_index = ? ";
+			pstmt = con.prepareStatement(strQuery);
+			pstmt.clearParameters();
+			pstmt.setInt(1, sys_index);
+			pstmt.executeUpdate();
+
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+
+	}
+
+
+
+}

@@ -1,0 +1,42 @@
+package com.acromate.dto.system ;
+
+public class SystemCheckPropertyDTO {
+
+    private int iD = 0 ;
+    private String name  = "";
+    private String iPAddress = "" ;
+    private int iPPort = 0;
+    private String loginID = "";
+    private String password = "";
+    private int x = 0;
+    private int y = 0;
+    private String etc = "";
+
+    public int getID() {return this.iD; }
+    public void setID(int iD ) { this.iD = iD; }
+
+    public String getName() {return this.name; }
+    public void setName(String name ) { this.name = name; }
+
+    public String getIPAddress() {return this.iPAddress; }
+    public void setIPAddress(String iPAddress ) { this.iPAddress = iPAddress; }
+
+    public int getIPPort() {return this.iPPort; }
+    public void setIPPort(int iPPort ) { this.iPPort = iPPort; }
+
+    public String getLoginID() {return this.loginID; }
+    public void setLoginID(String loginID ) { this.loginID = loginID; }
+
+    public String getPassword() {return this.password; }
+    public void setPassword(String password ) { this.password = password; }
+
+    public int getX() {return this.x; }
+    public void setX(int x ) { this.x = x; }
+
+    public int getY() {return this.y; }
+    public void setY(int y ) { this.y = y; }
+
+    public String getEtc() {return this.etc; }
+    public void setEtc(String etc ) { this.etc = etc; }
+
+}

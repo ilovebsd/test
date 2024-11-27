@@ -1,0 +1,109 @@
+package dto;
+
+import java.nio.CharBuffer;
+
+public class NoteDTO {
+	
+	private int 	noteSequence = 0;
+	private String 	ownerID ;
+	private String 	memo ;
+	private String 	sendDate ;
+	private String 	senderID ;
+	private int     readChk = 0;
+	private String  ownerName ;
+	
+	public NoteDTO () {}
+		
+    public int getNoteSequence() {
+		return noteSequence;
+	}
+	public void setNoteSequence(int noteSequence) {
+		this.noteSequence = noteSequence;
+	}
+
+	public String getOwnerID() {
+		return ownerID;
+	}
+	public void setOwnerID(String ownerID) {
+		this.ownerID = ownerID;
+	}
+
+	public String getMemo() {
+		return memo;
+	}
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	public String getSendDate() {
+		return sendDate;
+	}
+	public void setSendDate(String sendDate) {
+		this.sendDate = sendDate;
+	}
+
+	public String getSenderID() {
+		return senderID;
+	}
+	public void setSenderID(String senderID) {
+		this.senderID = senderID;
+	}
+
+	public int getReadChk() {
+		return readChk;
+	}
+	public void setReadChk(int readChk) {
+		this.readChk = readChk;
+	}
+
+	public String getOwnerName() {
+		return ownerName;
+	}
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
+	}
+
+	public String toXmlString(String parent, String blank) {
+		String xmlMemo = toXMLChangeString(getMemo());
+	   
+		String xml = blank+"            <Paper " ;
+		xml += " Id=\"" + getNoteSequence() + "\" " ; 
+		xml += " SendDate=\"" + getSendDate() + "\" >\n" ; 
+		
+		xml += blank+"                <Id>" + getNoteSequence() + "</Id>\n" ;
+		xml += blank+"                <SendDate>" + getSendDate() + "</SendDate>\n" ;
+		//xml += blank+"                <Memo>" + xmlMemo + "</Memo>\n" ;
+		xml += blank+"                <Memo>" + toXMLChangeString(getMemo()) + "</Memo>\n" ;
+		xml += blank+"            </Paper> \n" ;
+		   
+		return xml ;
+    }
+
+	/*
+	 * XML 특수문자 변한 (", \', <, >, &)
+	 */ 	
+	 public String toXMLChangeString(String xmlTemp){
+		  String strTemp = xmlTemp;
+		  
+		  CharBuffer cb = CharBuffer.wrap(strTemp);
+		  String xmlString = "";
+		  while(cb.hasRemaining()){
+			   char tempChar = cb.get();
+		   
+			   if( tempChar == '"' ){
+				   xmlString += "&quot;";
+			   }else if( tempChar == '&' ){
+				   xmlString += "&amp;";
+			   }else if( tempChar == '\'' ){
+				   xmlString += "&apos;";
+			   }else if( tempChar == '<' ){
+				   xmlString += "&lt;";
+			   }else if( tempChar == '>' ){
+				   xmlString += "&gt;";
+			   }else{
+				   xmlString += tempChar;
+			   }
+		  }
+		  return xmlString ;
+	 }
+}

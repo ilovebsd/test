@@ -1,0 +1,111 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class SipEndpointDTO
+{
+
+    private String endpointID = "" ;
+    private String domainID = "" ;
+    private int    endpointClass = 33 ;
+    private int    serviceFlag = 1 ;
+    private String peerAddress  = "";
+    private int    dynamicFlag = 0 ;
+    private String regHost  = "" ;
+    private String hostSet  = "" ;
+    private int    regBlock = 0 ;
+    private int    multiEndpoint = 1 ;
+    private int    trace = 0 ;
+    private int    dtmfType = 0 ;
+    private int    options = 0 ;
+    private String lineCode = "" ;
+    private String zoneCode = "" ;
+
+    private String tempE164 = "" ; //전화번호만을 사용하기 위한 임시 저장공간
+    private String  alias = "" ;
+
+    public String getEndpointID() { return this.endpointID; }
+    public void   setEndpointID(String vEndpointID) { this.endpointID = vEndpointID; }
+
+    public String getDomainID() { return this.domainID; }
+    public void   setDomainID(String vDomainID ) { this.domainID = vDomainID; }
+
+    public int    getEndpointClass() { return this.endpointClass; }
+    public void   setEndpointClass(int vEndpointClass ) { this.endpointClass = vEndpointClass; }
+
+    public String getPeerAddress() { return this.peerAddress; }
+    public void   setPeerAddress(String vPeerAddress ) { this.peerAddress = vPeerAddress; }
+
+    public int    getDynamicFlag() { return this.dynamicFlag; }
+    public void   setDynamicFlag(int vDynamicFlag ) { this.dynamicFlag = vDynamicFlag; }
+
+    public int    getMultiEndpoint() { return this.multiEndpoint; }
+    public void   setMultiEndpoint(int vMultiEndpoint ) { this.multiEndpoint = vMultiEndpoint; }
+
+    public int    getTrace() { return this.trace; }
+    public void   setTrace(int vTrace ) { this.trace = vTrace; }
+
+    public int    getDtmfType() { return this.dtmfType; }
+    public void   setDtmfType(int vDtmfType ) { this.dtmfType = vDtmfType; }
+
+    public int    getOptions() { return this.options; }
+    public void   setOptions(int vOptions ) { this.options = vOptions; }
+
+    public String getLineCode() { return this.lineCode; }
+    public void   setLineCode(String vLineCode ) { this.lineCode = vLineCode; }
+
+    public int    getServiceFlag() { return this.serviceFlag; }
+    public void   setServiceFlag(int vServiceFlag ) { this.serviceFlag = vServiceFlag; }
+
+    public String getZoneCode() { return this.zoneCode; }
+    public void   setZoneCode(String vZoneCode ) { this.zoneCode = vZoneCode; }
+    public String getRegHost() { return this.regHost; }
+    public void   setRegHost(String vRegHost ) { this.regHost = vRegHost; }
+
+    public String getHostSet() { return this.hostSet; }
+    public void   setHostSet(String vHostSet ) { this.hostSet = vHostSet; }
+
+    public int    getRegBlock() { return this.regBlock; }
+    public void   setRegBlock(int vRegBlock ) { this.regBlock = vRegBlock; }
+
+    public String getTempE164() { return this.tempE164; }
+    public void   setTempE164(String vTempE164 ) { this.tempE164 = vTempE164; }
+
+    public String getAlias() { return this.alias; }
+    public void   setAlias(String alias ) { this.alias = alias; }
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(endpointID:"                  + getEndpointID() + ") ") ;
+        sb.append("[domainID:"                    + getDomainID() + "] ") ;
+        sb.append("[endpointClass:"               + getEndpointClass() + "] ") ;
+        sb.append("[peerAddress:"                 + getPeerAddress() + "] ") ;
+        sb.append("[dynamicFlag:"                 + getDynamicFlag() + "] ") ;
+        sb.append("[multiEndpoint:"               + getMultiEndpoint() + "] ") ;
+        sb.append("[trace:"                       + getTrace() + "] ") ;
+        sb.append("[dtmfType:"                    + getDtmfType() + "] ") ;
+        sb.append("[options:"                     + getOptions() + "] ") ;
+        sb.append("[lineCode:"                    + getLineCode() + "] ") ;
+        sb.append("[options:"                     + getLineCode() + "] ") ;
+        sb.append("[serviceFlag:"                 + getServiceFlag() + "] ") ;
+        sb.append("[zoneCode:"                    + getZoneCode() + "] ") ;
+        sb.append("[regHost:"                     + getRegHost() + "] ") ;
+        sb.append("[hostSet:"                     + getHostSet() + "] ") ;
+        sb.append("[regBlock:"                    + getRegBlock() + "] ") ;
+        sb.append("[tempE164:"                    + getTempE164() + "] ") ;
+
+        return sb.toString();
+    }
+}

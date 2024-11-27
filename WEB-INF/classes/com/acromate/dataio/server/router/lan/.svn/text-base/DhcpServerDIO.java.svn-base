@@ -1,0 +1,135 @@
+package com.acromate.dataio.server.router.lan ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class DhcpServerDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder enableDhcp = new StringBuilder();
+    private StringBuilder startIp = new StringBuilder();
+    private StringBuilder endIp = new StringBuilder();
+//    private StringBuilder leaseMax = new StringBuilder();
+    private StringBuilder leaseTime = new StringBuilder();
+
+//    public String    getEnableDhcp() { return enableDhcp ; }
+//    public void   setEnableDhcp( String enableDhcp ) { this.enableDhcp = enableDhcp ; }
+
+    public String getEnableDhcp() { return enableDhcp.toString() ; }
+    public void   setEnableDhcp( String enableDhcp ) {
+        this.enableDhcp.delete(0,this.enableDhcp.length());//'0', 0'
+        this.enableDhcp.append(enableDhcp) ;
+    }
+
+    public String getStartIp() { return startIp.toString() ; }
+    public void   setStartIp( String startIp ) {
+        this.startIp.delete(0,this.startIp.length());
+        this.startIp.append(startIp) ;
+    }
+
+    public String getEndIp() { return endIp.toString() ; }
+    public void   setEndIp( String endIp ) {
+        this.endIp.delete(0,this.endIp.length());
+        this.endIp.append(endIp) ;
+    }
+
+//    public String getLeaseMax() { return leaseMax.toString() ; }
+//    public void   setLeaseMax( String leaseMax ) {
+//        this.leaseMax.delete(0,this.leaseMax.length());
+//        this.leaseMax.append(leaseMax) ;
+//    }
+
+    public String getLeaseTime() { return leaseTime.toString() ; }
+    public void   setLeaseTime( String leaseTime ) {
+        this.leaseTime.delete(0,this.leaseTime.length());
+        this.leaseTime.append(leaseTime) ;
+    }
+
+    public DataIO getFieldObject(String field) {
+        if(field != null && field.trim().length() > 0) {
+        StringBuilder temp = new StringBuilder(field);
+        }   return super.getFieldObject(field);
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+//        if(compareFieldID(temp, "enableDhcp".toLowerCase()) == true) {
+//            enableDhcp = Str.CheckNullBoolean(value);
+//            return 0;
+//        }
+        if(compareFieldID(temp, "enableDhcp".toLowerCase()) == true) {
+        	this.enableDhcp.delete(0,this.enableDhcp.length());
+            return setString(enableDhcp, value);
+        }
+        if(compareFieldID(temp, "startIp".toLowerCase()) == true) {
+        	this.startIp.delete(0,this.startIp.length());
+            return setString(startIp, value);
+        }
+        if(compareFieldID(temp, "endIp".toLowerCase()) == true) {
+        	this.endIp.delete(0,this.endIp.length());
+            return setString(endIp, value);
+        }
+        if(compareFieldID(temp, "leaseTime".toLowerCase()) == true) {
+        	this.leaseTime.delete(0,this.leaseTime.length());
+            return setString(leaseTime, value);
+        }
+        log.error("DhcpServerDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+//        if(compareFieldID(fldAlias, "enableDhcp", idx, value) == true) {
+//            errorcode = getString(Boolean.toString(enableDhcp), value, !resultVal);
+//            if(resultVal || errorcode < 0) return errorcode;
+//        }
+        if(compareFieldID(fldAlias, "enableDhcp", idx, value) == true) {
+            errorcode = getString(enableDhcp.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "startIp", idx, value) == true) {
+            errorcode = getString(startIp.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "endIp", idx, value) == true) {
+            errorcode = getString(endIp.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "leaseTime", idx, value) == true) {
+            errorcode = getString(leaseTime.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+    public Object callMethod(String method, Object... argument) {
+        Object result = null;
+        if(method == null && method.length() <= 0) return result;
+        if(method.equals("save") == true) {
+            return save();
+        }else if(method.equals("load") == true) {
+            return load();
+        }else if(method.equals("reboot") == true) {
+            return reboot();
+        }else if(method.equals("restart") == true) {
+            return restart();
+        }
+        else if(method.equals("stop") == true) {
+            return stop();
+        }
+        return result;
+    }
+    public boolean save(){return true;}
+    public boolean load(){return true;}
+    public boolean restart(){return true;}
+    public boolean stop(){return true;}
+    public boolean reboot(){return true;}
+}

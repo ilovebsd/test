@@ -1,0 +1,149 @@
+/*
+ * CenteralUnit.java
+ *
+ * Created on 2006년 10월 16일 (월), 오후 5:32
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.system.hardware;
+
+import com.acromate.data.DataIO;
+import com.acromate.util.Logger;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class CenteralUnit extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int             errorcode;
+    private int             user;
+    private int             system;
+    private int             io;
+
+    /** Create new centeral unit class */
+    public CenteralUnit() {
+
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getUsage() {
+        return this.user + this.system;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getUser() {
+        return this.user;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getIO() {
+        return this.io;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getSystem() {
+        return this.system;
+    }
+
+    /**
+     *
+     * @param user
+     */
+   public void setUser(int user) {
+        this.user = user;
+    }
+
+    /**
+     *
+     * @param system
+     */
+    public void setSystem(int system) {
+        this.system = system;
+    }
+
+    /**
+     *
+     * @param io
+     */
+    public void setIO(int io) {
+        this.io = io;
+    }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "usage") == true) {
+            return 0;
+        }
+        if(compareFieldID(temp, "user") == true) {
+            if(!value.equals("")) user = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "system") == true) {
+            if(!value.equals("")) system = Integer.valueOf(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "io") == true) {
+            if(!value.equals("")) io = Integer.valueOf(value);
+            return 0;
+        }
+        log.error("CenteralUnit - Not founded field :" + field);
+        return (-1);
+    }
+
+    /**
+     *
+     * @param field
+     * @param index
+     * @param value
+     * @param length
+     * @return
+     */
+    protected int getFieldData(String field, Index idx , StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {  fldAlias = new StringBuilder(); fldAlias.append(""); }
+        else {  fldAlias = new StringBuilder(); fldAlias.append(field); }
+
+        if(compareFieldID(fldAlias, "usage", idx, value) == true) {
+            errorcode = getInteger( getUsage() , value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "user", idx, value) == true) {
+            errorcode = getInteger(user, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "system", idx, value) == true) {
+            errorcode = getInteger(system, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "io", idx, value) == true) {
+            errorcode = getInteger(io, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return (0);
+    }
+
+}

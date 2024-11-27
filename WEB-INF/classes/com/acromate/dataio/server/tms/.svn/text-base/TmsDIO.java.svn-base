@@ -1,0 +1,49 @@
+package com.acromate.dataio.server.tms ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+import com.acromate.dataio.server.tms.system.TmsSystemInfoListDIO;
+
+public class TmsDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private TmsSystemInfoListDIO systemList = new TmsSystemInfoListDIO();
+
+    public TmsSystemInfoListDIO    getSystemListDIO() { return systemList ; }
+    public void   setSystemListDIO( TmsSystemInfoListDIO systemList ) { this.systemList = systemList ; }
+
+    public DataIO getFieldObject(String field) {
+        if(field != null && field.trim().length() > 0) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "systemList") == true)
+            return systemList.getFieldObject( temp.toString() ) ;
+        }   return super.getFieldObject(field);
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "systemList") == true) {
+            return systemList.setParam(temp.toString(), value);
+        }
+        log.error("TmsDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "systemList", idx, value) == true) {
+            errorcode = systemList.getParam(fldAlias.toString(), value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}

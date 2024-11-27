@@ -1,0 +1,78 @@
+package com.acromate.session;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.rmi.RemoteException;
+import com.acromate.util.Logger;
+import com.acromate.driver.db.IDataStatement;
+import com.acromate.driver.core.IDataObject;
+import com.acromate.util.LabelObject;
+import com.acromate.driver.db.DataStatement;
+
+public class DataStatementPool {
+    List list = Collections.synchronizedList(new LinkedList());
+    private Logger log = Logger.getLogger(this.getClass());
+    private IDataObject dataObject = null ;
+    private int max = 2 ;
+    private String sessionID = "" ;
+
+    public DataStatementPool(IDataObject dataObject, String sessionID , int max) {
+        this.dataObject = dataObject;
+        this.sessionID = sessionID;
+        this.max = max;
+    }
+
+    public synchronized DataStatement allocStatement(String path) {
+        int size = list.size();
+
+        for ( int i=0; i<size; i++ ) {
+            DataStatement dataStatement = (DataStatement)list.get(i);
+            if ( dataStatement.getSystemPath().equals(path)) {
+                list.remove(i);
+                return dataStatement;
+            }
+        }
+
+        IDataStatement iDataStatement = null;
+      	DataStatement dataStatement = null;
+        try {
+            iDataStatement = dataObject.allocStatement(sessionID, path);
+            dataStatement = new DataStatement(iDataStatement,path);
+        } catch(RemoteException ex){
+            log.error("exception occurred > ", ex);
+        }
+        return dataStatement;
+    }
+
+    public synchronized void freeStatement(DataStatement dataStatement) {
+        if (dataStatement == null) return;
+        if (dataStatement.getIsError())
+        {
+            try
+            {
+                IDataStatement istatment = dataStatement.getStatement();
+                if (istatment == null) return;
+                dataObject.freeStatement(sessionID, istatment);
+            }
+            catch(RemoteException ex)
+            {
+                log.error("exception occurred > ", ex);
+            }
+            return;
+        }
+        if (list.size() >= max) {
+            try {
+                IDataStatement istatment = dataStatement.getStatement();
+                if (istatment == null) return;
+                dataObject.freeStatement(sessionID, istatment);
+            } catch(RemoteException ex){
+                log.error("exception occurred > ", ex);
+            }
+        }
+        else {
+            list.add(dataStatement);
+        }
+    }
+}

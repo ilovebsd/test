@@ -1,0 +1,89 @@
+package com.acromate.server;
+
+import java.util.*;
+import java.sql.*;
+
+public class ConnectionPool {
+
+	private Vector connectionPool = null;
+	
+	/*******************************************************************
+	 * 
+	 *
+	 */	
+	public ConnectionPool()
+	{
+		connectionPool = new Vector();
+	}
+	
+	/*******************************************************************
+	 * 
+	 * @return
+	 */
+	public Iterator getIterator() {
+		return connectionPool.iterator();
+	}
+	
+	/*******************************************************************
+	 * 
+	 *
+	 */
+	public boolean initializeConnectionPool(int maxconn, String urlName, String userid, String passwd)
+	{
+		try
+		{			
+			for(int i = 0; i < maxconn; i++)
+			{	
+				Connection sqlCon = DriverManager.getConnection(urlName,userid,passwd);				
+				addConnection(sqlCon);
+				System.out.println("--- #" + String.valueOf(sqlCon.hashCode()) +  
+						               " " + userid + " DB instance is connected");
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return false;
+		}
+		return true;
+	}	
+	
+	/*******************************************************************
+	 * 
+	 * @param con
+	 */	
+	public synchronized void addConnection(Connection con)
+	{	
+		connectionPool.addElement(con);
+	}
+
+	/*******************************************************************
+	/**
+	 * 
+	 * @throws SQLException
+	 */
+	public void freeConnection() throws SQLException {
+		Iterator iterator = connectionPool.iterator();
+		while(iterator.hasNext()) {
+			Connection conn = (Connection)iterator.next();
+			if(conn != null) {
+				conn.close();
+			}
+		}
+	}
+	/*******************************************************************
+	 * 
+	 * @return
+	 */
+	public synchronized Connection getConnection()
+	{
+		Connection con = null;		
+		if(connectionPool.size() > 0)
+		{	
+			con = (Connection)connectionPool.lastElement();
+			connectionPool.removeElementAt(connectionPool.size() - 1);
+		}
+		
+		return con;
+	}
+}

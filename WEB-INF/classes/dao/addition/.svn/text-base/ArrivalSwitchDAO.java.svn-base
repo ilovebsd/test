@@ -1,0 +1,508 @@
+package dao.addition;
+
+import acromate.*;
+
+import java.sql.ResultSet;
+import java.util.Vector;
+
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import acromate.ConnectionManager;
+import acromate.common.util.StringUtil;
+
+public class ArrivalSwitchDAO {
+
+    public ArrivalSwitchDAO() {}   
+    
+    public boolean e164Update(String hiEi64, String hiArrivalType, String number1){
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	try {
+	    	int 		count 		= 0;
+	    	int 		nResult 	= 0;
+	    	String 		e164		= hiEi64;			// E164
+	    	String 		arrivalType	= hiArrivalType;	// E164
+
+	    	String		sql 		= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+            String temp_AnswerService = "";
+            String answerService = "";
+            
+            sql = "SELECT answerservice FROM table_E164 WHERE e164 = '" + e164 + "'";
+            rs = statement.executeQuery(sql);
+            if (rs.next()) temp_AnswerService = rs.getString(1);
+            rs.close();
+
+            if(arrivalType.equals("0")){
+            	answerService = temp_AnswerService.substring(0, 3) + "0" + temp_AnswerService.substring(4, 64);
+            }else if(arrivalType.equals("1")){
+            	answerService = temp_AnswerService.substring(0, 3) + "1" + temp_AnswerService.substring(4, 64);
+            }else if(arrivalType.equals("2")){
+            	answerService = temp_AnswerService.substring(0, 3) + "2" + temp_AnswerService.substring(4, 64);
+            }else if(arrivalType.equals("3")){
+            	answerService = temp_AnswerService.substring(0, 3) + "3" + temp_AnswerService.substring(4, 64);
+            }
+            
+            if(arrivalType.equals("1")){
+            	sql   = "Update table_E164 set answerservice = '" + answerService + "', directforwardnumber = '" + number1 + "' WHERE e164 = '" + e164 + "'";
+            }else{
+            	sql   = "Update table_E164 set answerservice = '" + answerService + "', directforwardnumber = null WHERE e164 = '" + e164 + "'";
+            }
+            System.out.println("1:"+sql);
+            nResult = statement.executeUpdate(sql);
+            if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+
+            // 부서대표번호 음성사서함 착신전환 ----------------------
+            if(!"3".equals(arrivalType)){
+            	sql   = "Update table_keynumberid set forwardtype = 0 , forwardnum = '' WHERE forwardnum = '" + e164 + "'";
+            }
+            System.out.println("2:"+sql);
+            nResult = statement.executeUpdate(sql);
+            if (nResult < 0){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+            // ------------------------------------------------
+            
+            if(!arrivalType.equals("2")){
+	            // 부서대표번호 음성사서함 착신전환 ----------------------
+	        	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' ";                
+	        	System.out.println("3:"+sql);
+	            nResult = statement.executeUpdate(sql);
+	            if (nResult < 0){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+            }
+            
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+    
+    public boolean forwardUpdate(String hiEi64, String chkForward0, String number2, String toTime, String fromTime, String chkForward1, String number3, String waitTime, String chkForward2, String number4, String chkForward3, String number5){
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	try {
+    		int 		count 		= 0;
+    		int 		nResult 	= 0;
+	    	String 		e164		= hiEi64;			// E164
+
+	    	String		sql 		= "";
+	    	String		sql2 		= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+
+            if(chkForward0.equals("1")){
+                // 특정시간대별 착신전환 
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 0 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number2 +"', fromtime = '"+ fromTime +"', totime = '"+ toTime +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 0 ";
+	                
+	            	System.out.println("0:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	//sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number2 +"', 0, 0, '"+ toTime +"', '"+ fromTime +"')";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number2 +"', 0, 0, '"+ fromTime +"', '"+ toTime +"')";
+	            	
+	            	System.out.println("0:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+                }
+            }else{
+            	// 특정시간대별 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 0 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 0 ";                
+	            	System.out.println("0:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                }
+            }
+            if(chkForward1.equals("1")){
+                // 무응답일때 착신전환
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 1 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number3 +"', forwardwaittime = '"+ waitTime +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 1 ";
+	                
+	            	System.out.println("1:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number3 +"', 1, "+waitTime+", '0000', '2400')";
+	                
+	            	System.out.println("1:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+                }
+            }else{
+            	// 무응답일때 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 1 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 1 ";                
+	            	System.out.println("1:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                }
+            } 
+            if(chkForward2.equals("1")){
+                // 통화중일때 착신전환
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 2 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number4 +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 2 ";
+	                
+	            	System.out.println("2:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number4 +"', 2, 0, '0000', '2400')";            	
+	
+	            	System.out.println("2:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+                }
+            }else{
+            	// 통화중일때 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 2 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 2 ";                
+	            	System.out.println("2:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                }
+            } 
+            if(chkForward3.equals("1")){
+                // 단말장애일때 착신전환
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 3 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number5 +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 3 ";
+	                
+	            	System.out.println("3:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number5 +"', 3, 0, '0000', '2400')";            	
+	
+	            	System.out.println("3:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+                }                
+            }else{
+            	// 단말장애일때 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 3 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 3 ";	                
+	            	System.out.println("3:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 0){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                } 
+            }
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public boolean forwardUpdateNew(String hiEi64, String chkForward0, String number2, String toTime, String fromTime, String chkForward1, String number3, String waitTime, String chkForward2, String number4, String chkForward3, String number5){
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	try {
+    		int 		count 		= 0;
+    		int 		nResult 	= 0;
+	    	String 		e164		= hiEi64;			// E164
+
+	    	String		sql 		= "";
+	    	String		sql2 		= "";
+	    	ResultSet 	rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+
+            if(chkForward0.equals("1")){
+                if(!"".equals(number2)){
+	            	// 특정시간대별 착신전환 
+	            	int maxValue = getMaxValue(statement, e164);
+	            	maxValue = maxValue+1;
+	            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', "+maxValue+", '"+ number2 +"', 0, 0, '"+ fromTime +"', '"+ toTime +"')";
+	            	
+	            	System.out.println("0:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+                }
+            }else{
+            	// 특정시간대별 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 0 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 0 ";                
+	            	System.out.println("0:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                }
+            }
+            if(chkForward1.equals("1")){
+                // 무응답일때 착신전환
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 1 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number3 +"', forwardwaittime = '"+ waitTime +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 1 ";
+	                
+	            	System.out.println("1:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number3 +"', 1, "+waitTime+", '0000', '2400')";
+	                
+	            	System.out.println("1:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+                }
+            }else{
+            	// 무응답일때 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 1 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 1 ";                
+	            	System.out.println("1:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                }
+            } 
+            if(chkForward2.equals("1")){
+                // 통화중일때 착신전환
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 2 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number4 +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 2 ";
+	                
+	            	System.out.println("2:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number4 +"', 2, 0, '0000', '2400')";            	
+	
+	            	System.out.println("2:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+                }
+            }else{
+            	// 통화중일때 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 2 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 2 ";                
+	            	System.out.println("2:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                }
+            } 
+            if(chkForward3.equals("1")){
+                // 단말장애일때 착신전환
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 3 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){            
+	            	sql = "Update Table_Forward set forwardnumber = '"+ number5 +"' ";
+	            	sql = sql + " Where e164 = '" + e164 +"' And forwardtype = 3 ";
+	                
+	            	System.out.println("3:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+                }else{            	
+	            	sql = "Insert Into Table_Forward(e164, ordernumber, forwardnumber, forwardtype, forwardwaittime, fromtime, totime) ";
+	            	sql = sql + "Values('"+ hiEi64 +"', 1, '"+ number5 +"', 3, 0, '0000', '2400')";            	
+	
+	            	System.out.println("3:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 등록] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+                }                
+            }else{
+            	// 단말장애일때 착신전환 삭제
+            	sql = "SELECT COUNT(*) FROM Table_Forward Where e164 = '" + e164 +"' And forwardtype = 3 ";
+                rs = statement.executeQuery(sql);
+                if(rs.next()==true)	count = rs.getInt(1);
+                rs.close();
+                if (count > 0){                        	
+	            	sql = "Delete From Table_Forward Where e164 = '" + e164 +"' And forwardtype = 3 ";	                
+	            	System.out.println("3:"+sql);
+	                nResult = statement.executeUpdate(sql);
+	                if (nResult < 1){	throw new Exception(l.x("[착신전환 삭제] '","[Auth Properties Error] '")+e164+l.x("'는 착신전환 삭제가 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	            	
+                } 
+            }
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+	public int getMaxValue(DataStatement stmt, String e164) {
+		int max = 0 ;
+		String sql = "\n SELECT coalesce(max(ordernumber),0) " ;
+		sql = sql +  "\n   FROM table_forward ";
+		sql = sql +  "\n  WHERE e164 = '" + e164 + "' AND forwardtype = 0 ";
+        ResultSet rs1 = null;
+        try {
+            if (stmt != null) {
+            	rs1 = stmt.executeQuery(sql);
+                if (rs1.next()) max = rs1.getInt(1); 
+                rs1.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return max;
+        } finally {
+            try {
+                if (rs1 != null)
+                	rs1.close();
+            } catch (Exception e) {}
+        }
+        return max;
+    }
+	
+    public boolean forwardDeleteNew(String e164, String forwardNumber, String startTime, String endTime){
+    	boolean 		returnVal 	= false;
+    	DataStatement 	statement 	= null;
+    	Vector 			vecTmpE164 	= new Vector();
+    	try {
+    		String		sql 		= "";
+	    	ResultSet 	rs 			= null;
+	    	int       	nResult     = 0;
+	        String    	fileName 	= "";
+	        
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    		    			
+        	sql = " Delete From table_forward ";
+        	sql += "\n  Where e164 = '" + e164 + "' And forwardtype = 0 And forwardnumber = '" + forwardNumber + "' And fromtime = '" + startTime + "' And totime = '" + endTime + "' ";
+        	statement.executeUpdate(sql);
+			
+			// table_forward 데이타가 있는지 확인
+            int cnt = 0;
+        	sql  = " SELECT forwardnumber FROM table_forward WHERE e164 = '" + e164 + "' And forwardtype = 0 ";
+            rs = statement.executeQuery(sql);
+            while(rs.next()){
+            	vecTmpE164.add(WebUtil.CheckNullString(rs.getString(1))) ;            	
+            }
+            rs.close();
+            
+            if (rs != null) rs.close();
+        	
+            cnt 	= vecTmpE164.size();
+            String	strE164 	= ""; 
+
+            //if(cnt > 0){
+            //	sql = " Delete From table_forward Where e164 = '" + e164 + "' And forwardtype = 0 ";
+            //	statement.executeUpdate(sql);
+            //}
+            
+            for(int i=0; i < cnt; i++){
+            	strE164 = (String)vecTmpE164.get(i);
+            	//int maxValue = getMaxValue(statement, e164);
+            	
+        		sql = " Update table_forward Set ordernumber = "+(i+1)+" ";
+    			sql = sql + " WHERE e164 = '" + e164 + "' And forwardnumber = '"+strE164+"' And forwardtype = 0 ";
+    			nResult = statement.executeUpdate(sql);
+    			if (nResult < 0){	throw new Exception(l.x("[착신전환 번호 등록] '","[Auth Properties Error] '")+l.x("'착신전환 번호 등록이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}            	
+            }
+	    	
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+	        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+    
+}

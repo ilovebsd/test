@@ -1,0 +1,62 @@
+package com.acromate.dto.reporttool.templet;
+
+import com.acromate.data.DataIO;
+
+public class SystemInfoDTO  extends DataIO {
+        boolean cpu;
+	boolean mem;
+	boolean disk;
+
+	public void setCpu(boolean cpu) { this.cpu = cpu; }
+	public boolean getCpu() { return cpu; }
+
+        public void setMem(boolean mem) { this.mem = mem; }
+	public boolean getMem() { return mem; }
+
+	public void setDisk(boolean disk) { this.disk = disk; }
+	public boolean getDisk() { return disk; }
+
+	@Override
+	protected int getFieldData(String field, Index idx, StringBuilder value) {
+		int errorcode = 0;
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+
+        if(compareFieldID(fldAlias, "cpu", idx, value) == true) {
+            errorcode = getBoolean(cpu, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "mem", idx, value) == true) {
+            errorcode = getBoolean(mem, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "disk", idx, value) == true) {
+            errorcode = getBoolean(disk, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+		return (0);
+	}
+	@Override
+	protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "cpu") == true) {
+            if(!value.equals("")) cpu = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "mem") == true) {
+            if(!value.equals("")) mem = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+        if(compareFieldID(temp, "disk") == true) {
+            if(!value.equals("")) disk = Boolean.valueOf(value).booleanValue();
+            return 0;
+        }
+		return (-1);
+	}
+}

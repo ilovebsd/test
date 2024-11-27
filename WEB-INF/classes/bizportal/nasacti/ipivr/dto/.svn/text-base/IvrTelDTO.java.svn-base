@@ -1,0 +1,125 @@
+package bizportal.nasacti.ipivr.dto;
+
+public class IvrTelDTO {
+	private String strTrIdx = "";
+	private String strSystemIdx = "";
+	private String strServerIp = "";
+	private String strIvrTel = "";
+	private String strDisplayTel = "";
+	private String strSswReg = "";
+	private String strSswServerIp = "";
+	private String strSswDomainName = "";
+	private String strSswLocalPort = "";
+	private String strSswRemotePort = "";
+	private String strScCompany = "";
+	private String strUseYN = "";
+	private String strTrunkType = "";
+	private String strVmsPrefix = "";
+	private String strAuthId = "";
+	private String strAuthPassword = "";
+
+
+	public void setTrIdx(String strTrIdx) {
+		this.strTrIdx = strTrIdx;
+	}
+	public void setSystemIdx(String strSystemIdx) {
+		this.strSystemIdx = strSystemIdx;
+	}
+	public void setServerIp(String strServerIp) {
+		this.strServerIp = strServerIp;
+	}
+	public void setIvrTel(String strIvrTel) {
+		this.strIvrTel = strIvrTel;
+	}
+	public void setDisplayTel(String strDisplayTel) {
+		this.strDisplayTel = strDisplayTel;
+	}
+	public void setSswReg(String strSswReg) {
+		this.strSswReg = strSswReg;
+	}
+	public void setSswServerIp(String strSswServerIp) {
+		this.strSswServerIp = strSswServerIp;
+	}
+	public void setSswDomainName(String strSswDomainName) {
+		this.strSswDomainName = strSswDomainName;
+	}
+	public void setSswLocalPort(String strSswLocalPort) {
+		this.strSswLocalPort = strSswLocalPort;
+	}
+	public void setSswRemotePort(String strSswRemotePort) {
+		this.strSswRemotePort = strSswRemotePort;
+	}
+	public void setScCompany(String strScCompany) {
+		this.strScCompany = strScCompany;
+	}
+	public void setUseYN(String strUseYN) {
+		this.strUseYN = strUseYN;
+	}
+	public void setTrunkType(String strTrunkType) {
+		this.strTrunkType = strTrunkType;
+	}
+	public void setVmsPrefix(String strVmsPrefix) {
+		this.strVmsPrefix = strVmsPrefix;
+	}
+	public void setAuthId(String strAuthId) {
+		this.strAuthId = strAuthId;
+	}
+	public void setAuthPassword(String strAuthPassword) {
+		this.strAuthPassword = strAuthPassword;
+	}
+
+
+
+
+
+
+	public String getTrIdx() {
+		return this.strTrIdx;
+	}
+	public String getSystemIdx() {
+		return this.strSystemIdx;
+	}
+	public String getServerIp() {
+		return this.strServerIp;
+	}
+	public String getIvrTel() {
+		return this.strIvrTel;
+	}
+	public String getDisplayTel() {
+		return this.strDisplayTel;
+	}
+	public String getSswReg() {
+		return this.strSswReg;
+	}
+	public String getSswServerIp() {
+		return this.strSswServerIp;
+	}
+	public String getSswDomainName() {
+		return this.strSswDomainName;
+	}
+	public String getSswLocalPort() {
+		return this.strSswLocalPort;
+	}
+	public String getSswRemotePort() {
+		return this.strSswRemotePort;
+	}
+	public String getScCompany() {
+		return this.strScCompany;
+	}
+	public String getUseYN() {
+		return this.strUseYN;
+	}
+	public String getTrunkType() {
+		return this.strTrunkType;
+	}
+	public String getVmsPrefix() {
+		return this.strVmsPrefix;
+	}
+	public String getAuthId() {
+		return this.strAuthId;
+	}
+	public String getAuthPassword() {
+		return this.strAuthPassword;
+	}
+
+}

@@ -1,0 +1,53 @@
+package addition;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+
+import dto.FeatureServiceDTO;
+
+public class FeatureServiceList {
+	
+	public List getDetail(DataStatement stmt, String e164, int serviceNo) {
+		FeatureServiceDTO featureServiceDTO;
+        List<FeatureServiceDTO> featureServiceList = new ArrayList<FeatureServiceDTO>();
+        
+        String sql = "\n SELECT e164, serviceno, priority, userparam, endpointid ";
+        sql = sql +  "\n   FROM table_featureservice " ;
+        sql = sql +  "\n  WHERE e164      = '" + e164 + "' ";
+        sql = sql +  "\n    AND serviceno = "  + serviceNo;
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	featureServiceDTO = new FeatureServiceDTO();
+                	
+                	featureServiceDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	featureServiceDTO.setServiceNo(rs.getInt("serviceno"));
+                	featureServiceDTO.setPriority(rs.getInt("priority"));
+                	featureServiceDTO.setUserParam(Str.CheckNullString(rs.getString("userparam")));
+                	featureServiceDTO.setEndPointID(Str.CheckNullString(rs.getString("endpointid")));
+
+                	featureServiceList.add(featureServiceDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return featureServiceList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return featureServiceList;
+    }
+
+}

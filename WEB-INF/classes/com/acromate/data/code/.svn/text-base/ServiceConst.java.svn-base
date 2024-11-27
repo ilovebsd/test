@@ -1,0 +1,122 @@
+/*
+ * CommonConst.java
+ *
+ * Created on 2006년 10월 12일 (목), 오후 3:01
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.data.code;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class ServiceConst {
+// common 000 ~ 310
+// caller      320~630
+// answer    640~950
+
+    //////////////////////////////////////////////////////////////////////////////    
+    //                      ***** COMMON SERVICE *****                                                             //
+    //////////////////////////////////////////////////////////////////////////////
+
+    /* Shortcut Number	 0: disable, 1: Common, 2: Common + Private  */
+    public final static int COMMON_SHORTCUT_NUMBER    = 10;
+
+    /* Call Transper	 0: disable, 1: enable       Default 1  콜트랜스퍼(호전달) */
+    public final static int COMMON_CALL_TRANSFER    = 30;
+
+    /* Mail Box */
+    public final static int COMMON_MAIL_BOX    = 80;
+
+    //////////////////////////////////////////////////////////////////////////////    
+    //                      ***** CALLER SERVICE *****                                                               //
+    //////////////////////////////////////////////////////////////////////////////
+
+    /* 발신 제한    0001 : 호제한 있음 0010 : Default -  0 : WHITE , 1: BLACK  */
+    public final static int CALLER_CALL_LIMIT    = 330;       
+
+    /* 발신 Screen CID  0: disable, 1: Screenning, 2: Change To Virtual CID   */
+    public final static int CALLER_SCREEN_CID   = 340;
+    public final static int CALLER_VCID   = 341;
+	
+    /*  Hot Line  */
+    public final static int CALLER_HOT_LINE       = 350;      
+
+    /* Caller Mono call	 0: disable, 1: enable(1 이면 멀티콜이 안되는 단말)  */
+    public final static int CALLER_MONO_CALL    = 360;
+
+
+    //////////////////////////////////////////////////////////////////////////////    
+    //                      ***** ANSWER SERVICE *****                                                               //
+    //////////////////////////////////////////////////////////////////////////////
+    /**
+     * 착신 제한  
+     *     호제한
+     *     0001 : 호제한 있음
+     *     0010 : Default -  0 : WHITE , 1: BLACK
+     *     0100 : 발신번호 없는 호 제한
+     *               - 0 : 발신번호 없는 호 제한
+     *               - 1 : 발신번호 없는 호 허용
+     *     1000 : E164 형태 이외 발신번호 제한 필드 (## EMS 미 구현##)
+     *               - 0 : 호 제한
+     *               - 1 : 호 허용
+     *     ##  저장 필드가 문자1자리 이므로 9 보다 클경우 A,B,C,D,E,F 로 표시 됨. 
+     */	
+    public final static int ANSWER_CALL_LIMIT   = 650;      
+
+    /* 착신 Screen CID    0: disable, 1: Screenning */    
+    public final static int ANSWER_SCREEN_CID    = 660;
+
+    /**
+      *   Call Forword  
+      *   0: disable : 사용안함. 
+      *   1: unconditional Forword : 무조건 지정번호로 포워딩
+      *   2: conditional Forword : 조건별 지정번호로 포워딩
+      *      - Table_Forward 에서 0: 시간대별 1:무응답,
+      *                                      2:통화중,    3:단말장애
+      *   3: unconditional vms, 무조건 음성사서함으로 보내기 
+      */
+    public final static int ANSWER_CALL_FORWARD_DIRECT = 670 ;
+    public final static int ANSWER_CALL_FORWARD_MAILBOX = 671 ;
+    public final static int ANSWER_CALL_FORWARD_BUSY = 672 ;
+    public final static int ANSWER_CALL_FORWARD_NOANSWER = 673 ;
+    public final static int ANSWER_CALL_FORWARD_TERM = 674 ;
+    public final static int ANSWER_CALL_FORWARD_WRONGPHONE = 675 ;
+
+    /* Answer Mono call	 0: disable, 1: enable(1 이면 멀티콜이 안되는 단말)  */
+    public final static int ANSWER_MONO_CALL    = 680 ;
+
+    /*  번호변경 안내 서비스  Changed Number Information */
+    public final static int ANSWER_CHANGE_NUMBER_INFO = 690;
+
+    /*  DND (부재중안내) Do Not Disturb */
+    public final static int ANSWER_DND    = 700;
+
+    /*  포킹 허용 여부 Forking */
+    public final static int ANSWER_CALL_FORKING    = 710;
+
+
+
+    //////////////////////////////////////////////////////////////////////////////    
+    //                      *****    Call Make         *****                                                               //
+    //////////////////////////////////////////////////////////////////////////////
+    public final static int MAKE_CALL_ALARM = 971 ;
+	
+    //////////////////////////////////////////////////////////////////////////////    
+    //                      *****    Addible         *****                                                               //
+    //////////////////////////////////////////////////////////////////////////////
+    /* 컬러링 */    
+    public final static int MRBT = 5011 ;
+    /* 홀드 뮤직 */    
+    public final static int MOH = 5031 ;
+    /* 부재중 안내  */    
+    public final static int ABSENCE_INFO = 5161 ;
+    /* 번호이동 PORT OUT  */    
+    public final static int RCF_OUT_MEMBER = 5391 ;
+    /* 번호이동 PORT IN  */    
+    public final static int RCF_IN_MEMBER = 5381 ;
+	
+}
+

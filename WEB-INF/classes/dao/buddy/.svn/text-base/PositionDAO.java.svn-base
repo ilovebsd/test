@@ -1,0 +1,215 @@
+package dao.buddy;
+
+import java.sql.ResultSet;
+import java.util.List;
+
+import acromate.common.util.Str;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+
+import dto.PositionDTO;
+import acromate.common.util.StringUtil;
+
+public class PositionDAO {
+
+    public PositionDAO() {}
+    
+	public int getMaxID(DataStatement stmt) {
+		int max = 0 ;
+		String sql = "\n SELECT coalesce(max(positionid),0) " ;
+		sql = sql +  "\n   FROM table_position ";
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) max = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return max;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return max;
+    }
+	
+	public int getMaxRanking(DataStatement stmt) {
+		int max = 0 ;
+		String sql = "\n SELECT coalesce(max(ranking),0) " ;
+		sql = sql +  "\n   FROM table_position ";
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) max = rs.getInt(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return max;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return max;
+    }
+
+    public int insert(DataStatement stmt, PositionDTO positionDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        int maxId      = getMaxID(stmt);
+        int maxRanking = getMaxRanking(stmt);        
+
+        try {            
+            if (stmt != null) {
+                String sql = "\n INSERT INTO table_position (positionid, positionname, ranking) ";
+            	sql = sql +  "\n                     values (" ;
+            	sql = sql + " " + (maxId + 1)                   + " , " ;            
+            	sql = sql + "'" + positionDTO.getPositionName() + "', " ;
+            	sql = sql + " " + (maxRanking + 1)              + " " ; 
+            	sql = sql + ") ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return nResult ;
+    }
+    
+    public int update(DataStatement stmt, PositionDTO positionDTO) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+                String sql = "\n UPDATE table_position  " ;
+                sql = sql +  "\n    Set positionname = '" + positionDTO.getPositionName() + "' " ;
+                sql = sql +  "\n Where positionid = " + positionDTO.getPositionID();
+          
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("수정  성공");
+                else
+                    System.out.println("수정  실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+    
+    public int delete(DataStatement stmt, String positionId) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+                String sql = "\n Delete From table_position ";
+                sql = sql +  "\n       Where positionid = " + positionId;
+                
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1) {
+                    System.out.println("삭제 성공"); 
+                }
+                else
+                    System.out.println("삭제 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+    
+    public int updateSort(DataStatement stmt) {
+        String sql     = "";
+        int    nResult = 0;
+        int    max     = 1;
+    	sql  = "\n SELECT a.positionid";
+        sql += "\n   FROM table_position a" ;
+        sql += "\n  Order By a.ranking ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	sql  = "\n UPDATE table_position  " ;
+                    sql += "\n    Set ranking = '" + max + "' " ;
+                    sql += "\n  Where positionid = " + rs.getInt("positionid");
+                    
+                    nResult = stmt.executeUpdate(sql);
+                    
+                    max++;
+                }
+                if (rs != null){
+                	rs.close();
+                }
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+            
+            return nResult ;
+        }
+    }
+    
+    public int updateSortPro(DataStatement stmt, String sortStr) {
+        int      nResult = 0;
+        String[] positionStr = StringUtil.getParser(sortStr, "");
+        
+        try {      
+	        if(positionStr != null){
+	        	// 트랜잭션 시작
+				stmt.stxTransaction();
+				
+				for(int i=0; i < positionStr.length; i++){
+					String[] dataStr = StringUtil.getParser(positionStr[i], "|");
+					if (stmt != null) {
+		                String sql = "\n UPDATE table_position  " ;
+		                sql = sql +  "\n    Set ranking    = " + dataStr[1];
+		                sql = sql +  "\n  Where positionid = " + dataStr[0];
+		                
+		                nResult = stmt.executeUpdate(sql);
+		                if (nResult >= 1)
+		                    System.out.println("수정  성공");
+		                else
+		                    System.out.println("수정  실패");
+					}
+				}
+				
+				if (stmt != null)
+					stmt.endTransaction(true);
+	        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            return nResult ;			
+        }
+    }
+
+
+    
+}

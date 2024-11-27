@@ -1,0 +1,173 @@
+package com.acromate.dataio.noms ;
+
+import org.apache.log4j.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class PortInfoDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private int    rackId ;
+    private int    shelfId ;
+    private int    slotId ;
+    private StringBuilder cardId = new StringBuilder();
+    private int    portId ;
+    private StringBuilder portType = new StringBuilder();
+    private int    usageStatus ;
+    private int    operStatus ;
+    private int    adminStatus ;
+    private StringBuilder alarmStatus = new StringBuilder();
+
+    public int    getRackId() { return rackId ; }
+    public void   setRackId( int rackId ) { this.rackId = rackId ; }
+
+    public int    getShelfId() { return shelfId ; }
+    public void   setShelfId( int shelfId ) { this.shelfId = shelfId ; }
+
+    public int    getSlotId() { return slotId ; }
+    public void   setSlotId( int slotId ) { this.slotId = slotId ; }
+
+    public String getCardId() { return cardId.toString() ; }
+    public void   setCardId( String cardId ) {
+        this.cardId.delete(0,this.cardId.length());
+        this.cardId.append(cardId) ;
+    }
+
+    public int    getPortId() { return portId ; }
+    public void   setPortId( int portId ) { this.portId = portId ; }
+
+    public String getPortType() { return portType.toString() ; }
+    public void   setPortType( String portType ) {
+        this.portType.delete(0,this.portType.length());
+        this.portType.append(portType) ;
+    }
+
+    public int    getUsageStatus() { return usageStatus ; }
+    public void   setUsageStatus( int usageStatus ) { this.usageStatus = usageStatus ; }
+
+    public int    getOperStatus() { return operStatus ; }
+    public void   setOperStatus( int operStatus ) { this.operStatus = operStatus ; }
+
+    public int    getAdminStatus() { return adminStatus ; }
+    public void   setAdminStatus( int adminStatus ) { this.adminStatus = adminStatus ; }
+
+    public String getAlarmStatus() { return alarmStatus.toString() ; }
+    public void   setAlarmStatus( String alarmStatus ) {
+        this.alarmStatus.delete(0,this.alarmStatus.length());
+        this.alarmStatus.append(alarmStatus) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "rackId".toLowerCase()) == true) {
+            if(!value.equals("")) rackId = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "shelfId".toLowerCase()) == true) {
+            if(!value.equals("")) shelfId = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "slotId".toLowerCase()) == true) {
+            if(!value.equals("")) slotId = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "cardId".toLowerCase()) == true) {
+            return setString(cardId, value);
+        }
+        if(compareFieldID(temp, "portId".toLowerCase()) == true) {
+            if(!value.equals("")) portId = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "portType".toLowerCase()) == true) {
+            return setString(portType, value);
+        }
+        if(compareFieldID(temp, "usageStatus".toLowerCase()) == true) {
+            if(!value.equals("")) usageStatus = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "operStatus".toLowerCase()) == true) {
+            if(!value.equals("")) operStatus = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "adminStatus".toLowerCase()) == true) {
+            if(!value.equals("")) adminStatus = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "alarmStatus".toLowerCase()) == true) {
+            return setString(alarmStatus, value);
+        }
+        log.error("PortInfoDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "rackId", idx, value) == true) {
+            errorcode = getInteger(rackId, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "shelfId", idx, value) == true) {
+            errorcode = getInteger(shelfId, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "slotId", idx, value) == true) {
+            errorcode = getInteger(slotId, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "cardId", idx, value) == true) {
+            errorcode = getString(cardId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "portId", idx, value) == true) {
+            errorcode = getInteger(portId, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "portType", idx, value) == true) {
+            errorcode = getString(portType.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "usageStatus", idx, value) == true) {
+            errorcode = getInteger(usageStatus, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "operStatus", idx, value) == true) {
+            errorcode = getInteger(operStatus, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "adminStatus", idx, value) == true) {
+            errorcode = getInteger(adminStatus, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "alarmStatus", idx, value) == true) {
+            errorcode = getString(alarmStatus.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+
+    public String toXmlString( String blank ) {
+		StringBuilder xml = new StringBuilder();
+
+		xml.append ( blank+"   <rackId>" + getRackId() + "</rackId>\n") ;
+		xml.append ( blank+"   <shelfId>" + getShelfId() + "</shelfId>\n") ;
+		xml.append ( blank+"   <slotId>" + getSlotId() + "</slotId>\n") ;
+		xml.append ( blank+"   <cardId>" + getCardId() + "</cardId>\n") ;
+		xml.append ( blank+"   <portId>" + getPortId() + "</portId>\n") ;
+		xml.append ( blank+"   <portType>" + getPortType() + "</portType>\n") ;
+		xml.append ( blank+"   <usageStatus>" + getUsageStatus() + "</usageStatus>\n") ;
+		xml.append ( blank+"   <operStatus>" + getOperStatus() + "</operStatus>\n") ;
+		xml.append ( blank+"   <adminStatus>" + getAdminStatus() + "</adminStatus>\n") ;
+		xml.append ( blank+"   <alarmStatus>" + getAlarmStatus() + "</alarmStatus>\n") ;
+
+		return xml.toString();
+    }
+}

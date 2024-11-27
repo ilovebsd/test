@@ -1,0 +1,491 @@
+package com.acromate.framework.db;
+
+
+import java.util.ArrayList;
+
+import com.acromate.driver.db.IDataStatement;
+import com.acromate.framework.frame.EmsMenuLoader;
+import com.acromate.framework.frame.SystemData;
+import com.acromate.framework.frame.TaskModule;
+import com.acromate.framework.util.Str;
+
+public class BaseDAO extends TaskModule{
+	protected String systemId = null;
+	protected String dbmsType = null;
+	protected SystemData systemData = null;
+
+	public BaseDAO(String systemId){
+		this.systemId = systemId;
+		this.dbmsType = "1";
+	}
+
+	public BaseDAO(String systemId,String dbmsType){
+		this.systemId = systemId;
+		this.dbmsType = dbmsType;
+	}
+	
+	public int setDAOSystemPath(TaskModule modThis){
+		if( this.systemId == null){
+			StringBuilder systemPath = new StringBuilder();
+			modThis.getActionTask().getParam("systemPath", systemPath);		
+			this.systemId = systemPath.toString();
+		}
+		StringBuilder dbmsTypee = new StringBuilder();
+		modThis.getActionTask().getParam("dbmsType", dbmsTypee);
+		this.dbmsType = dbmsTypee.toString();
+		return 0;
+	}
+	protected IDataStatement statement = null;
+
+	public String setLimit(String query ,String start,String size){
+		return setLimit(query ,Str.CheckNullInt(start), Str.CheckNullInt(size));
+	}
+	public ArrayList executeQuery(String query,BaseDTOModule dto) throws Exception {
+		IDataStatement dataStatement = allocStatement();
+		ArrayList list = null;
+
+		try {
+			int    flag  = 0;			
+	        StringBuilder subQuery = new StringBuilder();	        
+	        //exception key-yohoco
+	        for(int i=0; i<query.length(); i++){	        	
+	        	if ( flag == 1 || query.charAt(i) == '\'') {        			        				        		
+	        		if(flag == 0 && query.charAt(i) == '\'')
+	        			flag = 1;
+	        		else if(flag == 1 && query.charAt(i) == '\'')
+	        			flag = 0;	        		
+	        		subQuery.append( query.substring(i,i+1) );
+		        }else{
+		        	subQuery.append( query.substring(i,i+1).toLowerCase() );		        	
+		        }
+	        }
+	        subQuery = new StringBuilder( functionChange(subQuery.toString()) );
+	        System.out.println("[[BaseDAO.executeQuery sql:"+ subQuery.toString() +"]]");
+			list = (ArrayList)dataStatement.executeQuery( subQuery.toString() );
+			if (list == null) { 
+				removeStatement(dataStatement);
+				dataStatement = null;
+			}
+		} catch (Exception e) {
+			removeStatement(dataStatement);
+			dataStatement = null;
+			e.printStackTrace();
+			throw new Exception("BaseDAO.executeQuery() 예외 발생", e);
+			
+		}finally{
+			if (dataStatement != null)freeStatement(dataStatement);
+		}
+		return list;
+	}
+
+	public boolean executeUpdate(String query) throws Exception{
+		boolean bResult = false;
+		int count = 0;
+		IDataStatement dataStatement = allocStatement();
+		
+		try {
+			System.out.println("[[BaseDAO.executeUpdate sql:"+query+"]]");
+			count = dataStatement.executeUpdate(query);
+			if (count<0) throw new Exception("update count < 0");
+			bResult = true;
+		} catch (Exception e) {
+			bResult = false;
+			System.out.println(e);
+			removeStatement(dataStatement);
+			dataStatement = null;
+			e.printStackTrace();
+			throw new Exception("BaseDAO.executeUpdate() 예외 발생", e);
+			
+		}finally{
+			if (dataStatement !=null) freeStatement(dataStatement);
+		}
+		return bResult;
+	}
+	protected String functionChange(String query){
+		query = query.replace("acro_todate", "acro_toDate");
+		query = query.replace("acro_tochar", "acro_toChar");
+		if(query.contains("acro_toDate")){
+			query = functionToDate(query);
+		}
+		if(query.contains("acro_toChar")){
+			query = functionToChar(query);
+		}
+		return query;
+	}
+	protected String functionToDate(String query){
+		String sql = query;
+		String arrDate[]= sql.split("acro_toDate");
+		for(int i =0;i<arrDate.length;i++){
+			if(i == 0){ sql = arrDate[i];continue;} 
+			String dateParam =arrDate[i].substring(0, arrDate[i].indexOf(")")+1);
+			String strNoChange = arrDate[i].substring(dateParam.length(),arrDate[i].length() );
+			dateParam=dateParam.replace("'", "");
+			dateParam=dateParam.replace("(", "");
+			dateParam=dateParam.replace(")", "");
+			String arrDataParam[] =dateParam.split(","); 
+			String change = null;
+			try { statement.getToDate("'"+arrDataParam[0].trim()+"'",arrDataParam[1].trim());}
+			catch (Exception e){ e.printStackTrace();}
+			sql+=change;
+			sql+=strNoChange;
+		}
+		return sql;
+	}
+	protected String functionToChar(String query){
+		String sql = query;
+		String arrDate[]= sql.split("acro_toChar");
+		for(int i =0;i<arrDate.length;i++){
+			if(i == 0){ sql = arrDate[i];continue;} 
+			String dateParam =arrDate[i].substring(0, arrDate[i].indexOf(")")+1);
+			String strNoChange = arrDate[i].substring(dateParam.length(),arrDate[i].length() );
+			dateParam=dateParam.replace("'", "");
+			dateParam=dateParam.replace("(", "");
+			dateParam=dateParam.replace(")", "");
+			String arrDataParam[] =dateParam.split(","); 
+			String change = null;
+			try { statement.getToChar(" "+arrDataParam[0].trim()+" ",arrDataParam[1].trim());}
+			catch (Exception e){ e.printStackTrace();}
+
+			sql+=change;
+			sql+=strNoChange;
+		}
+		return sql;
+	}
+	protected boolean executeUpdate(TaskModule query) throws Exception{
+		boolean bResult = false;
+		int count = 0;
+		if(statement == null) {
+			stxTransaction();
+		}
+		try {
+			Object obj = query.getHead(); 
+			while(obj != null){
+				TaskModule task = (TaskModule)obj;
+				String sql = task.getClassID();
+				if(!"".equals(sql)){ 
+					String temp[] = sql.split(";");
+					if(temp != null){
+						for(int i=0 ; i < temp.length ; i++){
+							if(temp[i] != null){
+								String strCheck = temp[i].replace(" ", "");
+								if("".equals(strCheck)) continue;
+								strCheck = strCheck.replace("\n", "");
+								if("".equals(strCheck)) continue;
+								strCheck = strCheck.replace("\t", "");
+								if("".equals(strCheck)) continue;
+								System.out.println("[[BaseDAO.executeUpdate sql:"+functionChange(temp[i])+"]]");
+								count = statement.executeUpdate(functionChange(temp[i]));
+								if (count<0) {
+									throw new Exception("update count < 0");
+								}
+							}
+						}
+					}
+				}
+				obj = task.m_pNext;
+			}
+			bResult = true;
+			///statement.endTransaction(true);
+		} catch (Exception e) {
+			bResult = false;
+			statement.endTransaction(false);
+			e.printStackTrace();
+			throw new Exception("BaseDAO.executeUpdate() 예외 발생", e);
+			
+		}finally{
+			//returnConnection(statement,null);
+		}
+		return bResult;
+	}
+	protected void stxTransaction()throws Exception{
+		if(statement == null) statement = allocStatement();
+		statement.stxTransaction();
+	}
+	protected void endTransaction(boolean param)throws Exception{
+		if(statement == null) return;
+		statement.endTransaction(param);
+		freeStatement(statement);
+	}
+	
+    protected IDataStatement allocStatement() {
+		if (systemId.equalsIgnoreCase("ems")) {
+			if ( systemData == null ) {
+			    systemData = (SystemData)EmsMenuLoader.getActiveMenuLoader().getActiveMenuSet().getSystemMenu();
+			}
+			if ( systemData ==null ) {
+				System.err.println("systemData is null");
+				return null;
+			} 
+			return systemData.getSystemDataEMS().allocStatement(0);
+		}
+
+		if ( systemData == null ) {
+			String systemGroupID = systemId.substring(0,systemId.indexOf(")")+1);
+			systemData = (SystemData)EmsMenuLoader.getActiveMenuLoader().lstSystemMenu.getFieldObject(systemGroupID);
+		}
+		if ( systemData ==null ) {
+			System.err.println("systemData is null");
+			return null;
+		}
+		return systemData.allocStatement();
+    }
+	
+    protected void removeStatement(IDataStatement dataStatement) {
+		if (systemId.equalsIgnoreCase("ems")) {
+			if ( systemData == null ) {
+			    systemData = (SystemData)EmsMenuLoader.getActiveMenuLoader().getActiveMenuSet().getSystemMenu();
+			}
+			if ( systemData ==null ) {
+				System.err.println("systemData is null");
+				return ;
+			} 
+			systemData.getSystemDataEMS().removeStatementEMS(dataStatement);
+			return ;
+		}
+		if ( systemData == null ) {
+			String systemGroupID = systemId.substring(0,systemId.indexOf(")")+1);
+			systemData = (SystemData)EmsMenuLoader.getActiveMenuLoader().lstSystemMenu.getFieldObject(systemGroupID);
+		}
+		if ( systemData ==null ) {
+			System.err.println("systemData is null");
+			return ;
+		}
+		systemData.removeStatement(dataStatement);
+    }
+	
+    protected void freeStatement(IDataStatement dataStatement) {
+		if (systemId.equalsIgnoreCase("ems")) {
+			if ( systemData == null ) {
+			    systemData = (SystemData)EmsMenuLoader.getActiveMenuLoader().getActiveMenuSet().getSystemMenu();
+			}
+			if ( systemData ==null ) {
+				System.err.println("systemData is null");
+				return ;
+			} 
+			systemData.getSystemDataEMS().freeStatementEMS(dataStatement);
+			return ;
+		}
+		if ( systemData == null ) {
+			String systemGroupID = systemId.substring(0,systemId.indexOf(")")+1);
+			systemData = (SystemData)EmsMenuLoader.getActiveMenuLoader().lstSystemMenu.getFieldObject(systemGroupID);
+		}
+		if ( systemData ==null ) {
+			System.err.println("systemData is null");
+			return ;
+		}
+		systemData.freeStatement(dataStatement);
+    }
+
+    public String setLimit(String query, int start, int size) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder(query) ;
+    	try { 
+    		resultQuery.append(dataStatement.getLimit(start, size));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    
+    public String getModulo(String field, int value) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getModulo(field, value));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    
+    public String getLimit(int start, int size) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getLimit(start, size));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    
+    public String getNVL(String field, String inputValue) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getNVL(field, inputValue));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getToChar(String field, String format) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getToChar(field, format));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getToDate(String field, String format) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getToDate(field, format));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getSystemDate() {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		//resultQuery.append(dataStatement.getSystemDate(""));		// 20121220 에 emsClientServerRmi.jar 파일 바꾸면서 주석처리
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getMinutePlus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getMinutePlus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getMinuteMinus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getMinuteMinus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getHourPlus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getHourPlus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getHourMinus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getHourMinus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getDatePlus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getDatePlus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getDateMinus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getDateMinus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getMonthPlus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getMonthPlus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getMonthMinus(String field, double count) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getMonthMinus(field, count));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getCase( Object... argument ) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getCase(argument));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getSum(String intValue) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getSum(intValue));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getFloor(String intValue) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getFloor(intValue));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+    public String getToNumber(String intValue) {
+		IDataStatement dataStatement = allocStatement() ;
+		StringBuilder resultQuery = new StringBuilder() ;
+    	try { 
+    		resultQuery.append(dataStatement.getToNumber(intValue));
+    	} catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	freeStatement(dataStatement);
+        return resultQuery.toString() ;
+    }
+}

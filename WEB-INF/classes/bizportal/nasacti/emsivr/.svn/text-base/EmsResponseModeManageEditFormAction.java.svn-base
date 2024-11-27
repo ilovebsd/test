@@ -1,0 +1,60 @@
+package bizportal.nasacti.emsivr;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bizportal.nasacti.ipivr.action.CommandAction;
+import bizportal.nasacti.ipivr.common.IpivrConfig;
+import bizportal.nasacti.ipivr.dao.KeyActionDAO;
+import java.util.List;
+import bizportal.nasacti.ipivr.dao.ResponseModeDAO;
+import bizportal.nasacti.ipivr.dto.ResponseModeDTO;
+import bizportal.nasacti.ipivr.dao.VoiceDAO;
+import bizportal.nasacti.ipivr.dto.UsedVoiceDTO;
+import bizportal.nasacti.ipivr.dto.VoiceDTO;
+
+public class EmsResponseModeManageEditFormAction implements CommandAction {
+	/**
+	 * requestProc
+	 *
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param ipivrConfig IpivrConfig
+	 * @return String
+	 * @throws Throwable
+	 * @todo Implement this bizportal.nasacti.ipivr.action.CommandAction
+	 *   method
+	 */
+	public String requestProc(HttpServletRequest request,
+							  HttpServletResponse response,
+							  IpivrConfig ipivrConfig) throws Throwable {
+
+	String strScCode = request.getParameter("scCode");
+
+	KeyActionDAO keyActionDAO = KeyActionDAO.getInstance();
+	List keyActionDTOList = keyActionDAO.getKeyAction(keyActionDAO.IVR);
+
+	request.setAttribute("keyActionDTOList", keyActionDTOList);
+
+	ResponseModeDAO responseModeDAO = ResponseModeDAO.getInstance();
+
+	ResponseModeDTO responseModeDTO = responseModeDAO.getResponseMode(strScCode);
+
+	VoiceDAO voiceDAO = VoiceDAO.getInstance();
+	UsedVoiceDTO usedVoiceDTO = voiceDAO.getUsedResponseModeVoice(responseModeDTO.getScVoiceFile());
+
+	VoiceDTO voiceDTO = null;
+	if(usedVoiceDTO != null) {
+		voiceDTO = voiceDAO.getVoice(usedVoiceDTO.getWIndex());
+	}
+
+	List responseModeDTOList = responseModeDAO.getAllResponseMode(ResponseModeDAO.ACTIVE_IVR);
+
+	request.setAttribute("responseModeDTOList", responseModeDTOList);
+	request.setAttribute("responseModeDTO", responseModeDTO);
+	request.setAttribute("usedVoiceDTO", usedVoiceDTO);
+	request.setAttribute("voiceDTO", voiceDTO);
+
+		return "/ivr/emsResponseModeManageEdit.jsp";
+	}
+}

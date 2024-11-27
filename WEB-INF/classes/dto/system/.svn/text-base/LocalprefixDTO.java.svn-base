@@ -1,0 +1,88 @@
+package dto.system;
+
+public class LocalprefixDTO {
+	/**
+	 * member variables
+	 */
+	private String 	startprefix;
+	private String 	endprefix;
+	private int 	prefixtype;
+	private String 	endpointid;
+	private int 	protocol;
+	private String 	groupid;
+
+	private String 	prefixtype2;
+	private String 	errProcess;
+	private String 	errCondition;
+	
+	public LocalprefixDTO() {      
+		super();
+	}
+
+	public LocalprefixDTO(String startprefix, String endprefix, String prefixtype2, String errProcess, String errCondition) {      
+		
+		super();
+		
+		this.startprefix 	= startprefix;
+		this.endprefix		= endprefix;
+		this.prefixtype2	= prefixtype2;
+		this.errProcess		= errProcess;
+		this.errCondition	= errCondition;
+	}
+
+	public LocalprefixDTO(String startprefix, String endprefix, String prefixtype2, String errProcess, String errCondition, int protocol, String endpointid, String groupid, int prefixtype) {      
+		
+		super();
+		
+		this.startprefix 	= startprefix;
+		this.endprefix		= endprefix;
+		this.prefixtype2	= prefixtype2;
+		this.errProcess		= errProcess;
+		this.errCondition	= errCondition;
+		this.protocol		= protocol;
+		this.endpointid		= endpointid;
+		this.groupid		= groupid;
+		this.prefixtype		= prefixtype;
+	}
+	
+	/**
+	 * member functions
+	 */
+	public String	getStartprefix() { return this.startprefix; }
+	public void	setStartprefix(String startprefix ) { this.startprefix = startprefix; }
+
+	public String	getEndPrefix() { return this.endprefix; }
+	public void	setEndPrefix(String vEndprefix ) { 
+        //끝 Prefix에 '_'넣기
+		endprefix = "________________________________";
+        if(vEndprefix.length() < 32) {
+            int nLength = vEndprefix.length();
+            endprefix = vEndprefix + endprefix.substring(nLength);
+        }
+        else if (vEndprefix.length() == 32 )
+        	endprefix = vEndprefix ;
+        //System.out.println("Endprefix = " + endPrefix);		
+	}
+	
+	public int	getPrefixtype() { return this.prefixtype; }
+	public void	setPrefixtype(int prefixtype ) { this.prefixtype = prefixtype; }
+
+	public String	getEndpointid() { return this.endpointid; }
+	public void	setEndpointid(String endpointid ) { this.endpointid = endpointid; }
+
+	public int	getProtocol() { return this.protocol; }
+	public void	setProtocol(int protocol ) { this.protocol = protocol; }
+	
+	public String	getGroupid() { return this.groupid; }
+	public void	setGroupid(String groupid ) { this.groupid = groupid; }	
+	
+	public String	getPrefixtype2() { return this.prefixtype2; }
+	public void	setPrefixtype2(String prefixtype2 ) { this.prefixtype2 = prefixtype2; }
+	
+	public String	getErrProcess() { return this.errProcess; }
+	public void	setErrProcess(String errProcess ) { this.errProcess = errProcess; }
+	
+	public String	getErrCondition() { return this.errCondition; }
+	public void	setErrCondition(String errCondition ) { this.errCondition = errCondition; }	
+	
+}

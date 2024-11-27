@@ -1,0 +1,255 @@
+package com.acromate.dataio.server.tms.system ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.util.Str;
+
+public class TmsSystemInfoDIO extends DataIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private int    id ;
+    private StringBuilder name = new StringBuilder();
+    private StringBuilder ip = new StringBuilder();
+    private int    port ;
+    private StringBuilder userID = new StringBuilder();
+    private StringBuilder password = new StringBuilder();
+    private StringBuilder userSessionID = new StringBuilder();
+    private StringBuilder sysGroupID = new StringBuilder();
+    private int    x ;
+    private int    y ;
+    private int    status ;
+    private int    cc ;
+    private int    cps ;
+    private int    cpu ;
+    private int    memory ;
+    private StringBuilder attempt = new StringBuilder();
+    private StringBuilder answer = new StringBuilder();
+
+    public int    getId() { return id ; }
+    public void   setId( int id ) { this.id = id ; }
+
+    public String getName() { return name.toString() ; }
+    public void   setName( String name ) {
+        this.name.delete(0,this.name.length());
+        this.name.append(name) ;
+    }
+
+    public String getIp() { return ip.toString() ; }
+    public void   setIp( String ip ) {
+        this.ip.delete(0,this.ip.length());
+        this.ip.append(ip) ;
+    }
+
+    public int    getPort() { return port ; }
+    public void   setPort( int port ) { this.port = port ; }
+
+    public String getUserID() { return userID.toString() ; }
+    public void   setUserID( String userID ) {
+        this.userID.delete(0,this.userID.length());
+        this.userID.append(userID) ;
+    }
+
+    public String getPassword() { return password.toString() ; }
+    public void   setPassword( String password ) {
+        this.password.delete(0,this.password.length());
+        this.password.append(password) ;
+    }
+
+    public String getUserSessionID() { return userSessionID.toString() ; }
+    public void   setUserSessionID( String userSessionID ) {
+        this.userSessionID.delete(0,this.userSessionID.length());
+        this.userSessionID.append(userSessionID) ;
+    }
+
+    public String getSysGroupID() { return sysGroupID.toString() ; }
+    public void   setSysGroupID( String sysGroupID ) {
+        this.sysGroupID.delete(0,this.sysGroupID.length());
+        this.sysGroupID.append(sysGroupID) ;
+    }
+
+    public int    getX() { return x ; }
+    public void   setX( int x ) { this.x = x ; }
+
+    public int    getY() { return y ; }
+    public void   setY( int y ) { this.y = y ; }
+
+    public int    getStatus() { return status ; }
+    public void   setStatus( int status ) { this.status = status ; }
+
+    public int    getCc() { return cc ; }
+    public void   setCc( int cc ) { this.cc = cc ; }
+
+    public int    getCps() { return cps ; }
+    public void   setCps( int cps ) { this.cps = cps ; }
+
+    public int    getCpu() { return cpu ; }
+    public void   setCpu( int cpu ) { this.cpu = cpu ; }
+
+    public int    getMemory() { return memory ; }
+    public void   setMemory( int memory ) { this.memory = memory ; }
+
+    public String getAttempt() { return attempt.toString() ; }
+    public void   setAttempt( String attempt ) {
+        this.attempt.delete(0,this.attempt.length());
+        this.attempt.append(attempt) ;
+    }
+
+    public String getAnswer() { return answer.toString() ; }
+    public void   setAnswer( String answer ) {
+        this.answer.delete(0,this.answer.length());
+        this.answer.append(answer) ;
+    }
+
+    public DataIO getFieldObject(String field) {
+        if(field != null && field.trim().length() > 0) {
+        StringBuilder temp = new StringBuilder(field);
+        }   return super.getFieldObject(field);
+    }
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field);
+        if(compareFieldID(temp, "id") == true) {
+            if(!value.equals("")) id = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "name") == true) {
+            return setString(name, value);
+        }
+        if(compareFieldID(temp, "ip") == true) {
+            return setString(ip, value);
+        }
+        if(compareFieldID(temp, "port") == true) {
+            if(!value.equals("")) port = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "userID") == true) {
+            return setString(userID, value);
+        }
+        if(compareFieldID(temp, "password") == true) {
+            return setString(password, value);
+        }
+        if(compareFieldID(temp, "userSessionID") == true) {
+            return setString(userSessionID, value);
+        }
+        if(compareFieldID(temp, "sysGroupID") == true) {
+            return setString(sysGroupID, value);
+        }
+        if(compareFieldID(temp, "x") == true) {
+            if(!value.equals("")) x = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "y") == true) {
+            if(!value.equals("")) y = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "status") == true) {
+            if(!value.equals("")) status = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "cc") == true) {
+            if(!value.equals("")) cc = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "cps") == true) {
+            if(!value.equals("")) cps = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "cpu") == true) {
+            if(!value.equals("")) cpu = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "memory") == true) {
+            if(!value.equals("")) memory = Str.CheckNullInt(value);
+            return 0;
+        }
+        if(compareFieldID(temp, "attempt") == true) {
+            return setString(attempt, value);
+        }
+        if(compareFieldID(temp, "answer") == true) {
+            return setString(answer, value);
+        }
+        log.error("TmsSystemInfoDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "id", idx, value) == true) {
+            errorcode = getInteger(id, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "name", idx, value) == true) {
+            errorcode = getString(name.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "ip", idx, value) == true) {
+            errorcode = getString(ip.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "port", idx, value) == true) {
+            errorcode = getInteger(port, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "userID", idx, value) == true) {
+            errorcode = getString(userID.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "password", idx, value) == true) {
+            errorcode = getString(password.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "userSessionID", idx, value) == true) {
+            errorcode = getString(userSessionID.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "sysGroupID", idx, value) == true) {
+            errorcode = getString(sysGroupID.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "x", idx, value) == true) {
+            errorcode = getInteger(x, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "y", idx, value) == true) {
+            errorcode = getInteger(y, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "status", idx, value) == true) {
+            errorcode = getInteger(status, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "cc", idx, value) == true) {
+            errorcode = getInteger(cc, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "cps", idx, value) == true) {
+            errorcode = getInteger(cps, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "cpu", idx, value) == true) {
+            errorcode = getInteger(cpu, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "memory", idx, value) == true) {
+            errorcode = getInteger(memory, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "attempt", idx, value) == true) {
+            errorcode = getString(attempt.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "answer", idx, value) == true) {
+            errorcode = getString(answer.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return(0);
+    }
+}

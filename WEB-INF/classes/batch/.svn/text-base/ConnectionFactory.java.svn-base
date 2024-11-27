@@ -1,0 +1,63 @@
+package batch;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
+public class ConnectionFactory {
+	public static ConnectionFactory cf = null;
+	public Connection con;
+	public Connection conAfter;
+	//Statement stmt;
+	
+	public ConnectionFactory(){
+		
+		try {
+			this.init();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			System.out.println("클래스없다. DBHandler.java LINE 15  "+e.getMessage());
+			e.printStackTrace();
+		}catch(SQLException e){
+			System.out.println("SQLExcption:ErrorCode"+e.getErrorCode());
+			System.out.println("SQLExcption:SQLState"+e.getSQLState());
+			System.out.println("SQLExcption:ERROR MESSAGE"+e.getMessage());
+			
+		}
+	}
+	
+	public void init()throws ClassNotFoundException,SQLException{
+		Class.forName(DBConf.DRIVER);
+		this.con=DriverManager.getConnection(DBConf.URL,DBConf.USER,DBConf.PASS);
+		this.conAfter=DriverManager.getConnection(DBConf.URL,DBConf.USER,DBConf.PASS);
+		//this.stmt=this.con.createStatement();
+	}
+	
+	public static ConnectionFactory getConnectionFactory(){
+		if(cf == null){
+			cf = new ConnectionFactory();
+		}
+		return cf;		
+	}
+	
+	public  Connection getConnection(){
+		return con;
+	}
+	public  Connection getConnection(int i){
+		Connection retruncon = null;
+		if(i==0)
+			retruncon= con;
+		else if(i==1)
+			retruncon= conAfter;
+		return retruncon;
+	}
+	
+	/*
+	public Statement getStatement(){
+		return stmt;
+	}
+	*/
+	
+}

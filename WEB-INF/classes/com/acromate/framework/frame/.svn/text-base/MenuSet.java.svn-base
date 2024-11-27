@@ -1,0 +1,31 @@
+package com.acromate.framework.frame;
+
+
+public class MenuSet extends MenuItem{
+	// construction
+	public MenuSet(){
+		setSystemMenu(null);
+	}
+	public MenuSet( String pMenuID ){
+		setSystemMenu(null);
+		menuName = new StringBuilder(pMenuID);
+		eClassType =eClassType.mc_folder ;
+	}
+	// attribute
+	private SystemMenu 		pSystemMenu ;	/* up linker */
+	// object identifier
+	public String		getMenuID()	{ return getClassID() ; }
+	//tree menu
+	public void setSystemMenu(SystemMenu pSystemMenu) {
+		this.pSystemMenu = pSystemMenu;
+	}
+	// up linker
+	public String		getSystemID() {
+		return ( pSystemMenu != null ? pSystemMenu.getSystemID() : null ) ;
+	}
+
+	public SystemMenu getSystemMenu() {
+		return pSystemMenu;
+	}
+
+}

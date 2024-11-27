@@ -1,0 +1,75 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import business.LogHistory;
+
+import com.acromate.util.Str;
+import system.SystemConfigFileMake;
+
+import acromate.common.util.StringUtil;
+
+public class PortForward_MultiInsertCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 	forwardingPage 	= "";				
+		String 	resStr 			= "";
+		
+		try {
+			String 	strPortList = new String(Str.CheckNullString(req.getParameter("hiPortList")).getBytes("8859_1"), "euc-kr");
+			String 	userID		= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID			
+			String 	strProtocol = "";
+			String 	strInport 	= "";
+			String 	strIp 		= "";
+			String 	strOutport 	= "";
+
+			resStr = "PortForwarding_Hybrid.jsp";
+			
+			SystemConfigFileMake makeFile = new SystemConfigFileMake();
+			
+			// ############### LogHistory 처리  ###############
+			String		strIp2		= req.getRemoteAddr();
+			LogHistory	logHistory 	= new LogHistory();
+			// ##############################################
+			
+			
+			String[] 	portListStr = StringUtil.getParser(strPortList, "");
+			//System.out.println("#################### 배열 갯수 : "+portListStr.length);
+			
+			if(portListStr != null){
+				int count_no = portListStr.length-1;
+				//System.out.println("#################### count_no : "+count_no);
+				
+				for(int k=count_no; k >= 0; k--){
+					String[] dataStr = StringUtil.getParser(portListStr[k], "|");
+					if(dataStr != null){
+						strProtocol	= dataStr[0];
+						strInport	= dataStr[1];
+						strIp		= dataStr[2];
+						strOutport	= dataStr[3];
+						
+						int insertResult = makeFile.portForwardingFile_Hybrid(strProtocol, strInport, strIp, strOutport);
+						if(insertResult==1){
+							// ############### LogHistory 처리  ###############
+							int int_result = logHistory.LogHistorySave(userID+"|86|포트 포워딩 설정("+strIp+")|1|"+strIp2);
+							// ##############################################
+						}
+					}
+				}
+			}
+			
+			resStr = "PortForwarding_Hybrid.jsp";
+			res.sendRedirect("/bizportal/system/"+resStr);
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+	
+}

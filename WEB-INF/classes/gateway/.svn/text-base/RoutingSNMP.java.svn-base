@@ -1,0 +1,173 @@
+package gateway;
+
+import org.snmp4j.CommunityTarget;
+import org.snmp4j.PDU;
+import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
+import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.GenericAddress;
+import org.snmp4j.smi.Integer32;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.UnsignedInteger32;
+import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.snmp4j.event.ResponseListener;
+import org.snmp4j.smi.*;
+
+public class RoutingSNMP {
+
+	private OctetString get_community;
+	private Address targetaddress;
+	private TransportMapping transport;
+	private CommunityTarget comtarget;
+	private PDU pdu;
+	private ResponseEvent response;
+	private Snmp snmp;
+
+	public void snmpSetConf(String strAddress, String community) {
+
+		try {
+
+			get_community = new OctetString(community);
+			strAddress = strAddress + "/" + "161";
+
+			targetaddress = new UdpAddress(strAddress);
+			transport = new DefaultUdpTransportMapping();
+			transport.listen();
+
+			comtarget = new CommunityTarget();
+			comtarget.setCommunity(get_community);
+			comtarget.setVersion(SnmpConstants.version1);
+			comtarget.setAddress(targetaddress);
+			comtarget.setRetries(2);
+			comtarget.setTimeout(5000);
+
+			pdu = new PDU();
+			snmp = new Snmp(transport);
+			System.out.println("Connection Success");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void snmpCloseSession() {
+
+		try {
+			snmp.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Snmp retSnmp() {
+		return snmp;
+	}
+	
+	public String getSNMP(String snmpIP, String oid) {
+		RoutingSNMP routingSNMP = new RoutingSNMP();
+
+		routingSNMP.snmpSetConf(snmpIP,"public");
+		
+		String Result= routingSNMP.snmpGet(oid);
+		
+		routingSNMP.snmpCloseSession();
+		
+		return Result;
+	}
+
+	public void snmpSet(String strAddress, String community, String strOID, String Value, int type)
+	{
+		strAddress= strAddress+"/"+"161";
+		Address targetAddress = GenericAddress.parse(strAddress);
+		Snmp snmp;
+		try
+		{
+			TransportMapping transport = new DefaultUdpTransportMapping();
+			snmp = new Snmp(transport);
+			transport.listen();
+			CommunityTarget target = new CommunityTarget();
+			target.setCommunity(new OctetString(community));
+			target.setAddress(targetAddress);
+			target.setRetries(2);
+			target.setTimeout(5000);
+			target.setVersion(SnmpConstants.version1);
+			PDU pdu = new PDU();
+			
+			if(type==1){
+				int temp = Integer.parseInt(Value);
+				pdu.add(new VariableBinding(new OID(strOID), new Integer32(temp)));
+			}else if(type==2){
+				int temp = Integer.parseInt(Value);
+				pdu.add(new VariableBinding(new OID(strOID), new UnsignedInteger32(temp)));
+			}else if(type==3){
+				pdu.add(new VariableBinding(new OID(strOID), new OctetString(Value)));
+			}
+			
+			pdu.setType(PDU.SET);
+
+			ResponseListener listener = new ResponseListener() {
+				public void onResponse(ResponseEvent event) {
+					try{
+						((Snmp)event.getSource()).cancel(event.getRequest(), this);
+						System.out.println("Set Status is: "+event.getResponse().getErrorStatusText());
+					}catch(Exception e){
+						
+					}
+				}
+			};
+			snmp.send(pdu, target, null, listener);
+			snmp.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	public String snmpGet(String oid) {
+
+		String strOID		= "";
+		String str 			= "";
+		String strTemp1		= "";
+		
+		try {
+			strOID = oid;
+			pdu.add(new VariableBinding(new OID(strOID)));
+			pdu.setType(PDU.GET);				
+			response = snmp.get(pdu, comtarget);
+			
+			if (response.getResponse() != null) {
+				if (response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+					PDU pduresponse = response.getResponse();
+
+					strTemp1 = pduresponse.getVariableBindings().firstElement().toString();	
+					if (strTemp1.contains("=")) {
+						int len = strTemp1.indexOf("=");
+						strTemp1 = strTemp1.substring(len + 1, strTemp1.length());
+					}
+					
+					str = strTemp1;
+				}
+			} else {
+				System.out.println("Timeout occured");
+				//pdu.clear();
+				//response = null;
+				//str1 = "error";
+				//return str1;
+			}
+
+			pdu.clear();
+			response = null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return str;
+	}
+
+}
+

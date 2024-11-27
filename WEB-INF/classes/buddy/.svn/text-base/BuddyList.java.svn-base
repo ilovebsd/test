@@ -1,0 +1,305 @@
+package buddy;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+
+import dto.AddrBookDTO;
+import dto.DeptDTO;
+
+public class BuddyList {
+	public List getList(DataStatement stmt, String gubun, String str) {
+		DeptDTO deptDTO;
+        ResultSet rs = null;
+        List<DeptDTO> deptList = new ArrayList<DeptDTO>();
+        
+        String sql = "\n SELECT a.deptid, a.deptname, a.orgchartid, a.parentid, a.description, ";
+        sql = sql +  "\n        a.type, a.usepickup, a.keynumber, a.officebox, a.operation, "; 
+        sql = sql +  "\n        a.sortnumber1, a.sortnumber2, "; 
+        sql = sql +  "\n        (SELECT count(*) "; 
+        sql = sql +  "\n           FROM table_subscriber b "; 
+        sql = sql +  "\n          WHERE a.deptid = b.department "; 
+        if(!"".equals(str.trim())){
+        	if("1".equals(gubun)){
+        		sql += "\n            And b.id LIKE '%" + str + "%'";
+        	}else if("2".equals(gubun)){
+        		sql += "\n            And b.phonenum LIKE '%" + str + "%'";
+        	}else if("3".equals(gubun)){
+        		sql += "\n            And b.name LIKE '%" + str + "%'";
+        	}
+        }
+        sql = sql +  "\n        ) AS sumCnt "; 
+        sql = sql +  "\n   FROM table_dept a ";
+        sql = sql +  "\n  WHERE a.deptid != a.parentid ";
+        sql = sql +  "\n  Order By a.sortnumber1 ASC, a.sortnumber2 ASC, a.deptname ";
+
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	deptDTO = new DeptDTO();
+                	deptDTO.setDeptID(rs.getInt("deptid"));
+                	deptDTO.setDeptName(Str.CheckNullString(rs.getString("deptname")));
+                	deptDTO.setOrgchartID(rs.getInt("orgchartid"));
+                	deptDTO.setParentID(rs.getInt("parentid"));
+                	deptDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	deptDTO.setType(rs.getInt("type"));
+                	deptDTO.setUsePickup(rs.getInt("usepickup"));
+                	deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));
+                	deptDTO.setOfficeBox(Str.CheckNullString(rs.getString("officebox")));
+                	deptDTO.setOperation(rs.getInt("operation"));
+                	deptDTO.setSortNumber1(rs.getInt("sortnumber1"));
+                	deptDTO.setSortNumber2(rs.getInt("sortnumber2"));
+                	deptDTO.setSumCnt(rs.getInt("sumCnt"));
+         
+                	deptList.add(deptDTO);
+                }
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+
+        return deptList;
+	}
+
+	/*
+	 *  모든부서의 인원 수
+	 */
+	public int getCount(DataStatement stmt, String gubun, String str) {
+		int count = 0 ;
+        String sql = "\n SELECT count(b.id) "; 
+        sql = sql +  "\n   FROM table_dept a, table_subscriber b ";
+        sql = sql +  "\n  WHERE a.deptid = b.department ";
+        sql = sql +  "\n    AND a.deptid != a.parentid ";
+        if(!"".equals(str.trim())){
+            if(!"".equals(str.trim())){
+            	if("1".equals(gubun)){
+            		sql += "\n            And b.id LIKE '%" + str + "%'";
+            	}else if("2".equals(gubun)){
+            		sql += "\n            And b.phonenum LIKE '%" + str + "%'";
+            	}else if("3".equals(gubun)){
+            		sql += "\n            And b.name LIKE '%" + str + "%'";
+            	}
+            }
+        }
+
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+
+	/*
+	 *  선택부서의 인원 수
+	 */
+	public int getSubCount(DataStatement stmt, String deptid, String gubun, String str) {
+		int count = 0 ;
+        String sql = "\n SELECT count(*) "; 
+        sql = sql +  "\n   FROM table_dept a, table_subscriber b ";
+        sql = sql +  "\n  WHERE a.deptid = b.department ";
+        sql = sql +  "\n    AND a.deptid != a.parentid ";
+        if(deptid != null && !"".equals(deptid)){
+			sql +=   "\n    AND a.deptid = "+ deptid;        
+		}
+        if(!"".equals(str.trim())){
+            if(!"".equals(str.trim())){
+            	if("1".equals(gubun)){
+            		sql += "\n            And b.id LIKE '%" + str + "%'";
+            	}else if("2".equals(gubun)){
+            		sql += "\n            And b.phonenum LIKE '%" + str + "%'";
+            	}else if("3".equals(gubun)){
+            		sql += "\n            And b.name LIKE '%" + str + "%'";
+            	}
+            }
+        }
+        System.out.println("SQL문 : "+sql);
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next()) count = rs.getInt(1); 
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return count;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch (Exception e) {}
+        }
+        return count;
+    }
+
+	public List getSubList(DataStatement stmt, int pageNo, int pageSize, String deptid, String gubun, String str) {
+	    DeptDTO deptDTO;
+        List<DeptDTO> deptList = new ArrayList<DeptDTO>();
+        
+        String sql = "\n SELECT a.deptid, a.deptname, a.orgchartid, a.parentid, a.description, ";
+        sql = sql +  "\n        a.type, a.usepickup, a.keynumber, a.officebox, a.operation, " ;
+        sql = sql +  "\n        a.sortnumber1, a.sortnumber2, b.id, b.name, b.position, ";
+        sql = sql +  "\n        b.phonenum, b.mobile, b.extension, b.mailaddress, b.companynumber, " ;
+        sql = sql +  "\n        b.homenumber, b.fax, b.birthday, b.homepage, b.introduction ";
+        sql = sql +  "\n   FROM table_dept a, table_subscriber b " ;
+        sql = sql +  "\n  WHERE a.deptid = b.department " ;
+        sql = sql +  "\n    AND a.deptid != a.parentid " ;
+        if(deptid != null && !"".equals(deptid)){
+        	sql +=   "\n    AND a.deptid = " + deptid;
+        }
+        if(!"".equals(str.trim())){
+            if(!"".equals(str.trim())){
+            	if("1".equals(gubun)){
+            		sql += "\n            And b.id LIKE '%" + str + "%'";
+            	}else if("2".equals(gubun)){
+            		sql += "\n            And b.phonenum LIKE '%" + str + "%'";
+            	}else if("3".equals(gubun)){
+            		sql += "\n            And b.name LIKE '%" + str + "%'";
+            	}
+            }
+        }
+        sql = sql +  "\n  Order by b.name offset "+pageNo+" limit "+pageSize ;
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	deptDTO = new DeptDTO();
+                	
+                	deptDTO.setDeptID(rs.getInt("deptid"));								//부서코드
+                	deptDTO.setDeptName(Str.CheckNullString(rs.getString("deptname"))); //부서명
+                	deptDTO.setOrgchartID(rs.getInt("orgchartid"));
+                	deptDTO.setParentID(rs.getInt("parentid"));
+                	deptDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	deptDTO.setType(rs.getInt("type"));
+                	deptDTO.setUsePickup(rs.getInt("usepickup"));
+                	deptDTO.setKeyNumber(Str.CheckNullString(rs.getString("keynumber")));            	
+                	deptDTO.setOfficeBox(Str.CheckNullString(rs.getString("officebox")));            	
+                	deptDTO.setOperation(rs.getInt("operation"));
+                	deptDTO.setSortNumber1(rs.getInt("sortnumber1"));
+                	deptDTO.setSortNumber2(rs.getInt("sortnumber2"));
+                	deptDTO.setID(Str.CheckNullString(rs.getString("id")));            	
+                	deptDTO.setName(Str.CheckNullString(rs.getString("name")));            	
+                	deptDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	deptDTO.setPhoneNum(Str.CheckNullString(rs.getString("phonenum")));
+                	deptDTO.setMobile(Str.CheckNullString(rs.getString("mobile")));
+                	deptDTO.setExtension(Str.CheckNullString(rs.getString("extension")));
+                	deptDTO.setMailAddress(Str.CheckNullString(rs.getString("mailaddress")));
+                	deptDTO.setCompanyNumber(Str.CheckNullString(rs.getString("companynumber")));
+                	deptDTO.setHomeNumber(Str.CheckNullString(rs.getString("homenumber")));
+                	deptDTO.setFax(Str.CheckNullString(rs.getString("fax")));
+                	deptDTO.setBirthday(Str.CheckNullString(rs.getString("birthday")));
+                	deptDTO.setHomePage(Str.CheckNullString(rs.getString("homepage")));
+                	deptDTO.setIntroduction(Str.CheckNullString(rs.getString("introduction")));
+                	
+                	deptList.add(deptDTO) ;
+                }
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        
+        return deptList;
+    }
+
+	/*
+	 * 조직도 내보내기
+	 */
+	public List getExportList(DataStatement stmt) {
+	    DeptDTO deptDTO;
+        List<DeptDTO> deptList = new ArrayList<DeptDTO>();
+        
+        String sql = "\n SELECT b.id, b.name, b.position, b.department, b.mobile, ";
+        sql = sql +  "\n        b.phonenum, b.extension, b.homenumber, b.mailaddress, " ;
+        sql = sql +  "\n        a.deptid, a.parentid, a.sortnumber1, a.sortnumber2, ";
+        sql = sql +  "\n        (case when a.parentid = 1 then a.deptname " ;
+        sql = sql +  "\n                                  else (SELECT deptname ";
+        sql = sql +  "\n                                          FROM table_dept ";
+        sql = sql +  "\n                                         WHERE deptid = a.parentid ) ";
+        sql = sql +  "\n         end) AS parentname,";
+        sql = sql +  "\n        (case when a.parentid = 1 then '' ";
+        sql = sql +  "\n                                  else a.deptname ";
+        sql = sql +  "\n         end) AS deptname ";
+        sql = sql +  "\n         ";
+        sql = sql +  "\n         ";
+        sql = sql +  "\n         ";
+        sql = sql +  "\n         ";
+        sql = sql +  "\n   FROM table_dept a, table_subscriber b " ;
+        sql = sql +  "\n  WHERE a.deptid  = b.department " ;
+        sql = sql +  "\n    AND a.deptid != a.parentid " ;
+        sql = sql +  "\n  Order by a.sortnumber1, a.sortnumber2 " ;
+        
+        System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	deptDTO = new DeptDTO();
+                	
+                	deptDTO.setID(Str.CheckNullString(rs.getString("id")));            	
+                	deptDTO.setName(Str.CheckNullString(rs.getString("name")));            	
+                	deptDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	deptDTO.setMobile(Str.CheckNullString(rs.getString("mobile")));
+                	deptDTO.setCompanyNumber(Str.CheckNullString(rs.getString("phonenum")));
+                	deptDTO.setExtension(Str.CheckNullString(rs.getString("extension")));
+                	deptDTO.setHomeNumber(Str.CheckNullString(rs.getString("homenumber")));
+                	deptDTO.setMailAddress(Str.CheckNullString(rs.getString("mailaddress")));
+                	deptDTO.setDeptID(rs.getInt("deptid"));								//부서코드
+                	deptDTO.setParentID(rs.getInt("parentid"));
+                	deptDTO.setSortNumber1(rs.getInt("sortnumber1"));
+                	deptDTO.setSortNumber2(rs.getInt("sortnumber2"));
+                	deptDTO.setDeptName(Str.CheckNullString(rs.getString("deptname"))); //부서명(Depth2)
+                	deptDTO.setParentName(Str.CheckNullString(rs.getString("parentname")));	//부서명(Depth1)
+                	deptList.add(deptDTO) ;
+                }
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return deptList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        
+        return deptList;
+    }
+	
+	
+	
+}

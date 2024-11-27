@@ -1,0 +1,179 @@
+package com.acromate.server;
+
+import java.rmi.*;
+import java.rmi.server.*;
+import java.sql.*;
+
+public class  RemoteConnectionImpl extends UnicastRemoteObject
+	implements IRemoteConnection
+{
+
+	private static final long serialVersionUID = 1L;
+	private Connection sqlConnection;
+	private String userid;
+
+	/*******************************************************************
+	 *
+	 * @param sqlCon
+	 * @throws RemoteException
+	 */
+	public RemoteConnectionImpl(Connection sqlCon, String userId)
+	throws RemoteException
+	{
+		super();
+		sqlConnection = sqlCon;
+		userid = userId;
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public IRemoteStatement createStatement()
+	throws RemoteException,SQLException
+	{
+		RemoteStatementImpl StmtImplInstance =
+	    new RemoteStatementImpl(sqlConnection.createStatement());
+		return  (IRemoteStatement)StmtImplInstance;
+	}
+        public IRemoteStatement createStatement(int resultSetType, int resultSetConcurrency) throws RemoteException,SQLException
+        {
+            RemoteStatementImpl StmtImplInstance =
+            new RemoteStatementImpl(sqlConnection.createStatement(resultSetType,resultSetConcurrency));
+            return  (IRemoteStatement)StmtImplInstance;
+        }
+        public  IRemoteStatement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws RemoteException,SQLException
+        {
+            RemoteStatementImpl StmtImplInstance =
+            new RemoteStatementImpl(sqlConnection.createStatement(resultSetType,resultSetConcurrency,resultSetHoldability));
+            return  (IRemoteStatement)StmtImplInstance;
+        }
+
+	/*******************************************************************
+	 *
+	 */
+	public IRemotePreparedStatement prepareStatement(String query)
+	throws RemoteException,SQLException
+	{
+		RemotePreparedStatementImpl StmtImplInstance =
+	    new RemotePreparedStatementImpl(sqlConnection.prepareStatement(query));
+		return  (RemotePreparedStatementImpl)StmtImplInstance;
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void clearWarnings() throws RemoteException, SQLException {
+		sqlConnection.clearWarnings();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void commit() throws RemoteException, SQLException {
+	    sqlConnection.commit();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public boolean getAutoCommit() throws RemoteException, SQLException {
+		return sqlConnection.getAutoCommit();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public String getCatalog() throws RemoteException, SQLException {
+		return sqlConnection.getCatalog();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public boolean isClosed() throws RemoteException, SQLException {
+		return sqlConnection.isClosed();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public boolean isReadOnly() throws RemoteException, SQLException {
+		return sqlConnection.isReadOnly();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public String nativeSQL(String sql) throws RemoteException, SQLException {
+		return sqlConnection.nativeSQL(sql);
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void rollback() throws RemoteException, SQLException {
+		sqlConnection.rollback();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void setAutoCommit(boolean autoCommit) throws RemoteException, SQLException {
+		sqlConnection.setAutoCommit(autoCommit);
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void setCatalog(String catalog) throws RemoteException, SQLException {
+		sqlConnection.setCatalog(catalog);
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void setHoldability(int holdability) throws RemoteException, SQLException {
+		sqlConnection.setHoldability(holdability);
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void setReadOnly(boolean readOnly) throws RemoteException, SQLException {
+		sqlConnection.setReadOnly(readOnly);
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void setTransactionIsolation(int level) throws RemoteException, SQLException {
+		sqlConnection.setTransactionIsolation(level);
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public int getTransactionIsolation() throws RemoteException, SQLException {
+		return sqlConnection.getTransactionIsolation();
+	}
+
+	/*******************************************************************
+	/**
+	 *
+	 */
+	public int getHoldability() throws RemoteException, SQLException {
+		return sqlConnection.getHoldability();
+	}
+
+	/*******************************************************************
+	 *
+	 */
+	public void closeConnection() throws RemoteException,SQLException
+	{
+		ConnectionPool pool = ConnectionManager.getInstance().getConnectionPool(userid);
+		if(pool != null) {
+			pool.addConnection(sqlConnection);
+			System.out.println("--- #" + sqlConnection.hashCode() + " is put connectionPool");
+		}
+	}
+}

@@ -1,0 +1,73 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class SIPRegServerDTO
+{
+
+    private String subID;
+    private String serverIP;
+    private int    serverPort;
+    private int    serverTransport;
+    private String userDomain;
+    private String userAuthID;
+    private String userAuthPasswd;
+    private int    expireTime;
+
+
+    public String getSubID() { return this.subID; }
+    public void   setSubID(String vSubID ) { this.subID = vSubID; }
+
+    public String getServerIP() { return this.serverIP; }
+    public void   setServerIP(String vServerIP ) { this.serverIP = vServerIP; }
+
+    public int    getServerPort() { return this.serverPort; }
+    public void   setServerPort(int vServerPort ) { this.serverPort = vServerPort; }
+
+    public int    getServerTransport() { return this.serverTransport; }
+    public void   setServerTransport(int vServerTransport ) { this.serverTransport = vServerTransport; }
+
+    public String getUserDomain() { return this.userDomain; }
+    public void   setUserDomain(String vUserDomain ) { this.userDomain = vUserDomain; }
+
+    public String getUserAuthID() { return this.userAuthID; }
+    public void   setUserAuthID(String vUserAuthID ) { this.userAuthID = vUserAuthID; }
+
+    public String getUserAuthPasswd() { return this.userAuthPasswd; }
+    public void   setUserAuthPasswd(String vUserAuthPasswd ) { this.userAuthPasswd = vUserAuthPasswd; }
+
+    public int    getExpireTime() { return this.expireTime; }
+    public void   setExpireTime(int vExpireTime ) { this.expireTime = vExpireTime; }
+
+
+
+
+
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer("");
+
+        sb.append("(subID:"                       + getSubID() + ") ") ;
+        sb.append("[serverIP:"                    + getServerIP() + "] ") ;
+        sb.append("[serverPort:"                  + getServerPort() + "] ") ;
+        sb.append("[serverTransport:"             + getServerTransport() + "] ") ;
+        sb.append("[userDomain:"                  + getUserDomain() + "] ") ;
+        sb.append("[userAuthID:"                  + getUserAuthID() + "] ") ;
+        sb.append("[userAuthPasswd:"              + getUserAuthPasswd() + "] ") ;
+        sb.append("[expireTime:"                  + getExpireTime() + "] ") ;
+        return sb.toString();
+    }
+}
+
+

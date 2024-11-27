@@ -1,0 +1,320 @@
+package system;
+
+import java.sql.ResultSet ;
+import java.util.ArrayList ;
+import java.util.List ;
+import acromate.common.util.Str ;
+import com.acromate.driver.db.DataStatement ;
+
+import dto.ipcs.IpcsListDTO;
+import dto.system.SystemInfoDTO;
+
+public class SystemInfoList {
+	public List getList(DataStatement stmt) {		
+		SystemInfoDTO 			systemInfoDTO;
+        List<SystemInfoDTO> 	systemInfoList 	= new ArrayList<SystemInfoDTO>();
+        
+//        String sql = "SELECT A.EndpointID, A.ServiceFlag, A.StateFlag, A.InCurrentCall, A.OutCurrentCall, A.TimeOutFault, B.RegiTime, B. ServerExpireTime ";
+//        sql = sql + "\n FROM table_RouteState A ";
+//        sql = sql + "\n LEFT OUTER JOIN table_SIPRegServer B ON (A.EndpointID = B.subid) ";
+//        sql = sql + "\n where A.endpointClass != 35 and A.endpointClass != 21 ";
+//        sql = sql + "\n Order By A.EndpointID ";
+        
+        String sql = "SELECT A.EndpointID, A.ServiceFlag, A.StateFlag, A.InCurrentCall, A.OutCurrentCall, A.TimeOutFault, "; 
+        sql = sql + "\n (select regitime from table_SIPRegServer where subid = B.subid) as RegiTime, ";
+        sql = sql + "\n (select serverexpiretime from table_SIPRegServer where subid = B.subid) as ServerExpireTime "; 
+        sql = sql + "\n FROM table_RouteState A ";
+        sql = sql + "\n LEFT OUTER JOIN table_routemonitor B ON (A.EndpointID = B.EndpointID) "; 
+        sql = sql + "\n where A.endpointClass != 35 and A.endpointClass != 21 ";
+        sql = sql + "\n Order By A.EndpointID ";
+        
+        //System.out.println("SQL문 : "+sql);        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                
+                while (rs.next()) {
+                	systemInfoDTO = new SystemInfoDTO(
+                    	Str.CheckNullString(rs.getString("EndpointID")),
+                        rs.getInt("StateFlag"),                        
+                        rs.getInt("ServiceFlag"),
+                        rs.getInt("InCurrentCall"),
+                        rs.getInt("OutCurrentCall"),
+                        rs.getInt("TimeOutFault"),
+                        rs.getInt("RegiTime"),
+                        rs.getInt("ServerExpireTime")
+                    );
+
+                    systemInfoList.add(systemInfoDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return systemInfoList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return systemInfoList;
+    }
+
+	public List getTotalCount(DataStatement stmt) {
+		IpcsListDTO 		ipcsListDTO;
+        List<IpcsListDTO> 	ipcsCountList 	= new ArrayList<IpcsListDTO>();
+		
+        String sql = "SELECT ep.ENDPOINTID as endPointId From Table_SipEndpoint ep ";
+        sql = sql + "\n  LEFT JOIN  table_e164Route route ON ep.ENDPOINTID = route.ENDPOINTID  and route.routingNumbertype in (1, 2, 5) ";
+        sql = sql + "\n  LEFT OUTER JOIN TABLE_SIPCONTACT contact ON ep.ENDPOINTID = contact.ENDPOINTID ";
+        sql = sql + "\n  JOIN  table_e164 e164 ON e164.e164 = route.e164 "; 
+        sql = sql + "\n  LEFT OUTER JOIN  table_SUBSCRIBER sub ON ep.ENDPOINTID = sub.id ";
+        sql = sql + "\n  WHERE ep.ENDPOINTID not like 'ACRO_MS_%' ";
+        sql = sql + "\n    And ep.ENDPOINTID not in (select coalesce(auth_id,'') from NASA_TRUNK_SET) ";
+        //sql = sql + "\n group by ep.endPointId ";
+        sql = sql + "\n group by sub.name, sub.position, contact.SIGNALADDRESS, e164.startFlag, ep.endPointId, ep.ZONECODE, e164.extensionnumber, route.e164, contact.registerid, sub.department ";
+        
+        //System.out.println("SQL문1 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsListDTO = new IpcsListDTO(
+                        Str.CheckNullString(rs.getString("endPointId"))
+                    );
+
+                	ipcsCountList.add(ipcsListDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsCountList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsCountList;
+    }
+	
+	public List getCount(DataStatement stmt) {
+		IpcsListDTO 		ipcsListDTO;
+        List<IpcsListDTO> 	ipcsCountList 	= new ArrayList<IpcsListDTO>();
+		
+        String sql = "SELECT ep.ENDPOINTID as endPointId From Table_SipEndpoint ep ";
+        sql = sql + "\n  LEFT JOIN  table_e164Route route ON ep.ENDPOINTID = route.ENDPOINTID  and route.routingNumbertype in (1, 2, 5) ";
+        sql = sql + "\n  LEFT OUTER JOIN TABLE_SIPCONTACT contact ON ep.ENDPOINTID = contact.ENDPOINTID ";
+        sql = sql + "\n  JOIN  table_e164 e164 ON e164.e164 = route.e164 "; 
+        sql = sql + "\n  LEFT OUTER JOIN  table_SUBSCRIBER sub ON ep.ENDPOINTID = sub.id ";
+        sql = sql + "\n  WHERE ep.ENDPOINTID not like 'ACRO_MS_%' ";
+        sql = sql + "\n    And ep.ENDPOINTID not in (select coalesce(auth_id,'') from NASA_TRUNK_SET) ";
+        sql = sql + "\n    And (contact.SIGNALADDRESS is not null And contact.SIGNALADDRESS <> '') ";
+        //sql = sql + "\n group by ep.endPointId ";
+        sql = sql + "\n group by sub.name, sub.position, contact.SIGNALADDRESS, e164.startFlag, ep.endPointId, ep.ZONECODE, route.e164, contact.registerid, sub.department ";
+        
+        //System.out.println("SQL문2 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	ipcsListDTO = new IpcsListDTO(
+                        Str.CheckNullString(rs.getString("endPointId"))
+                    );
+
+                	ipcsCountList.add(ipcsListDTO);
+                }
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ipcsCountList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return ipcsCountList;
+    }
+
+	public String getUpdateVersion(DataStatement stmt) {
+		String returnVal = "";
+		
+        String sql = "Select version, updatedate From table_version Where moudlename = 'bizportal' ";
+        //System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next())
+                	returnVal = Str.CheckNullString(rs.getString(1))+"|"+Str.CheckNullString(rs.getString(2));
+                
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+	public String getUpdateServerIp(DataStatement stmt) {
+		String returnVal = "";
+		
+        String sql = "Select valueinfo From table_updateenv Where envname = 'updateserver' ";
+        //System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next())
+                	returnVal = Str.CheckNullString(rs.getString(1));
+                
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+	public String getNetworkState(DataStatement stmt) {
+		String returnVal = "";
+		
+        String sql = "select wanstate, lanstate from table_networkstate ";
+        //System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next())
+                	returnVal = Str.CheckNullString(rs.getString(1))+"|"+Str.CheckNullString(rs.getString(2));
+                
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+	public int chkGateway(DataStatement stmt) {
+		int returnVal = 0;
+		
+        String sql = "Select count(*) From table_trzone Where zonecode = 'Z0002' And zoneip = '10.0.0.1' ";
+        //System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next())
+                	returnVal = rs.getInt(1);
+                
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+	public String getSoftWareVersion(DataStatement stmt) {
+		String returnVal = "";
+		
+        String sql = "Select version From table_version Where moudlename = 'ddns' ";
+        //String sql = "Select version From table_version Where moudlename = 'bizportal' ";
+        //System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next())
+                	returnVal = Str.CheckNullString(rs.getString(1));
+                
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+	public int getCallCount(DataStatement stmt) {
+		int returnVal = 0;
+		
+        String sql = "Select count(*) From table_connectedcall ";
+        //System.out.println("SQL문 : "+sql);
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                if (rs.next())
+                	returnVal = rs.getInt(1);
+                
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");                        
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return returnVal;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return returnVal;
+    }
+
+}

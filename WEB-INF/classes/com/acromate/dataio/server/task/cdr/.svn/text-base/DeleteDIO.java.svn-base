@@ -1,0 +1,46 @@
+package com.acromate.dataio.server.task.cdr ;
+
+import com.acromate.util.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.data.code.AppCode;
+import com.acromate.dataio.server.task.TaskDIO;
+import com.acromate.util.Str;
+
+public class DeleteDIO extends TaskDIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private int    leaveDay ;
+
+    public int    getLeaveDay() { return leaveDay ; }
+    public void   setLeaveDay( int leaveDay ) { this.leaveDay = leaveDay ; }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "leaveDay".toLowerCase()) == true) {
+            if(!value.equals("")) leaveDay = Str.CheckNullInt(value);
+            return 0;
+        }
+        int result = super.setFieldData(field, value);
+        if (result != AppCode.ERR_NOERROR) log.error("DeleteDIO - Not founded field :" + field);
+        return result;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "leaveDay", idx, value) == true) {
+            errorcode = getInteger(leaveDay, value);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return super.getFieldData(field, idx, value);
+    }
+}
+

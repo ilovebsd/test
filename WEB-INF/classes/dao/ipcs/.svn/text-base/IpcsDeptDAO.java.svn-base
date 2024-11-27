@@ -1,0 +1,642 @@
+package dao.ipcs;
+
+import acromate.*;
+import java.sql.ResultSet;
+import java.util.Vector;
+import java.util.List;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import acromate.ConnectionManager;
+import dto.ipcs.IpcsDeptDTO;
+import java.io.File;
+import acromate.common.StaticString;
+
+public class IpcsDeptDAO {
+
+    public IpcsDeptDAO() {}
+    
+    public boolean ipcsDeptInsert(IpcsDeptDTO ipcsDeptDTO) {
+    	boolean 		returnVal = false;
+    	DataStatement 	statement = null;
+    	try {
+	    	int 	count 				= 0;
+	    	int 	nResult 			= 0;
+	    	// TABLE_Localprefix 테이블
+	    	String 	startprefix			= ipcsDeptDTO.getStartprefix().trim();		//  
+	    	String 	endprefix			= ipcsDeptDTO.getEndprefix().trim();		// 
+	    	int 	prefixtype			= ipcsDeptDTO.getPrefixtype();				// 
+	    	int 	protocol			= ipcsDeptDTO.getProtocol();				// 
+	    	String 	endpointid			= ipcsDeptDTO.getEndpointid().trim();		//  
+	    	String 	groupid				= ipcsDeptDTO.getGroupid().trim();			// 	    	
+	    	// TABLE_Keynumberid 테이블
+	    	String 	keynumberid			= ipcsDeptDTO.getKeynumberid().trim();		// 
+	    	String 	keynumberdesc		= ipcsDeptDTO.getKeynumberdesc().trim();	// 
+	    	int 	hunt				= ipcsDeptDTO.getHunt();					// 
+	    	int 	huntindex			= ipcsDeptDTO.getHuntindex();				// 
+	    	int 	maxhuntindex		= ipcsDeptDTO.getMaxhuntindex();			// 
+	    	int 	huntconstraint		= ipcsDeptDTO.getHuntconstraint();			// 
+
+	    	String 	k_endpointid		= ipcsDeptDTO.getK_endpointid();			// 
+	    	int 	k_protocol			= ipcsDeptDTO.getK_protocol();				// 
+
+	    	String			sql 		= "";
+	    	ResultSet 		rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+	        /***** TABLE_Localprefix 에 저장 ********/
+	        sql = "INSERT INTO TABLE_Localprefix " +
+            "(Startprefix, Endprefix, Prefixtype, Endpointid) "
+            + "VALUES ('"
+            + startprefix + "','"
+            + endprefix + "',"
+            + prefixtype + ",'"
+            + endpointid + "')";
+//			System.out.println(sql);
+			nResult = statement.executeUpdate(sql);
+			if (nResult < 1){	throw new Exception(l.x("[부서대표번호 오류] 단말에 ","[Phone Number Error]  In the Phone, the Number")+keynumberid+ l.x(" 부서대표번호 할당이 실패하였습니다."," join failed."));	}
+			
+	        /***** TABLE_Keynumberid 에 저장 ********/
+	        if(k_protocol==0){
+	        	sql = "INSERT INTO TABLE_Keynumberid " +
+	            "(Keynumberid, Keynumberdesc, Hunt, Maxhuntindex, Huntconstraint, Groupid, Endpointid) "
+	            + "VALUES ('"
+	            + keynumberid + "','"
+	            + keynumberdesc + "',"
+	            + hunt + ","
+	            + maxhuntindex + ","
+	            + huntconstraint + ",'"
+	            + groupid +"','"
+				+ k_endpointid +"')";
+	        }else{
+				sql = "INSERT INTO TABLE_Keynumberid " +
+	            "(Keynumberid, Keynumberdesc, Hunt, Maxhuntindex, Huntconstraint, Groupid, Endpointid, Protocol) "
+	            + "VALUES ('"
+	            + keynumberid + "','"
+	            + keynumberdesc + "',"
+	            + hunt + ","
+	            + maxhuntindex + ","
+	            + huntconstraint + ",'"
+	            + groupid +"','"
+				+ k_endpointid +"',"
+				+ k_protocol +")";
+	        }
+	        
+//			System.out.println(sql);
+			nResult = statement.executeUpdate(sql);
+			if (nResult < 1){	throw new Exception(l.x("[부서대표번호 오류] 단말에 ","[Phone Number Error]  In the Phone, the Number")+keynumberid+ l.x(" 부서대표번호 할당이 실패하였습니다."," join failed."));	}
+			
+//            System.out.println("결과값1 :"+returnVal);
+            
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+//	        System.out.println("결과값2 :"+returnVal);
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+//            System.out.println("결과값3 :"+returnVal);
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;
+        
+    }
+
+    public boolean ipcsDeptDelete(String hiKeynumberid) {
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	Vector 			vecTmpUserE164 	= new Vector();
+    	ResultSet 		rs 				= null;
+    	try {
+    		File      	tempFile    = null;  						// 파일 객체
+    		int 		count 		= 0;
+    		String 		sounfFile 	= "";
+	    	String 		keynumberid	= hiKeynumberid;		// 부서대표번호
+	    	String		sql 		= "";
+	    	
+//	    	System.out.println("받은 부서대표번호 :"+keynumberid);
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+            /***** Table_Localprefix 삭제 ********/
+            sql = "DELETE FROM Table_Localprefix WHERE endpointid='"+keynumberid+"'" ;
+//            System.out.println("2:"+sql);
+            statement.executeUpdate(sql);
+            
+            /***** Table_Keynumberid 삭제 ********/
+            sql = "DELETE FROM Table_Keynumberid WHERE keynumberid='" + keynumberid + "'";
+//            System.out.println("3:"+sql);
+            statement.executeUpdate(sql);
+                        
+            /***** Table_Dept 부서대표번호 초기화 ********/
+            sql = "Update Table_Dept Set keynumber = null WHERE keynumber = '" + keynumberid + "'";
+//            System.out.println("4:"+sql);
+            statement.executeUpdate(sql);
+
+            /***** Table_Keynumber 삭제 ********/
+            sql = "DELETE FROM Table_Keynumber WHERE keynumberid='" + keynumberid + "'";
+//            System.out.println("5:"+sql);
+            statement.executeUpdate(sql);
+
+            /***** Table_AddMRBT 삭제 ********/
+            String sql2 = " SELECT sound FROM Table_AddMRBT WHERE e164 = '" + keynumberid + "' ";
+            if (statement != null) {
+            	rs = statement.executeQuery(sql2);
+                if (rs.next()) sounfFile = rs.getString(1); 
+                rs.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+            
+
+            sql = "DELETE FROM Table_AddMRBT WHERE e164='" + keynumberid + "'";
+//            System.out.println("6:"+sql);
+            statement.executeUpdate(sql);
+
+
+            /***** table_keynumberforward_days 삭제 (대표번호 착신전환)********/
+            sql = "DELETE FROM table_keynumberforward_days WHERE keynumber='" + keynumberid + "'";
+//            System.out.println("7:"+sql);
+            statement.executeUpdate(sql);
+            
+            /***** table_keynumberforward_week 삭제 (대표번호 착신전환)********/
+            sql = "DELETE FROM table_keynumberforward_week WHERE keynumber='" + keynumberid + "'";
+//            System.out.println("8:"+sql);
+            statement.executeUpdate(sql);
+            
+            
+            if(!"".equals(sounfFile)&&(sounfFile!=null)){
+				// 사용하던 음원 파일 삭제
+                int nameChk1 = wavFileChk(statement, sounfFile);
+            	if(nameChk1==0){
+            		int mrbtChk1 = wavMRBTFileChk(statement, sounfFile);
+            		if(mrbtChk1==0){
+            			int queueChk1 = wavQueueFileChk(statement, sounfFile);
+            			if(queueChk1==0){
+	                		tempFile = new File(StaticString.userWavPath+"/"+sounfFile);
+	                    	tempFile.delete();
+            			}
+            		}
+            	}
+            }
+            
+
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            try {
+                if (rs != null)	rs.close();
+            } catch (Exception e) {}
+            
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    public boolean ipcsDeptEdit(String hiKeynumberid, String hiHunt, String hiDesc, String endpointid, int huntconstraint, int protocol) {
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	try {
+	    	String 		keynumberid	= hiKeynumberid;				// 부서대표번호
+	    	int 		hunt		= Integer.parseInt(hiHunt);						// Hunt 유형
+	    	String 		desc		= hiDesc;		// 설명
+	    	String		sql 		= "";
+	    	ResultSet 	rs 			= null;
+	    		    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+	        /***** TABLE_Keynumberid 에 저장 ********/
+	        String soundFile = getSound(statement, hiKeynumberid);
+	        if(!"".equals(soundFile) && soundFile!=null){
+	        	huntconstraint = huntconstraint + 4;	// MRBT 파일이 있으면 4를 더함
+	        }
+	    	if(protocol==0){
+		    	sql = "Update TABLE_Keynumberid  Set " +
+	            " Hunt = "+ hunt + "," +
+	            " Keynumberdesc = '"+ desc + "', "+
+	            " huntconstraint = "+ huntconstraint + "," +
+	            " endpointid = '"+ endpointid + "' "+
+	            " Where Keynumberid = '"+ keynumberid + "' ";
+	        }else{
+		    	sql = "Update TABLE_Keynumberid  Set " +
+	            " Hunt = "+ hunt + "," +
+	            " Keynumberdesc = '"+ desc + "', "+
+	            " huntconstraint = "+ huntconstraint + "," +
+	            " endpointid = '"+ endpointid + "', "+
+	            " protocol = "+ protocol + " " +
+	            " Where Keynumberid = '"+ keynumberid + "' ";
+	        }
+			statement.executeUpdate(sql);
+			//System.out.println("################ sql : "+sql);
+			
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+    
+	public String getSound(DataStatement stmt, String e164) {
+		String strValue = "" ;
+		String sql = "\n SELECT sound " ;
+		sql = sql +  "\n   FROM table_keynumberid ";
+		sql = sql +  "\n  WHERE keynumberid = '" + e164 + "' ";
+        ResultSet rs1 = null;
+        try {
+            if (stmt != null) {
+            	rs1 = stmt.executeQuery(sql);
+                if (rs1.next()) strValue = rs1.getString(1); 
+                rs1.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return strValue;
+        } finally {
+            try {
+                if (rs1 != null)
+                	rs1.close();
+            } catch (Exception e) {}
+        }
+        return strValue;
+    }
+    
+    public boolean ipcsDeptNewInsert(IpcsDeptDTO ipcsDeptDTO) {
+    	boolean 		returnVal = false;
+    	DataStatement 	statement = null;
+    	try {
+	    	int 	count 				= 0;
+	    	int 	nResult 			= 0;
+	    	// TABLE_Localprefix 테이블
+	    	String 	startprefix			= ipcsDeptDTO.getStartprefix().trim();		//  
+	    	String 	endprefix			= ipcsDeptDTO.getEndprefix().trim();		// 
+	    	int 	prefixtype			= ipcsDeptDTO.getPrefixtype();				// 
+	    	int 	protocol			= ipcsDeptDTO.getProtocol();				// 
+	    	String 	endpointid			= ipcsDeptDTO.getEndpointid().trim();		//  
+	    	String 	groupid				= ipcsDeptDTO.getGroupid().trim();			// 	    	
+	    	// TABLE_Keynumberid 테이블
+	    	String 	keynumberid			= ipcsDeptDTO.getKeynumberid().trim();		// 
+	    	String 	keynumberdesc		= ipcsDeptDTO.getKeynumberdesc().trim();	// 
+	    	int 	hunt				= ipcsDeptDTO.getHunt();					// 
+	    	int 	huntindex			= ipcsDeptDTO.getHuntindex();				// 
+	    	int 	maxhuntindex		= ipcsDeptDTO.getMaxhuntindex();			// 
+	    	int 	huntconstraint		= ipcsDeptDTO.getHuntconstraint();			// 
+
+	    	String 	k_endpointid		= ipcsDeptDTO.getK_endpointid();			// 
+	    	int 	k_protocol			= ipcsDeptDTO.getK_protocol();				// 
+
+	    	int		queueoption			= ipcsDeptDTO.getQueueOption();
+	    	String	startFile			= ipcsDeptDTO.getQueueStartAnn();
+	    	String	endFile				= ipcsDeptDTO.getQueueEndAnn();
+	    	
+	    	String			sql 		= "";
+	    	ResultSet 		rs 			= null;
+	    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+	        /***** TABLE_Localprefix 에 저장 ********/
+	        sql = "INSERT INTO TABLE_Localprefix " +
+            "(Startprefix, Endprefix, Prefixtype, Endpointid) "
+            + "VALUES ('"
+            + startprefix + "','"
+            + endprefix + "',"
+            + prefixtype + ",'"
+            + endpointid + "')";
+//			System.out.println(sql);
+			nResult = statement.executeUpdate(sql);
+			if (nResult < 1){	throw new Exception(l.x("[부서대표번호 오류] 단말에 ","[Phone Number Error]  In the Phone, the Number")+keynumberid+ l.x(" 부서대표번호 할당이 실패하였습니다."," join failed."));	}
+			
+	        /***** TABLE_Keynumberid 에 저장 ********/
+	        if(k_protocol==0){
+	        	sql = "INSERT INTO TABLE_Keynumberid " +
+	            "(Keynumberid, Keynumberdesc, Hunt, Maxhuntindex, Huntconstraint, Groupid, Endpointid) "
+	            + "VALUES ('"
+	            + keynumberid + "','"
+	            + keynumberdesc + "',"
+	            + hunt + ","
+	            + maxhuntindex + ","
+	            + huntconstraint + ",'"
+	            + groupid +"','"
+				+ k_endpointid +"')";
+	        }else{
+				sql = "INSERT INTO TABLE_Keynumberid " +
+	            "(Keynumberid, Keynumberdesc, Hunt, Maxhuntindex, Huntconstraint, Groupid, Endpointid, Protocol, queueoption, queuestartann, queueendann) "
+	            + "VALUES ('"
+	            + keynumberid + "','"
+	            + keynumberdesc + "',"
+	            + hunt + ","
+	            + maxhuntindex + ","
+	            + huntconstraint + ",'"
+	            + groupid +"','"
+				+ k_endpointid +"',"
+				+ k_protocol +","
+				+ queueoption +",'"
+				+ startFile +"','"
+				+ endFile +"')";
+	        }
+	        
+//			System.out.println(sql);
+			nResult = statement.executeUpdate(sql);
+			if (nResult < 1){	throw new Exception(l.x("[부서대표번호 오류] 단말에 ","[Phone Number Error]  In the Phone, the Number")+keynumberid+ l.x(" 부서대표번호 할당이 실패하였습니다."," join failed."));	}
+			
+//            System.out.println("결과값1 :"+returnVal);
+            
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;
+//	        System.out.println("결과값2 :"+returnVal);
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+//            System.out.println("결과값3 :"+returnVal);
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;
+    }
+
+    public boolean ipcsDeptNewEdit(String hiKeynumberid, int hiHunt, String hiDesc, String endpointid, int huntconstraint, int protocol, String errorType, int queueoption, String startFile, String endFile, String beforeFile_1, String beforeFile_2) {
+    	boolean 		returnVal 		= false;
+    	DataStatement 	statement 		= null;
+    	try {
+    		File      	tempFile    = null;  						// 파일 객체
+    		String 		keynumberid	= hiKeynumberid;				// 부서대표번호
+	    	int 		hunt		= hiHunt;						// Hunt 유형
+	    	String 		desc		= hiDesc;		// 설명
+	    	String		sql 		= "";
+	    	ResultSet 	rs 			= null;
+	    		    	
+	    	// 서버로부터 DataStatement 객체를 할당
+	    	statement 	= ConnectionManager.allocStatement("SSW");
+	    	statement.stxTransaction();
+	    	
+	        /***** TABLE_Keynumberid 에 저장 ********/
+	        String soundFile = getSound(statement, hiKeynumberid);
+	        if(!"".equals(soundFile) && soundFile!=null){
+	        	huntconstraint = huntconstraint + 4;	// MRBT 파일이 있으면 4를 더함
+	        }
+
+	        sql = "Update TABLE_Keynumberid  Set " ;
+	    	sql += "\n  Hunt 			= "+ hunt + " " ;
+	    	sql += "\n ,Keynumberdesc 	= '"+ desc + "' ";
+	    	sql += "\n ,huntconstraint 	= "+ huntconstraint + " ";
+	    	sql += "\n ,endpointid 		= '"+ endpointid + "' ";
+	    	sql += "\n ,protocol 		= "+ protocol + " ";
+	    	if("D".equals(errorType)){
+	    		sql += "\n ,queueoption 	= "+ queueoption + " ";
+	    		if(!"".equals(startFile))	sql += "\n ,queuestartann 	= '"+ startFile + "' ";
+	    		if(!"".equals(endFile))		sql += "\n ,queueendann 	= '"+ endFile + "' ";
+	    	}else{
+	    		sql += "\n ,queueoption 	= 0 ";
+	    		sql += "\n ,queuestartann 	= '' ";
+	    		sql += "\n ,queueendann 	= '' ";
+	    	}
+	    	sql += "\n  Where Keynumberid = '"+ keynumberid + "' ";
+
+	    	System.out.println("sql : "+sql);
+			statement.executeUpdate(sql);
+			
+			if("D".equals(errorType)){
+				if((!"".equals(beforeFile_1))&&(!startFile.equals(beforeFile_1))&&(!"".equals(startFile))){
+					// 전에 사용하던 대기안내음 파일 삭제
+	                int nameChk1 = wavFileChk(statement, beforeFile_1);
+	            	if(nameChk1==0){
+	            		int mrbtChk1 = wavMRBTFileChk(statement, beforeFile_1);
+	            		if(mrbtChk1==0){
+	            			int queueChk1 = wavQueueFileChk(statement, beforeFile_1);
+	            			if(queueChk1==0){
+		                		tempFile = new File(StaticString.userWavPath+"/"+beforeFile_1);
+		                    	tempFile.delete();
+	            			}
+	            		}
+	            	}
+				}
+				if((!"".equals(beforeFile_2))&&(!endFile.equals(beforeFile_2))&&(!"".equals(endFile))){
+					// 전에 사용하던 대기종료음 파일 삭제
+	                int nameChk2 = wavFileChk(statement, beforeFile_2);
+	            	if(nameChk2==0){
+	            		int mrbtChk2 = wavMRBTFileChk(statement, beforeFile_2);
+	            		if(mrbtChk2==0){
+	            			int queueChk2 = wavQueueFileChk(statement, beforeFile_2);
+	            			if(queueChk2==0){
+		                		tempFile = new File(StaticString.userWavPath+"/"+beforeFile_2);
+		                    	tempFile.delete();
+	            			}
+	            		}
+	            	}
+				}	
+			}else{
+				if((!"".equals(beforeFile_1))&&("".equals(startFile))){
+					// 전에 사용하던 대기안내음 파일 삭제
+	                int nameChk1 = wavFileChk(statement, beforeFile_1);
+	            	if(nameChk1==0){
+	            		int mrbtChk1 = wavMRBTFileChk(statement, beforeFile_1);
+	            		if(mrbtChk1==0){
+	            			int queueChk1 = wavQueueFileChk(statement, beforeFile_1);
+	            			if(queueChk1==0){
+		                		tempFile = new File(StaticString.userWavPath+"/"+beforeFile_1);
+		                    	tempFile.delete();
+	            			}
+	            		}
+	            	}
+				}
+				if((!"".equals(beforeFile_2))&&("".equals(endFile))){
+					// 전에 사용하던 대기종료음 파일 삭제
+	                int nameChk2 = wavFileChk(statement, beforeFile_2);
+	            	if(nameChk2==0){
+	            		int mrbtChk2 = wavMRBTFileChk(statement, beforeFile_2);
+	            		if(mrbtChk2==0){
+	            			int queueChk2 = wavQueueFileChk(statement, beforeFile_2);
+	            			if(queueChk2==0){
+		                		tempFile = new File(StaticString.userWavPath+"/"+beforeFile_2);
+		                    	tempFile.delete();
+	            			}
+	            		}
+	            	}
+				}
+			}
+			
+            statement.endTransaction(true);			// commit 처리
+	        returnVal = true;        
+        } catch (Exception e) {
+        	statement.endTransaction(false);		// rollback 처리
+            e.printStackTrace();
+            returnVal = false;
+        } finally {
+            //할당받은 DataStatement 객체는 반납
+            if (statement != null ) ConnectionManager.freeStatement(statement);
+        }
+        
+        return returnVal;        
+    }
+
+	public int wavFileChk(DataStatement stmt, String filename) {
+		int cnt = 0 ;
+		String strTmp = "%,"+filename;
+		
+		String sql = "\n SELECT count(*) FROM table_featureservice " ;
+		sql = sql +  "\n  WHERE userparam like '" + strTmp + "' ";
+		sql = sql +  "\n     OR userparam = '" + filename + "' ";
+        ResultSet rs1 = null;
+        try {
+            if (stmt != null) {
+            	rs1 = stmt.executeQuery(sql);
+                if (rs1.next()) cnt = rs1.getInt(1); 
+                rs1.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return cnt;
+        } finally {
+            try {
+                if (rs1 != null)
+                	rs1.close();
+            } catch (Exception e) {}
+        }
+        return cnt;
+    }
+
+	public int wavMRBTFileChk(DataStatement stmt, String filename) {
+		int cnt = 0 ;
+		
+		String sql = "\n SELECT count(*) FROM table_addmrbt " ;
+		sql = sql +  "\n  WHERE sound = '" + filename + "' ";
+        ResultSet rs1 = null;
+        try {
+            if (stmt != null) {
+            	rs1 = stmt.executeQuery(sql);
+                if (rs1.next()) cnt = rs1.getInt(1); 
+                rs1.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return cnt;
+        } finally {
+            try {
+                if (rs1 != null)
+                	rs1.close();
+            } catch (Exception e) {}
+        }
+        return cnt;
+    }
+
+	public int wavQueueFileChk(DataStatement stmt, String filename) {
+		int cnt = 0 ;
+		
+		String sql = "\n SELECT count(*) FROM table_KeyNumberID " ;
+		sql = sql +  "\n  WHERE QueueStartAnn = '" + filename + "' OR QueueEndAnn = '" + filename + "' ";
+        ResultSet rs1 = null;
+        try {
+            if (stmt != null) {
+            	rs1 = stmt.executeQuery(sql);
+                if (rs1.next()) cnt = rs1.getInt(1); 
+                rs1.close();
+            } else            
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return cnt;
+        } finally {
+            try {
+                if (rs1 != null)
+                	rs1.close();
+            } catch (Exception e) {}
+        }
+        return cnt;
+    }
+
+	public int deptNumberE164Update(DataStatement stmt, String keynumberid, String e164List) {
+    	ResultSet rs = null;
+        int 	nResult 		= 0;
+        int 	newMaxHuntIndex = 0;
+        String	sql 			= "";
+
+        try {
+        	// Transaction 시작
+        	stmt.stxTransaction(); 
+
+        	if(!"".equals(e164List)){
+        		// table_keynumber 데이타 삭제 후 새롭게 선택한 E164를 table_keynumber 에 저장
+        		sql = "Delete From table_keynumber Where keynumberid = '" + keynumberid + "'";
+        		nResult = stmt.executeUpdate(sql);
+        		System.out.println("1-1:"+sql);
+        		if (nResult < 0){	throw new Exception(l.x("[부서대표번호 오류] '","[Auth Properties Error] '")+keynumberid+l.x("'는 부서대표번호 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+        		
+        		/////////////////////
+        		int 	nTmp3 		= 0;
+        		String strArray[]	= e164List.split("[|]");
+        		for(int i=0;i<strArray.length;i++){
+        			String e164Temp00	= strArray[i];
+        			String e164Temp[]	= e164Temp00.split(";");
+        			String e164Temp_01	= e164Temp[0];
+        			
+        			nTmp3 = nTmp3 +1;
+	            	sql = "\n  Insert into table_keynumber(keynumberid, e164, indexno, callrate, fromtime, totime) ";
+	            	sql = sql + "\n  values('" + keynumberid + "', '" + e164Temp_01 + "', " + nTmp3 + ", 0, '0000', '2400')";
+	                System.out.println("1-2-"+i+"번째:"+sql);
+	                stmt.executeUpdate(sql);
+        		}
+        		/////////////////////
+	            
+        		sql = "SELECT count(*) FROM table_keynumber WHERE keynumberid = '" + keynumberid + "'";
+	            rs = stmt.executeQuery(sql);
+	            if (rs.next()) newMaxHuntIndex = rs.getInt(1);
+	            rs.close();
+
+	            sql   = "Update table_keynumberid set maxhuntindex = " + newMaxHuntIndex + " Where keynumberid = '" + keynumberid + "'";
+	            System.out.println("1-3:"+sql);
+	            nResult = stmt.executeUpdate(sql);
+	            if (nResult < 1){	throw new Exception(l.x("[부서대표번호 오류] '","[Auth Properties Error] '")+keynumberid+l.x("'는 부서대표번호 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}                        
+
+        	}else{
+        		
+        		// 부서대표번호에 할당할 E164를 선택하지 안아  table_keynumber 데이타 삭제
+        		sql = "Delete From table_keynumber Where keynumberid = '" + keynumberid + "'";
+        		nResult = stmt.executeUpdate(sql);
+        		System.out.println("2-1:"+sql);
+        		if (nResult < 0){	throw new Exception(l.x("[부서대표번호 오류] '","[Auth Properties Error] '")+keynumberid+l.x("'는 부서대표번호 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}
+        		
+        		sql   = "Update table_keynumberid set maxhuntindex = 0 Where keynumberid = '" + keynumberid + "'";
+        		System.out.println("2-2:"+sql);
+        		nResult = stmt.executeUpdate(sql);
+        		if (nResult < 1){	throw new Exception(l.x("[부서대표번호 오류] '","[Auth Properties Error] '")+keynumberid+l.x("'는 부서대표번호 수정이 실패하였습니다.","' Phone Authentication Properties registration failed. Phone Insertion failed."));	}	                
+        	}
+            // Transaction 종료
+            stmt.endTransaction(true);			// commit 처리
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리        	
+            e.printStackTrace();
+        }        
+        return nResult ;
+	}
+	
+}

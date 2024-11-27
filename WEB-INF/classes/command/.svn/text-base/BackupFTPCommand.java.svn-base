@@ -1,0 +1,56 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+import AcroRestore.RestoreMain;
+import acromate.common.StaticString;
+import com.acromate.util.Str;
+import framework.Shell.LinuxShell;
+
+public class BackupFTPCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		int				naddTime		= 0;
+		String 			after			= "";
+		try {
+			String 	txt_confFile = new String(Str.CheckNullString(req.getParameter("txt_confFile")).getBytes("8859_1"), "euc-kr");	// 레지스트라 ID
+			String 	txt_dbFile = new String(Str.CheckNullString(req.getParameter("txt_dbFile")).getBytes("8859_1"), "euc-kr");		// 레지스트라 IP 
+			String  txt_id 	= new String(Str.CheckNullString(req.getParameter("txt_id")).getBytes("8859_1"), "euc-kr");				// 레지스트라 Port
+			String 	txt_pw	= new String(Str.CheckNullString(req.getParameter("txt_pw")).getBytes("8859_1"), "euc-kr");				//
+			String 	txt_ip	= new String(Str.CheckNullString(req.getParameter("txt_ip")).getBytes("8859_1"), "euc-kr");				//
+			resStr = "systemRestore.jsp";
+			/*
+			LinuxShell linuxShell =new LinuxShell();
+			resStr = "systemRestore.jsp";
+			int nreturnValue=linuxShell.runShell(StaticString.RESTORESHELL+txt_confFile+" "+ txt_dbFile);
+			if (nreturnValue==1) {
+				req.setAttribute("backupCronResult", "1");
+				forwardingPage="/system/"+resStr;
+			} 
+			
+			else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+			*/
+			RestoreMain restoreMain=new RestoreMain(); 
+			String check=restoreMain.Execut(txt_dbFile,txt_dbFile);
+			if ("".equals(check)) {
+				req.setAttribute("backupCronResult", "1");
+				forwardingPage="/system/"+resStr;
+			} else
+				res.sendRedirect("/bizportal/system/"+resStr+"?session=0");
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+		}		
+		return forwardingPage;
+	}
+}

@@ -1,0 +1,133 @@
+
+/*
+ * TmsPacket.java
+ *
+ * Created on 2006년 8월 9일 (수), 오전 10:36
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+package com.acromate.framework.remote.net.packet;
+
+import java.nio.ByteBuffer;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class TmsPacket extends BasePacket {
+
+     public static final int HEADER_SIZE = 8;
+     public static final int PACKET_SIZE = 16384;
+     
+     public byte  command;                  //1  byte
+     public byte  detail;                   //1  byte
+     public short length;                   //2  byte
+     public int   transno;                  //8  byte     
+     public byte[] content = new byte[56]; //56 byte
+
+     /**
+      *
+      * @return int
+      */
+     public int getHeaderSize() {
+         headerSize = Byte.SIZE/8   + Byte.SIZE/8 +
+                      Short.SIZE/8  + Integer.SIZE/8;
+         return headerSize;
+     }
+
+     /**
+      *
+      * @return short
+      */
+     public int getBodySize() {
+         return length - getHeaderSize();
+     }
+
+    /**
+     * 
+     * @return 
+     */
+     public int getLimitSize() {
+         return getHeaderSize() - 4;
+     }
+     
+     /**
+      *
+      * @param packet TmsPacket
+      * @param count int
+      * @return int
+      */
+     public int setHeader(TmsPacket packet) {
+           String tempData  = String.format("%56s", content);
+
+           try {
+                 buffer.rewind();
+                 buffer.put(packet.command);
+                 buffer.put(packet.detail);
+                 buffer.putShort(packet.length);
+                 buffer.putLong(packet.transno);
+                 buffer.put(tempData.getBytes());
+            }catch(Exception ex) {
+                 return(-1);
+            }
+            return packetSize + getHeaderSize();
+     }
+
+     /**
+      *
+      * @param packet TmsPacket
+      * @param count int
+      * @return int
+      */
+     public int setHeader(byte command, byte detail, int transno) {
+           
+           try {
+                 buffer.rewind();
+                 buffer.put(command);
+                 buffer.put(detail);
+                 buffer.putShort((short)(packetSize + getHeaderSize()));
+                 buffer.putInt(transno);                    
+            }catch(Exception ex) {
+                 return(-1);
+            }
+            return packetSize + getHeaderSize();
+     }
+   
+     /**
+      *
+      * @return int
+      */
+     public int getHeader() {
+
+          try {
+             buffer.rewind();
+             command = buffer.get();
+             detail  = buffer.get();
+             length  = buffer.getShort();
+             transno = buffer.getInt();                                
+         }catch(Exception ex) {
+             return(-1);
+         }
+         return length;
+     }
+
+     /**
+      *
+      * @param buffer ByteBuffer
+      * @return int
+      */
+     public int getHeader(ByteBuffer buffer) {
+
+         try {
+             buffer.rewind();
+             command = buffer.get();
+             detail  = buffer.get();
+             length  = buffer.getShort();
+             transno = buffer.getInt();                
+         }catch(Exception ex) {
+             return(-1);
+         }
+         return length;
+     }
+
+}

@@ -1,0 +1,146 @@
+package dao.system;
+
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Vector;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.system.SystemClusterDTO;
+import acromate.common.util.StringUtil;
+import acromate.*;
+
+public class SystemClusterDAO {
+
+    public SystemClusterDAO() {}
+    
+    public int insert(DataStatement stmt, SystemClusterDTO systemClusterDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n INSERT INTO table_SystemCluster(sysgroupid, clusterid, clustername, servicetype, clustertype) values(" ;
+            	sql = sql + "\n '" + systemClusterDTO.getSysgroupid()   + "' , " ;            
+            	sql = sql + "\n '" + systemClusterDTO.getClusterid()	+ "' , " ;
+            	sql = sql + "\n '" + systemClusterDTO.getClustername() 	+ "' , " ;
+            	sql = sql + "\n '" + systemClusterDTO.getServicetype() 	+ "' , " ;
+            	sql = sql + "\n  " + systemClusterDTO.getClustertype() 	+ "  " ;
+            	sql = sql + ") ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+    public int insert(Statement stmt, SystemClusterDTO systemClusterDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+                String sql = "\n INSERT INTO table_SystemCluster(sysgroupid, clusterid, clustername, servicetype, clustertype) values(" ;
+            	sql = sql + "\n '" + systemClusterDTO.getSysgroupid()   + "' , " ;            
+            	sql = sql + "\n '" + systemClusterDTO.getClusterid()	+ "' , " ;
+            	sql = sql + "\n '" + systemClusterDTO.getClustername() 	+ "' , " ;
+            	sql = sql + "\n '" + systemClusterDTO.getServicetype() 	+ "' , " ;
+            	sql = sql + "\n  " + systemClusterDTO.getClustertype() 	+ "  " ;
+            	sql = sql + ") ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int update(DataStatement stmt, SystemClusterDTO systemClusterDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n UPDATE table_SystemCluster Set ";
+            	sql = sql + "\n clustername = '" + systemClusterDTO.getClustername()  + "',  " ;
+            	sql = sql + "\n clustertype =  " + systemClusterDTO.getClustertype()  + "  " ;            	
+            	sql = sql + "\n WHERE sysgroupid	= '" + systemClusterDTO.getSysgroupid()  + "'" ; 
+            	sql = sql + "\n   AND clusterid		= '" + systemClusterDTO.getClusterid() 	+ "' ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+  
+    public int delete(DataStatement stmt, String groupid, String clusterid) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+                String sql = "\n Delete From table_SystemCluster Where sysgroupid = '" + groupid + "' And clusterid = '" + clusterid + "' ";
+                
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1) {
+                    System.out.println("삭제 성공"); 
+                }
+                else
+                    System.out.println("삭제 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult;
+    }    
+}

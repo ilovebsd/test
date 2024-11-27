@@ -1,0 +1,43 @@
+package com.acromate.session;
+
+public class LoginUtil {
+    public static final int LOGIN_COMPLETE = 1;
+    public static final int LOGIN_ERROR = 0;
+    public static final int LOGIN_INVALID_USERID = -1;
+    public static final int LOGIN_INVALID_PASSWORD = -2;
+    public static final int LOGIN_DUPLICATE_USERID = -3;
+
+    public static final int LOGIN_DB_ERROR = -4;
+    public static final int LOGIN_FAIL_EXCEPTION = -5;
+    public static final int LOGIN_APICALL_EXCEPTION = -6;
+
+    public LoginUtil() {
+        super();
+    }
+
+    public UserSessionClient login(String ip, int port, String id,String pw){
+        UserSessionClient userSessionClient = new UserSessionClient();
+
+        if(userSessionClient.getRemoteDataObject(ip, port) < 0)
+            return null ;
+
+        String userSessionID = userSessionClient.login(id,pw);
+        if(userSessionID.length() > 5) {// sessionID 가 정상이면
+            if (userSessionClient.register() == true) return userSessionClient;
+            else return null;
+        }
+        return null;
+    }
+    public boolean reLogin(UserSessionClient userSessionClient ,String ip , int port, String id,String pw){
+        if(userSessionClient.getRemoteDataObject(ip, port) < 0)
+            return false ;
+
+        String userSessionID = userSessionClient.login(id,pw);
+        if(userSessionID.length() > 5) {// sessionID 가 정상이면
+            if (userSessionClient.register() == true) return true;
+            else return false;
+        }
+        return false;
+    }
+
+}

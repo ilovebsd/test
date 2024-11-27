@@ -1,0 +1,37 @@
+package dto.system;
+
+public class NatZoneDTO {
+	/**
+	 * member variables
+	 */
+	private String	zonecode;
+	private String	zonename;
+	private String	description;
+
+	public NatZoneDTO() {      		
+		
+	}
+	
+	public NatZoneDTO(String zonecode, String zonename, String description) {      		
+		
+		super();
+		
+		this.zonecode 			= zonecode;
+		this.zonename 			= zonename;
+		this.description 		= description;
+	}
+
+	/**
+	 * member functions
+	 */
+	public String	getZonecode() { return this.zonecode; }
+	public void	setZonecode(String zonecode ) { this.zonecode = zonecode; }
+
+	public String	getZonename() { return this.zonename; }
+	public void	setZonename(String zonename ) { this.zonename = zonename; }
+
+	public String	getDescription() { return this.description; }
+	public void	setDescription(String description ) { this.description = description; }
+
+
+}

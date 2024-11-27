@@ -1,0 +1,92 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import acromate.common.util.WebUtil;
+//import acromate.ConnectionManager;
+//import acromate.common.StaticString;
+import business.LogHistory;
+import system.QualityServices;
+//import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+//import dto.system.SIPRegServerDTO;
+//import dto.system.SystemConfigDTO;
+import system.SystemConfigFileMake;
+//import framework.url.Urldownload;
+//import dao.system.CommonDAO;
+//import java.util.ArrayList;
+//import java.util.HashMap;
+import framework.url.Urldownload;
+
+public class QosEditCommand implements Command {
+	private int nEmergency;
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+
+		try {
+			String 	strQoS		= new String(Str.CheckNullString(req.getParameter("hiQoS")).getBytes("8859_1"), "euc-kr");		//  
+			String 	strQoS_Type	= new String(Str.CheckNullString(req.getParameter("hiQoS_Type")).getBytes("8859_1"), "euc-kr");		//
+			String 	userID  	= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			int		qosValues	= 0;
+			
+			if("dscp".equals(strQoS_Type)){
+				String	tmp2 		= Integer.toBinaryString(Integer.parseInt(strQoS));
+				String	tmpChange 	= tmp2 + "00";
+				qosValues 	= Integer.parseInt(tmpChange, 2);
+			}else{
+				if("0".equals(strQoS)){
+					qosValues = 0;
+				}else if("1".equals(strQoS)){
+					qosValues = 32;
+				}else if("2".equals(strQoS)){
+					qosValues = 64;
+				}else if("3".equals(strQoS)){
+					qosValues = 96;
+				}else if("4".equals(strQoS)){
+					qosValues = 128;
+				}else if("5".equals(strQoS)){
+					qosValues = 160;
+				}else if("6".equals(strQoS)){
+					qosValues = 192;
+				}else if("7".equals(strQoS)){
+					qosValues = 224;
+				}
+			}
+			resStr = "qualityServices2_New.jsp";
+
+			SystemConfigFileMake makeFile = new SystemConfigFileMake();
+			int insertResult = makeFile.qos_acrosswConfig(qosValues);
+			
+			if(insertResult==1){
+				QualityServices	qos	= new QualityServices();
+				int int_result02 = qos.setSignalQosType(strQoS_Type);
+				
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|86|QoS 시그널 "+strQoS_Type+" 방식 ("+strQoS+")|3|"+strIp);
+				// ##############################################
+
+				res.sendRedirect("/bizportal/system/"+resStr);
+			}else{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			}
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+			
+		}		
+		return forwardingPage;
+	}
+	
+	
+}

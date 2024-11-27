@@ -1,0 +1,73 @@
+package dto.system;
+
+public class UpdateInfoDTO {
+	private String	moudleName;		//모듈명
+	private String 	moudleCurVer;	//현재설치 버전
+	private String 	updateDate;		//현재설치 버전
+	private String 	moudleLastVer;	//최종버전
+	private String	updateCheck;	//업데이트 필요여부 체크
+	private String 	downloadUrl;	//다운로드 url
+	private String	updatePath;		//패치할 경로
+	private String 	beforeVer;		//이전버전
+	public UpdateInfoDTO() { 
+	}
+	public String getMoudleName() {
+		return moudleName;
+	}
+	public void setMoudleName(String moudleName) {
+		this.moudleName = moudleName;
+	}
+	public String getUpdateDate() {
+		return updateDate;
+	}
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
+	public String getMoudleCurVer() {
+		return moudleCurVer;
+	}
+	public void setMoudleCurVer(String moudleCurVer) {
+		this.moudleCurVer = moudleCurVer;
+	}
+	public String getMoudleLastVer() {
+		return moudleLastVer;
+	}
+	public void setMoudleLastVer(String moudleLastVer) {
+		this.moudleLastVer = moudleLastVer;
+	}
+	public String getUpdateCheck() {
+		return updateCheck;
+	}
+	public void setUpdateCheck(String updateCheck) {
+		this.updateCheck = updateCheck;
+	}
+	public String getDownloadUrl() {
+		return downloadUrl;
+	}
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+	public String getUpdatePath() {
+		return updatePath;
+	}
+	public void setUpdatePath(String updatePath) {
+		this.updatePath = updatePath;
+	}
+	public String getBeforeVer() {
+		return beforeVer;
+	}
+	public void setBeforeVer(String beforeVer) {
+		this.beforeVer = beforeVer;
+	}	
+	public UpdateInfoDTO(String	moudleName, String 	moudleCurVer,String updateDate,String 	moudleLastVer, String	updateCheck,String 	downloadUrl, String	updatePath,String beforeVer){
+		this.moudleName		=	moudleName;
+		this.moudleCurVer	=	moudleCurVer;
+		this.updateDate		=	updateDate;
+		this.moudleLastVer	=	moudleLastVer;
+		this.updateCheck	=	updateCheck;
+		this.downloadUrl	=	downloadUrl;
+		this.updatePath		=	updatePath;
+		this.beforeVer		=	beforeVer;
+	}
+	
+}

@@ -1,0 +1,110 @@
+package com.acromate.dataio.noms ;
+
+import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+import com.acromate.data.DataIO;
+import com.acromate.data.ListIO;
+import com.acromate.util.Str;
+
+public class ServerInfoListDIO extends ListIO {
+    private Logger log = Logger.getLogger(this.getClass());
+
+    private int    errorcode;
+    private StringBuilder result = new StringBuilder();
+    private StringBuilder failReason = new StringBuilder();
+    private StringBuilder equipmentId = new StringBuilder();
+
+    public String getResult() { return result.toString() ; }
+    public void   setResult( String result ) {
+        this.result.delete(0,this.result.length());
+        this.result.append(result) ;
+    }
+
+    public String getFailReason() { return failReason.toString() ; }
+    public void   setFailReason( String failReason ) {
+        this.failReason.delete(0,this.failReason.length());
+        this.failReason.append(failReason) ;
+    }
+
+    public String getEquipmentId() { return equipmentId.toString() ; }
+    public void   setEquipmentId( String equipmentId ) {
+        this.equipmentId.delete(0,this.equipmentId.length());
+        this.equipmentId.append(equipmentId) ;
+    }
+
+
+    protected int setFieldData(String field, String value) {
+        StringBuilder temp = new StringBuilder(field.toLowerCase());
+        if(compareFieldID(temp, "result".toLowerCase()) == true) {
+            return setString(result, value);
+        }
+        if(compareFieldID(temp, "failReason".toLowerCase()) == true) {
+            return setString(failReason, value);
+        }
+        if(compareFieldID(temp, "equipmentId".toLowerCase()) == true) {
+            return setString(equipmentId, value);
+        }
+        int result = super.setFieldData( field,  value);
+        if (result == 0 ) return result;
+        log.error("ServerInfoListDIO - Not founded field :" + field);
+        return 0;
+    }
+
+    protected int getFieldData(String field, Index idx, StringBuilder value) {
+        boolean resultVal = false;
+        StringBuilder fldAlias;
+        if(field != null && !field.equals("")) resultVal = true;
+        if(field == null) {
+            fldAlias = new StringBuilder(); fldAlias.append("");
+        } else {
+           fldAlias  = new StringBuilder(); fldAlias.append(field);
+        }
+        if(compareFieldID(fldAlias, "result", idx, value) == true) {
+            errorcode = getString(result.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "failReason", idx, value) == true) {
+            errorcode = getString(failReason.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        if(compareFieldID(fldAlias, "equipmentId", idx, value) == true) {
+            errorcode = getString(equipmentId.toString(), value, !resultVal);
+            if(resultVal || errorcode < 0) return errorcode;
+        }
+        return super.getFieldData(field, idx, value);
+    }
+    protected DataIO newListNode() {
+       return new ServerInfoDIO();
+    }
+
+    public String toFailXmlString( String blank ) {
+        StringBuilder xml = new StringBuilder() ;
+        xml.append("   <result>" + getResult() + "</result>\n");
+        xml.append("   <failReason>" + getFailReason() + "</failReason>\n");
+        return xml.toString();
+
+    }
+    public String toXmlString( String blank ) {
+        StringBuilder xml = new StringBuilder() ;
+        xml.append("   <result>" + getResult() + "</result>\n");
+        xml.append("   <failReason>" + getFailReason() + "</failReason>\n");
+        xml.append("   <equipmentId>" + getEquipmentId() + "</equipmentId>\n");
+        int size = 0;
+        xml.append("      <serverInfoList>\n");
+        ArrayList serverInfoList = getList();
+        if (serverInfoList != null) {
+        	size = serverInfoList.size();
+        	for (int i = 0; i < size; i++) {
+        		ServerInfoDIO server = (ServerInfoDIO)serverInfoList.get(i);
+        		xml.append("            <item>\n");
+        		String str = server.toXmlString("         ");
+        		xml.append(str);
+        		xml.append("            </item>\n"); //
+        	}
+        }
+        xml.append("      </serverInfoList>\n"); //
+
+        return xml.toString();
+    }
+}

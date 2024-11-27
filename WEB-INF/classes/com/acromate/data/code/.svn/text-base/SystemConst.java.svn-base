@@ -1,0 +1,21 @@
+/*
+ * SystemConst.java
+ *
+ * Created on 2006년 10월 12일 (목), 오후 3:07
+ * Copyright 2006 Acromate, Inc. All rights reserved.
+ */
+
+package com.acromate.data.code;
+
+/**
+ *
+ * @author 아크로메이트 기술연구소
+ * @version 1.0.0
+ */
+public class SystemConst {
+    
+    /** Creates a new instance of SystemConst */
+    public SystemConst() {
+    }
+    
+}

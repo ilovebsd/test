@@ -1,0 +1,254 @@
+package useconfig;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import acromate.common.util.Str;
+import acromate.common.util.StringUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.SubGroupDTO;
+
+public class PickupList {
+	/*
+	 * 당겨받기 리스트 조회
+	 */
+	public List getPickupList(DataStatement stmt) {
+		SubGroupDTO subGroupDTO;
+        List<SubGroupDTO> subGroupList = new ArrayList<SubGroupDTO>();
+        
+        String sql = "\n SELECT a.groupid, a.subid, a.description, ";
+        sql = sql +  "\n        (SELECT count(b.e164) " ;
+        sql = sql +  "\n           FROM table_e164 b ";
+        sql = sql +  "\n          WHERE b.subid = a.subid) AS sumcnt " ;
+        sql = sql +  "\n   FROM table_subgroup a " ;
+        sql = sql +  "\n  Order By a.groupid, a.subid ";
+        
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	subGroupDTO = new SubGroupDTO();
+                	
+                	subGroupDTO.setGroupID(Str.CheckNullString(rs.getString("groupid")));
+                	subGroupDTO.setSubID(Str.CheckNullString(rs.getString("subid")));
+                	subGroupDTO.setDescription(Str.CheckNullString(rs.getString("description")));
+                	subGroupDTO.setSumCnt(rs.getInt("sumcnt"));
+
+                	subGroupList.add(subGroupDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return subGroupList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return subGroupList;
+    }	
+
+	/*
+	 * 당겨받기 인원 리스트 조회
+	 */
+	public List getSubPickupList(DataStatement stmt, String subID) {
+		SubGroupDTO subGroupDTO;
+        List<SubGroupDTO> subGroupList = new ArrayList<SubGroupDTO>();
+        
+        String sql = "\n SELECT a.e164, a.subid, ";
+        sql = sql +  "\n        coalesce(b.id, '') AS id, " ;
+        sql = sql +  "\n        coalesce(b.name, '') AS name, " ;
+        sql = sql +  "\n        coalesce(b.phonenum, '') AS phonenum, " ;
+        sql = sql +  "\n        coalesce(b.position, '') AS position, " ;
+        sql = sql +  "\n        coalesce(c.ranking, 100) AS rank " ;
+        sql = sql +  "\n   FROM table_e164 a " ;
+        sql = sql +  "\n   LEFT OUTER JOIN table_subscriber b " ;
+        sql = sql +  "\n                ON a.e164  = b.phonenum " ;
+        sql = sql +  "\n   LEFT OUTER JOIN table_position c " ;
+        sql = sql +  "\n                ON b.position = c.positionname " ;
+        sql = sql +  "\n  WHERE a.subid =  '" + subID + "' " ;
+        sql = sql +  "\n  Order By rank ASC, b.name ASC ";               
+
+        ResultSet rs = null;
+        try {
+            if (stmt != null) {
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                	subGroupDTO = new SubGroupDTO();
+                	
+                	subGroupDTO.setE164(Str.CheckNullString(rs.getString("e164")));
+                	subGroupDTO.setE164SubID(Str.CheckNullString(rs.getString("subid")));
+                	subGroupDTO.setSubScriberID(Str.CheckNullString(rs.getString("id")));
+                	subGroupDTO.setName(Str.CheckNullString(rs.getString("name")));
+                	subGroupDTO.setPhoneNum(Str.CheckNullString(rs.getString("phonenum")));
+                	subGroupDTO.setPosition(Str.CheckNullString(rs.getString("position")));
+                	subGroupDTO.setRanking(rs.getInt("rank"));
+
+                	subGroupList.add(subGroupDTO);
+                }
+                rs.close();
+            } else           
+                System.out.println("데이터베이스에 연결할 수 없습니다.");            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return subGroupList;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+        }
+        return subGroupList;
+    }	
+
+	/*
+	 * 당겨받기 그룹 추가
+	 */
+	public int insertPickup(DataStatement stmt, String groupName, String insertStr) {
+		int    nResult   = 0;
+		int    iMax      = 0;
+		String max       = "0";
+		String sql       = "";
+        ResultSet rs = null;
+		        
+        try {            
+			String[] dataStr = StringUtil.getParser(insertStr, "|");
+
+    		if (stmt != null) {
+				if(dataStr != null){
+			        //sql  = "\n SELECT coalesce(max(subid), '0') " ;
+			        sql  = "\n SELECT coalesce(max(trim(subid)::text::int), '0') " ;
+			        sql += "\n   FROM table_subgroup " ;
+			        sql += "\n  WHERE subid != 'Pick-Up' ";
+			        
+			        rs = stmt.executeQuery(sql);
+	                if (rs.next()) {	                	
+	                	max = rs.getString(1);
+	                }
+	                iMax = Integer.parseInt(max);
+	                
+					// 트랜잭션 시작
+					stmt.stxTransaction();
+					
+	                sql  = "\n INSERT INTO table_subgroup (groupid, subid, description ) ";
+                	sql += "\n values ('IPCS','" + (iMax+1) + "','" + groupName + "')" ;
+System.out.println(sql);                	
+                	nResult = stmt.executeUpdate(sql);
+                	System.out.println("111111111111"); 
+                	for(int i=0; i < dataStr.length; i++){
+						nResult = 0;
+		                	
+		 		        sql  = "\n UPDATE table_e164 ";
+		                sql += "\n    SET subid = '" + (iMax+1)   + "'";
+		                sql += "\n  WHERE e164  = '" + dataStr[i] + "'";
+		                System.out.println(sql);
+		                nResult = stmt.executeUpdate(sql);
+		                System.out.println("22222222222222222222"); 
+                	}
+
+					if (stmt != null)
+						stmt.endTransaction(true);
+				}                                        
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+        	try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {}
+    		return nResult;
+        }
+	}
+	
+	/*
+	 * 당겨받기 그룹 수정
+	 */
+	public int updatePickup(DataStatement stmt, String groupID, String subID, String groupName, String updateStr) {
+		int    nResult   = 0;
+		String sql       = "";
+		        
+        try {            
+			String[] dataStr = StringUtil.getParser(updateStr, "|");
+
+    		if (stmt != null) {
+				if(dataStr != null){	                
+					// 트랜잭션 시작
+					stmt.stxTransaction();
+					
+					sql  = "\n UPDATE table_subgroup ";
+	                sql += "\n    SET description = '" + groupName + "'";
+	                sql += "\n  WHERE groupid     = '" + groupID   + "'";
+	                sql += "\n    AND subid       = '" + subID     + "'";
+					                	
+                	nResult = stmt.executeUpdate(sql);
+                	
+                	sql  = "\n UPDATE table_e164 ";
+	                sql += "\n    SET subid = 'Pick-Up' ";
+	                sql += "\n  WHERE subid = '" + subID + "'";
+					                	
+                	nResult = stmt.executeUpdate(sql);
+
+                	for(int i=0; i < dataStr.length; i++){
+						nResult = 0;
+		                	
+		 		        sql  = "\n UPDATE table_e164 ";
+		                sql += "\n    SET subid = '" + subID      + "'";
+		                sql += "\n  WHERE e164  = '" + dataStr[i] + "'";
+
+		                nResult = stmt.executeUpdate(sql);
+					}
+
+					if (stmt != null)
+						stmt.endTransaction(true);
+				}                                        
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+    		return nResult;
+        }
+	}
+	
+	/*
+	 * 당겨받기 그룹 삭제
+	 */
+	public int deletePickup(DataStatement stmt, String groupID, String subID) {
+		int    nResult   = 0;
+		String sql       = "";
+		        
+        try {            
+    		if (stmt != null) {
+				// 트랜잭션 시작
+				stmt.stxTransaction();
+				
+            	sql  = "\n UPDATE table_e164 ";
+                sql += "\n    SET subid = 'Pick-Up' ";
+                sql += "\n  WHERE subid = '" + subID + "'";
+				                	
+            	nResult = stmt.executeUpdate(sql);
+
+            	sql  = "\n DELETE FROM table_subgroup ";
+                sql += "\n  WHERE groupid = '" + groupID + "'";
+                sql += "\n    AND subid   = '" + subID   + "'";
+				                	
+            	nResult = stmt.executeUpdate(sql);
+            	
+				if (stmt != null)
+					stmt.endTransaction(true);
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+    		return nResult;
+        }
+	}
+
+}

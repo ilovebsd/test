@@ -1,0 +1,323 @@
+package com.acromate.server;
+
+import java.io.InputStream;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.rmi.*;
+import java.rmi.server.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Calendar;
+
+public class RemotePreparedStatementImpl 
+   extends UnicastRemoteObject implements IRemotePreparedStatement {
+
+	private static final long serialVersionUID = 1L;
+	private PreparedStatement sqlPrepared;
+		
+	/*******************************************************************
+	 * 
+	 * @param sqlPreparedStmt
+	 * @throws RemoteException
+	 */
+	public RemotePreparedStatementImpl(PreparedStatement sqlPreparedStmt) 
+	throws RemoteException {
+		super();	
+		sqlPrepared = sqlPreparedStmt;
+	}
+	
+	/*******************************************************************
+	 * @throws RemoteException, SQLException
+	 */
+	public IRemoteResultSet executeQuery() 
+	throws RemoteException, SQLException {
+		ResultSet rs = sqlPrepared.executeQuery();
+		RemoteResultSetImpl remoteRs = new RemoteResultSetImpl(rs);
+		return (IRemoteResultSet)remoteRs;
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public int executeUpdate() 
+	throws RemoteException, SQLException {
+		return sqlPrepared.executeUpdate();
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setArray(int i, Array x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setArray(i, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setAsciiStream(int parameterIndex, InputStream x, int length) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setAsciiStream(parameterIndex, x, length);		
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setBigDecimal(int parameterIndex, BigDecimal x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setBigDecimal(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setBinaryStream(int parameterIndex, InputStream x, int length) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setBinaryStream(parameterIndex, x, length);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setBlob(int i, Blob x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setBlob(i, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setBoolean(int parameterIndex, boolean x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setBoolean(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setByte(int parameterIndex, byte x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setByte(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setBytes(int parameterIndex, byte[] x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setBytes(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setCharacterStream(int parameterIndex, Reader reader, int length) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setCharacterStream(parameterIndex, reader, length);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setClob(int i, Clob x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setClob(i, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setDate(int parameterIndex, Date x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setDate(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setDate(int parameterIndex, Date x, Calendar cal) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setDate(parameterIndex, x, cal);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setDouble(int parameterIndex, double x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setDouble(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setFloat(int parameterIndex, float x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setFloat(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setLong(int parameterIndex, long x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setLong(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setNull(int parameterIndex, int sqlType) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setNull(parameterIndex, sqlType);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setNull(int paramIndex, int sqlType, String typeName) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setNull(paramIndex, sqlType, typeName);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setObject(int parameterIndex, Object x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setObject(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setObject(int parameterIndex, Object x, int targetSqlType) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setObject(parameterIndex, x, targetSqlType);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setObject(int parameterIndex, Object x, int targetSqlType, int scale) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setObject(parameterIndex, x, targetSqlType, scale);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setRef(int i, Ref x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setRef(i, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setShort(int parameterIndex, short x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setShort(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setString(int parameterIndex, String x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setString(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setTime(int parameterIndex, Time x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setTime(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setTime(int parameterIndex, Time x, Calendar cal) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setTime(parameterIndex, x, cal);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setTimestamp(int parameterIndex, Timestamp x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setTimestamp(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setTimestamp(parameterIndex, x, cal);
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public void setURL(int parameterIndex, URL x) 
+	throws RemoteException, SQLException {
+		sqlPrepared.setURL(parameterIndex, x);
+	}
+
+	/*******************************************************************
+	/**
+	 * 
+	 */
+	public void setInt(int parameterIndex, int x) 
+    throws RemoteException, SQLException{
+		sqlPrepared.setInt(parameterIndex, x);
+		
+	}	
+	
+	/*******************************************************************
+	/**
+	 * 
+	 */
+	public void clearParameters() throws RemoteException, SQLException {
+		sqlPrepared.clearParameters();		
+	}
+	
+	/*******************************************************************
+	 * 
+	 */
+	public void close() throws RemoteException, SQLException {
+		sqlPrepared.close();
+	}
+
+	/*******************************************************************
+	 * 
+	 */
+	public boolean execute() 
+	throws RemoteException, SQLException {
+		return sqlPrepared.execute();
+	}
+
+	/*******************************************************************
+	/**
+	 * 
+	 */
+	public IRemoteResultSet executeQuery(String query) 
+	throws RemoteException, SQLException {
+		ResultSet rs = sqlPrepared.executeQuery(query);
+		RemoteResultSetImpl remoteRs = new RemoteResultSetImpl(rs);
+		return (IRemoteResultSet)remoteRs;
+	}		
+}

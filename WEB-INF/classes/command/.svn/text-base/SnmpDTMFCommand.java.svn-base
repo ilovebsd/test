@@ -1,0 +1,83 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import gateway.DtmfSNMP;
+
+public class SnmpDTMFCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		DataStatement 	stmt 			= null;
+		String 			forwardingPage 	= "";				
+		String 			resStr 			= "";
+		try {
+			String 	snmp_Ip 		= new String(Str.CheckNullString(req.getParameter("hiSnmp_Ip")).getBytes("8859_1"), "euc-kr");			// 
+			
+			String 	maxDigits		= new String(Str.CheckNullString(req.getParameter("hiMaxDigits")).getBytes("8859_1"), "euc-kr");		//
+			String 	timeOut			= new String(Str.CheckNullString(req.getParameter("hiTimeOut")).getBytes("8859_1"), "euc-kr");			//
+			String 	rfc_2833sdp		= new String(Str.CheckNullString(req.getParameter("hiRfc_2833sdp")).getBytes("8859_1"), "euc-kr");		//
+			String 	option_1		= new String(Str.CheckNullString(req.getParameter("hiOption_1")).getBytes("8859_1"), "euc-kr");			// 
+			String 	rfc_2833		= new String(Str.CheckNullString(req.getParameter("hiRfc_2833")).getBytes("8859_1"), "euc-kr");			//
+			String 	hookFlash		= new String(Str.CheckNullString(req.getParameter("hiHookFlash")).getBytes("8859_1"), "euc-kr");		//
+			String 	digitMapping	= new String(Str.CheckNullString(req.getParameter("hiDigitMapping")).getBytes("8859_1"), "euc-kr");		//
+			String 	digitPlan		= new String(Str.CheckNullString(req.getParameter("hiDigitPlan")).getBytes("8859_1"), "euc-kr");		//
+			String 	digitTone		= new String(Str.CheckNullString(req.getParameter("hiDigitTone")).getBytes("8859_1"), "euc-kr");		//
+			String 	hotlineDial		= new String(Str.CheckNullString(req.getParameter("hiHotlineDial")).getBytes("8859_1"), "euc-kr");		//
+			String 	enableSpecial	= new String(Str.CheckNullString(req.getParameter("hiEnableSpecial")).getBytes("8859_1"), "euc-kr");	//
+			String 	specialDigit	= new String(Str.CheckNullString(req.getParameter("hiSpecialDigit")).getBytes("8859_1"), "euc-kr");		//
+			
+			String 	userID			= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			resStr = "dtmf.jsp";
+
+			SessionManager manager = SessionManager.getInstance();
+			HttpSession hs = req.getSession();
+			String id = hs.getId();
+			BaseEntity entity = manager.getBaseEntity(id);	
+			
+			DtmfSNMP dtmfSNMP = new DtmfSNMP();
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.1.0", maxDigits, 4);		// Gauge32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.2.0", timeOut, 4);		// Gauge32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.2.5.0", rfc_2833sdp, 1);		// Integer32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.2.21.1.5.0", option_1, 1);	// Integer32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.11.12.0", rfc_2833, 4);		// Gauge32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.2.6.0", hookFlash, 1);		// Integer32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.4.0", digitMapping, 3);	// OctetString
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.6.0", digitPlan, 1);		// Integer32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.8.2.0", digitTone, 4);		// Gauge32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.4.4.0", hotlineDial, 4);		// Gauge32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.1.4.12.3.0", enableSpecial, 1);	// Integer32
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.3.1.2.2.7.0", specialDigit, 1);		// Integer32
+			
+			dtmfSNMP.snmpSet(snmp_Ip, "private", "1.3.6.1.4.1.5003.9.10.10.3.1.1.4.0", "1", 2);				// Burn OID
+			
+			// ############### LogHistory 처리  ###############
+			String		strIp		= req.getRemoteAddr();
+			LogHistory	logHistory 	= new LogHistory();
+			int int_result = logHistory.LogHistorySave(userID+"|87|DTMF & Dialing 등록|1|"+strIp);
+			// ##############################################
+
+			res.sendRedirect("/bizportal/gateway/"+resStr);
+		
+		} catch (Exception e) {
+			try{
+				res.sendRedirect("/bizportal/errorMessage.jsp");
+			} catch (Exception ee) {
+			}
+			e.printStackTrace();
+		} finally {
+
+		}		
+		return forwardingPage;
+	}
+}

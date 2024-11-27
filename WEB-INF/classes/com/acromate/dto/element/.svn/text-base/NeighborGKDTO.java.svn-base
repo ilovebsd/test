@@ -1,0 +1,164 @@
+package com.acromate.dto.element;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2007</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class NeighborGKDTO {
+
+
+private String	endpointid;
+private int     idType;
+private String  inExtraID;
+private int     endpointclass;
+private int     lrq;
+private int     authmode;
+private int     sigOptions;
+private String  password;
+private String	rasAddress;
+private int	rasPort;
+private String	signaladdress;
+private int	signalport;
+private int     outCheckFlag;
+private String	outGKID;
+
+private String  outH323ID;
+private int     options;
+private int     trace;
+private String  fromnumber;
+private String  tonumber;
+private int     messagetype;
+private int     channelmonitor;
+private int     handlerid;
+private int     openDate;
+private int     openReservedDate;
+private int     closeReservedDate;
+private int     deleteReservedDate;
+
+
+
+
+
+/**
+ * member functions
+ */
+
+public String	getEndpointid() { return this.endpointid; }
+public void	setEndpointid(String vEndpointid ) { this.endpointid = vEndpointid; }
+
+public int	getIDType() { return this.idType; }
+public void	setIDType(int vIDType ) { this.idType = vIDType; }
+
+public String	getInExtraID() { return this.inExtraID; }
+public void	setInExtraID(String vInExtraID ) { this.inExtraID = vInExtraID; }
+
+public int	getEndpointclass() { return this.endpointclass; }
+public void	setEndpointclass(int vEndpointclass ) { this.endpointclass = vEndpointclass; }
+
+public int	getLRQ() { return this.lrq; }
+public void	setLRQ(int vLRQ ) { this.lrq = vLRQ; }
+
+public int	getAuthMode() { return this.authmode; }
+public void	setAuthMode(int vAuthMode ) { this.authmode = vAuthMode; }
+
+public int	getSigOptions() { return this.sigOptions; }
+public void	setSigOptions(int SigOptions ) { this.sigOptions = SigOptions; }
+
+public String	getPassword() { return this.password; }
+public void	setPassword(String vPassword ) { this.password = vPassword; }
+
+public String	getRASAddress() { return this.rasAddress; }
+public void	setRASAddress(String vRASAddress ) { this.rasAddress = vRASAddress; }
+
+public int	getRASPort() { return this.rasPort; }
+public void	setRASPort(int vRASPort ) { this.rasPort = vRASPort; }
+
+public String	getSignalAddress() { return this.signaladdress; }
+public void	setSignalAddress(String vSignalAddress ) { this.signaladdress = vSignalAddress; }
+
+public int	getSignalPort() { return this.signalport; }
+public void	setSignalPort(int vSignalPort ) { if(vSignalPort == 0) vSignalPort = 5060;  this.signalport = vSignalPort; }
+
+public int	getOutCheckFlag() { return this.outCheckFlag; }
+public void	setOutCheckFlag(int vOutCheckFlag ) { this.outCheckFlag = vOutCheckFlag; }
+
+public String	getOutGKID() { return this.outGKID; }
+public void	setOutGKID(String vOutGKID ) { this.outGKID = vOutGKID; }
+
+public String	getOutH323ID() { return this.outH323ID; }
+public void	setOutH323ID(String vOutH323ID ) { this.outH323ID = vOutH323ID; }
+
+public int	getOptions() { return this.options; }
+public void	setOptions(int vOptions ) { this.options = vOptions; }
+
+public int	getTrace() { return this.trace; }
+public void	setTrace(int vTrace ) { this.trace = vTrace; }
+
+public String	getFromnumber() { return this.fromnumber; }
+public void	setFromnumber(String vFromnumber ) { this.fromnumber = vFromnumber; }
+
+public String	getTonumber() { return this.tonumber; }
+public void	setTonumber(String vTonumber ) { this.tonumber = vTonumber; }
+
+public int	getMessagetype() { return this.messagetype; }
+public void	setMessagetype(int vMessagetype ) { this.messagetype = vMessagetype; }
+
+public int	getChannelmonitor() { return this.channelmonitor; }
+public void	setChannelmonitor(int vChannelmonitor ) { this.channelmonitor = vChannelmonitor; }
+
+public int	getHandlerID() { return this.handlerid; }
+public void	setHandlerID(int vHandlerID ) { this.handlerid = vHandlerID; }
+
+public int	getOpenDate() { return this.openDate; }
+public void	setOpenDate(int vOpenDate ) { this.openDate = vOpenDate; }
+
+public int	getOpenReservedDate() { return this.openReservedDate; }
+public void	setOpenReservedDate(int vOpenReservedDate ) { this.openReservedDate = vOpenReservedDate; }
+
+public int	getCloseReservedDate() { return this.closeReservedDate; }
+public void	setCloseReservedDate(int vCloseReservedDate ) { this.closeReservedDate = vCloseReservedDate; }
+
+public int	getDeleteReservedDate() { return this.deleteReservedDate; }
+public void	setDeleteReservedDate(int vDeleteReservedDate ) { this.deleteReservedDate = vDeleteReservedDate; }
+
+public String toString()
+{
+        StringBuffer sb = new StringBuffer("");
+        sb.append("(endpointid:" 	+ getEndpointid() + ") ") ;
+        sb.append("[inExtraID:" 	+ getIDType() + "] ") ;
+        sb.append("[inExtraID:"    	+ getInExtraID() + "] ") ;
+        sb.append("[endpointclass:" 	+ getEndpointclass() + "] ") ;
+        sb.append("[authmode:"    	+ getAuthMode() + "] ") ;
+        sb.append("[sigOptions:"    	+ getSigOptions() + "] ") ;
+        sb.append("[password:"    	+ getPassword() + "] ") ;
+        sb.append("[rasAddress:" 	+ getRASAddress() + "] ") ;
+        sb.append("[rasPort:"    	+ getRASPort() + "] ") ;
+        sb.append("[signaladdress:" 	+ getSignalAddress() + "] ") ;
+        sb.append("[signalport:"    	+ getSignalPort() + "] ") ;
+        sb.append("[outCheckFlag:" 	+ getOutCheckFlag() + "] ") ;
+        sb.append("[outGKID:" 	        + getOutGKID() + "] ") ;
+        sb.append("[outH323ID:" 	+ getOutH323ID() + "] ") ;
+        sb.append("[options:"    	+ getOptions() + "] ") ;
+        sb.append("[trace:"             + getTrace() + "] ") ;
+        sb.append("[fromnumber:"    	+ getFromnumber() + "] ") ;
+        sb.append("[tonumber:"    	+ getTonumber() + "] ") ;
+        sb.append("[messagetype:"    	+ getMessagetype() + "] ") ;
+        sb.append("[channelmonitor:"    + getChannelmonitor() + "] ") ;
+        sb.append("[handlerid:"         + getHandlerID() + "] ") ;
+        sb.append("[openDate:"          + getOpenDate() + "] ") ;
+        sb.append("[openReservedDate:"  + getOpenReservedDate() + "] ") ;
+        sb.append("[closeReservedDate:" + getCloseReservedDate() + "] ") ;
+        sb.append("[deleteReservedDate:"+ getDeleteReservedDate() + "] ") ;
+
+
+        return sb.toString();
+    }
+}

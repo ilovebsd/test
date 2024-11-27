@@ -1,0 +1,31 @@
+package acromate.common;
+
+public class StaticString {
+	public static String ContextRoot="/bizportal";
+	
+	public static String wavPath     = "/data/acromate_home/acroms/SoundV/FileMent/kor/";
+	public static String defaultWav1 = "acromoh1.wav";
+	public static String defaultWav2 = "acromoh2.wav";
+	public static String defaultWav3 = "acromoh3.wav";
+	public static String defaultWav4 = "acromoh4.wav";
+	public static String defaultWav5 = "acromoh1.wav";
+	public static String defaultWav6 = "acromoh2.wav";
+	public static String defaultWav7 = "acromoh3.wav";
+	public static String defaultWav8 = "acromoh4.wav";
+	
+	public static String userWavPath = "/data/acromate_home/acroms/SoundV/FileMent/kor/";
+//    public static String userWavPath = "D:/work_jsp/workspace/bizportal/uploadfile";	// 사용자가 올리는 wav파일 보관
+	
+	public static String propertiesPath = "";//"/usr/local/tomcat5.5/webapps/bizportal/";		// UNIX 용
+//	public static String propertiesPath = "D:/work/bizportal/bizportal/WebContent/";		// 로컬 테스트 용
+	
+    public static int    MOH      		= 5031;
+    public static int    MRBT     		= 5011;
+    public static int    PRESENCE 		= 6045;
+    public static String RESTORESHELL	= "/data/acromate_home/acroBackup/Restore.sh ";
+    
+    public static String audioCodeIniUp		= "audiocodes/upload/";//"/usr/local/tomcat5.5/webapps/bizportal/audiocodes/upload/";		// UNIX 용
+    public static String audioCodeIniDown	= "audiocodes/down/";//"/usr/local/tomcat5.5/webapps/bizportal/audiocodes/down/";		// UNIX 용
+    //public static String audioCodeIniUp		= "D:/AudioCodes_CMP";										// 로컬 테스트 용
+    //public static String audioCodeIniDown	= "D:/AudioCodes_CMP";										// 로컬 테스트 용
+}

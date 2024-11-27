@@ -1,0 +1,28 @@
+package com.acromate.dto.office;
+
+public class DeptNumberDTO {
+
+	private int DeptID = 0;
+	private String E164 =""; 
+	private int OrderNumber = 0;
+	private String Representation ="";
+	private int Options = 0;
+	
+	public DeptNumberDTO() {}
+
+	public int getDeptID() {   return DeptID ;   }
+	public void setDeptID(int deptID) {   this.DeptID = DeptID ;  }
+	
+	public String getE164() {   return E164 ;   }
+	public void setE164(String E164) {   this.E164 = E164 ;  }
+	
+	public int getOrderNumber() {   return OrderNumber ;   }
+	public void setOrderNumber(int OrderNumber) {   this.OrderNumber = OrderNumber ;  }
+
+	public String getRepresentation() {   return Representation ;   }
+	public void setRepresentation(String Representation) {   this.Representation = Representation ;  }
+	
+	public int getOptions() {   return Options ;   }
+	public void setOptions(int Options) {   this.Options = Options;  }
+}
+

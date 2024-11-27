@@ -1,0 +1,116 @@
+package dao.system;
+
+import java.sql.ResultSet;
+import java.util.List;
+import java.util.Vector;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.system.NatZoneRouteDTO;
+import acromate.common.util.StringUtil;
+import acromate.*;
+
+public class NatZoneRouteDAO {
+
+    public NatZoneRouteDAO() {}
+    
+    public int insert(DataStatement stmt, NatZoneRouteDTO natZoneRouteDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n INSERT INTO table_trroute(InZone, OutZone, ServiceFlag, TrType, TrID) values(" ;
+            	sql = sql + "\n '" + natZoneRouteDTO.getInzone()    	+ "' , " ;            
+            	sql = sql + "\n '" + natZoneRouteDTO.getOutzone()		+ "' , " ;
+            	sql = sql + "\n  " + natZoneRouteDTO.getServiceflag()	+ "  , " ;
+            	sql = sql + "\n  " + natZoneRouteDTO.getTrtype()		+ "  , " ;
+            	sql = sql + "\n '" + natZoneRouteDTO.getTrid()  		+ "'  " ;
+            	sql = sql + ") ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+
+    public int update(DataStatement stmt, NatZoneRouteDTO natZoneRouteDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n UPDATE table_trroute Set ";
+            	sql = sql + "\n ServiceFlag =  " + natZoneRouteDTO.getServiceflag() + ",  " ;
+            	sql = sql + "\n TrID 		= '" + natZoneRouteDTO.getTrid()  		+ "'  " ;
+            	sql = sql + "\n WHERE  InZone = '" + natZoneRouteDTO.getInzone()  + "'" ; 
+            	sql = sql + "\n AND   OutZone = '" + natZoneRouteDTO.getOutzone() + "' ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult;
+    }
+  
+    public int delete(DataStatement stmt, String inzone, String outzone) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+                String sql = "\n Delete From table_trroute Where InZone = '" + inzone + "' And OutZone = '" + outzone + "' ";
+                
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1) {
+                    System.out.println("삭제 성공"); 
+                }
+                else
+                    System.out.println("삭제 실패");
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return nResult;
+    }    
+}

@@ -1,0 +1,76 @@
+package com.acromate.dto.office;
+
+public class DeptDTO {
+
+	private int DeptID ;
+	private int OrgChartID ;
+	private int ParentID ;
+       private String DeptName = "";
+	private String Description = "" ;
+	private int Type ;
+	private int UsePickup ;
+	private String KeyNumber = "" ;
+	private String Officebox = "" ;
+	private int Operation ;
+	private int Lft ;
+	private int Rgt ;
+	private int Options ;
+
+	public DeptDTO() {
+	    super() ;
+	}
+
+	public int getDeptID() {   return DeptID ;   }
+	public void setDeptID(int DeptID) {   this.DeptID = DeptID ;  }
+
+	public int getOrgChartID() {   return OrgChartID ;   }
+	public void setOrgChartID(int OrgChartID) {   this.OrgChartID = OrgChartID ;  }
+
+	public int getParentID() {   return ParentID; }
+	public void setParentID(int ParentID) {   this.ParentID = ParentID;  }
+
+    public String getDeptName() { return DeptName ; }
+    public void setDeptName(String DeptName) {   this.DeptName = DeptName ; }
+
+    public String getDescription() { return Description ; }
+    public void setDescription(String Description) {   this.Description = Description ; }
+
+	public int getType() {   return Type; }
+	public void setType(int Type) {   this.Type = Type;  }
+
+	public int getUsePickup() {   return UsePickup; }
+	public void setUsePickup(int UsePickup) {   this.UsePickup = UsePickup;  }
+
+	public String getKeyNumber() {   return KeyNumber; }
+	public void setKeyNumber( String KeyNumber ) {   this.KeyNumber = KeyNumber;  }
+
+	public String getOfficebox() {   return Officebox; }
+	public void setOfficebox(String Officebox) {   this.Officebox = Officebox;  }
+
+	public int getLft() {   return Lft; }
+	public void setLft(int Lft) {   this.Lft = Lft;  }
+
+	public int getRgt() {   return Rgt; }
+	public void setRgt(int Rgt) {   this.Rgt = Rgt;  }
+
+	public int getOptions() {   return Options; }
+	public void setOptions(int Options) {   this.Options = Options;  }
+
+        public int getOperation() {   return Operation; }
+        public void setOperation(int Operation) {   this.Operation = Operation;  }
+
+	public String toString(){ return DeptName ;}
+	public String toXmlString(String strParentDesc, String blank) {
+           String xml = blank+"    <BuddyItem " ;
+
+           xml += " parent=\""  +  strParentDesc + "\" " ;
+           xml += " description=\""  + getDeptName() + "\" " ;
+           xml += " represent=\""  +  getKeyNumber() + "\" " ;
+           xml += " officebox=\""  +  getOfficebox() + "\" " ;
+           xml += " operation=\""  +  getOperation() + "\" " ;
+           xml += "> \n" ;
+	    return xml ;
+	}
+
+}
+

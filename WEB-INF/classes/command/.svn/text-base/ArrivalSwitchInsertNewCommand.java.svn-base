@@ -1,0 +1,96 @@
+package command;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import acromate.ConnectionManager;
+import acromate.common.StaticString;
+import acromate.common.util.StringUtil;
+import business.LogHistory;
+
+import com.acromate.driver.db.DataStatement;
+import com.acromate.util.Str;
+import waf.BaseEntity;
+import waf.SessionManager;
+import webuser.ServerLogin;
+import dto.SubscriberInfoDTO;
+import dao.addition.ArrivalSwitchDAO;
+
+public class ArrivalSwitchInsertNewCommand implements Command {
+	public String execute(HttpServletRequest req, HttpServletResponse res) {
+		String 	forwardingPage 	= "";
+		boolean returnVal 		= false;
+		boolean returnVal2 		= false;
+		
+		try {			
+			String 	e164		= new String(Str.CheckNullString(req.getParameter("hiE164")).getBytes("8859_1"), "euc-kr");			// e164
+			String 	arrivalType	= new String(Str.CheckNullString(req.getParameter("hiArrivalType")).getBytes("8859_1"), "euc-kr");	// 착신제한 유형
+			String 	number1		= new String(Str.CheckNullString(req.getParameter("hiTxtNumber1")).getBytes("8859_1"), "euc-kr");	// 착신전환 지정번호
+			
+			String 	chkForward0	= new String(Str.CheckNullString(req.getParameter("hiChkForward_0")).getBytes("8859_1"), "euc-kr");	// 조건부 착신전환 유형
+			String 	number2		= new String(Str.CheckNullString(req.getParameter("hiTxtNumber2")).getBytes("8859_1"), "euc-kr");	// 착신전환 지정번호
+			String 	toTime1		= new String(Str.CheckNullString(req.getParameter("hitoTime1")).getBytes("8859_1"), "euc-kr");		// 시간대별 구분1
+			String 	toTime2		= new String(Str.CheckNullString(req.getParameter("hitoTime2")).getBytes("8859_1"), "euc-kr");		// 시간대별 시작 시간
+			String 	toTime3		= new String(Str.CheckNullString(req.getParameter("hitoTime3")).getBytes("8859_1"), "euc-kr");		// 시간대별 시작 시간
+			String 	fromTime1	= new String(Str.CheckNullString(req.getParameter("hifromTime1")).getBytes("8859_1"), "euc-kr");	// 대기시간
+			String 	fromTime2	= new String(Str.CheckNullString(req.getParameter("hifromTime2")).getBytes("8859_1"), "euc-kr");	// 대기시간
+			String 	fromTime3	= new String(Str.CheckNullString(req.getParameter("hifromTime3")).getBytes("8859_1"), "euc-kr");	// 대기시간
+			
+			String 	chkForward1	= new String(Str.CheckNullString(req.getParameter("hiChkForward_1")).getBytes("8859_1"), "euc-kr");	// 조건부 착신전환 유형
+			String 	number3		= new String(Str.CheckNullString(req.getParameter("hiTxtNumber3")).getBytes("8859_1"), "euc-kr");	// 착신전환 지정번호
+			String 	waitTime	= new String(Str.CheckNullString(req.getParameter("hiwaitTime")).getBytes("8859_1"), "euc-kr");		// 대기시간
+			
+			String 	chkForward2	= new String(Str.CheckNullString(req.getParameter("hiChkForward_2")).getBytes("8859_1"), "euc-kr");	// 조건부 착신전환 유형
+			String 	number4		= new String(Str.CheckNullString(req.getParameter("hiTxtNumber4")).getBytes("8859_1"), "euc-kr");	// 착신전환 지정번호
+						
+			String 	chkForward3	= new String(Str.CheckNullString(req.getParameter("hiChkForward_3")).getBytes("8859_1"), "euc-kr");	// 조건부 착신전환 유형
+			String 	number5		= new String(Str.CheckNullString(req.getParameter("hiTxtNumber5")).getBytes("8859_1"), "euc-kr");	// 착신전환 지정번호
+			
+			String 	toTime		= "";
+			String 	fromTime	= "";
+			
+			String 	userID		= new String(req.getParameter("hiUserID").getBytes("8859_1"), "euc-kr");		// 로그인 ID
+			
+			if(fromTime1.equals("1")){
+				toTime = fromTime2 + fromTime3;
+			}else{
+				toTime = (Integer.parseInt(fromTime2)+12) + fromTime3;
+			}
+			if(toTime1.equals("1")){
+				fromTime = toTime2 + toTime3;
+			}else{
+				fromTime = (Integer.parseInt(toTime2)+12) + toTime3;
+			}
+
+			ArrivalSwitchDAO dao 	= new ArrivalSwitchDAO();
+
+			returnVal = dao.e164Update(e164, arrivalType, number1);
+			
+			if(arrivalType.equals("2")){
+				returnVal2 = dao.forwardUpdate(e164, chkForward0, number2, toTime, fromTime, chkForward1, number3, waitTime, chkForward2, number4, chkForward3, number5);
+			}
+			
+			if (returnVal) {
+				// ############### LogHistory 처리  ###############
+				String		strIp		= req.getRemoteAddr();
+				LogHistory	logHistory 	= new LogHistory();
+				int int_result = logHistory.LogHistorySave(userID+"|83|착신전환("+e164+"번)|3|"+strIp);
+				// ##############################################
+				
+				System.out.println("착신전환 E164 수정 성공 .......");
+				res.sendRedirect("/bizportal/useconfig/addServiceArrivalList.jsp");
+			}else{
+				System.out.println("착신전환 E164 수정 실패 .......");
+			}			
+		
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		} finally {
+			
+			
+		}
+		return forwardingPage;
+	}
+}

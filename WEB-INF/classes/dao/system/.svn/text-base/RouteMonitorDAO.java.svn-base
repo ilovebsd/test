@@ -1,0 +1,130 @@
+package dao.system;
+
+import java.sql.ResultSet;
+import java.util.List;
+import java.util.Vector;
+import acromate.common.util.WebUtil;
+import com.acromate.driver.db.DataStatement;
+import dto.system.RouteMonitorDTO;
+import dto.system.SIPRegServerDTO;
+import acromate.common.util.StringUtil;
+import acromate.*;
+
+public class RouteMonitorDAO {
+
+    public RouteMonitorDAO() {}
+    
+    public int insert(DataStatement stmt, RouteMonitorDTO routeMonitorDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n INSERT INTO table_routemonitor(endpointid, protocol, checkmode, ";
+            	sql = sql +  "\n              fromnumber, tonumber, messagetype, subtype, subid) ";
+            	sql = sql +  "\n                 	values (" ;
+            	sql = sql + "'" + routeMonitorDTO.getEndpointid()   + "', " ;            
+            	sql = sql + " " + routeMonitorDTO.getProtocol()  	+ " , " ;
+            	sql = sql + " " + routeMonitorDTO.getCheckmode()    + " , " ; 
+            	sql = sql + "'" + routeMonitorDTO.getFromnumber()  	+ "', " ; 
+            	sql = sql + "'" + routeMonitorDTO.getTonumber()     + "', " ;
+            	sql = sql + " " + routeMonitorDTO.getMessagetype()  + " , " ; 
+            	sql = sql + " " + routeMonitorDTO.getSubtype()      + " , " ; 
+            	sql = sql + "'" + routeMonitorDTO.getSubid() 		+ "' " ;
+            	sql = sql + ") ";
+                System.out.println("insert 1 --->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+    	        if (nResult < 1){
+    	        	throw new Exception(l.x("[루트모니터 관리] '","[Phone ID Error] '") +routeMonitorDTO.getEndpointid()+ l.x("' 루트 ID 등록이 실패하였습니다.","' Phone ID Insertion failed."));	
+    	        }
+    	        
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult ;
+    }
+
+    public int update(DataStatement stmt, RouteMonitorDTO routeMonitorDTO) {
+
+        ResultSet rs = null;
+        int nResult = 0;
+
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	stmt.stxTransaction();            	
+            	
+                String sql = "\n UPDATE table_routemonitor Set ";
+            	sql = sql + "\n subid 		= '" + routeMonitorDTO.getSubid()  		+ "', " ;
+            	sql = sql + "\n checkmode 	=  " + routeMonitorDTO.getCheckmode()   + " , " ; 
+            	sql = sql + "\n messagetype =  " + routeMonitorDTO.getMessagetype() + " , " ; 
+            	sql = sql + "\n fromnumber 	= '" + routeMonitorDTO.getFromnumber()  + "', " ;
+            	sql = sql + "\n tonumber 	= '" + routeMonitorDTO.getTonumber()    + "'  " ; 
+            	sql = sql + "\n WHERE endpointid = '" + routeMonitorDTO.getEndpointid() + "' ";
+            	sql = sql + "\n   And checkmode  =  " + routeMonitorDTO.getCheckmode()  + "  ";
+                System.out.println("insert--->"+sql);
+                                        
+                nResult = stmt.executeUpdate(sql);
+                if (nResult >= 1)
+                    System.out.println("입력 성공");
+                else
+                    System.out.println("입력 실패");
+                
+                // Transaction 종료
+                stmt.endTransaction(true);			// commit 처리
+                // ======================================================================
+                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	stmt.endTransaction(false);		// rollback 처리
+        	
+        	e.printStackTrace();
+        }
+        
+        return nResult ;
+    }
+
+    public int delete(DataStatement stmt, String endpointid, int checkmode) {
+    	ResultSet rs = null;
+        int nResult = 0;
+        try {            
+            if (stmt != null) {
+            	// Transaction 시작
+            	//stmt.stxTransaction();            	
+
+            	/***** table_routemonitor 삭제 ********/
+            	String sql = "Delete From table_routemonitor Where endpointid = '" + endpointid + "' And checkmode = "+checkmode+" ";                
+                nResult = stmt.executeUpdate(sql);
+                //System.out.println("SQL 루트모니터 삭제 : "+sql);
+                
+                // Transaction 종료
+                //stmt.endTransaction(true);			// commit 처리                
+            } else
+                System.out.println("데이터베이스에 연결할 수 없습니다.");
+        } catch (Exception e) {
+        	// Transaction  Rollback 처리
+        	//stmt.endTransaction(false);		// rollback 처리
+        	
+            e.printStackTrace();
+        }        
+        return nResult ;
+    }
+     
+}

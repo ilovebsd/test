@@ -1,0 +1,87 @@
+package bizportal.nasacti.record;
+
+import java.util.*;
+
+import java.sql.*;
+
+import bizportal.nasacti.record.FtpConfigBean;
+
+
+import bizportal.nasacti.ipivr.DBPoolConnector;
+
+public class FtpConfigClass extends DBPoolConnector{
+	public FtpConfigClass(){
+	}
+
+	public Vector FtpSelect(){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Vector vList = new Vector();		
+		try{
+			con=this.getConnection();
+
+			String query = "Select * From ncr_backupftp";
+			pstmt = con.prepareStatement(query);
+			pstmt.clearParameters();
+			rs = pstmt.executeQuery();
+
+			while(rs.next()){
+				FtpConfigBean ftpBean = new FtpConfigBean();
+
+				ftpBean.setFtpHost(rs.getString("ftp_host"));
+				ftpBean.setFtpWebHost(rs.getString("ftp_web_host"));
+				ftpBean.setFtpUser(rs.getString("ftp_user"));
+				ftpBean.setFtpPassword(rs.getString("ftp_password"));
+				ftpBean.setFtpPort(rs.getInt("ftp_port"));
+				ftpBean.setFtpRemotepath(rs.getString("ftp_remote_path"));
+				ftpBean.setFtpPasv(rs.getInt("ftp_pasv"));
+				
+				vList.add(ftpBean);
+
+			}
+		}catch (Exception ex){
+			System.out.println("Exception" + ex);
+		}finally{
+			if(rs != null) try{rs.close(); } catch(SQLException se) { se.printStackTrace();}
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+		return vList;
+	}
+
+	
+	public void FtpUpdate(FtpConfigBean FtpBean){
+		Connection con = null;
+		PreparedStatement pstmt = null;
+
+		try{
+			con=this.getConnection();
+			String query = "Update ncr_backupftp Set ";
+			query = query + " ftp_host = ? , ";
+			query = query + " ftp_web_host = ? , ";
+			query = query + " ftp_user = ? , ";
+			query = query + " ftp_password = ? , ";
+			query = query + " ftp_port = ? , ";
+			query = query + " ftp_remote_path = ? ";
+			pstmt = con.prepareStatement(query);
+			pstmt.setString(1, FtpBean.getFtpHost() );
+			pstmt.setString(2, FtpBean.getFtpWebHost() );
+			pstmt.setString(3, FtpBean.getFtpUser() );
+			pstmt.setString(4, FtpBean.getFtpPassword() );
+			pstmt.setInt(5, FtpBean.getFtpPort() );
+			pstmt.setString(6, FtpBean.getFtpRemotepath() );
+			pstmt.executeUpdate();
+
+		}catch(Exception ex){
+			System.out.println("Exception" + ex);		
+		}finally{
+			if(pstmt != null) try{ pstmt.close(); } catch(SQLException se) {se.printStackTrace();}
+			if(con != null) try{ con.close(); } catch(SQLException se) {se.printStackTrace();}
+		}
+	}
+
+}
+
+
+
